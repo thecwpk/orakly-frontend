@@ -1,0 +1,62 @@
+{
+  "$schema": "https://turborepo.dev/schema.json",
+  "ui": "tui",
+  "globalEnv": [
+    "NODE_ENV",
+    "DATABASE_URL",
+    "CRON_SECRET",
+    "ADMIN_SESSION_SECRET",
+    "ADMIN_API_TOKEN",
+    "COINMARKETCAP_API_KEY",
+    "DEXTOOLS_API_KEY",
+    "REALTIME_INGEST_URL",
+    "REALTIME_INGEST_SECRET",
+    "TRADING_DEBUG_USER_ID",
+    "PLATFORM_LIQUIDITY_USER_ID",
+    "NEXT_PUBLIC_REALTIME_URL",
+    "NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID",
+    "NEXT_PUBLIC_CHAIN_MARKET_TRADE_ADDRESS",
+    "NEXT_PUBLIC_TBNB_RPC_URL",
+    "WALLET_SESSION_SECRET",
+    "CHAIN_INDEXER_ENABLED",
+    "CHAIN_INDEXER_RPC_URL",
+    "CHAIN_INDEXER_CONTRACT_ADDRESSES",
+    "CHAIN_INDEXER_CHAIN_ID",
+    "CHAIN_INDEXER_CONFIRMATIONS",
+    "CHAIN_INDEXER_MAX_BLOCKS_PER_RUN",
+    "CHAIN_INDEXER_CANONICAL_RETENTION",
+    "CHAIN_INDEXER_BOOTSTRAP_BELOW_TIP",
+    "WALLET_ONCHAIN_RPC_URL",
+    "WALLET_ONCHAIN_CHAIN_ID",
+    "WALLET_ONCHAIN_TOKENS",
+    "WALLET_ONCHAIN_NATIVE_SYMBOL",
+    "WALLET_ONCHAIN_NATIVE_DECIMALS",
+    "WALLET_ONCHAIN_MIN_SYNC_INTERVAL_MS",
+    "WALLET_ONCHAIN_CRON_ENABLED",
+    "WALLET_ONCHAIN_CRON_BATCH_SIZE",
+    "WALLET_ONCHAIN_CRON_STALE_MS",
+    "NEWSAPI_KEY",
+    "NEWSAPI_ORG_KEY",
+    "VERCEL_REVALIDATE_SECRET",
+    "VERCEL_CRON_INGEST_ENABLED",
+    "VERCEL_CRON_TRENDING_ENABLED",
+    "INTERNAL_APP_URL"
+  ],
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build"],
+      "inputs": ["$TURBO_DEFAULT$", ".env*"],
+      "outputs": [".next/**", "!.next/cache/**", "dist/**"]
+    },
+    "lint": {
+      "dependsOn": ["^lint"]
+    },
+    "check-types": {
+      "dependsOn": ["^check-types"]
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true
+    }
+  }
+}

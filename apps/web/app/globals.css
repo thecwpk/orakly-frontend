@@ -1,0 +1,936 @@
+@import "tailwindcss";
+@config "../tailwind.config.ts";
+
+@import "@rainbow-me/rainbowkit/styles.css";
+
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+/**
+ * Global resets MUST live in `@layer base` so Tailwind `@layer utilities`
+ * (e.g. `p-4`, `mt-6`, `gap-3`) can override them. A bare `* { padding:0 }`
+ * rule sits *above* layered utilities in the cascade and will silently defeat
+ * spacing classes across the app (featured hub card was a symptom).
+ */
+@layer base {
+  html,
+  body {
+    max-width: 100vw;
+    overflow-x: hidden;
+  }
+
+  * {
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+}
+
+.imgDark {
+  display: none;
+}
+
+@media (prefers-color-scheme: dark) {
+  html {
+    color-scheme: dark;
+  }
+
+  .imgLight {
+    display: none;
+  }
+  .imgDark {
+    display: unset;
+  }
+}
+
+@theme inline {
+  --breakpoint-3xl: 120rem;
+  --breakpoint-4xl: 160rem;
+  --font-heading: var(--font-sans);
+  --font-sans: var(--font-sans);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  /** Semantic page canvas — space-separated H in `:root` / `.dark`; resolves via `hsl(...)`. */
+  --color-foreground: hsl(var(--foreground));
+  --color-background: hsl(var(--background));
+  --color-yes: var(--yes);
+  --color-no: var(--no);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+
+  /**
+   * Spacing rhythm — entire product (see `Container`, `Stack`, pages).
+   * **Tight (4–8px):** labels, chips, compact controls → `r4`, `r8`
+   * **Groups (16–24px):** cards in a row, toolbar clusters, page gutters → `r16`–`r24`
+   * **Sections (40–72px):** major vertical breaks, page chrome → `s40`–`s72`
+   */
+  --spacing-r4: 0.25rem;
+  --spacing-r8: 0.5rem;
+  --spacing-r16: 1rem;
+  --spacing-r20: 1.25rem;
+  --spacing-r24: 1.5rem;
+  --spacing-s40: 2.5rem;
+  --spacing-s48: 3rem;
+  --spacing-s56: 3.5rem;
+  --spacing-s64: 4rem;
+  --spacing-s72: 4.5rem;
+}
+
+:root {
+  /* Shell — primary chrome row height (matches marketing nav `h-14`) + ticker row. */
+  --app-topbar-row-h: 3.5rem;
+  --app-topbar-ticker-h: 1.375rem;
+  --app-topbar-h: calc(var(--app-topbar-row-h) + var(--app-topbar-ticker-h));
+  --app-chrome: rgba(8, 8, 11, 0.94);
+  --app-ticker-band: rgba(0, 0, 0, 0.5);
+  --app-border-subtle: rgba(255, 255, 255, 0.065);
+  --app-panel: rgba(255, 255, 255, 0.025);
+  /**
+   * Horizontal inset for all trading-shell pages (`AppShell` / `MinimalMarketShell` `<main>`).
+   * Keeps content off the viewport edge; respects safe-area on notched phones.
+   */
+  --app-page-gutter-x: 1.25rem;
+  /** Default vertical rhythm between major on-page bands (section separation). */
+  --app-section-gap-y: 1.75rem;
+
+  --card: oklch(0.992 0.007 258);
+  --card-foreground: oklch(0.2 0.035 265);
+  --popover: oklch(0.992 0.007 258);
+  --popover-foreground: oklch(0.2 0.035 265);
+  /** Saturated blue — CTAs, links, radial accents (light). */
+  --primary: oklch(0.52 0.22 264);
+  --primary-foreground: oklch(0.99 0 0);
+  --secondary: oklch(0.945 0.012 258);
+  --secondary-foreground: oklch(0.26 0.035 265);
+  --muted: oklch(0.935 0.014 258);
+  --muted-foreground: oklch(0.46 0.028 265);
+  --accent: oklch(0.3 0.03 240);
+  --accent-foreground: oklch(0.96 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.55 0.05 265 / 0.2);
+  --input: oklch(0.55 0.05 265 / 0.26);
+  --ring: oklch(0.52 0.22 264);
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+  --radius: 0.625rem;
+  --sidebar: oklch(0.22 0.02 260);
+  --sidebar-foreground: oklch(0.96 0 0);
+  --sidebar-primary: oklch(0.72 0.15 215);
+  --sidebar-primary-foreground: oklch(0.13 0 0);
+  --sidebar-accent: oklch(0.3 0.03 240);
+  --sidebar-accent-foreground: oklch(0.96 0 0);
+  --sidebar-border: oklch(1 0 0 / 12%);
+  --sidebar-ring: oklch(0.72 0.15 215);
+  /** Cleared by fixed trade desk on phones — room above bottom dock (`lg+`: 0). */
+  --mobile-trade-desk-clearance: min(42vh, 312px);
+  /** Default desktop — overridden below `lg` where the bottom dock shows. */
+  --app-mobile-dock-h: 0px;
+  /** Brand YES — sparklines, live chips, positive ticks (light). */
+  --yes: #059669;
+  /** Brand NO — downside / NO lane (light). */
+  --no: #e11d48;
+  /** Supporting accents — use sparingly (glows, secondary highlights). */
+  --accent-violet: #7c3aed;
+  --accent-orange-2: #60a5fa;
+  --glow-yes-soft: color-mix(in srgb, var(--yes) 26%, transparent);
+  --glow-primary-soft: color-mix(in srgb, var(--primary) 24%, transparent);
+  /**
+   * Page canvas — single source for `bg-background`, shells, and raw CSS fills.
+   * Light / dark numeric hues requested by design system.
+   */
+  --background: 220 14% 96%;
+  /** Resolved fill alias (`background-color: var(--mb-page)`). */
+  --mb-page: hsl(var(--background));
+  --app-canvas: var(--mb-page);
+  /** Paired body text for light canvas (required once `--background` is light). */
+  --foreground: 222 47% 11%;
+}
+
+@media (min-width: 640px) {
+  :root {
+    --app-page-gutter-x: 1.375rem;
+    --app-section-gap-y: 2rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --mobile-trade-desk-clearance: 0px;
+    --app-page-gutter-x: 1.5rem;
+    --app-section-gap-y: 2.25rem;
+  }
+}
+
+/** Bottom dock clearance — matches `MobileBottomNav` (`lg:hidden`). */
+@media (max-width: 1023px) {
+  :root {
+    --app-mobile-dock-h: calc(3.35rem + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+/** Phones: reclaim vertical space — full tape stays from `md` upward. */
+@media (max-width: 767px) {
+  :root {
+    --app-topbar-ticker-h: 0px;
+  }
+}
+
+/** Hub home — taller navbar row + market-chip ticker row. */
+.hub-shell-density {
+  --app-topbar-row-h: 3.5rem;
+  --app-topbar-ticker-h: 2.125rem;
+  --app-topbar-h: calc(var(--app-topbar-row-h) + var(--app-topbar-ticker-h));
+}
+
+@media (max-width: 767px) {
+  .hub-shell-density {
+    --app-topbar-ticker-h: 0px;
+    --app-topbar-h: var(--app-topbar-row-h);
+  }
+}
+
+.dark {
+  --background: 228 22% 6%;
+  --mb-page: hsl(var(--background));
+  --app-canvas: var(--mb-page);
+  --foreground: 210 40% 98%;
+  --card: oklch(0.212 0.024 265);
+  --card-foreground: oklch(0.985 0.005 260);
+  --popover: oklch(0.212 0.024 265);
+  --popover-foreground: oklch(0.985 0.005 260);
+  /** Near-white fills on dark — primary CTAs read as luminous rails. */
+  --primary: oklch(0.985 0.003 260);
+  --primary-foreground: oklch(0.165 0.045 268);
+  --secondary: oklch(0.265 0.022 265);
+  --secondary-foreground: oklch(0.985 0.005 260);
+  --muted: oklch(0.245 0.022 265);
+  --muted-foreground: oklch(0.72 0.018 265);
+  --accent: oklch(0.3 0.03 240);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 0.12);
+  --input: oklch(1 0 0 / 0.16);
+  --ring: oklch(0.985 0.003 260);
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.556 0 0);
+  --yes: #3ecf8e;
+  --no: #fb7185;
+  --accent-violet: #a78bfa;
+  --accent-orange-2: #93c5fd;
+  --glow-yes-soft: color-mix(in srgb, var(--yes) 30%, transparent);
+  --glow-primary-soft: color-mix(in srgb, var(--primary) 26%, transparent);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans;
+    background-color: var(--mb-page);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
+  }
+}
+
+@layer utilities {
+  .bg-app-canvas {
+    background-color: var(--app-canvas);
+  }
+  .bg-app-chrome {
+    background-color: var(--app-chrome);
+  }
+  .bg-app-ticker-band {
+    background-color: var(--app-ticker-band);
+  }
+  .border-app-subtle {
+    border-color: var(--app-border-subtle);
+  }
+  /**
+   * Optional legacy utilities — prefer `appMainPageInsetStyle` / `appStickyToolbarBleedStyle`
+   * from `page-layout.ts` (inline styles on `<main>` / sticky rows).
+   */
+  .px-app-page {
+    padding-left: max(var(--app-page-gutter-x), env(safe-area-inset-left, 0px));
+    padding-right: max(var(--app-page-gutter-x), env(safe-area-inset-right, 0px));
+  }
+  .-mx-app-page {
+    margin-left: calc(-1 * max(var(--app-page-gutter-x), env(safe-area-inset-left, 0px)));
+    margin-right: calc(-1 * max(var(--app-page-gutter-x), env(safe-area-inset-right, 0px)));
+  }
+  .space-y-app-section > * + * {
+    margin-top: var(--app-section-gap-y);
+  }
+  /** Raised panel — prediction venue tiles, dense strips (no glass morphism). */
+  .surface-terminal {
+    border-width: 1px;
+    border-style: solid;
+    border-color: var(--app-border-subtle);
+    background-color: var(--app-panel);
+  }
+
+  /**
+   * Trading slab — one hairline border, near-opaque fill (Linear / Stripe discipline).
+   * Avoid stacked `ring` + heavy shadow; reads intentional, not “AI dashboard chrome”.
+   */
+  .surface-terminal-solid {
+    border-width: 1px;
+    border-style: solid;
+    border-color: var(--app-border-subtle);
+    background-color: rgb(10 10 14 / 0.94);
+  }
+
+  /** Uppercase data labels — Polymarket / HL terminal rhythm */
+  .label-terminal {
+    font-size: 0.5625rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgb(113 113 122);
+  }
+
+  .dark .label-terminal {
+    color: rgb(131 131 139);
+  }
+
+  /** Top chrome — hairline only (Dexscreener-style). Prefer over tinted bloom + inset glow. */
+  .chrome-edge-subtle {
+    box-shadow: 0 1px 0 rgb(255 255 255 / 0.045);
+  }
+
+  /** Optional legacy accent wash — use sparingly on marketing only */
+  .chrome-edge-accent {
+    box-shadow:
+      0 1px 0 rgba(103, 232, 249, 0.065),
+      0 12px 40px -28px rgba(103, 232, 249, 0.045),
+      inset 0 -1px 0 rgba(167, 139, 250, 0.035);
+  }
+
+  /**
+   * Orakly marketing landing — semantic tokens (`bg-background`, `text-foreground`, …)
+   * plus `--yes` accents. Gradients use `var(--*)` + `color-mix` (not random hex).
+   */
+  .marketing-hero-shell {
+    position: relative;
+    overflow: hidden;
+    background-color: var(--mb-page);
+    background-image:
+      radial-gradient(
+        ellipse 100% 75% at 0% 0%,
+        color-mix(in srgb, var(--yes) 15%, transparent) 0%,
+        transparent 58%
+      ),
+      radial-gradient(
+        ellipse 95% 70% at 100% 0%,
+        color-mix(in srgb, var(--primary) 18%, transparent) 0%,
+        transparent 52%
+      ),
+      linear-gradient(
+        180deg,
+        var(--card) 0%,
+        var(--card) 52%,
+        color-mix(in srgb, var(--muted) 22%, transparent) 100%
+      );
+  }
+  .marketing-hero-shell::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image:
+      linear-gradient(rgb(255 255 255 / 0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgb(255 255 255 / 0.04) 1px, transparent 1px);
+    background-size: 54px 54px;
+    mask-image: linear-gradient(to bottom, rgb(0 0 0) 0%, rgb(0 0 0 / 0.65) 55%, transparent 100%);
+  }
+  .marketing-hero-orb-left {
+    position: absolute;
+    width: min(52vw, 420px);
+    height: min(52vw, 420px);
+    left: -12%;
+    top: 8%;
+    border-radius: 50%;
+    background: radial-gradient(
+      circle at 40% 40%,
+      color-mix(in srgb, var(--yes) 22%, transparent) 0%,
+      transparent 68%
+    );
+    pointer-events: none;
+    filter: blur(2px);
+  }
+  .marketing-hero-orb-right {
+    position: absolute;
+    width: min(48vw, 380px);
+    height: min(48vw, 380px);
+    right: -10%;
+    top: 0%;
+    border-radius: 50%;
+    background: radial-gradient(
+      circle at 55% 45%,
+      color-mix(in srgb, var(--primary) 18%, transparent) 0%,
+      transparent 70%
+    );
+    pointer-events: none;
+    filter: blur(2px);
+  }
+  .marketing-section-slab {
+    position: relative;
+    background-color: var(--mb-page);
+    color: hsl(var(--foreground));
+  }
+  .marketing-section-slab::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image:
+      linear-gradient(rgb(255 255 255 / 0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgb(255 255 255 / 0.04) 1px, transparent 1px);
+    background-size: 44px 44px;
+    opacity: 0.85;
+    mask-image: linear-gradient(to bottom, rgb(0 0 0 / 0.25) 0%, rgb(0 0 0) 22%, rgb(0 0 0) 100%);
+  }
+  /** Sticky marketing chrome — bg tint + blur aligned with glass recipe. */
+  .marketing-header-shell {
+    background-color: hsl(var(--background) / 0.82);
+    backdrop-filter: blur(18px);
+    border-bottom-color: hsl(var(--foreground) / 0.09);
+  }
+  @supports (backdrop-filter: blur(18px)) {
+    .marketing-header-shell {
+      background-color: hsl(var(--background) / 0.66);
+    }
+  }
+  .marketing-how-card {
+    position: relative;
+    border-radius: 1rem;
+    border: 1px solid hsl(var(--foreground) / 0.1);
+    background: linear-gradient(165deg, rgb(19 24 40 / 0.96) 0%, rgb(13 18 32 / 0.94) 100%);
+    transition:
+      border-color 0.2s ease,
+      box-shadow 0.2s ease;
+  }
+  .marketing-how-card:hover {
+    border-color: color-mix(in srgb, var(--yes) 25%, rgb(255 255 255 / 0.1));
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--yes) 12%, transparent);
+  }
+  .marketing-cta-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9999px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--primary-foreground);
+    background-image: linear-gradient(
+      to bottom,
+      var(--primary),
+      color-mix(in srgb, var(--primary) 75%, black)
+    );
+    transition:
+      filter 0.15s ease,
+      box-shadow 0.2s ease;
+  }
+  .marketing-cta-primary:hover {
+    filter: brightness(1.06);
+  }
+  .marketing-cta-flat {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9999px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--primary-foreground);
+    background-color: var(--primary);
+    transition: filter 0.15s ease;
+  }
+  .marketing-cta-flat:hover {
+    filter: brightness(1.05);
+  }
+  .marketing-cycle-panel {
+    position: relative;
+    background:
+      linear-gradient(
+        158deg,
+        color-mix(in srgb, var(--primary) 14%, var(--muted)) 0%,
+        transparent 62%
+      ),
+      linear-gradient(180deg, color-mix(in srgb, var(--card) 88%, var(--background)) 0%, var(--card) 100%);
+  }
+  @keyframes marketing-hw-spin-glow {
+    0%,
+    100% {
+      box-shadow:
+        0 -14px 40px -10px color-mix(in srgb, var(--yes) 32%, transparent),
+        0 0 0 0 transparent;
+    }
+    50% {
+      box-shadow:
+        0 -18px 52px -8px color-mix(in srgb, var(--primary) 26%, transparent),
+        0 0 48px -14px color-mix(in srgb, var(--yes) 14%, transparent);
+    }
+  }
+  .marketing-cycle-panel--glow {
+    animation: marketing-hw-spin-glow 7s ease-in-out infinite;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .marketing-cycle-panel--glow {
+      animation: none;
+      box-shadow: 0 -12px 36px -12px color-mix(in srgb, var(--yes) 22%, transparent);
+    }
+  }
+  .marketing-chart-shimmer {
+    position: relative;
+    overflow: hidden;
+  }
+  .marketing-chart-shimmer::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      105deg,
+      transparent 38%,
+      color-mix(in srgb, var(--yes) 14%, transparent) 50%,
+      transparent 62%
+    );
+    animation: marketing-chart-shimmer-slide 2.6s ease-in-out infinite;
+    pointer-events: none;
+  }
+  @keyframes marketing-chart-shimmer-slide {
+    0% {
+      transform: translateX(-55%);
+    }
+    100% {
+      transform: translateX(55%);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .marketing-chart-shimmer::after {
+      animation: none;
+      opacity: 0;
+    }
+  }
+
+  /** Thin scrollbar for dense discovery tables (Dexscreener-style). */
+  .scrollbar-terminal {
+    scrollbar-width: thin;
+    scrollbar-color: rgb(255 255 255 / 12%) transparent;
+  }
+  .scrollbar-terminal::-webkit-scrollbar {
+    height: 6px;
+    width: 6px;
+  }
+  .scrollbar-terminal::-webkit-scrollbar-thumb {
+    border-radius: 9999px;
+    background: rgb(255 255 255 / 14%);
+  }
+  .scrollbar-terminal::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  @keyframes nav-ticker-marquee {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
+  .nav-ticker-track {
+    animation: nav-ticker-marquee 44s linear infinite;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .nav-ticker-track {
+      animation: none;
+    }
+  }
+
+  .glass-panel {
+    border-width: 1px;
+    border-style: solid;
+    border-color: hsl(var(--foreground) / 0.1);
+    background-color: hsl(var(--background) / 0.33);
+    box-shadow: inset 0 0 0 1px hsl(var(--foreground) / 0.05);
+    backdrop-filter: blur(26px);
+  }
+  .glass-panel-strong {
+    border-width: 1px;
+    border-style: solid;
+    border-color: hsl(var(--foreground) / 0.12);
+    background-color: hsl(var(--background) / 0.38);
+    box-shadow:
+      0 10px 36px -10px rgb(0 0 0 / 0.55),
+      inset 0 1px 0 hsl(var(--foreground) / 0.06);
+    backdrop-filter: blur(42px);
+  }
+  .neon-edge-cyan {
+    box-shadow:
+      0 0 0 1px rgba(34, 211, 238, 0.15),
+      0 0 24px -8px rgba(34, 211, 238, 0.35);
+  }
+  .neon-edge-violet {
+    box-shadow:
+      0 0 0 1px rgba(167, 139, 250, 0.12),
+      0 0 28px -10px rgba(139, 92, 246, 0.35);
+  }
+  .neon-edge-rose {
+    box-shadow:
+      0 0 0 1px rgba(251, 113, 133, 0.12),
+      0 0 24px -8px rgba(244, 63, 94, 0.28);
+  }
+  .text-gradient-neon {
+    background-image: linear-gradient(
+      90deg,
+      rgb(103 232 249),
+      rgb(110 231 183),
+      rgb(167 139 250)
+    );
+    background-clip: text;
+    color: transparent;
+  }
+  .skeleton-shimmer {
+    position: relative;
+    overflow: hidden;
+    background-color: rgb(255 255 255 / 6%);
+  }
+  .skeleton-shimmer::after {
+    content: "";
+    pointer-events: none;
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    animation: landing-shimmer 1.8s ease-in-out infinite;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgb(255 255 255 / 10%),
+      transparent
+    );
+  }
+}
+
+@keyframes landing-shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.orakly-range {
+  appearance: none;
+  -webkit-appearance: none;
+  height: 6px;
+  border-radius: 9999px;
+  background: linear-gradient(
+    to right,
+    rgba(34, 211, 238, 0.85),
+    rgba(110, 231, 183, 0.85) calc(var(--orakly-range-pct, 50%)),
+    rgba(167, 139, 250, 0.55) calc(var(--orakly-range-pct, 50%)),
+    rgba(255, 255, 255, 0.08)
+  );
+  outline: none;
+  cursor: pointer;
+}
+
+.orakly-range::-webkit-slider-thumb {
+  appearance: none;
+  -webkit-appearance: none;
+  height: 18px;
+  width: 18px;
+  border-radius: 9999px;
+  background: linear-gradient(135deg, #67e8f9, #a78bfa);
+  border: 2px solid rgba(255, 255, 255, 0.85);
+  box-shadow:
+    0 0 0 1px rgba(34, 211, 238, 0.45),
+    0 4px 18px -4px rgba(34, 211, 238, 0.55);
+  transition: transform 0.15s ease;
+}
+.orakly-range::-webkit-slider-thumb:hover {
+  transform: scale(1.06);
+}
+.orakly-range:active::-webkit-slider-thumb {
+  transform: scale(0.96);
+}
+.orakly-range::-moz-range-thumb {
+  height: 18px;
+  width: 18px;
+  border-radius: 9999px;
+  background: linear-gradient(135deg, #67e8f9, #a78bfa);
+  border: 2px solid rgba(255, 255, 255, 0.85);
+  box-shadow:
+    0 0 0 1px rgba(34, 211, 238, 0.45),
+    0 4px 18px -4px rgba(34, 211, 238, 0.55);
+  transition: transform 0.15s ease;
+}
+.orakly-range:focus-visible {
+  box-shadow:
+    0 0 0 2px rgba(34, 211, 238, 0.4),
+    0 0 0 4px rgba(34, 211, 238, 0.12);
+}
+
+/* Animated mesh gradient — used by the landing CTA banner. Three blurred
+   conic gradients drift at offset phases for a calm aurora effect. Honors
+   prefers-reduced-motion (static fallback). */
+.aurora-mesh {
+  position: absolute;
+  inset: -20%;
+  filter: blur(80px) saturate(140%);
+  opacity: 0.85;
+  pointer-events: none;
+}
+.aurora-mesh::before,
+.aurora-mesh::after,
+.aurora-mesh > span {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  mix-blend-mode: screen;
+}
+.aurora-mesh::before {
+  background: radial-gradient(
+    closest-side,
+    color-mix(in srgb, var(--primary) 52%, transparent),
+    transparent 70%
+  );
+  animation: aurora-drift-a 14s ease-in-out infinite alternate;
+}
+.aurora-mesh::after {
+  background: radial-gradient(
+    closest-side,
+    color-mix(in srgb, var(--accent-violet) 48%, transparent),
+    transparent 70%
+  );
+  animation: aurora-drift-b 18s ease-in-out infinite alternate;
+}
+.aurora-mesh > span {
+  background: radial-gradient(
+    closest-side,
+    color-mix(in srgb, var(--yes) 42%, transparent),
+    transparent 70%
+  );
+  animation: aurora-drift-c 22s ease-in-out infinite alternate;
+}
+
+@keyframes aurora-drift-a {
+  0% {
+    transform: translate3d(-12%, -8%, 0) scale(0.9);
+  }
+  50% {
+    transform: translate3d(12%, 6%, 0) scale(1.05);
+  }
+  100% {
+    transform: translate3d(-4%, 14%, 0) scale(0.95);
+  }
+}
+@keyframes aurora-drift-b {
+  0% {
+    transform: translate3d(14%, 10%, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(-10%, -6%, 0) scale(1.1);
+  }
+  100% {
+    transform: translate3d(4%, -14%, 0) scale(0.9);
+  }
+}
+@keyframes aurora-drift-c {
+  0% {
+    transform: translate3d(-6%, 14%, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(10%, -10%, 0) scale(0.95);
+  }
+  100% {
+    transform: translate3d(-12%, 4%, 0) scale(1.08);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .aurora-mesh::before,
+  .aurora-mesh::after,
+  .aurora-mesh > span {
+    animation: none !important;
+  }
+}
+
+/* Rotating border ring — used by hero badge / CTA accent. */
+.gradient-ring {
+  position: relative;
+  isolation: isolate;
+}
+.gradient-ring::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: conic-gradient(
+    from var(--ring-angle, 0deg),
+    color-mix(in srgb, var(--primary) 72%, transparent),
+    color-mix(in srgb, var(--yes) 72%, transparent),
+    color-mix(in srgb, var(--accent-violet) 55%, transparent),
+    color-mix(in srgb, var(--primary) 72%, transparent)
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  animation: gradient-ring-spin 6s linear infinite;
+  pointer-events: none;
+}
+@property --ring-angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+@keyframes gradient-ring-spin {
+  to {
+    --ring-angle: 360deg;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .gradient-ring::before {
+    animation: none !important;
+  }
+}
+
+/* Pointer-tracked hover glow — paired with `<HoverGlow>` and `useMouseGlow()`.
+   The .hover-glow__layer paints a radial-gradient that follows the cursor
+   via two CSS custom properties (`--mx`, `--my`) updated directly in JS
+   pointer handlers. Pure compositor work: no React renders during movement,
+   no layout invalidation, no GPU upload thrashing. */
+.hover-glow {
+  --mx: 50%;
+  --my: 50%;
+  --glow-opacity: 0;
+  --glow-color: color-mix(in srgb, var(--primary) 32%, transparent);
+  --glow-radius: 240px;
+}
+.hover-glow__layer {
+  background: radial-gradient(
+    var(--glow-radius) circle at var(--mx) var(--my),
+    var(--glow-color),
+    transparent 60%
+  );
+  opacity: var(--glow-opacity);
+  transition: opacity 180ms ease-out;
+  /* Hint compositor without reserving a layer permanently: we set
+     `will-change` only on hover via :hover variant below. */
+}
+.hover-glow:hover .hover-glow__layer {
+  will-change: opacity;
+}
+@media (prefers-reduced-motion: reduce) {
+  .hover-glow__layer {
+    background: radial-gradient(
+      closest-side,
+      var(--glow-color),
+      transparent 70%
+    );
+    transition: none;
+  }
+}
+
+/* Realtime cell flash keyframes — used by `<LiveFlash>` and any custom
+   value-change cue. Animates only `opacity` so paint cost stays trivial
+   even when 30+ cells flash in a single trade-tape burst. */
+@keyframes orakly-flash-pulse {
+  0% { opacity: 0; }
+  18% { opacity: 1; }
+  100% { opacity: 0; }
+}
+.live-flash {
+  animation: orakly-flash-pulse var(--flash-duration, 600ms) ease-out forwards;
+}
+@media (prefers-reduced-motion: reduce) {
+  .live-flash {
+    animation: none;
+  }
+}
+
+/* Global route / first-fetch progress — thin bar fixed to top of viewport
+   (Polymarket-style cue that navigation or data load is in progress). */
+@keyframes app-nav-progress-sweep {
+  0% {
+    transform: translate3d(-100%, 0, 0);
+  }
+  100% {
+    transform: translate3d(280%, 0, 0);
+  }
+}
+.app-nav-progress-animate {
+  animation: app-nav-progress-sweep 1.05s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  will-change: transform;
+}
+@media (prefers-reduced-motion: reduce) {
+  .app-nav-progress-animate {
+    animation: none;
+    left: 0;
+    right: auto;
+    width: min(72%, 420px);
+    transform: none;
+    opacity: 0.95;
+  }
+}

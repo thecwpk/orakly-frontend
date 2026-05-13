@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 40" fill="none" role="img" aria-label="Orakly">
+  <text x="4" y="28" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="22" font-weight="700" fill="#e4e4e7">ORAKLY</text>
+  <rect x="118" y="10" width="58" height="18" rx="4" stroke="#22d3ee" stroke-width="1.5" fill="rgba(34,211,238,0.12)"/>
+  <text x="126" y="24" font-family="ui-monospace, monospace" font-size="9" font-weight="600" fill="#67e8f9">MARKET</text>
+</svg>

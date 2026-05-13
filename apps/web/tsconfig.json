@@ -1,0 +1,44 @@
+{
+  "extends": "@repo/typescript-config/nextjs.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/src/*": ["./src/*"],
+      "@/features/*": ["./src/features/*"],
+      "@/entities/*": ["./src/entities/*"],
+      "@/widgets/*": ["./src/widgets/*"],
+      "@/shared/*": ["./src/shared/*"],
+      "@/services/*": ["./src/services/*"],
+      "@/api/*": ["./src/api/*"],
+      "@/server/*": ["./src/server/*"],
+      "@/hooks/*": ["./src/hooks/*"],
+      "@/state": ["./src/state"],
+      "@/state/*": ["./src/state/*"],
+      "@/ui/*": ["./src/ui/*"],
+      "@/app/*": ["./src/app/*"],
+      "@/providers": ["./src/providers"],
+      "@/providers/*": ["./src/providers/*"],
+      "@/store/*": ["./src/store/*"],
+      "@/lib/*": ["./src/lib/*"],
+      "@/types/*": ["./src/types/*"],
+      "@/websocket/*": ["./src/websocket/*"],
+      "@/cache/*": ["./src/cache/*"],
+      "@/utils/*": ["./src/utils/*"],
+      "@/*": ["./*"]
+    },
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "strictNullChecks": true
+  },
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    "next-env.d.ts",
+    "next.config.mjs",
+    ".next/types/**/*.ts"
+  ],
+  "exclude": ["node_modules"]
+}

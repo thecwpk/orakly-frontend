@@ -1,0 +1,71 @@
+const BASE = "/api/v1/admin";
+
+/** Shared with `AuthBridge` so operator session stays one React Query cache entry. */
+export const adminMeQueryKey = ["admin", "me"] as const;
+
+export class AdminApiError extends Error {
+  constructor(
+    message: string,
+    public status?: number,
+  ) {
+    super(message);
+  }
+}
+
+export async function adminApi<T>(
+  path: string,
+  init?: RequestInit & { json?: unknown },
+): Promise<T> {
+  const headers = new Headers(init?.headers);
+  let body: BodyInit | undefined = init?.body as BodyInit | undefined;
+  if (init?.json !== undefined) {
+    headers.set("Content-Type", "application/json");
+    body = JSON.stringify(init.json);
+  }
+
+  const fetchInit: RequestInit = init ? { ...init } : {};
+  delete (fetchInit as RequestInit & { json?: unknown }).json;
+
+  const res = await fetch(`${BASE}${path}`, {
+    credentials: "include",
+    ...fetchInit,
+    headers,
+    body,
+  });
+
+  const payload = (await res.json()) as {
+    ok: boolean;
+    data?: T;
+    error?: { message?: string };
+  };
+
+  if (!payload.ok) {
+    throw new AdminApiError(payload.error?.message ?? "Request failed", res.status);
+  }
+  return payload.data as T;
+}
+
+export async function adminLogin(apiToken: string, actorUserId: string) {
+  return adminApi<{ expiresInSec: number }>("/session", {
+    method: "POST",
+    headers: { "x-admin-api-token": apiToken },
+    json: { actorUserId },
+  });
+}
+
+export async function adminLogout() {
+  return adminApi<{ signedOut: boolean }>("/session", { method: "DELETE" });
+}
+
+export type AdminMe = {
+  userId: string;
+  adminId: string;
+  role: string;
+  email: string | null;
+  displayName: string | null;
+  permissions: string[];
+};
+
+export async function fetchAdminMe() {
+  return adminApi<AdminMe>("/me");
+}
