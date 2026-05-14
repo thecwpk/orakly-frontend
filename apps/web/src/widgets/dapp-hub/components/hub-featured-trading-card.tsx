@@ -65,7 +65,7 @@ function HubMarketThumb({
   return (
     <div
       className={cn(
-        "flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-white/[0.08] text-[12px] font-semibold tracking-tight text-zinc-200 ring-1 ring-white/[0.06] sm:h-10 sm:w-10",
+        "flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-muted/70 text-[12px] font-semibold tracking-tight text-foreground ring-1 ring-border sm:h-10 sm:w-10",
         className,
       )}
       aria-hidden
@@ -104,7 +104,7 @@ function HubSpotlightShareButton({ slug }: { slug: string }) {
       onClick={onShare}
       aria-label="Share market"
       title="Share market"
-      className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-zinc-500 transition hover:bg-white/[0.06] hover:text-zinc-200"
+      className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-muted-foreground transition hover:bg-muted/50 hover:text-foreground"
     >
       {copied ? (
         <Check className="h-4 w-4 stroke-[2] text-yes" aria-hidden />
@@ -117,11 +117,11 @@ function HubSpotlightShareButton({ slug }: { slug: string }) {
 
 function InlineProbabilityMove({ deltaPct }: { deltaPct: number | null }) {
   if (deltaPct === null) {
-    return <span className="text-[13px] font-semibold tabular-nums text-zinc-600">—</span>;
+    return <span className="text-[13px] font-semibold tabular-nums text-muted-foreground">—</span>;
   }
   const up = deltaPct > 0;
   const flat = deltaPct === 0;
-  const tone = flat ? "text-zinc-500" : up ? "text-emerald-400" : "text-rose-400";
+  const tone = flat ? "text-muted-foreground" : up ? "text-yes" : "text-no";
   const arrow = flat ? "" : up ? "▲" : "▼";
   const label = flat ? "0%" : `${up ? "+" : ""}${deltaPct}%`;
 
@@ -137,7 +137,16 @@ function InlineProbabilityMove({ deltaPct }: { deltaPct: number | null }) {
  * Polymarket-style hero: full-width header (thumb · title · actions), then left ≈45% (chance · trade · wire)
  * and right ≈55% (chart aligned to that block). Footer rail below.
  */
-export function HubFeaturedTradingCard({ market, isLive }: { market: Market; isLive: boolean }) {
+export function HubFeaturedTradingCard({
+  market,
+  isLive,
+  queueMerged = false,
+}: {
+  market: Market;
+  isLive: boolean;
+  /** When true, card is stacked above spotlight queue — flat bottom, no outer radius. */
+  queueMerged?: boolean;
+}) {
   const probability = market.probability ?? 0.5;
   const yesPct = Math.round(probability * 100);
 
@@ -172,7 +181,10 @@ export function HubFeaturedTradingCard({ market, isLive }: { market: Market; isL
   return (
     <article
       data-hub-featured-card
-      className="flex min-w-0 max-w-full flex-col overflow-hidden rounded-xl border border-white/[0.06] bg-card"
+      className={cn(
+        "flex min-w-0 max-w-full flex-col overflow-hidden rounded-xl border border-border bg-card shadow-sm",
+        queueMerged && "rounded-none border-0 border-b border-border/80 bg-transparent shadow-none ring-0",
+      )}
     >
       {/*
         Layout: full-width header (thumb · title · share/star), then 45/55 grid so the chart only spans
@@ -184,22 +196,22 @@ export function HubFeaturedTradingCard({ market, isLive }: { market: Market; isL
           <HubMarketThumb category={market.category} title={market.title} />
           <div className="min-w-0 flex-1 pt-0.5">
             <div className="mb-0.5 flex flex-wrap items-center gap-x-1.5 gap-y-0.5">
-              <span className="font-mono text-[9.5px] font-medium uppercase tracking-[0.12em] text-zinc-500">
+              <span className="font-mono text-[9.5px] font-medium uppercase tracking-[0.12em] text-muted-foreground">
                 {market.category}
               </span>
               {isLive ? (
                 <>
-                  <span className="text-zinc-700" aria-hidden>
+                  <span className="text-muted-foreground/45" aria-hidden>
                     ·
                   </span>
-                  <span className="font-mono text-[9.5px] font-semibold uppercase tracking-wide text-emerald-400/90">
+                  <span className="font-mono text-[9.5px] font-semibold uppercase tracking-wide text-yes">
                     Live
                   </span>
                 </>
               ) : null}
             </div>
             <PrefetchLink href={ROUTES.market(market.slug)} className="group/t block min-w-0">
-              <h3 className="max-w-[min(100%,32rem)] text-pretty text-[15px] font-semibold leading-snug tracking-tight text-zinc-50 transition sm:text-[16px] group-hover/t:text-white">
+              <h3 className="max-w-[min(100%,32rem)] text-pretty text-[15px] font-semibold leading-snug tracking-tight text-foreground transition sm:text-[16px] group-hover/t:text-primary">
                 {market.title}
               </h3>
             </PrefetchLink>
@@ -211,7 +223,7 @@ export function HubFeaturedTradingCard({ market, isLive }: { market: Market; isL
         </header>
 
         {/* Row 2 — desk + chart (reference ~45 / ~55) */}
-        <div className="grid min-h-0 min-w-0 grid-cols-1 gap-5 lg:grid-cols-[minmax(0,45%)_minmax(0,55%)] lg:items-stretch lg:gap-5">
+        <div className="grid min-h-0 min-w-0 grid-cols-1 gap-5 lg:grid-cols-[minmax(0,43%)_minmax(0,57%)] lg:items-stretch lg:gap-5">
           <div role="region" aria-label="Market summary" className="box-border flex min-h-0 min-w-0 flex-col">
             <section className="mb-3 min-w-0" aria-label="Current probability">
               <div className="flex min-w-0 flex-wrap items-end justify-between gap-2">
@@ -222,7 +234,7 @@ export function HubFeaturedTradingCard({ market, isLive }: { market: Market; isL
                   >
                     {yesPct}%
                   </span>
-                  <span className="pb-0.5 text-[11.5px] font-medium leading-none text-zinc-500 sm:text-[12px]">
+                  <span className="pb-0.5 text-[11.5px] font-medium leading-none text-muted-foreground sm:text-[12px]">
                     chance
                   </span>
                 </div>
@@ -242,8 +254,8 @@ export function HubFeaturedTradingCard({ market, isLive }: { market: Market; isL
                       : "Open market — YES side"
                   }
                   className={cn(
-                    "flex h-9 min-h-9 items-center justify-center rounded-lg px-2.5 text-[13px] font-semibold text-white transition-all",
-                    "bg-emerald-600 hover:bg-emerald-500",
+                    "flex h-9 min-h-9 items-center justify-center rounded-lg px-2.5 text-[13px] font-semibold text-white shadow-sm transition-all",
+                    "bg-yes hover:brightness-110",
                     tradingLocked && "opacity-80 hover:opacity-100",
                   )}
                 >
@@ -257,8 +269,8 @@ export function HubFeaturedTradingCard({ market, isLive }: { market: Market; isL
                       : "Open market — NO side"
                   }
                   className={cn(
-                    "flex h-9 min-h-9 items-center justify-center rounded-lg px-2.5 text-[13px] font-semibold text-white transition-all",
-                    "bg-rose-800 hover:bg-rose-700",
+                    "flex h-9 min-h-9 items-center justify-center rounded-lg px-2.5 text-[13px] font-semibold text-white shadow-sm transition-all",
+                    "bg-no hover:brightness-110",
                     tradingLocked && "opacity-80 hover:opacity-100",
                   )}
                 >
@@ -266,7 +278,7 @@ export function HubFeaturedTradingCard({ market, isLive }: { market: Market; isL
                 </PrefetchLink>
               </div>
               {tradingLocked ? (
-                <p className="mt-1.5 text-center font-mono text-[9.5px] uppercase tracking-wide text-zinc-600">
+                <p className="mt-1.5 text-center font-mono text-[9.5px] uppercase tracking-wide text-muted-foreground">
                   Opens market page · trading {market.status.toLowerCase()}
                 </p>
               ) : null}
@@ -278,20 +290,20 @@ export function HubFeaturedTradingCard({ market, isLive }: { market: Market; isL
                   <li key={`${row.source}-${idx}`}>
                     <PrefetchLink
                       href={ROUTES.market(market.slug)}
-                      className="group flex gap-2 rounded-md py-1.5 pl-0.5 pr-1 transition-colors hover:bg-white/[0.03]"
+                      className="group flex gap-2 rounded-md py-1.5 pl-0.5 pr-1 transition-colors hover:bg-muted/40"
                     >
                       <div
-                        className="mt-0.5 h-5 w-5 shrink-0 rounded-sm bg-white/[0.06] ring-1 ring-white/[0.06]"
+                        className="mt-0.5 h-5 w-5 shrink-0 rounded-sm bg-muted/60 ring-1 ring-border"
                         aria-hidden
                       />
                       <div className="min-w-0 flex-1">
                         <div className="flex min-w-0 items-baseline justify-between gap-2">
-                          <p className="truncate font-mono text-[9px] font-medium uppercase tracking-wide text-zinc-500">
+                          <p className="truncate font-mono text-[9px] font-medium uppercase tracking-wide text-muted-foreground">
                             {row.source}
                           </p>
-                          <p className="shrink-0 font-mono text-[9px] tabular-nums text-zinc-600">{row.ago}</p>
+                          <p className="shrink-0 font-mono text-[9px] tabular-nums text-muted-foreground/90">{row.ago}</p>
                         </div>
-                        <p className="mt-0.5 line-clamp-2 text-[11.5px] font-medium leading-snug text-zinc-100 group-hover:text-white">
+                        <p className="mt-0.5 line-clamp-2 text-[11.5px] font-medium leading-snug text-foreground/95 group-hover:text-foreground">
                           {row.headline}
                         </p>
                       </div>
@@ -304,18 +316,18 @@ export function HubFeaturedTradingCard({ market, isLive }: { market: Market; isL
 
           <div
             ref={chartRef}
-            className="relative flex min-h-[200px] min-w-0 flex-1 flex-col justify-center bg-transparent lg:min-h-0"
+            className="relative flex min-h-[200px] min-w-0 flex-1 flex-col justify-center bg-transparent lg:min-h-0 lg:items-end"
             role="region"
             aria-label="Probability chart"
           >
-            <div className="relative mx-auto h-full min-h-[180px] w-full max-w-full lg:min-h-0">
+            <div className="relative ml-auto h-full min-h-[180px] w-full max-w-full pl-1 lg:min-h-0 lg:pl-2">
               <HubSpotlightTradingChart
                 variant="flush"
                 data={sparkData}
                 width={chartPxW}
                 height={chartPxH}
                 ariaLabel={`${market.title} probability`}
-                className="mx-auto block max-h-full max-w-full"
+                className="ml-auto block max-h-full max-w-full"
               />
               <HubChartTapeOverlay seed={market.slug} />
             </div>
@@ -323,29 +335,29 @@ export function HubFeaturedTradingCard({ market, isLive }: { market: Market; isL
         </div>
       </div>
 
-      <footer className="border-t border-white/[0.08] bg-gradient-to-b from-zinc-950/90 via-black/55 to-black/70 px-4 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] sm:px-5 sm:py-3.5 lg:px-5">
+      <footer className="border-t border-border bg-gradient-to-b from-card via-card/90 to-muted/15 px-4 py-3 sm:px-5 sm:py-3.5 lg:px-5">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
           <div className="flex flex-wrap items-center gap-3">
             <div className="flex flex-col gap-0.5">
-              <span className="text-[9px] font-medium uppercase tracking-[0.14em] text-zinc-600">Volume</span>
-              <span className="rounded-lg border border-white/[0.09] bg-white/[0.05] px-2.5 py-1 font-mono text-[12px] font-semibold tabular-nums tracking-tight text-zinc-100 ring-1 ring-white/[0.03]">
+              <span className="text-[9px] font-medium uppercase tracking-[0.14em] text-muted-foreground">Volume</span>
+              <span className="rounded-lg border border-border bg-muted/35 px-2.5 py-1 font-mono text-[12px] font-semibold tabular-nums tracking-tight text-foreground ring-1 ring-border/50">
                 {fmtUsdShort(market.volumeUsd)}
               </span>
             </div>
           </div>
           <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-2 sm:justify-end">
-            <span className="font-mono text-[11px] tabular-nums text-zinc-400">
-              Ends <span className="text-zinc-200">{fmtEndsLong(market.closesAt)}</span>
+            <span className="font-mono text-[11px] tabular-nums text-muted-foreground">
+              Ends <span className="text-foreground">{fmtEndsLong(market.closesAt)}</span>
             </span>
-            <span className="hidden h-4 w-px bg-white/[0.1] sm:block" aria-hidden />
+            <span className="hidden h-4 w-px bg-border sm:block" aria-hidden />
             <PrefetchLink
               href={ROUTES.market(market.slug)}
-              className="inline-flex items-center gap-1.5 rounded-md border border-white/[0.08] bg-white/[0.04] px-2.5 py-1.5 font-mono text-[10px] font-semibold uppercase tracking-[0.12em] text-zinc-300 transition hover:border-white/[0.14] hover:bg-white/[0.07] hover:text-white"
+              className="inline-flex items-center gap-1.5 rounded-md border border-border bg-muted/25 px-2.5 py-1.5 font-mono text-[10px] font-semibold uppercase tracking-[0.12em] text-foreground/90 transition hover:border-yes/35 hover:bg-yes/8 hover:text-foreground"
             >
               Full book
               <ArrowUpRight className="h-3.5 w-3.5 opacity-80" aria-hidden />
             </PrefetchLink>
-            <span className="font-mono text-[9px] uppercase tracking-[0.16em] text-zinc-600">Orakly</span>
+            <span className="font-mono text-[9px] uppercase tracking-[0.16em] text-muted-foreground">Orakly</span>
           </div>
         </div>
       </footer>

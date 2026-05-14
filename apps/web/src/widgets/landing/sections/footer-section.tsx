@@ -2,7 +2,7 @@ import Link from "next/link";
 import { ROUTES } from "@/shared/constants/routes";
 
 const LINKS = [
-  { label: "Hub", href: ROUTES.home },
+  { label: "Hub", href: ROUTES.marketsTrending },
   { label: "Markets", href: ROUTES.marketsBrowse },
   { label: "Portfolio", href: ROUTES.portfolio },
   { label: "Wallet", href: ROUTES.wallet },

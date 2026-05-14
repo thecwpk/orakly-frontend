@@ -20,7 +20,66 @@ export type VolumeWindow = {
   imbalance: number;
 };
 
-const HOUR_MS = 3_600_000;
+export const VOLUME_WINDOW_HOUR_MS = 3_600_000;
+
+/** Row shape returned by `/api/v1/markets/by-slug/.../volume-window` + client merge. */
+export type VolumeChartRow = {
+  at: number;
+  label: string;
+  buy: number;
+  sell: number;
+  cumulative: number;
+};
+
+/**
+ * Overlay websocket trades onto server bucket rows without rebuilding the window
+ * (avoids client-side `Date.now()` churn).
+ */
+export function mergeTradesIntoVolumeRows(
+  rows: ReadonlyArray<VolumeChartRow>,
+  trades: ReadonlyArray<{
+    side: "BUY" | "SELL";
+    notionalUsd: string;
+    at: number;
+  }>,
+): VolumeChartRow[] {
+  if (trades.length === 0) return rows.map((r) => ({ ...r }));
+  const next: VolumeChartRow[] = rows.map((r) => ({ ...r }));
+  for (const t of trades) {
+    const slot = next.findIndex(
+      (r) => t.at >= r.at && t.at < r.at + VOLUME_WINDOW_HOUR_MS,
+    );
+    if (slot < 0) continue;
+    const n = Number.parseFloat(t.notionalUsd);
+    if (!Number.isFinite(n)) continue;
+    const row = next[slot]!;
+    if (t.side === "BUY") row.buy += Math.round(n);
+    else row.sell += Math.round(n);
+  }
+  let cumulative = 0;
+  for (const row of next) {
+    cumulative += row.buy + row.sell;
+    row.cumulative = cumulative;
+  }
+  return next;
+}
+
+export function summarizeVolumeChartRows(rows: ReadonlyArray<VolumeChartRow>): {
+  totalUsd: number;
+  buyUsd: number;
+  sellUsd: number;
+  imbalance: number;
+} {
+  let buyUsd = 0;
+  let sellUsd = 0;
+  for (const r of rows) {
+    buyUsd += r.buy;
+    sellUsd += r.sell;
+  }
+  const totalUsd = buyUsd + sellUsd;
+  const imbalance = totalUsd > 0 ? (buyUsd - sellUsd) / totalUsd : 0;
+  return { totalUsd, buyUsd, sellUsd, imbalance };
+}
 
 /**
  * Build a deterministic 24h-by-hour volume window seeded by slug + total
@@ -37,12 +96,18 @@ export function buildVolumeWindow(args: {
     at: number;
   }>;
   hours?: number;
+  /**
+   * Bucket boundaries use wall-clock time; must stay stable across React renders.
+   * Passing fresh `Date.now()` each render interacts badly with Recharts layout + state updates.
+   */
+  nowMs?: number;
 }): VolumeWindow {
-  const { slug, totalVolumeUsd, trades, hours = 24 } = args;
+  const { slug, totalVolumeUsd, trades, hours = 24, nowMs = Date.now() } = args;
   const seed = hashSlug(slug);
-  const now = Date.now();
+  const now = nowMs;
   const slotStart = (i: number) =>
-    Math.floor((now - (hours - 1 - i) * HOUR_MS) / HOUR_MS) * HOUR_MS;
+    Math.floor((now - (hours - 1 - i) * VOLUME_WINDOW_HOUR_MS) / VOLUME_WINDOW_HOUR_MS) *
+    VOLUME_WINDOW_HOUR_MS;
 
   // Seed each hour with a deterministic synthetic volume that sums to ~v24.
   const v24 = Math.max(1, totalVolumeUsd * 0.08);
@@ -72,7 +137,7 @@ export function buildVolumeWindow(args: {
     // Layer real trades that fall into this hour's slot.
     const slot = slotStart(i);
     for (const t of trades) {
-      if (t.at >= slot && t.at < slot + HOUR_MS) {
+      if (t.at >= slot && t.at < slot + VOLUME_WINDOW_HOUR_MS) {
         const n = Number.parseFloat(t.notionalUsd);
         if (!Number.isFinite(n)) continue;
         if (t.side === "BUY") buy += n;

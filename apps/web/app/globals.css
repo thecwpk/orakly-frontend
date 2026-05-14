@@ -54,6 +54,8 @@
   --breakpoint-3xl: 120rem;
   --breakpoint-4xl: 160rem;
   --font-heading: var(--font-sans);
+  /** Landing marketing display — alias of heading stack. */
+  --font-display: var(--font-heading);
   --font-sans: var(--font-sans);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
@@ -184,6 +186,15 @@
   /** Resolved fill alias (`background-color: var(--mb-page)`). */
   --mb-page: hsl(var(--background));
   --app-canvas: var(--mb-page);
+  /** Hub / meme-bet landing token aliases (raw CSS + `.mb-root`). */
+  --mb-border: var(--border);
+  --mb-surface: var(--card);
+  --mb-fg: hsl(var(--foreground));
+  --mb-muted: var(--muted-foreground);
+  --mb-accent: var(--primary);
+  --mb-accent-fg: var(--primary-foreground);
+  --mb-yes: var(--yes);
+  --mb-no: var(--no);
   /** Paired body text for light canvas (required once `--background` is light). */
   --foreground: 222 47% 11%;
 }
@@ -217,26 +228,48 @@
   }
 }
 
-/** Hub home — taller navbar row + market-chip ticker row. */
+/** Hub home — markets ticker lives in `DappHubPage` (`.mb-ticker`), not under navbar. */
 .hub-shell-density {
   --app-topbar-row-h: 3.5rem;
-  --app-topbar-ticker-h: 2.125rem;
-  --app-topbar-h: calc(var(--app-topbar-row-h) + var(--app-topbar-ticker-h));
+  --app-topbar-ticker-h: 0px;
+  --app-topbar-h: var(--app-topbar-row-h);
+  /** Hub: pull content in — less empty band vs default shell. */
+  --app-page-gutter-x: 0.625rem;
 }
 
-@media (max-width: 767px) {
+@media (min-width: 640px) {
   .hub-shell-density {
-    --app-topbar-ticker-h: 0px;
-    --app-topbar-h: var(--app-topbar-row-h);
+    --app-page-gutter-x: 0.75rem;
   }
 }
 
+@media (min-width: 1024px) {
+  .hub-shell-density {
+    --app-page-gutter-x: 0.875rem;
+  }
+}
+
+/**
+ * Hub route canvas — not flat #000; layered cool radial + still reads as “dark venue”.
+ */
+.hub-app-canvas {
+  background-color: hsl(var(--background));
+}
+
+.dark .hub-app-canvas {
+  background-image:
+    radial-gradient(ellipse 125% 80% at 50% -18%, hsl(232 42% 24% / 0.42), transparent 58%),
+    radial-gradient(ellipse 55% 50% at 96% 8%, hsl(278 36% 20% / 0.2), transparent 52%),
+    radial-gradient(ellipse 50% 45% at 4% 20%, hsl(198 40% 18% / 0.14), transparent 48%);
+}
+
 .dark {
-  --background: 228 22% 6%;
+  /** Was ~6% L — felt pure black; lift + chroma for less “void”, better card separation. */
+  --background: 228 21% 10.5%;
   --mb-page: hsl(var(--background));
   --app-canvas: var(--mb-page);
   --foreground: 210 40% 98%;
-  --card: oklch(0.212 0.024 265);
+  --card: oklch(0.238 0.03 265);
   --card-foreground: oklch(0.985 0.005 260);
   --popover: oklch(0.212 0.024 265);
   --popover-foreground: oklch(0.985 0.005 260);
@@ -294,6 +327,27 @@
 }
 
 @layer utilities {
+  @keyframes hero-fade-up {
+    from {
+      opacity: 0;
+      transform: translate3d(0, 10px, 0);
+    }
+    to {
+      opacity: 1;
+      transform: translate3d(0, 0, 0);
+    }
+  }
+  .animate-hero-fade-up {
+    animation: hero-fade-up 0.55s ease-out both;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .animate-hero-fade-up {
+      animation: none;
+      opacity: 1;
+      transform: none;
+    }
+  }
+
   .bg-app-canvas {
     background-color: var(--app-canvas);
   }
@@ -933,4 +987,31 @@
     transform: none;
     opacity: 0.95;
   }
+}
+
+/**
+ * Orakly Market `/landing` — premium trading surface tokens (scoped).
+ * Components use `bg-[var(--bg-1)]`, `text-[var(--text-primary)]`, etc.
+ */
+.orakly-market-landing {
+  --bg-0: #07090d;
+  --bg-1: #0b0f16;
+  --bg-2: #0e141e;
+  --bg-3: #121a27;
+  --accent-strong: #18e3a7;
+  --accent-soft: #1bbf90;
+  --accent-dim: #0e6f57;
+  --text-primary: #e8ecf3;
+  --text-secondary: #a8b0c2;
+  --text-muted: #6f7a8f;
+  --border-soft: rgba(255, 255, 255, 0.06);
+  --border-strong: rgba(24, 227, 167, 0.35);
+  --space-0: 0;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
 }

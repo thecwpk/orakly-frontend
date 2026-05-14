@@ -17,7 +17,7 @@ import { useNavShortcuts } from "../lib/use-nav-shortcuts";
 
 /** Light-colored mark for dark chrome; dark-colored mark for light chrome. */
 const BRAND_LOGO_DARK_BG = "/brand/orakly-mark-light.svg";
-const BRAND_LOGO_LIGHT_BG = "/brand/orakly-mark-dark.svg";
+const BRAND_LOGO_LIGHT_BG = "/brand/orakly-mark-dark.PNG";
 
 /** Legacy PNG fallback if SVG missing. */
 const BRAND_LOGO_PNG_FALLBACK = "/orakly-market-logo.png";
@@ -144,10 +144,12 @@ export function AppTopbar({ density = "default" }: { density?: AppTopbarDensity 
         </div>
       </div>
 
-      {/* Under-nav ticker: hub gets market chips, default gets activity tape. */}
-      <div className="hidden md:block">
-        <NavTrendingTicker compact={hub} mode={hub ? "markets" : "activity"} />
-      </div>
+      {/* Under-nav activity tape — hub markets ticker lives on `DappHubPage` (`.mb-ticker`). */}
+      {!hub ? (
+        <div className="hidden md:block">
+          <NavTrendingTicker mode="activity" />
+        </div>
+      ) : null}
     </header>
   );
 }

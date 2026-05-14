@@ -128,8 +128,6 @@ function MarketDetailsBody({ slug }: { slug: string }) {
             <div className="grid gap-r16 lg:grid-cols-[minmax(0,1.15fr)_minmax(260px,0.85fr)]">
               <MarketVolumeChart
                 slug={market.slug}
-                marketId={tradeMarketId}
-                totalVolumeUsd={market.volumeUsd}
                 rt={rt}
                 className="rounded-lg border border-white/[0.06] bg-[#07070d]/95 shadow-none ring-1 ring-white/[0.05] [box-shadow:none]"
               />

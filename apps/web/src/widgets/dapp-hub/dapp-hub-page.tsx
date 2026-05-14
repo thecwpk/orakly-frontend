@@ -8,15 +8,18 @@ import { cn } from "@/lib/utils";
 import { useMarketsFeedQuery, useMarketsFeedScopedQuery } from "@/shared/api/hooks";
 import { usePrefetchMarketsFeed } from "@/shared/api/prefetch";
 import { ROUTES } from "@/shared/constants/routes";
+import { appStickyToolbarBleedStyle } from "@/shared/constants/page-layout";
 import { useLiveMarketStatus } from "@/widgets/trending-prediction-markets/lib/use-live-market-status";
 import { useLiveActivityFeed } from "@/websocket/hooks/useLiveActivityFeed";
 import { HubFeaturedTradingCard } from "./components/hub-featured-trading-card";
+import { HubHomeMarketTicker } from "./components/hub-home-market-ticker";
 import { HubMarketsBrowseBlock } from "./components/hub-markets-browse-block";
 import { HubBreakingHotTopicsStack } from "./components/hub-breaking-hot-topics-stack";
 import { HubSpotlightCarouselNav } from "./components/hub-spotlight-desk";
 import { pickCrossLaneHotMarkets } from "./lib/hub-cross-lane-hot-topics";
 import { mergeHubSpotlightMarkets } from "./lib/merge-hub-spotlight-markets";
 import { uniqMarkets } from "./lib/uniq-markets";
+import "./dapp-hub-home.css";
 
 const panel = "surface-terminal rounded-md shadow-none";
 
@@ -50,15 +53,15 @@ function TerminalBand({
   const sparse = lines.length === 0;
   const rows = lines.length ? lines.slice(0, 52) : [emptyHint];
   return (
-    <div className="flex min-h-0 flex-1 flex-col border-app-subtle">
-      <div className="flex shrink-0 items-center gap-2 border-b border-white/[0.08] bg-black/45 px-2 py-1">
-        <span className="font-mono text-[8px] font-semibold uppercase tracking-[0.12em] text-zinc-400">{kicker}</span>
+    <div className="flex min-h-0 flex-1 flex-col border-border">
+      <div className="flex shrink-0 items-center gap-2 border-b border-border bg-muted/30 px-2 py-1.5">
+        <span className="font-mono text-[9px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">{kicker}</span>
       </div>
-      <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain font-mono text-[10px] leading-relaxed">
+      <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain font-mono text-[11px] leading-relaxed">
         {rows.map((line, i) => (
-          <div key={`${kicker}-${i}`} className="border-b border-white/[0.04] px-2 py-1.5 last:border-b-0 hover:bg-white/[0.03]">
-            <span className="select-none text-emerald-600/80">› </span>
-            <span className={cn(sparse ? "text-zinc-400" : "text-zinc-300")}>{line}</span>
+          <div key={`${kicker}-${i}`} className="border-b border-border/60 px-2 py-1.5 last:border-b-0 hover:bg-muted/25">
+            <span className="select-none text-yes/80">› </span>
+            <span className={cn(sparse ? "text-muted-foreground" : "text-foreground/90")}>{line}</span>
           </div>
         ))}
       </div>
@@ -76,7 +79,7 @@ function TerminalLiveBands({
   ledgerLines: string[];
 }) {
   return (
-    <div className={cn(panel, "flex h-[248px] max-h-[252px] flex-col divide-y divide-white/[0.08] overflow-hidden rounded-md ring-1 ring-white/[0.08] bg-black/20")}>
+    <div className="flex h-[248px] max-h-[252px] flex-col divide-y divide-border overflow-hidden rounded-md border border-border bg-card/55 shadow-sm ring-1 ring-border/40">
       <TerminalBand kicker="TRD" lines={tradeLines} emptyHint="Executions stream when venues print." />
       <TerminalBand kicker="WHL" lines={whaleLines} emptyHint={`No prints ≥ ${fmtUsdShort(WHALE_NOTIONAL_USD)} yet.`} />
       <TerminalBand kicker="POS" lines={ledgerLines} emptyHint="Positions & settlements appear here." />
@@ -286,82 +289,91 @@ export function DappHubPage() {
     loadingHot: hubLaneQueriesLoading && crossLaneHotTopTen.length === 0,
   };
 
+  const asideSurfaceClass = "mb-aside-surface overflow-hidden rounded-2xl";
+
   return (
-    <div className="min-h-[calc(100dvh-var(--app-topbar-h))] min-w-0 w-full max-w-full">
-      <div className="mx-auto w-full min-w-0 max-w-[min(1420px,100%)] pb-16 pt-4 lg:pb-20">
-        <div className="space-y-app-section">
-          {/* ── 1 · Trader desk — main spotlight + right rails (Polymarket-adjacent, Orakly execution layer) ── */}
+    <div className="mb-root">
+      <HubHomeMarketTicker markets={trendingTape} />
+
+      <div className="mb-shell">
+        <div className="mb-main">
           <section className="scroll-mt-4">
             {spotlightSkeleton ? (
-              <div className="min-w-0 space-y-4">
+              <div className="mb-hero mb-hero-grid min-w-0 space-y-4">
                 <div className="h-10 animate-pulse rounded-lg bg-white/[0.05]" />
                 <div className="min-h-[min(52vh,420px)] animate-pulse rounded-lg bg-white/[0.05]" />
-                <HubBreakingHotTopicsStack {...breakingHotStackProps} />
+                <div className="min-[1100px]:hidden">
+                  <HubBreakingHotTopicsStack {...breakingHotStackProps} className={asideSurfaceClass} />
+                </div>
               </div>
             ) : spotlightMarket ? (
-              <div className="space-y-6">
-                <div className="grid w-full min-w-0 max-w-full items-start gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(260px,300px)] lg:gap-8 xl:grid-cols-[minmax(0,1fr)_minmax(272px,320px)]">
-                  <div className="min-w-0 max-w-full space-y-3">
-                    <HubFeaturedTradingCard
-                      market={spotlightMarket}
-                      isLive={liveSet.has(spotlightMarket.id)}
-                    />
-                    <HubSpotlightCarouselNav
-                      markets={featuredFive}
-                      index={spotlightIdx}
-                      onChange={setSpotlightIdx}
-                    />
-                  </div>
-
-                  <aside className="hidden min-w-0 lg:block lg:sticky lg:top-[calc(var(--app-topbar-h)+12px)] lg:self-start">
-                    <HubBreakingHotTopicsStack {...breakingHotStackProps} />
-                  </aside>
+              <div className="mb-hero mb-hero-grid space-y-6">
+                <div className="mb-hero-desk-unified overflow-hidden rounded-2xl border border-border bg-card shadow-[0_20px_60px_-28px_rgb(0_0_0/0.45)] ring-1 ring-border/50">
+                  <HubFeaturedTradingCard
+                    market={spotlightMarket}
+                    isLive={liveSet.has(spotlightMarket.id)}
+                    queueMerged
+                  />
+                  <HubSpotlightCarouselNav
+                    markets={featuredFive}
+                    index={spotlightIdx}
+                    onChange={setSpotlightIdx}
+                    mergedUnderFeatured
+                  />
                 </div>
-
-                <div className="lg:hidden">
-                  <HubBreakingHotTopicsStack {...breakingHotStackProps} />
+                <div className="min-[1100px]:hidden">
+                  <HubBreakingHotTopicsStack {...breakingHotStackProps} className={asideSurfaceClass} />
                 </div>
               </div>
             ) : (
-              <div className="space-y-5">
-                <p className={cn(panel, "px-3 py-4 text-center text-[11px] text-zinc-500")}>Feed syncing…</p>
-                <HubBreakingHotTopicsStack {...breakingHotStackProps} />
+              <div className="mb-hero mb-hero-grid space-y-5">
+                <p className={cn(panel, "px-3 py-4 text-center text-[11px] text-muted-foreground")}>Feed syncing…</p>
+                <div className="min-[1100px]:hidden">
+                  <HubBreakingHotTopicsStack {...breakingHotStackProps} className={asideSurfaceClass} />
+                </div>
               </div>
             )}
           </section>
-
-          {/* ── 2 · All markets — directory (clear break from desk above) ── */}
-          <section className="scroll-mt-4 border-t border-white/[0.05] pt-8 lg:pt-10">
-            <HubMarketsBrowseBlock
-              liveSet={liveSet}
-              trendingList={trendingList}
-              trendingTape={trendingTape}
-              trendingActivity={trendingActivity}
-              trendingHot={trendingHot}
-              trendingNewTrending={trendingNewTrending}
-              loadingTrendingList={trendingListQ.isLoading}
-              loadingTrendingTape={trendingTapeQ.isLoading}
-              loadingTrendingActivity={trendingActivityQ.isLoading}
-              loadingTrendingHot={trendingHotQ.isLoading}
-              loadingTrendingNew={trendingNewTrendingQ.isLoading}
-              onPrefetchDirectory={() => prefetchDirectory()}
-            />
-          </section>
         </div>
 
-        {/* Live desk — tucked away (collapsed by default) */}
-        <div className="mx-auto w-full min-w-0 max-w-[min(1420px,100%)] pb-6">
-          <details className="group rounded-lg border border-white/[0.06] bg-black/25 ring-1 ring-white/[0.04] [&_summary::-webkit-details-marker]:hidden">
-            <summary className="flex cursor-pointer list-none items-center justify-between gap-2 px-3 py-2.5 font-mono text-[10px] font-medium uppercase tracking-[0.1em] text-zinc-500 transition hover:bg-white/[0.03] hover:text-zinc-400">
+        <aside className="mb-aside hidden min-[1100px]:block">
+          <HubBreakingHotTopicsStack {...breakingHotStackProps} className={asideSurfaceClass} />
+        </aside>
+      </div>
+
+      <div
+        className="mb-live-markets-bleed scroll-mt-4 border-t border-border/70 pt-8 min-[1100px]:pt-10"
+        style={appStickyToolbarBleedStyle}
+      >
+        <HubMarketsBrowseBlock
+          liveSet={liveSet}
+          trendingList={trendingList}
+          trendingTape={trendingTape}
+          trendingActivity={trendingActivity}
+          trendingHot={trendingHot}
+          trendingNewTrending={trendingNewTrending}
+          loadingTrendingList={trendingListQ.isLoading}
+          loadingTrendingTape={trendingTapeQ.isLoading}
+          loadingTrendingActivity={trendingActivityQ.isLoading}
+          loadingTrendingHot={trendingHotQ.isLoading}
+          loadingTrendingNew={trendingNewTrendingQ.isLoading}
+          onPrefetchDirectory={() => prefetchDirectory()}
+        />
+      </div>
+
+      <div className="mb-shell-footer">
+        <div className="pb-6 pt-2">
+          <details className="group rounded-xl border border-border bg-card/40 ring-1 ring-border/40 [&_summary::-webkit-details-marker]:hidden">
+            <summary className="flex cursor-pointer list-none items-center justify-between gap-2 px-3 py-2.5 font-mono text-[10px] font-medium uppercase tracking-[0.1em] text-muted-foreground transition hover:bg-muted/30 hover:text-foreground">
               <span>Live desk · terminal tape</span>
-              <span className="text-zinc-600 group-open:rotate-180 motion-safe:transition-transform">▼</span>
+              <span className="text-muted-foreground/70 group-open:rotate-180 motion-safe:transition-transform">▼</span>
             </summary>
-            <div className="border-t border-white/[0.06] px-1 pb-3 pt-3">
+            <div className="border-t border-border px-1 pb-3 pt-3">
               <div className="mb-3 flex flex-wrap items-start justify-between gap-2 px-0.5">
-                <p className="max-w-xl text-[11px] leading-relaxed text-zinc-500">
+                <p className="max-w-xl text-[11px] leading-relaxed text-muted-foreground">
                   Executions · whales · ledger — dense terminal read.
                 </p>
-                <PrefetchLink href={ROUTES.activity} className="shrink-0 font-mono text-[9px] text-zinc-600 hover:text-zinc-400">
+                <PrefetchLink href={ROUTES.activity} className="shrink-0 font-mono text-[9px] text-muted-foreground hover:text-foreground">
                   Activity →
                 </PrefetchLink>
               </div>
@@ -370,7 +382,7 @@ export function DappHubPage() {
           </details>
         </div>
 
-        <p className="mx-auto mt-4 max-w-[min(1420px,100%)] border-t border-app-subtle pt-4 text-[10px] leading-relaxed text-zinc-600 lg:mt-6 lg:pt-5">
+        <p className="mb-hub-footer-band text-[10px] leading-relaxed text-muted-foreground">
           Markets involve risk; prices reflect consensus not advice.
         </p>
       </div>

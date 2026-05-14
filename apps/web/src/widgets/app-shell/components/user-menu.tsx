@@ -106,7 +106,7 @@ export function UserMenu() {
           </PrefetchLink>
         </DropdownMenuItem>
         <DropdownMenuItem asChild className={menuItem}>
-          <PrefetchLink href={ROUTES.welcome}>
+          <PrefetchLink href={ROUTES.discover}>
             APIs
           </PrefetchLink>
         </DropdownMenuItem>
@@ -153,17 +153,17 @@ export function UserMenu() {
           </PrefetchLink>
         </DropdownMenuItem>
         <DropdownMenuItem asChild className={menuItem}>
-          <PrefetchLink href={ROUTES.welcome}>
+          <PrefetchLink href={ROUTES.discover}>
             Documentation
           </PrefetchLink>
         </DropdownMenuItem>
         <DropdownMenuItem asChild className={menuItem}>
-          <Link href={`${ROUTES.welcome}#community`} prefetch={false}>
+          <Link href={`${ROUTES.home}#community`} prefetch={false}>
             Help Center
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild className={menuItem}>
-          <Link href={`${ROUTES.welcome}#footer`} prefetch={false}>
+          <Link href={`${ROUTES.home}#footer`} prefetch={false}>
             Terms of Use
           </Link>
         </DropdownMenuItem>

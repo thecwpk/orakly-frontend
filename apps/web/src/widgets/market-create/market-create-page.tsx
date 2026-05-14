@@ -136,7 +136,7 @@ function CreateMarketBody() {
       <div className="space-y-6">
         <header className="flex flex-wrap items-center gap-3">
           <Link
-            href={ROUTES.home}
+            href={ROUTES.marketsBrowse}
             className="inline-flex items-center gap-2 rounded-full bg-white/[0.05] px-3 py-1.5 text-[12px] font-medium text-zinc-300 ring-1 ring-white/10 transition hover:bg-white/[0.08]"
           >
             <ArrowLeft className="h-3.5 w-3.5" />
@@ -157,7 +157,7 @@ function CreateMarketBody() {
       <header className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-3">
           <Link
-            href={ROUTES.home}
+            href={ROUTES.marketsBrowse}
             className="inline-flex items-center gap-2 rounded-full bg-white/[0.05] px-3 py-1.5 text-[12px] font-medium text-zinc-300 ring-1 ring-white/10 transition hover:bg-white/[0.08]"
           >
             <ArrowLeft className="h-3.5 w-3.5" />

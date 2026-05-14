@@ -40,7 +40,7 @@ function EmptyState() {
           <ArrowUpRight className="h-3.5 w-3.5" />
         </Link>
         <Link
-          href={ROUTES.home}
+          href={ROUTES.marketsBrowse}
           className="inline-flex items-center gap-1.5 rounded-lg bg-white/[0.04] px-3 py-2 text-[12px] font-medium text-zinc-300 ring-1 ring-white/[0.08] transition hover:bg-white/[0.07]"
         >
           Hub

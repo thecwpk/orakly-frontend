@@ -21,9 +21,9 @@ import { ROUTES } from "@/shared/constants/routes";
 import { useShowAdminNavLink } from "@/widgets/admin-dashboard/hooks/use-admin-nav-session";
 import { isMarketsExplorerNavActive } from "@/widgets/app-shell/lib/nav-config";
 
-/** Primary destinations — live discovery lives at `/` inside the app chrome. */
+/** Primary destinations — live discovery is `/markets` (marketing entry is `/`). */
 const PRIMARY_NAV = [
-  { label: "Markets", href: ROUTES.home, explorer: true },
+  { label: "Markets", href: ROUTES.marketsBrowse, explorer: true },
   { label: "Portfolio", href: ROUTES.portfolio },
 ] as const;
 
@@ -68,7 +68,7 @@ export function LandingNavbar() {
     <header className="sticky top-0 z-50 border-b border-white/[0.06] bg-[#050508]/85 backdrop-blur-xl supports-[backdrop-filter]:bg-[#050508]/70">
       <div className="mx-auto flex h-14 max-w-6xl items-center gap-3 px-4 sm:h-[3.75rem] sm:gap-5 sm:px-6">
         <Link
-          href={ROUTES.welcome}
+          href={ROUTES.home}
           className="flex shrink-0 flex-col leading-none transition hover:opacity-90"
           onClick={() => setOpen(false)}
         >
@@ -190,7 +190,7 @@ export function LandingNavbar() {
           </div>
 
           <Link
-            href={ROUTES.home}
+            href={ROUTES.marketsTrending}
             className="inline-flex items-center gap-1.5 rounded-lg bg-cyan-500/12 px-3 py-2 text-[13px] font-semibold text-cyan-100 ring-1 ring-cyan-400/28 transition hover:bg-cyan-500/18 sm:px-4 sm:py-2.5"
           >
             <span className="hidden sm:inline">Open hub</span>

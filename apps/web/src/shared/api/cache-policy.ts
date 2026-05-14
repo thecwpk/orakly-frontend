@@ -68,6 +68,13 @@ export const CACHE_POLICY = {
     staleTime: 30_000,
   },
 
+  /** 24h volume chart buckets — server truth; cheap HTTP snapshot. */
+  marketVolumeWindow: {
+    ...REFERENCE_TIER,
+    staleTime: 60_000,
+    refetchOnWindowFocus: false as const,
+  },
+
   /** Categories / market taxonomy — rarely changes. */
   categories: {
     ...COLD_TIER,

@@ -1,12 +1,12 @@
 "use client";
 
 import { useMemo } from "react";
+import { formatCompactUsd } from "@orakly/utils";
 import { PrefetchLink } from "@/shared/ui";
-import { ChevronRight, Flame, TrendingDown, TrendingUp } from "lucide-react";
+import { ChevronRight, Flame, TrendingDown, TrendingUp, Zap } from "lucide-react";
 import type { Market } from "@orakly/types";
 import { cn } from "@/lib/utils";
 import { ROUTES } from "@/shared/constants/routes";
-import { hubHotTopicShortLabel } from "./hub-hot-topics-lane-slider";
 
 function fmtUsdToday(n: number): string {
   if (!Number.isFinite(n) || n <= 0) return "—";
@@ -30,6 +30,123 @@ function pickBreakingRows(markets: readonly Market[], excludeId: string | undefi
 
 function pickHotRows(markets: readonly Market[], take: number): Market[] {
   return markets.slice(0, take);
+}
+
+function HubSideGlyph({ category, title }: { category: string; title: string }) {
+  const letter = (category.trim().slice(0, 1) || title.trim().slice(0, 1) || "?").toUpperCase();
+  return (
+    <div
+      className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-muted to-muted/60 text-[13px] font-bold tracking-tight text-foreground shadow-sm ring-1 ring-border"
+      aria-hidden
+    >
+      {letter}
+    </div>
+  );
+}
+
+function OddsStrip({ yes }: { yes: number }) {
+  const no = 100 - yes;
+  return (
+    <div className="mt-2.5 space-y-1">
+      <div className="flex h-1.5 overflow-hidden rounded-full bg-muted/90 ring-1 ring-border/40" title={`YES ${yes}% · NO ${no}%`}>
+        <div className="bg-yes shadow-[0_0_12px_color-mix(in_srgb,var(--yes)_35%,transparent)]" style={{ width: `${yes}%` }} />
+        <div className="min-w-0 flex-1 bg-no/25" />
+      </div>
+      <div className="flex items-center justify-between font-mono text-[10px] tabular-nums leading-none">
+        <span className="font-semibold text-yes">YES {yes}%</span>
+        <span className="text-no/90">NO {no}%</span>
+      </div>
+    </div>
+  );
+}
+
+function BreakingMarketCard({
+  market: m,
+  live,
+}: {
+  market: Market;
+  live: boolean;
+}) {
+  const yes = Math.round((m.probability ?? 0.5) * 100);
+  const no = 100 - yes;
+  const leanYes = (m.probability ?? 0.5) >= 0.5;
+  const vol = formatCompactUsd(m.volumeUsd ?? 0);
+
+  return (
+    <PrefetchLink
+      href={ROUTES.market(m.slug)}
+      className={cn(
+        "group relative block overflow-hidden rounded-xl border border-border/90 bg-card/40 p-3 shadow-sm ring-1 ring-border/30 transition",
+        "hover:border-yes/35 hover:bg-muted/25 hover:shadow-md hover:ring-yes/15",
+      )}
+    >
+      <div className="flex gap-3">
+        <HubSideGlyph category={m.category} title={m.title} />
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center justify-between gap-2">
+            <p className="line-clamp-1 min-w-0 font-mono text-[9px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+              {m.category}
+            </p>
+            {live ? (
+              <span className="shrink-0 rounded-md bg-yes/15 px-1.5 py-0.5 font-mono text-[8px] font-semibold uppercase tracking-wide text-yes ring-1 ring-yes/30">
+                Live
+              </span>
+            ) : null}
+          </div>
+          <p className="mt-1 line-clamp-2 text-[13px] font-semibold leading-snug tracking-tight text-foreground group-hover:text-yes/95">
+            {m.title}
+          </p>
+          <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 font-mono text-[10px] text-muted-foreground">
+            <span className="tabular-nums">Vol {vol}</span>
+            <span className="text-muted-foreground/50" aria-hidden>
+              ·
+            </span>
+            <span className="inline-flex items-center gap-0.5 tabular-nums">
+              {leanYes ? <TrendingUp className="size-3 text-yes" aria-hidden /> : <TrendingDown className="size-3 text-no" aria-hidden />}
+              <span className="text-foreground/90">{yes}%</span>
+              <span className="text-muted-foreground/80">/{no}%</span>
+            </span>
+          </div>
+          <OddsStrip yes={yes} />
+        </div>
+      </div>
+    </PrefetchLink>
+  );
+}
+
+function HotMarketCard({ market: m }: { market: Market }) {
+  const yes = Math.round((m.probability ?? 0.5) * 100);
+
+  return (
+    <PrefetchLink
+      href={ROUTES.market(m.slug)}
+      className={cn(
+        "group relative block overflow-hidden rounded-xl border border-border/90 bg-gradient-to-br from-card/50 via-card/30 to-no/[0.06] p-3 pl-3.5 shadow-sm ring-1 ring-border/30 transition",
+        "hover:border-no/30 hover:from-muted/20 hover:to-no/[0.09] hover:shadow-md",
+      )}
+    >
+      <div
+        className="pointer-events-none absolute bottom-0 left-0 top-0 w-0.5 bg-gradient-to-b from-no/50 via-no/35 to-transparent opacity-80"
+        aria-hidden
+      />
+      <div className="flex gap-3">
+        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-no/10 ring-1 ring-no/25">
+          <Flame className="size-5 text-no/90" aria-hidden />
+        </span>
+        <div className="min-w-0 flex-1">
+          <p className="line-clamp-1 font-mono text-[9px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+            {m.category}
+          </p>
+          <p className="mt-1 line-clamp-2 text-[13px] font-semibold leading-snug tracking-tight text-foreground group-hover:text-no/95">
+            {m.title}
+          </p>
+          <p className="mt-2 font-mono text-[10px] font-medium tabular-nums text-muted-foreground">{fmtUsdToday(m.volumeUsd)}</p>
+          <OddsStrip yes={yes} />
+        </div>
+        <ChevronRight className="mt-1 size-4 shrink-0 self-center text-muted-foreground transition group-hover:translate-x-0.5 group-hover:text-foreground" aria-hidden />
+      </div>
+    </PrefetchLink>
+  );
 }
 
 export function HubBreakingHotTopicsStack({
@@ -59,119 +176,80 @@ export function HubBreakingHotTopicsStack({
   );
   const hotRows = useMemo(() => pickHotRows(hotMarkets, hotTake), [hotMarkets, hotTake]);
 
-  const wrap = cn(
-    "overflow-hidden rounded-lg border border-white/[0.06] bg-black/25 ring-1 ring-white/[0.04]",
-    className,
-  );
+  const wrap = cn("relative flex min-h-0 flex-col overflow-hidden", className);
 
   return (
     <div className={wrap}>
-      {/* Breaking */}
-      <div className="px-3 pt-3">
+      <div className="px-3 pb-1 pt-3.5 sm:px-3.5">
         <PrefetchLink
           href={ROUTES.marketsTrending}
-          className="mb-1 flex items-center justify-between gap-2 rounded-md py-1.5 text-left transition hover:bg-white/[0.03]"
+          className="mb-3 flex items-center justify-between gap-3 rounded-xl border border-transparent px-1 py-1 transition hover:border-border/80 hover:bg-muted/25"
         >
-          <span className="text-[13px] font-semibold leading-none tracking-tight text-zinc-50">Breaking news</span>
-          <ChevronRight className="size-4 shrink-0 text-zinc-500" aria-hidden />
+          <div className="flex min-w-0 items-center gap-2.5">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-yes/12 ring-1 ring-yes/25">
+              <Zap className="size-[18px] text-yes" aria-hidden />
+            </span>
+            <span className="text-[14px] font-semibold leading-none tracking-tight text-foreground">Breaking news</span>
+          </div>
+          <ChevronRight className="size-4 shrink-0 text-muted-foreground" aria-hidden />
         </PrefetchLink>
 
         {loadingBreaking && !breakingRows.length ? (
-          <ul className="divide-y divide-white/[0.06]">
+          <ul className="flex flex-col gap-2.5" aria-busy>
             {Array.from({ length: breakingTake }).map((_, i) => (
-              <li key={i} className="py-3.5">
-                <div className="h-4 animate-pulse rounded bg-white/[0.06]" />
+              <li key={i}>
+                <div className="h-[104px] animate-pulse rounded-xl bg-muted/45 ring-1 ring-border/30" />
               </li>
             ))}
           </ul>
         ) : !breakingRows.length ? (
-          <p className="py-6 text-center font-mono text-[10px] text-zinc-500">Tape warming…</p>
+          <p className="py-8 text-center font-mono text-[10px] text-muted-foreground">Tape warming…</p>
         ) : (
-          <ul className="divide-y divide-white/[0.06]">
-            {breakingRows.map((m, i) => {
-              const yes = Math.round((m.probability ?? 0.5) * 100);
-              const no = 100 - yes;
-              const live = liveSet.has(m.id);
-              const leanYes = (m.probability ?? 0.5) >= 0.5;
-              return (
-                <li key={m.id}>
-                  <PrefetchLink
-                    href={ROUTES.market(m.slug)}
-                    className="grid w-full grid-cols-[1.25rem_minmax(0,1fr)_4.25rem] items-center gap-x-2.5 py-3.5 text-left transition hover:bg-white/[0.03] sm:grid-cols-[1.5rem_minmax(0,1fr)_4.5rem] sm:gap-x-3"
-                  >
-                    <span className="font-mono text-[11px] tabular-nums text-zinc-500">{i + 1}</span>
-                    <span className="min-w-0 line-clamp-2 text-[12px] font-medium leading-snug text-zinc-100">{m.title}</span>
-                    <div className="flex flex-col items-end justify-center gap-1">
-                      <span className="text-[13px] font-semibold tabular-nums leading-none text-zinc-50">{yes}%</span>
-                      <div className="flex items-center gap-0.5 font-mono text-[10px] tabular-nums leading-none text-zinc-500">
-                        {leanYes ? (
-                          <TrendingUp className="size-3 shrink-0 text-emerald-400/95" aria-hidden />
-                        ) : (
-                          <TrendingDown className="size-3 shrink-0 text-rose-400/95" aria-hidden />
-                        )}
-                        <span>{no}%</span>
-                      </div>
-                      {live ? (
-                        <span className="rounded px-1 py-px text-[7px] font-semibold uppercase tracking-wide text-emerald-300/95 ring-1 ring-emerald-500/35">
-                          Live
-                        </span>
-                      ) : null}
-                    </div>
-                  </PrefetchLink>
-                </li>
-              );
-            })}
+          <ul className="flex flex-col gap-2.5">
+            {breakingRows.map((m) => (
+              <li key={m.id}>
+                <BreakingMarketCard market={m} live={liveSet.has(m.id)} />
+              </li>
+            ))}
           </ul>
         )}
       </div>
 
-      <div className="mx-3 border-t border-dotted border-white/[0.12]" aria-hidden />
+      <div className="mx-3 h-px bg-gradient-to-r from-transparent via-border to-transparent sm:mx-3.5" aria-hidden />
 
-      {/* Hot topics */}
-      <div className="px-3 pb-3 pt-2">
+      <div className="bg-muted/[0.06] px-3 pb-3.5 pt-3.5 sm:px-3.5">
         <PrefetchLink
           href={ROUTES.markets}
-          className="mb-1 flex items-center justify-between gap-2 rounded-md py-1.5 text-left transition hover:bg-white/[0.03]"
+          className="mb-3 flex items-center justify-between gap-3 rounded-xl border border-transparent px-1 py-1 transition hover:border-border/80 hover:bg-muted/30"
         >
-          <span className="text-[13px] font-semibold leading-none tracking-tight text-zinc-50">Hot topics</span>
-          <ChevronRight className="size-4 shrink-0 text-zinc-500" aria-hidden />
+          <div className="flex min-w-0 items-center gap-2.5">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-no/10 ring-1 ring-no/22">
+              <Flame className="size-[18px] text-no/90" aria-hidden />
+            </span>
+            <span className="text-[14px] font-semibold leading-none tracking-tight text-foreground">Hot topics</span>
+          </div>
+          <ChevronRight className="size-4 shrink-0 text-muted-foreground" aria-hidden />
         </PrefetchLink>
 
         {loadingHot && !hotRows.length ? (
-          <ul className="divide-y divide-white/[0.06]">
+          <ul className="flex flex-col gap-2.5" aria-busy>
             {Array.from({ length: hotTake }).map((_, i) => (
-              <li key={i} className="py-3.5">
-                <div className="h-4 animate-pulse rounded bg-white/[0.06]" />
+              <li key={i}>
+                <div className="h-[104px] animate-pulse rounded-xl bg-muted/45 ring-1 ring-border/30" />
               </li>
             ))}
           </ul>
         ) : !hotRows.length ? (
-          <p className="py-5 text-center font-mono text-[9.5px] leading-relaxed text-zinc-500">
+          <p className="py-6 text-center font-mono text-[9.5px] leading-relaxed text-muted-foreground">
             Cross-lane topics appear when hub feeds overlap — syncing…
           </p>
         ) : (
-          <ul className="divide-y divide-white/[0.06]">
-            {hotRows.map((m, i) => {
-              const label = hubHotTopicShortLabel(m);
-              return (
-                <li key={m.id}>
-                  <PrefetchLink
-                    href={ROUTES.market(m.slug)}
-                    className="grid w-full grid-cols-[1.25rem_minmax(0,1fr)_auto] items-center gap-x-2 py-3.5 text-left transition hover:bg-white/[0.03] sm:grid-cols-[1.5rem_minmax(0,1fr)_auto] sm:gap-x-3"
-                  >
-                    <span className="font-mono text-[11px] tabular-nums text-zinc-500">{i + 1}</span>
-                    <span className="min-w-0 truncate text-[12px] font-medium text-zinc-100">{label}</span>
-                    <div className="flex min-w-0 shrink-0 items-center gap-2">
-                      <span className="max-w-[7rem] truncate font-mono text-[10px] tabular-nums text-zinc-500 sm:max-w-none">
-                        {fmtUsdToday(m.volumeUsd)}
-                      </span>
-                      <Flame className="size-3.5 shrink-0 text-rose-500/85" aria-hidden />
-                      <ChevronRight className="size-4 shrink-0 text-zinc-600" aria-hidden />
-                    </div>
-                  </PrefetchLink>
-                </li>
-              );
-            })}
+          <ul className="flex flex-col gap-2.5">
+            {hotRows.map((m) => (
+              <li key={m.id}>
+                <HotMarketCard market={m} />
+              </li>
+            ))}
           </ul>
         )}
       </div>

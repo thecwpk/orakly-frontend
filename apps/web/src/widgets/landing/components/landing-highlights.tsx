@@ -18,7 +18,7 @@ export function LandingHighlights() {
       </h2>
       <div className="grid gap-4 sm:grid-cols-2">
         <Link
-          href={ROUTES.home}
+          href={ROUTES.marketsTrending}
           className="group neon-edge-cyan glass-panel-strong relative overflow-hidden rounded-2xl p-5 transition hover:bg-white/[0.02] sm:p-6"
         >
           <div className="flex items-start justify-between gap-3">

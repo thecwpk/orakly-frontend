@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 import { ROUTES } from "@/shared/constants/routes";
 import { PrefetchLink } from "@/shared/ui";
 import { TrendingMarketCard } from "@/widgets/trending-prediction-markets";
-import { TrendingMarketGridSkeleton } from "@/widgets/trending-prediction-markets/components/trending-market-card-skeleton";
+import { TrendingMarketCardSkeleton } from "@/widgets/trending-prediction-markets/components/trending-market-card-skeleton";
 import { mergeHubBrowsePreview } from "../lib/merge-hub-spotlight-markets";
 
 const PREVIEW_LIMIT = 12;
@@ -160,17 +160,12 @@ export function HubMarketsBrowseBlock({
   const iconGhost =
     "flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-muted-foreground outline-none transition-colors hover:bg-muted/50 hover:text-foreground focus-visible:ring-2 focus-visible:ring-yes/30 focus-visible:ring-offset-2 focus-visible:ring-offset-background";
 
-  const gridClass =
-    view === "list"
-      ? "grid grid-cols-1 gap-2 sm:gap-2.5"
-      : "grid grid-cols-2 gap-2 sm:gap-2.5 md:grid-cols-3 md:gap-3 lg:grid-cols-4 lg:gap-3";
+  const gridClass = view === "list" ? "grid grid-cols-1 gap-2 sm:gap-2.5" : "mb-grid";
 
   return (
     <section
-      className={cn(
-        "relative overflow-hidden rounded-xl border border-border bg-background",
-        "shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]",
-      )}
+      id="live-markets"
+      className={cn("relative w-full overflow-hidden rounded-2xl bg-background/65 mb-markets-surface")}
       aria-labelledby="hub-browse-heading"
     >
       <div
@@ -187,12 +182,12 @@ export function HubMarketsBrowseBlock({
 
       <div className="relative">
         {/* Header — title + compact stats (no separate “ticker bar”) */}
-        <div className="border-b border-border px-5 py-4 sm:px-6 sm:py-5">
+        <div className="border-b border-border px-5 py-4 sm:px-6 sm:py-5 min-[640px]:px-6 min-[640px]:py-5">
           <div className="flex items-start justify-between gap-4">
             <div className="min-w-0 space-y-1.5">
               <h2
                 id="hub-browse-heading"
-                className="text-[15px] font-medium tracking-tight text-foreground sm:text-[15.5px]"
+                className="mb-section-title text-[16px] font-semibold tracking-tight text-foreground sm:text-[17px]"
               >
                 All markets
               </h2>
@@ -245,7 +240,7 @@ export function HubMarketsBrowseBlock({
         </div>
 
         {/* Category lanes — pill slider (snap), theme tokens */}
-        <div className="flex min-w-0 items-stretch gap-0 border-b border-border">
+        <div className="mb-tabs-rail-wrap flex min-w-0 items-stretch gap-0 border-b border-border">
           <div className="relative min-w-0 flex-1 px-2 py-2.5 sm:px-3">
             <div
               aria-hidden
@@ -256,7 +251,7 @@ export function HubMarketsBrowseBlock({
               className="pointer-events-none absolute inset-y-2 right-0 z-[1] w-7 bg-gradient-to-l from-background to-transparent sm:w-9"
             />
             <div
-              className="flex snap-x snap-mandatory gap-2 overflow-x-auto px-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+              className="mb-tabs-rail flex snap-x snap-mandatory gap-2 overflow-x-auto px-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
               role="tablist"
               aria-label="Market lanes"
             >
@@ -294,9 +289,13 @@ export function HubMarketsBrowseBlock({
           </PrefetchLink>
         </div>
 
-        <div className="px-5 py-5 sm:px-6 sm:py-6">
+        <div className="px-5 py-5 sm:px-6 sm:py-6 min-[640px]:px-6 min-[640px]:py-6">
           {loading ? (
-            <TrendingMarketGridSkeleton count={PREVIEW_LIMIT} compact preset="hub" />
+            <div className={view === "list" ? "grid grid-cols-1 gap-2 sm:gap-2.5" : "mb-grid"}>
+              {Array.from({ length: PREVIEW_LIMIT }).map((_, i) => (
+                <TrendingMarketCardSkeleton key={i} index={i} compact />
+              ))}
+            </div>
           ) : displayed.length === 0 ? (
             <p className="rounded-md border border-border bg-muted/10 py-10 text-center text-[12px] leading-relaxed text-muted-foreground">
               No markets in this lane yet.

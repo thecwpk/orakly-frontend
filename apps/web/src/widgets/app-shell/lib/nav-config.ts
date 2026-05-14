@@ -71,7 +71,7 @@ export function isMarketsBrowseActive(
 /** Legacy helper — any discovery / market detail surface (e.g. marketing navbar). */
 export function isMarketsExplorerNavActive(pathname: string | null): boolean {
   if (!pathname) return false;
-  if (pathname === "/" || pathname === "/markets") return true;
+  if (pathname === "/markets") return true;
   return pathname.startsWith("/markets/");
 }
 

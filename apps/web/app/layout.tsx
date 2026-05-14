@@ -1,11 +1,24 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
-import { Inter } from "next/font/google";
+import { Inter, Space_Grotesk, Syne } from "next/font/google";
 import { cn } from "@/lib/utils";
 import { AppProviders } from "@/app/providers/app-providers";
 
-const inter = Inter({subsets:['latin'],variable:'--font-sans'});
+const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
+
+/** Hub home (`.mb-root`) — body text + display headings; rest of app stays Inter. */
+const spaceGrotesk = Space_Grotesk({
+  subsets: ["latin"],
+  variable: "--font-hub-body",
+  display: "swap",
+});
+
+const syne = Syne({
+  subsets: ["latin"],
+  variable: "--font-hub-display",
+  display: "swap",
+});
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -37,6 +50,8 @@ export default function RootLayout({
         className={cn(
           geistSans.variable,
           geistMono.variable,
+          spaceGrotesk.variable,
+          syne.variable,
           "min-h-screen bg-background text-foreground antialiased",
         )}
         suppressHydrationWarning

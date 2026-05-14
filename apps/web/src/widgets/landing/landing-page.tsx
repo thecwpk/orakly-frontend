@@ -1,8 +1,7 @@
 import { OraklyMarketLanding } from "./orakly-market-landing";
 
 /**
- * Marketing landing for `/welcome` — static anchors only (no dApp routing)
- * until launch CTAs are wired.
+ * Marketing landing for `/` — static informational page (no live dApp data).
  */
 export function LandingPage() {
   return <OraklyMarketLanding />;

@@ -22,6 +22,9 @@ if (!process.env.DATABASE_URL && existsSync(databaseEnvPath)) {
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  async redirects() {
+    return [{ source: "/welcome", destination: "/", permanent: true }];
+  },
   poweredByHeader: false,
   compress: true,
   transpilePackages: [

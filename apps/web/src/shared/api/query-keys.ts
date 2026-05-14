@@ -75,6 +75,9 @@ export const queryKeys = {
     /** Per-market related markets carousel. */
     related: (marketId: string) =>
       [...marketsRoot(), "detail", marketId, "related"] as const,
+    /** Server-built 24h volume buckets by URL slug (synthetic + DB volume). */
+    volumeWindowBySlug: (slug: string) =>
+      [...marketsRoot(), "volumeWindow", slug] as const,
   },
 
   trades: {

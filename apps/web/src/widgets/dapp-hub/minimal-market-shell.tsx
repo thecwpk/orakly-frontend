@@ -26,7 +26,7 @@ export function MinimalMarketShell({ children }: { children: ReactNode }) {
     <SocketProvider portfolioUserId={actorId ?? null}>
       <WebsocketBridge />
       <NavigationPendingProvider>
-      <div className="relative min-h-screen overflow-x-hidden bg-app-canvas text-foreground">
+      <div className="hub-app-canvas relative min-h-screen overflow-x-hidden text-foreground">
         <div className="hub-shell-density flex min-h-screen min-w-0 flex-col">
           <AppTopbar density="hub" />
 

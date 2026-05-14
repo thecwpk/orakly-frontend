@@ -4,10 +4,10 @@
  * settings sidebar, and feature CTAs all read from it.
  */
 export const ROUTES = {
-  /* Marketing + main user surface (under (app) layout group) */
+  /** Public marketing entry — landing at `/`. */
   home: "/",
-  /** Marketing hero + carousel (no app chrome). */
-  welcome: "/welcome",
+  /** Same as `home` (legacy `/landing` URL redirects to `/`). */
+  landing: "/",
   /** Live markets directory (marketing shell). */
   discover: "/discover",
   /** Primary exploration surface — dense grid, filters, infinite scroll. */
@@ -16,7 +16,7 @@ export const ROUTES = {
   marketCreate: "/markets/create",
   /** @deprecated Use `marketsTrending` — `/trending` redirects there. */
   trending: "/trending",
-  /** Trending tape on the full markets directory (`/` is the lightweight hub). */
+  /** Trending tape on the full markets directory. */
   marketsTrending: "/markets?trending=1",
   /** Full directory — trending filter off (“Markets” in primary nav). */
   marketsBrowse: "/markets?trending=0",

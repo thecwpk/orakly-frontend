@@ -6,7 +6,7 @@ import { AppShell } from "@/widgets/app-shell";
  *   /markets, /markets/*, /portfolio, /activity, /leaderboard, /wallet,
  *   /profile, /profile/[address], /settings/*
  *
- * The `/` hub uses `(hub)` + `MinimalMarketShell` (same top bar + mobile dock).
+ * Public marketing entry is `/` in the `(hub)` group (no `AppShell`).
  *
  * Mounts the global AppShell (sticky top bar, horizontal primary nav, mobile
  * bottom dock + “More” sheet, ambient backdrop, realtime SocketProvider). Page

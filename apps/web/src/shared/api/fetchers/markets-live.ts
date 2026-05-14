@@ -16,6 +16,35 @@ export type MarketOddsDto = {
   closesAt: string | null;
 };
 
+export type MarketVolumeWindowRowDto = {
+  at: number;
+  label: string;
+  buy: number;
+  sell: number;
+  cumulative: number;
+};
+
+export type MarketVolumeWindowDto = {
+  slug: string;
+  marketId: string;
+  generatedAt: number;
+  totalUsd: number;
+  buyUsd: number;
+  sellUsd: number;
+  imbalance: number;
+  rows: MarketVolumeWindowRowDto[];
+};
+
+export async function fetchMarketVolumeWindowBySlug(
+  slug: string,
+): Promise<MarketVolumeWindowDto> {
+  const enc = encodeURIComponent(slug);
+  const res = await apiClient.request<MarketVolumeWindowDto>(
+    `/api/v1/markets/by-slug/${enc}/volume-window`,
+  );
+  return unwrapApiResult(res);
+}
+
 export async function fetchMarketOdds(marketId: string): Promise<MarketOddsDto> {
   const res = await apiClient.request<MarketOddsDto>(
     `/api/v1/markets/${marketId}/odds`,

@@ -11,6 +11,7 @@ type AppSearchProps = {
   className?: string;
   /**
    * Where Enter navigates. `markets` opens the directory with `?q=` (URL-synced filters).
+   * `home` is legacy naming — resolves to the markets directory now that `/` is marketing.
    */
   submitTarget?: "markets" | "home";
 };
@@ -49,11 +50,11 @@ export function AppSearch({
     if (submitTarget === "home") {
       if (!q) {
         signalNavigationStart();
-        router.push(ROUTES.home);
+        router.push(ROUTES.marketsBrowse);
         return;
       }
       signalNavigationStart();
-      router.push(`${ROUTES.home}?q=${encodeURIComponent(q)}`);
+      router.push(`${ROUTES.markets}?q=${encodeURIComponent(q)}`);
       return;
     }
     if (!q) {

@@ -1,6 +1,9 @@
+import { ROUTES } from "@/shared/constants/routes";
+import { cn } from "@/lib/utils";
+
 const NAVIGATE = [
-  { label: "Markets", href: "#markets-preview" },
-  { label: "Dapp", href: "#how-it-works" },
+  { label: "Markets", href: "#markets" },
+  { label: "Dapp", href: ROUTES.marketsBrowse },
   { label: "Docs", href: "#footer" },
   { label: "Community", href: "#community" },
   { label: "Help", href: "#early-access" },
@@ -12,65 +15,67 @@ const SOCIALS = [
   { label: "Discord", href: "#footer" },
 ] as const;
 
+const footerPadX = "px-[var(--space-4)] sm:px-[var(--space-6)] lg:px-[var(--space-7)]";
+
 export function OraklyMarketingFooter() {
   return (
-    <footer id="footer" className="border-t border-border bg-background py-14 text-muted-foreground">
-      <div className="mx-auto grid max-w-6xl gap-10 px-4 sm:grid-cols-2 sm:px-6 lg:grid-cols-4 lg:px-8">
+    <footer
+      id="footer"
+      className="relative z-[1] border-t border-[color:var(--border-soft)] bg-[var(--bg-0)] text-[var(--text-muted)] antialiased shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]"
+    >
+      <div className={cn("mx-auto w-full max-w-7xl py-6 sm:py-7", footerPadX)}>
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
         <div className="sm:col-span-2 lg:col-span-2">
-          <p className="font-semibold tracking-tight text-foreground">Orakly Market</p>
-          <p className="mt-4 max-w-md text-sm leading-relaxed">
-            Trade live crypto narratives through transparent YES/NO prediction
-            markets and on-chain settlement infrastructure.
+          <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--text-muted)]">ORAKLY MARKET</p>
+          <p className="mt-1 text-sm font-semibold tracking-tight text-[var(--text-primary)]">Orakly Market</p>
+          <p className="mt-3 max-w-md text-[13px] leading-relaxed text-[var(--text-secondary)]">
+            Trade live crypto narratives through transparent YES/NO prediction markets and on-chain settlement infrastructure.
           </p>
         </div>
         <div>
-          <p className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground/80">Navigate</p>
-          <nav className="mt-4 flex flex-col gap-2 text-sm">
+          <p className="font-mono text-[9px] uppercase tracking-[0.16em] text-[var(--text-muted)]">Navigate</p>
+          <nav className="mt-3 flex flex-col gap-1.5 text-[13px]">
             {NAVIGATE.map(({ label, href }) => (
-              <a key={label} href={href} className="transition hover:text-foreground">
+              <a key={label} href={href} className="text-[var(--text-secondary)] transition hover:text-[var(--accent-soft)]">
                 {label}
               </a>
             ))}
           </nav>
         </div>
         <div>
-          <p className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground/80">Socials</p>
-          <nav className="mt-4 flex flex-col gap-2 text-sm">
+          <p className="font-mono text-[9px] uppercase tracking-[0.16em] text-[var(--text-muted)]">Socials</p>
+          <nav className="mt-3 flex flex-col gap-1.5 text-[13px]">
             {SOCIALS.map(({ label, href }) => (
-              <a key={label} href={href} className="transition hover:text-foreground">
+              <a key={label} href={href} className="text-[var(--text-secondary)] transition hover:text-[var(--accent-soft)]">
                 {label}
               </a>
             ))}
           </nav>
-          <p className="mt-6 font-mono text-[10px] uppercase tracking-wider text-muted-foreground/80">Apps</p>
-          <p className="mt-2 text-xs text-muted-foreground/90">App store badges can slot here post-launch.</p>
+        </div>
         </div>
       </div>
 
-      <div className="mx-auto mt-12 max-w-6xl border-t border-border px-4 pt-8 sm:px-6 lg:px-8">
-        <p className="text-[11px] leading-relaxed text-muted-foreground">
-          <strong className="font-medium text-foreground/80">Risk disclaimer:</strong>{" "}
-          Trading prediction markets involves substantial risk and may not be
-          suitable for all participants. Prices can be volatile and you may lose
-          your principal. Past performance of similar markets does not guarantee
-          future results. This website does not constitute legal, tax, or
-          investment advice. Availability of features may vary by jurisdiction.
+      <div className="w-full border-t border-[color:var(--border-soft)] bg-[var(--bg-1)]">
+        <div className={cn("mx-auto w-full max-w-7xl py-5", footerPadX)}>
+        <p className="text-[11px] leading-relaxed text-[var(--text-muted)]">
+          <span className="font-medium text-[var(--text-secondary)]">Risk:</span> Prediction markets involve substantial loss risk.
+          Prices are volatile. This site is not legal, tax, or investment advice. Features vary by jurisdiction.
         </p>
-        <div className="mt-6 flex flex-wrap gap-x-6 gap-y-2 text-[11px]">
-          <a href="#footer" className="text-muted-foreground transition hover:text-foreground">
+        <div className="mt-4 flex flex-wrap gap-x-5 gap-y-1 text-[11px]">
+          <a href="#footer" className="text-[var(--text-muted)] transition hover:text-[var(--accent-soft)]">
             Terms
           </a>
-          <a href="#footer" className="text-muted-foreground transition hover:text-foreground">
+          <a href="#footer" className="text-[var(--text-muted)] transition hover:text-[var(--accent-soft)]">
             Privacy
           </a>
-          <a href="#footer" className="text-muted-foreground transition hover:text-foreground">
+          <a href="#footer" className="text-[var(--text-muted)] transition hover:text-[var(--accent-soft)]">
             Compliance
           </a>
         </div>
-        <p className="mt-8 font-mono text-[10px] text-muted-foreground/80">
-          © {new Date().getFullYear()} Orakly Market. Built for transparent crypto
-          prediction markets.
+        <p className="mt-4 font-mono text-[10px] text-[var(--text-muted)]">
+          © {new Date().getFullYear()} Orakly Market. Built for transparent crypto prediction markets.
         </p>
+        </div>
       </div>
     </footer>
   );
