@@ -440,7 +440,7 @@ export function MarketingLandingSections() {
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Link
-              href={ROUTES.markets}
+              href={ROUTES.dapp}
               className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition hover:brightness-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yes focus-visible:ring-offset-2 focus-visible:ring-offset-background"
             >
               Launch app
@@ -495,7 +495,7 @@ export function MarketingLandingSections() {
                   Markets
                 </Link>
                 <Link
-                  href={ROUTES.markets}
+                  href={ROUTES.dapp}
                   className="text-foreground/90 transition hover:text-yes focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yes/40 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                 >
                   Launch app

@@ -8,6 +8,8 @@ export const ROUTES = {
   home: "/",
   /** Same as `home` (legacy `/landing` URL redirects to `/`). */
   landing: "/",
+  /** Trading hub home — live tape, spotlight lanes, browse blocks. */
+  dapp: "/dapp",
   /** Live markets directory (marketing shell). */
   discover: "/discover",
   /** Primary exploration surface — dense grid, filters, infinite scroll. */

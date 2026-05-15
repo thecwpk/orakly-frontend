@@ -18,6 +18,7 @@ import {
   type RtBatchPayload,
   type TradeInstantPayload,
 } from "@orakly/realtime-protocol";
+import { resolvePublicRealtimeUrl } from "@/lib/realtime-public-env";
 import { createMarketSocket } from "./client/create-socket";
 import { applyFeedActivity } from "./store/feed-store";
 import {
@@ -43,9 +44,7 @@ const Ctx = createContext<Registry | null>(null);
 
 function resolveWsUrl(): string {
   if (typeof window === "undefined") return "";
-  const env = process.env.NEXT_PUBLIC_REALTIME_URL?.trim();
-  if (env) return env;
-  return "";
+  return resolvePublicRealtimeUrl(window.location.origin);
 }
 
 export function SocketRegistryProvider({
@@ -85,7 +84,7 @@ export function SocketRegistryProvider({
     if (!url) {
       if (process.env.NODE_ENV === "development") {
         console.info(
-          "[orakly] NEXT_PUBLIC_REALTIME_URL unset — Socket.IO disabled (avoids hanging the Next dev server). REST + UI still work.",
+          "[orakly] Realtime disabled — set NEXT_PUBLIC_REALTIME_URL or REALTIME_UPSTREAM_URL + NEXT_PUBLIC_REALTIME_SAME_ORIGIN=true. REST APIs still work.",
         );
       }
       setConnectionStatus("disconnected");

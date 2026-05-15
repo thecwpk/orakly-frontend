@@ -21,7 +21,11 @@ const NAV_ROWS: NavRow[] = [
     landing: { href: ROUTES.discover, isRoute: true },
     app: { href: ROUTES.discover, isRoute: true },
   },
-  { label: "Dapp", landing: { href: "#how-it-works", isRoute: false }, app: { href: ROUTES.markets, isRoute: true } },
+  {
+    label: "Dapp",
+    landing: { href: ROUTES.dapp, isRoute: true },
+    app: { href: ROUTES.dapp, isRoute: true },
+  },
   {
     label: "Docs",
     landing: { href: "#footer", isRoute: false },
@@ -121,7 +125,7 @@ export function GlobalMarketingNavbar({ variant, appendActions, chrome = "defaul
             Join Early Access
           </a>
           <Link
-            href={ROUTES.markets}
+            href={ROUTES.dapp}
             className={cn(
               "rounded-md px-4 py-2 text-[13px] font-semibold transition",
               glass
@@ -185,7 +189,7 @@ export function GlobalMarketingNavbar({ variant, appendActions, chrome = "defaul
               Join Early Access
             </a>
             <Link
-              href={ROUTES.markets}
+              href={ROUTES.dapp}
               className={cn(
                 "rounded-md py-2.5 text-center text-sm font-semibold",
                 glass ? "bg-[var(--accent-strong)] text-[var(--bg-0)] hover:brightness-110" : "marketing-cta-primary",

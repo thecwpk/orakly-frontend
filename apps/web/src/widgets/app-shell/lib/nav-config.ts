@@ -62,6 +62,7 @@ export function isMarketsBrowseActive(
   searchParams: Pick<URLSearchParams, "get"> | null | undefined,
 ): boolean {
   if (!pathname) return false;
+  if (pathname === ROUTES.dapp || pathname.startsWith(`${ROUTES.dapp}/`)) return true;
   if (pathname === ROUTES.discover || pathname.startsWith(`${ROUTES.discover}/`)) return true;
   if (pathname.startsWith("/markets/") && pathname !== "/markets") return true;
   if (pathname !== "/markets") return false;
@@ -71,6 +72,7 @@ export function isMarketsBrowseActive(
 /** Legacy helper — discovery surface: `/discover` + `/markets` detail routes. */
 export function isMarketsExplorerNavActive(pathname: string | null): boolean {
   if (!pathname) return false;
+  if (pathname === ROUTES.dapp || pathname.startsWith(`${ROUTES.dapp}/`)) return true;
   if (pathname === ROUTES.discover || pathname.startsWith(`${ROUTES.discover}/`)) return true;
   if (pathname === "/markets") return true;
   return pathname.startsWith("/markets/");

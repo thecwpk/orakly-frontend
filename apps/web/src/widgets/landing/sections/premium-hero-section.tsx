@@ -349,7 +349,7 @@ export function PremiumHeroSection({ navbar }: PremiumHeroSectionProps) {
                     transition={{ type: "spring", stiffness: 420, damping: 28 }}
                   >
                     <Link
-                      href={ROUTES.markets}
+                      href={ROUTES.dapp}
                       className={cn(
                         "group relative inline-flex items-center gap-2 overflow-hidden rounded-md px-6 py-3 text-[13px] font-semibold",
                         "bg-[var(--accent-strong)] text-[var(--bg-0)]",

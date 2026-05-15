@@ -37,7 +37,7 @@ export function AppTopbar({ density = "default" }: { density?: AppTopbarDensity 
       >
         <div className="flex min-w-0 shrink-0 items-center">
           <BrandWordmarkLink
-            href={ROUTES.home}
+            href={ROUTES.dapp}
             tone="theme"
             priority
             className="gap-2.5 sm:gap-3"

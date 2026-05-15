@@ -4,6 +4,10 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { config as loadEnv } from "dotenv";
 
+function trimEnv(name) {
+  return process.env[name]?.trim() ?? "";
+}
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 /** Monorepo database package (Railway `DATABASE_URL` is set on Vercel, not in this file). */
 const databaseEnvPath = path.resolve(__dirname, "../../packages/database/.env");
@@ -17,6 +21,16 @@ if (!process.env.DATABASE_URL && existsSync(databaseEnvPath)) {
 const nextConfig = {
   async redirects() {
     return [{ source: "/welcome", destination: "/", permanent: true }];
+  },
+  async rewrites() {
+    const upstream = trimEnv("REALTIME_UPSTREAM_URL").replace(/\/$/, "");
+    if (!upstream) return [];
+    return [
+      {
+        source: "/socket.io/:path*",
+        destination: `${upstream}/socket.io/:path*`,
+      },
+    ];
   },
   poweredByHeader: false,
   compress: true,

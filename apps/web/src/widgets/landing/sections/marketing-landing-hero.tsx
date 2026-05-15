@@ -87,7 +87,7 @@ export function MarketingLandingHero() {
             </p>
             <div className="mt-7 flex flex-wrap gap-3 animate-hero-fade-up motion-reduce:animate-none [animation-delay:120ms]">
               <Link
-                href={ROUTES.markets}
+                href={ROUTES.dapp}
                 className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-b from-primary to-[color:color-mix(in_srgb,var(--primary)_72%,black)] px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-[0_16px_40px_-14px_color-mix(in_srgb,var(--primary)_70%,transparent)] ring-1 ring-white/10 transition hover:brightness-[1.03] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yes focus-visible:ring-offset-2 focus-visible:ring-offset-background"
               >
                 Launch app
