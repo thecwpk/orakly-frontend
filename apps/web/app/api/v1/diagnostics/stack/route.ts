@@ -11,6 +11,40 @@ function envPresent(name: string): boolean {
   return Boolean(process.env[name]?.trim());
 }
 
+function inspectDatabaseUrl(): { ok: boolean; detail: string } {
+  const raw = process.env.DATABASE_URL?.trim();
+  if (!raw) return { ok: false, detail: "MISSING" };
+  if (/USER:PASSWORD|@HOST[.:]/i.test(raw)) {
+    return { ok: false, detail: "still .env.example placeholder — paste Neon URL from apps/web/.env.local" };
+  }
+  try {
+    const u = new URL(raw.replace(/^postgresql:/i, "postgres:"));
+    const host = u.hostname.toLowerCase();
+    const badHosts = new Set(["base", "host", "localhost", "127.0.0.1"]);
+    if (badHosts.has(host)) {
+      return {
+        ok: false,
+        detail: `host "${u.hostname}" is not a real DB — use Neon ep-misty-feather-… from .env.local`,
+      };
+    }
+    return { ok: true, detail: `set · host ${u.hostname}` };
+  } catch {
+    return { ok: false, detail: "invalid DATABASE_URL format" };
+  }
+}
+
+function inspectAppUrl(): { ok: boolean; detail: string } {
+  const url = process.env.NEXT_PUBLIC_APP_URL?.trim() ?? "";
+  if (!url) return { ok: false, detail: "MISSING NEXT_PUBLIC_APP_URL" };
+  if (/YOUR-PROJECT|your-project/i.test(url)) {
+    return {
+      ok: false,
+      detail: "placeholder YOUR-PROJECT — set https://orakly-frontend-web.vercel.app",
+    };
+  }
+  return { ok: true, detail: url };
+}
+
 /**
  * Deep stack probe — Bearer `CRON_SECRET` (same as warm-markets-cache).
  * Run via: npm run verify:vercel (uses .env.local)
@@ -43,11 +77,14 @@ export async function GET(req: Request) {
     checks.push({ id: "database", ok: false, detail: msg });
   }
 
+  const dbUrl = inspectDatabaseUrl();
+  const appUrl = inspectAppUrl();
+
   const envChecks: Check[] = [
     {
       id: "env.DATABASE_URL",
-      ok: envPresent("DATABASE_URL"),
-      detail: envPresent("DATABASE_URL") ? "set" : "MISSING",
+      ok: dbUrl.ok,
+      detail: dbUrl.detail,
     },
     {
       id: "env.REALTIME_INGEST",
@@ -72,8 +109,8 @@ export async function GET(req: Request) {
     },
     {
       id: "env.app_url",
-      ok: envPresent("NEXT_PUBLIC_APP_URL") && envPresent("INTERNAL_APP_URL"),
-      detail: process.env.NEXT_PUBLIC_APP_URL?.trim() ?? "MISSING",
+      ok: appUrl.ok && envPresent("INTERNAL_APP_URL"),
+      detail: appUrl.detail,
     },
   ];
 
