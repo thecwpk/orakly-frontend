@@ -1,6 +1,8 @@
 import type { NextRequest } from "next/server";
 import { unstable_cache } from "next/cache";
 import { NextResponse } from "next/server";
+import { MarketStatus } from "@prisma/client";
+import { prisma } from "@orakly/database";
 import {
   getMarketsFeedScoped,
   type MarketsFeedLane,
@@ -75,6 +77,16 @@ export async function GET(req: NextRequest) {
   /** Hub feeds must reflect DB only — never inject static featured markets. Full explorer keeps fallback when empty. */
   const staticFallback = scope !== "hub";
 
+  let openBucket = "oc?";
+  try {
+    const openCount = await prisma.market.count({
+      where: { status: MarketStatus.OPEN },
+    });
+    openBucket = openCount > 0 ? "oc1" : "oc0";
+  } catch {
+    openBucket = "ocE";
+  }
+
   const cachedFetch = unstable_cache(
     async () =>
       getMarketsFeedScoped({
@@ -93,6 +105,7 @@ export async function GET(req: NextRequest) {
       listFilter,
       String(take),
       staticFallback ? "sf1" : "sf0",
+      openBucket,
     ],
     { revalidate: 45, tags: ["markets-feed"] },
   );

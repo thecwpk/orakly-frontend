@@ -328,7 +328,10 @@ const MARKETS: readonly SeedMarket[] = [
   },
 ];
 
-async function main() {
+export async function runDatabaseSeed(): Promise<{
+  upserted: number;
+  openCount: number;
+}> {
   for (const c of CATEGORIES) {
     await prisma.category.upsert({
       where: { slug: c.slug },
@@ -380,15 +383,24 @@ async function main() {
     });
   }
 
-  const count = await prisma.market.count({ where: { status: MarketStatus.OPEN } });
-  console.log(`Seed complete: ${MARKETS.length} markets upserted; ${count} OPEN markets in DB.`);
+  const openCount = await prisma.market.count({
+    where: { status: MarketStatus.OPEN },
+  });
+  return { upserted: MARKETS.length, openCount };
 }
 
-main()
-  .catch((e) => {
-    console.error(e);
-    process.exit(1);
-  })
-  .finally(async () => {
+async function main() {
+  try {
+    const { upserted, openCount } = await runDatabaseSeed();
+    console.log(
+      `Seed complete: ${upserted} markets upserted; ${openCount} OPEN markets in DB.`,
+    );
+  } finally {
     await prisma.$disconnect();
-  });
+  }
+}
+
+main().catch((e) => {
+  console.error(e);
+  process.exit(1);
+});

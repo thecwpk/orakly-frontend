@@ -28,6 +28,7 @@ if (!base) {
 }
 
 const cronSecret = process.env.CRON_SECRET?.trim();
+const revalidateSecret = process.env.VERCEL_REVALIDATE_SECRET?.trim();
 const realtimeBase = process.env.REALTIME_INGEST_URL?.trim().replace(/\/$/, "");
 const sameOrigin = process.env.NEXT_PUBLIC_REALTIME_SAME_ORIGIN === "true";
 const socketBase = sameOrigin ? base : process.env.NEXT_PUBLIC_REALTIME_URL?.trim().replace(/\/$/, "");
@@ -94,7 +95,47 @@ console.log("  Orakly Vercel stack verify");
 console.log(`  Target: ${base}`);
 console.log("══════════════════════════════════════════\n");
 
-console.log("── App API ──\n");
+console.log("── DB sync + cache (production) ──\n");
+
+if (cronSecret) {
+  const sync = await getJson(`${base}/api/internal/db-sync`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${cronSecret}` },
+  });
+  if (sync.status === 404) {
+    fail(
+      "POST /api/internal/db-sync",
+      "404 — redeploy frontend; also set Vercel DATABASE_URL = Neon URL from .env.local",
+    );
+  } else if (sync.ok && sync.json?.openCount > 0) {
+    pass(
+      "POST /api/internal/db-sync",
+      `${sync.json.openCount} OPEN markets · schema ${sync.json.schema?.detail ?? "ok"}`,
+    );
+  } else if (sync.ok) {
+    fail(
+      "POST /api/internal/db-sync",
+      `seed ran but 0 OPEN — check Vercel DATABASE_URL matches Neon in .env.local`,
+    );
+  } else {
+    fail("POST /api/internal/db-sync", `HTTP ${sync.status} · ${sync.text}`);
+  }
+} else {
+  fail("POST /api/internal/db-sync", "CRON_SECRET missing in .env.local");
+}
+
+if (revalidateSecret) {
+  const rev = await getJson(`${base}/api/internal/revalidate-feed`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${revalidateSecret}` },
+  });
+  if (rev.ok && rev.json?.ok) pass("POST /api/internal/revalidate-feed", "markets-feed tag busted");
+  else fail("POST /api/internal/revalidate-feed", `HTTP ${rev.status} · ${rev.text}`);
+} else {
+  fail("revalidate-feed", "VERCEL_REVALIDATE_SECRET missing in .env.local");
+}
+
+console.log("\n── App API ──\n");
 
 {
   const r = await getJson(`${base}/api/v1/health`);
