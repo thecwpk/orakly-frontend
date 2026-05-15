@@ -6,7 +6,6 @@ import { useMemo } from "react";
 import {
   useMarketBySlugQuery,
   useMarketOddsQuery,
-  useMarketOddsRealtimeInvalidation,
   useMarketsFeedQuery,
   useTradingQueriesSync,
 } from "@/shared/api/hooks";
@@ -46,20 +45,25 @@ function MarketDetailsLoaded({ market }: { market: Market }) {
 
   useMarketRoom(tradeMarketId ?? undefined);
   const rt = useMarketRealtime(tradeMarketId ?? undefined);
-  useMarketOddsRealtimeInvalidation(tradeMarketId ?? undefined, rt.seq, 140);
   useTradingQueriesSync(actorId);
 
   const oddsQuery = useMarketOddsQuery(tradeMarketId ?? undefined);
   const odds = oddsQuery.data;
 
+  const feedProb = market.probability ?? 0.5;
+  const httpYes = odds?.yesPrice;
+  const httpNo = odds?.noPrice;
+  const rtYes = rt.odds?.yesPrice;
+  const rtNo = rt.odds?.noPrice;
+
   const midYes = useMemo(
-    () => mergeMidYes(market.probability ?? 0.5, odds, rt),
-    [market, odds, rt],
+    () => mergeMidYes(feedProb, odds, rt),
+    [feedProb, httpYes, httpNo, rtYes, rtNo, rt.seq],
   );
 
   const { yesLabel, noLabel } = useMemo(
-    () => mergeYesNoDisplay(market.probability ?? 0.5, odds, rt),
-    [market, odds, rt],
+    () => mergeYesNoDisplay(feedProb, odds, rt),
+    [feedProb, httpYes, httpNo, rtYes, rtNo, rt.seq],
   );
 
   const sideParam = (searchParams?.get("side") ?? "").toUpperCase();
@@ -194,7 +198,7 @@ function MarketDetailsBody({ slug }: { slug: string }) {
     return <MarketNotFound slug={slug} />;
   }
 
-  return <MarketDetailsLoaded market={marketQ.data} />;
+  return <MarketDetailsLoaded key={marketQ.data.id} market={marketQ.data} />;
 }
 
 export function MarketDetailsPage({ slug }: { slug: string }) {

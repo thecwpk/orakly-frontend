@@ -2,14 +2,13 @@
 
 import type { MarketOddsDto } from "@/shared/api/fetchers/markets-live";
 import type { MarketRealtimeSnapshot } from "@/websocket/store/market-realtime-store";
-import { memo, useMemo, useState } from "react";
+import { memo, useLayoutEffect, useMemo, useRef, useState } from "react";
 import {
   Area,
   AreaChart,
   Bar,
   BarChart,
   CartesianGrid,
-  ResponsiveContainer,
   Tooltip,
   XAxis,
   YAxis,
@@ -54,6 +53,36 @@ function volumeTooltipFormatter(value: unknown) {
   return [`$${Number(value ?? 0)}M`, "Notional"];
 }
 
+/** Avoid Recharts `ResponsiveContainer` resize loops (React error #185 on flex layouts). */
+function useChartBoxWidth() {
+  const ref = useRef<HTMLDivElement>(null);
+  const [width, setWidth] = useState(0);
+
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+
+    let raf = 0;
+    const measure = () => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => {
+        const next = Math.floor(el.getBoundingClientRect().width);
+        setWidth((prev) => (prev === next ? prev : next));
+      });
+    };
+
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => {
+      cancelAnimationFrame(raf);
+      ro.disconnect();
+    };
+  }, []);
+
+  return { ref, width };
+}
+
 function MarketChartPanelInner({
   slug,
   volumeUsd,
@@ -67,10 +96,10 @@ function MarketChartPanelInner({
   midYes: number;
   odds: MarketOddsDto | undefined;
   rt: MarketRealtimeSnapshot;
-  /** Trading-terminal layouts pass ~340–400 so probability dominates. */
   chartHeight?: number;
 }) {
   const [tab, setTab] = useState<Tab>("implied");
+  const { ref: boxRef, width: chartWidth } = useChartBoxWidth();
 
   const impliedData = useMemo<ImpliedPoint[]>(() => {
     const base = buildImpliedHistory(slug, midYes, 52);
@@ -118,6 +147,7 @@ function MarketChartPanelInner({
   );
 
   const isHero = chartHeight >= 300;
+  const canRenderChart = chartWidth >= 48;
 
   return (
     <div
@@ -163,12 +193,18 @@ function MarketChartPanelInner({
         </div>
       </div>
       <div
-        className="w-full min-h-0 min-w-[1px] px-1.5 pb-1 pt-1.5 sm:pb-1.5 sm:pt-2"
+        ref={boxRef}
+        className="w-full min-h-0 min-w-[48px] px-1.5 pb-1 pt-1.5 sm:pb-1.5 sm:pt-2"
         style={{ height: chartHeight, minHeight: chartHeight }}
       >
-        <ResponsiveContainer width="100%" height={chartHeight} debounce={32}>
-          {tab === "implied" ?
-            <AreaChart data={impliedChartRows} margin={CHART_MARGIN}>
+        {canRenderChart ?
+          tab === "implied" ?
+            <AreaChart
+              width={chartWidth}
+              height={chartHeight}
+              data={impliedChartRows}
+              margin={CHART_MARGIN}
+            >
               <defs>
                 <linearGradient id="yesFill" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="0%" stopColor="rgb(34,211,238)" stopOpacity={0.35} />
@@ -197,7 +233,12 @@ function MarketChartPanelInner({
                 activeDot={ACTIVE_DOT}
               />
             </AreaChart>
-          : <BarChart data={volumeChartRows} margin={CHART_MARGIN}>
+          : <BarChart
+              width={chartWidth}
+              height={chartHeight}
+              data={volumeChartRows}
+              margin={CHART_MARGIN}
+            >
               <defs>
                 <linearGradient id="volGrad" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="0%" stopColor="rgb(167,139,250)" />
@@ -210,8 +251,13 @@ function MarketChartPanelInner({
               <Tooltip contentStyle={TOOLTIP_VOL_STYLE} formatter={volumeTooltipFormatter} />
               <Bar dataKey="volM" fill="url(#volGrad)" radius={[4, 4, 0, 0]} />
             </BarChart>
-          }
-        </ResponsiveContainer>
+        : <div
+            className="flex h-full w-full items-center justify-center text-[11px] text-zinc-600"
+            style={{ height: chartHeight }}
+          >
+            Loading chart…
+          </div>
+        }
       </div>
       {rt.seq > 0 ?
         <div className="border-t border-white/6 px-3 py-1.5 text-[9px] text-zinc-600">

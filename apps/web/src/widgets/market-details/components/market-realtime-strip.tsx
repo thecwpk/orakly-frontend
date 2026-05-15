@@ -3,7 +3,6 @@
 import type { MarketOddsDto } from "@/shared/api/fetchers/markets-live";
 import type { MarketRealtimeSnapshot } from "@/websocket/store/market-realtime-store";
 import { cn } from "@/lib/utils";
-import { motion } from "framer-motion";
 import { memo, useEffect, useMemo, useRef, useState } from "react";
 
 function MarketRealtimeStripInner({
@@ -47,19 +46,16 @@ function MarketRealtimeStripInner({
         <span className="text-[9px] font-semibold uppercase tracking-[0.14em] text-zinc-600">
           Mid
         </span>
-        <motion.span
-          key={(midYes * 10000).toFixed(0)}
-          initial={{ opacity: 0.55 }}
-          animate={{ opacity: 1 }}
+        <span
           className={cn(
-            "font-mono text-[13px] font-semibold tabular-nums",
+            "font-mono text-[13px] font-semibold tabular-nums transition-colors duration-300",
             flash === "up" && "text-emerald-300",
             flash === "down" && "text-rose-300",
             !flash && "text-zinc-100",
           )}
         >
           {(midYes * 100).toFixed(1)}¢
-        </motion.span>
+        </span>
       </div>
 
       <span className="hidden h-4 w-px bg-white/[0.08] sm:block" aria-hidden />
