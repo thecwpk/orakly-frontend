@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import dynamic from "next/dynamic";
+import { Suspense } from "react";
 import { ensureDiscoveryTrendingSearchParam } from "@/server/navigation/ensure-discovery-trending-param";
 import { Container, Section } from "@/shared/ui";
 import { MarketsListSkeleton } from "@/widgets/markets-explorer";
@@ -33,5 +34,17 @@ export default async function MarketsPage({
 }) {
   const sp = await searchParams;
   ensureDiscoveryTrendingSearchParam("/markets", sp);
-  return <MarketsExplorerPage />;
+  return (
+    <Suspense
+      fallback={
+        <Section spacing="tight" width="xl">
+          <Container width="xl" className="pt-r24">
+            <MarketsListSkeleton count={12} />
+          </Container>
+        </Section>
+      }
+    >
+      <MarketsExplorerPage />
+    </Suspense>
+  );
 }

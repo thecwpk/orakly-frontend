@@ -1,6 +1,6 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { Suspense, type ReactNode } from "react";
 import { TradeModal } from "@/features/trading";
 import { cn } from "@/lib/utils";
 import { SocketProvider } from "@/providers";
@@ -39,7 +39,9 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
 
         <MobileMoreSheet />
-        <MobileBottomNav />
+        <Suspense fallback={null}>
+          <MobileBottomNav />
+        </Suspense>
 
         <TradeModal />
       </div>

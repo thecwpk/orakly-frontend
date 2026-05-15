@@ -1,6 +1,6 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { Suspense, type ReactNode } from "react";
 import { TradeModal } from "@/features/trading";
 import { cn } from "@/lib/utils";
 import { appMainPageInsetStyle } from "@/shared/constants/page-layout";
@@ -42,7 +42,9 @@ export function MinimalMarketShell({ children }: { children: ReactNode }) {
         </div>
 
         <MobileMoreSheet />
-        <MobileBottomNav />
+        <Suspense fallback={null}>
+          <MobileBottomNav />
+        </Suspense>
 
         <TradeModal />
       </div>

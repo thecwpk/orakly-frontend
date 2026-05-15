@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { MarketDetailsPage } from "@/widgets/market-details/market-details-page";
 
 export default async function MarketSlugPage({
@@ -6,5 +7,9 @@ export default async function MarketSlugPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  return <MarketDetailsPage slug={decodeURIComponent(slug)} />;
+  return (
+    <Suspense fallback={null}>
+      <MarketDetailsPage slug={decodeURIComponent(slug)} />
+    </Suspense>
+  );
 }
