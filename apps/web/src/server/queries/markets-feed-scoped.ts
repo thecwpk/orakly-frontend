@@ -6,6 +6,14 @@ import { prisma } from "@orakly/database";
 import { getFeaturedMarkets as staticFeaturedMarkets } from "@/features/markets/api/get-featured-markets";
 import { prismaMarketToFeedDto } from "./market-feed-mapper";
 
+/** Hub feeds must not swallow DB failures as an empty list (misleading “syncing” UI). */
+export class MarketsFeedDatabaseError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "MarketsFeedDatabaseError";
+  }
+}
+
 export type MarketsFeedScope = "hub" | "full";
 
 /** “Trending now” chip lane — `/dapp` hub. */
@@ -216,7 +224,11 @@ export async function getMarketsFeedScoped(input: {
       return useStaticFallback ? staticFeaturedMarkets() : [];
     }
     return rows.map(prismaMarketToFeedDto);
-  } catch {
-    return useStaticFallback ? staticFeaturedMarkets() : [];
+  } catch (e) {
+    if (!useStaticFallback) {
+      const msg = e instanceof Error ? e.message : String(e);
+      throw new MarketsFeedDatabaseError(msg);
+    }
+    return staticFeaturedMarkets();
   }
 }

@@ -38,7 +38,7 @@ export function NavTrendingTicker({
       return { key: m.id, slug: m.slug, title: short, yes, no };
     });
     if (!rows.length) {
-      return [{ key: "idle-market", slug: "" as const, title: "Markets syncing", yes: 50, no: 50 }];
+      return [{ key: "idle-market", slug: "" as const, title: "No markets loaded", yes: 0, no: 0 }];
     }
     return rows;
   }, [hubMarketsQ.data]);

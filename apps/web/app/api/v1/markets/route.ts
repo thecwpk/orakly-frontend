@@ -10,7 +10,8 @@ import {
   type MarketsListLaneFilter,
   type MarketsTrendingLane,
 } from "@/server/queries/markets-feed-scoped";
-import { ok } from "../_lib/response";
+import { err, ok } from "../_lib/response";
+import { MarketsFeedDatabaseError } from "@/server/queries/markets-feed-scoped";
 
 function parseLane(raw: string | null): MarketsFeedLane {
   if (raw === "trending" || raw === "list" || raw === "alpha" || raw === "directory") {
@@ -110,11 +111,30 @@ export async function GET(req: NextRequest) {
     { revalidate: 45, tags: ["markets-feed"] },
   );
 
-  const data = await cachedFetch();
+  if (scope === "hub" && openBucket === "ocE") {
+    return NextResponse.json(
+      err(
+        "DATABASE_UNAVAILABLE",
+        "Postgres unreachable from Vercel. Set DATABASE_URL to your Neon URL (not placeholder host “base”).",
+      ),
+      { status: 503 },
+    );
+  }
 
-  return NextResponse.json(ok(data), {
-    headers: {
-      "Cache-Control": "public, s-maxage=45, stale-while-revalidate=180",
-    },
-  });
+  try {
+    const data = await cachedFetch();
+    return NextResponse.json(ok(data), {
+      headers: {
+        "Cache-Control": "public, s-maxage=45, stale-while-revalidate=180",
+      },
+    });
+  } catch (e) {
+    if (scope === "hub" && e instanceof MarketsFeedDatabaseError) {
+      return NextResponse.json(
+        err("DATABASE_UNAVAILABLE", e.message),
+        { status: 503 },
+      );
+    }
+    throw e;
+  }
 }

@@ -173,6 +173,18 @@ export function DappHubPage() {
         trendingHotQ.isLoading ||
         trendingNewTrendingQ.isLoading));
 
+  const hubDatabaseDown =
+    trendingListQ.isError ||
+    trendingTapeQ.isError ||
+    trendingActivityQ.isError ||
+    trendingHotQ.isError ||
+    trendingNewTrendingQ.isError;
+
+  const hubDatabaseMessage =
+    trendingListQ.error?.message ??
+    trendingTapeQ.error?.message ??
+    "Postgres unreachable on Vercel — fix DATABASE_URL (Neon URL from apps/web/.env.local).";
+
   const crossLaneHotTopTen = useMemo(
     () =>
       pickCrossLaneHotMarkets(
@@ -293,6 +305,20 @@ export function DappHubPage() {
 
   return (
     <div className="mb-root">
+      {hubDatabaseDown ? (
+        <div
+          role="alert"
+          className="mx-auto mb-4 max-w-3xl rounded-lg border border-destructive/40 bg-destructive/10 px-4 py-3 text-center text-sm text-destructive"
+        >
+          <p className="font-semibold">Database not connected</p>
+          <p className="mt-1 text-xs text-destructive/90">{hubDatabaseMessage}</p>
+          <p className="mt-2 text-[11px] text-muted-foreground">
+            Vercel → Environment Variables → Production: paste{" "}
+            <code className="rounded bg-muted px-1">DATABASE_URL</code> from{" "}
+            <code className="rounded bg-muted px-1">apps/web/.env.local</code>, then redeploy.
+          </p>
+        </div>
+      ) : null}
       <HubHomeMarketTicker markets={trendingTape} />
 
       <div className="mb-shell">
@@ -325,9 +351,20 @@ export function DappHubPage() {
                   <HubBreakingHotTopicsStack {...breakingHotStackProps} className={asideSurfaceClass} />
                 </div>
               </div>
+            ) : hubDatabaseDown ? (
+              <div className="mb-hero mb-hero-grid space-y-5">
+                <p className={cn(panel, "px-3 py-4 text-center text-[11px] text-destructive")}>
+                  Markets unavailable — database not connected on server.
+                </p>
+                <div className="min-[1100px]:hidden">
+                  <HubBreakingHotTopicsStack {...breakingHotStackProps} className={asideSurfaceClass} />
+                </div>
+              </div>
             ) : (
               <div className="mb-hero mb-hero-grid space-y-5">
-                <p className={cn(panel, "px-3 py-4 text-center text-[11px] text-muted-foreground")}>Feed syncing…</p>
+                <p className={cn(panel, "px-3 py-4 text-center text-[11px] text-muted-foreground")}>
+                  Feed syncing… (waiting for markets in database)
+                </p>
                 <div className="min-[1100px]:hidden">
                   <HubBreakingHotTopicsStack {...breakingHotStackProps} className={asideSurfaceClass} />
                 </div>

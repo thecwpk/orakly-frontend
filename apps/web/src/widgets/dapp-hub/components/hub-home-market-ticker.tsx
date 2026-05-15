@@ -26,7 +26,7 @@ function buildRows(markets: readonly Market[]): TickerRow[] {
     if (out.length >= TAKE) break;
   }
   if (!out.length) {
-    return [{ key: "idle", slug: "", title: "Markets syncing", yes: 50, no: 50 }];
+    return [{ key: "idle", slug: "", title: "No markets loaded", yes: 0, no: 0 }];
   }
   return out;
 }
@@ -83,11 +83,13 @@ export function HubHomeMarketTicker({ markets }: { markets: readonly Market[] })
               ) : (
                 <span key={`${node.key}-${i}`} className="mb-ticker__capsule mb-ticker__capsule--idle">
                   <span className="mb-ticker__capsule-title">{node.title}</span>
-                  <span className="mb-ticker__capsule-stats">
-                    <span className="mb-ticker__capsule-yes">{node.yes}%</span>
-                    <span className="mb-ticker__capsule-slash">/</span>
-                    <span className="mb-ticker__capsule-no">{node.no}%</span>
-                  </span>
+                  {node.yes + node.no > 0 ? (
+                    <span className="mb-ticker__capsule-stats">
+                      <span className="mb-ticker__capsule-yes">{node.yes}%</span>
+                      <span className="mb-ticker__capsule-slash">/</span>
+                      <span className="mb-ticker__capsule-no">{node.no}%</span>
+                    </span>
+                  ) : null}
                 </span>
               ),
             )}
