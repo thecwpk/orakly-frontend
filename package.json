@@ -4,8 +4,8 @@
   "packageManager": "npm@11.13.0",
   "workspaces": ["apps/*", "packages/*"],
   "scripts": {
-    "db:generate": "npm run db:generate --prefix ../orakly-backend && node ./scripts/sync-prisma-client.mjs",
-    "postinstall": "node ./scripts/sync-prisma-client.mjs",
+    "db:generate": "node ./scripts/link-orakly-backend.mjs && npm run db:generate --prefix ./orakly-backend && node ./scripts/sync-prisma-client.mjs",
+    "postinstall": "node ./scripts/link-orakly-backend.mjs && node ./scripts/sync-prisma-client.mjs",
     "dev": "turbo run dev",
     "build": "turbo run build",
     "lint": "turbo run lint",

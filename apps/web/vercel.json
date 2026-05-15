@@ -1,4 +1,7 @@
 {
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "installCommand": "cd ../.. && node scripts/link-orakly-backend.mjs && npm install",
+  "buildCommand": "cd ../.. && npm run db:generate && npm run build --workspace=web",
   "crons": [
     {
       "path": "/api/internal/cron/crypto-ingest",

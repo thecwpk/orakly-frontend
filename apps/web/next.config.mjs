@@ -5,15 +5,21 @@ import { fileURLToPath } from "node:url";
 import { config as loadEnv } from "dotenv";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-/** Split-repo: sibling `orakly-backend`. Legacy: monorepo `packages/database`. */
+/** In-repo clone/link, sibling repo, or legacy monorepo `packages/database`. */
+const inRepoBackendDbEnv = path.resolve(
+  __dirname,
+  "../../orakly-backend/packages/database/.env",
+);
 const siblingBackendDbEnv = path.resolve(
   __dirname,
   "../../../orakly-backend/packages/database/.env",
 );
 const monorepoDbEnv = path.resolve(__dirname, "../../packages/database/.env");
-const databaseEnvPath = existsSync(siblingBackendDbEnv)
-  ? siblingBackendDbEnv
-  : monorepoDbEnv;
+const databaseEnvPath = existsSync(inRepoBackendDbEnv)
+  ? inRepoBackendDbEnv
+  : existsSync(siblingBackendDbEnv)
+    ? siblingBackendDbEnv
+    : monorepoDbEnv;
 
 /** Prefer OS / hosting env; otherwise reuse the Prisma package `.env` for local dev. */
 if (!process.env.DATABASE_URL && existsSync(databaseEnvPath)) {

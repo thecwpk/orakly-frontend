@@ -21,6 +21,9 @@ coverage
 # Vercel
 .vercel
 
+# Cloned / linked backend for CI (use sibling repo locally when possible)
+/orakly-backend
+
 # Build Outputs
 .next/
 out/

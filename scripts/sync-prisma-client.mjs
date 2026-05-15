@@ -8,7 +8,11 @@ import { fileURLToPath } from "node:url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const frontendRoot = join(__dirname, "..");
-const backendRoot = join(frontendRoot, "..", "orakly-backend");
+const inRepoBackend = join(frontendRoot, "orakly-backend");
+const siblingBackend = join(frontendRoot, "..", "orakly-backend");
+const backendRoot = existsSync(join(inRepoBackend, "packages", "database"))
+  ? inRepoBackend
+  : siblingBackend;
 const src = join(backendRoot, "node_modules", ".prisma");
 const destParent = join(frontendRoot, "node_modules");
 const dest = join(destParent, ".prisma");
