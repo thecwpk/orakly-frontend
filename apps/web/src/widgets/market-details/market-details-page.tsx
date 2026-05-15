@@ -4,6 +4,7 @@ import type { Market } from "@orakly/types";
 import { notFound, useSearchParams } from "next/navigation";
 import { useMemo } from "react";
 import {
+  useMarketBySlugQuery,
   useMarketOddsQuery,
   useMarketOddsRealtimeInvalidation,
   useMarketsFeedQuery,
@@ -37,12 +38,10 @@ function resolveTradeMarketId(market: Market): string | null {
 function MarketDetailsBody({ slug }: { slug: string }) {
   const actorId = useAuthStore((s) => s.tradingUserId ?? undefined);
   const searchParams = useSearchParams();
-  const { data: markets = [], isLoading: feedLoading } = useMarketsFeedQuery();
+  const marketQ = useMarketBySlugQuery(slug);
+  const { data: markets = [] } = useMarketsFeedQuery();
 
-  const market = useMemo(
-    () => markets.find((m) => m.slug === slug || m.id === slug),
-    [markets, slug],
-  );
+  const market = marketQ.data;
 
   const tradeMarketId = market ? resolveTradeMarketId(market) : null;
 
@@ -86,11 +85,11 @@ function MarketDetailsBody({ slug }: { slug: string }) {
     };
   }, [market, midYes, tradeMarketId]);
 
-  if (feedLoading && !market) {
+  if (marketQ.isLoading && !market) {
     return <MarketDetailsSkeleton />;
   }
 
-  if (!market) {
+  if (marketQ.isError || !market) {
     notFound();
   }
 

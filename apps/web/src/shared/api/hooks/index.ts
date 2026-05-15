@@ -16,6 +16,7 @@ export { useDiscoveryMarketsQuery } from "./use-discovery-markets-query";
 export { useDiscoveryNewsQuery } from "./use-discovery-news-query";
 export { usePortfolioQuery } from "./usePortfolioQuery";
 export { useTradesInfiniteQuery } from "./useTradesInfiniteQuery";
+export { useMarketBySlugQuery } from "./useMarketBySlugQuery";
 export { useMarketOddsQuery } from "./useMarketOddsQuery";
 export { useMarketVolumeWindowQuery } from "./useMarketVolumeWindowQuery";
 export { useMarketQuoteDebouncedQuery } from "./useMarketQuoteDebouncedQuery";

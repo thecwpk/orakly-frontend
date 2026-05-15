@@ -1,3 +1,4 @@
+import type { Market } from "@orakly/types";
 import { apiClient } from "@/api/client/http-client";
 import { unwrapApiResult } from "../unwrap";
 
@@ -34,6 +35,12 @@ export type MarketVolumeWindowDto = {
   imbalance: number;
   rows: MarketVolumeWindowRowDto[];
 };
+
+export async function fetchMarketBySlug(slug: string): Promise<Market> {
+  const enc = encodeURIComponent(slug);
+  const res = await apiClient.request<Market>(`/api/v1/markets/by-slug/${enc}`);
+  return unwrapApiResult(res);
+}
 
 export async function fetchMarketVolumeWindowBySlug(
   slug: string,

@@ -78,6 +78,8 @@ export const queryKeys = {
     /** Server-built 24h volume buckets by URL slug (synthetic + DB volume). */
     volumeWindowBySlug: (slug: string) =>
       [...marketsRoot(), "volumeWindow", slug] as const,
+    /** `GET /api/v1/markets/by-slug/:slug` — detail page + trading id. */
+    bySlug: (slug: string) => [...marketsRoot(), "bySlug", slug] as const,
   },
 
   trades: {
