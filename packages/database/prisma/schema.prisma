@@ -1,0 +1,676 @@
+// Orakly Market — Polymarket-inspired domain model
+// Flow (simplified): User funds Wallet → trades on Market (YES/NO) → Position updates →
+// Market resolves → redeem / ledger entries. Activity feeds UI; Admin actions audited.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ---------------------------------------------------------------------------
+// Enums
+// ---------------------------------------------------------------------------
+
+enum UserRole {
+  USER
+  MODERATOR
+  ADMIN
+}
+
+enum MarketStatus {
+  DRAFT
+  OPEN
+  PAUSED
+  CLOSED
+  RESOLVED
+  VOID
+}
+
+/// Oracle / resolution pipeline (UMA-style optimistic flow)
+enum ResolutionStatus {
+  NONE
+  PROPOSED
+  DISPUTED
+  FINALIZED
+}
+
+enum OutcomeSide {
+  YES
+  NO
+}
+
+enum TransactionType {
+  DEPOSIT
+  WITHDRAWAL
+  TRADE_BUY
+  TRADE_SELL
+  SPLIT
+  MERGE
+  REDEEM_WINNER
+  REDEEM_LOSER
+  FEE_PLATFORM
+  ADJUSTMENT
+  RESOLUTION_PAYOUT
+}
+
+enum ActivityType {
+  TRADE
+  MARKET_CREATED
+  MARKET_RESOLVED
+  LARGE_TRADE
+  DEPOSIT
+  WITHDRAWAL
+  POSITION_OPENED
+  POSITION_CLOSED
+  ADMIN_ACTION
+}
+
+enum IngestionRunStatus {
+  PENDING
+  RUNNING
+  COMPLETED
+  FAILED
+  SKIPPED
+}
+
+// ---------------------------------------------------------------------------
+// User & access
+// ---------------------------------------------------------------------------
+
+model User {
+  id        String   @id @default(uuid()) @db.Uuid
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  email         String? @unique
+  /// Optional on-chain / smart wallet address (Polymarket-style)
+  walletAddress String? @unique @db.VarChar(128)
+  displayName   String?
+  role          UserRole @default(USER)
+  isSuspended   Boolean  @default(false)
+
+  wallet    Wallet?
+  portfolio Portfolio?
+
+  tradesAsBuyer  Trade[] @relation("TradeBuyer")
+  tradesAsSeller Trade[] @relation("TradeSeller")
+  tradesAsTaker  Trade[] @relation("TradeTaker")
+  tradesAsMaker  Trade[] @relation("TradeMaker")
+
+  transactions Transaction[]
+  activities   Activity[]
+
+  admin          Admin?
+  targetedAudits AdminAuditLog[] @relation("AuditTargetUser")
+
+  marketsCreated Market[] @relation("MarketCreator")
+
+  walletAuthSessions WalletAuthSession[]
+
+  walletOnChainBalances WalletOnChainBalance[]
+
+  @@index([role])
+  @@index([createdAt])
+}
+
+/// Single-use SIWE nonces (replay protection). Bound to a normalized wallet address at issuance.
+model WalletAuthNonce {
+  id          String    @id @default(uuid()) @db.Uuid
+  createdAt   DateTime  @default(now())
+  nonce       String    @unique @db.VarChar(128)
+  addressNorm String    @map("address_norm") @db.VarChar(42)
+  expiresAt   DateTime
+  consumedAt  DateTime?
+
+  @@index([addressNorm])
+  @@index([expiresAt])
+  @@map("wallet_auth_nonces")
+}
+
+/// Surfaces JWT sessions server-side for revocation and fixation resistance (`jti`).
+model WalletAuthSession {
+  id            String    @id @default(uuid()) @db.Uuid
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  jti           String    @unique @db.VarChar(128)
+  walletAddress String    @map("wallet_address") @db.VarChar(42)
+  expiresAt     DateTime
+  revokedAt     DateTime?
+
+  userId String? @db.Uuid
+  user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([walletAddress])
+  @@index([expiresAt])
+  @@map("wallet_auth_sessions")
+}
+
+// ---------------------------------------------------------------------------
+// Blockchain indexer (EVM logs → Postgres, reorg-safe cursor)
+// ---------------------------------------------------------------------------
+
+/// Safe-tip cursor — only advances after confirmations + canonical hash checks.
+model BlockchainIndexerCheckpoint {
+  chainId Int @id
+
+  updatedAt DateTime @updatedAt
+
+  /// Highest contiguous block committed as canonical for this chain.
+  lastCommittedBlock BigInt @map("last_committed_block")
+  /// Block hash for `lastCommittedBlock` (extends parent-hash verification).
+  lastCommittedHash String @map("last_committed_hash") @db.VarChar(66)
+
+  @@map("blockchain_indexer_checkpoints")
+}
+
+/// Recent canonical headers — sliding window for ancestor verification / rewind.
+model BlockchainCanonicalBlock {
+  chainId Int
+
+  blockNumber BigInt @map("block_number")
+
+  blockHash String @map("block_hash") @db.VarChar(66)
+
+  @@id([chainId, blockNumber])
+  @@index([chainId])
+  @@map("blockchain_canonical_blocks")
+}
+
+/// Decoded contract logs — deduped by (`chainId`,`transactionHash`,`logIndex`).
+model BlockchainEventLog {
+  id String @id @default(uuid()) @db.Uuid
+
+  createdAt DateTime @default(now())
+
+  chainId Int
+
+  blockNumber BigInt @map("block_number")
+
+  blockHash String @map("block_hash") @db.VarChar(66)
+
+  transactionHash String @map("tx_hash") @db.VarChar(66)
+
+  logIndex Int @map("log_index")
+
+  contractAddress String @map("contract_address") @db.VarChar(42)
+
+  /// `TradeExecuted` | `MarketResolved` | `RewardsClaimed` | `WalletDeposited` | `UNKNOWN`
+  eventName String @map("event_name") @db.VarChar(64)
+
+  /// Decoded args + raw topics (`topicsHex`) for forward-compatible replay.
+  payload Json @db.JsonB
+
+  /// Set when a reorg invalidates this height or deeper rows on this chain.
+  orphaned Boolean @default(false)
+
+  @@unique([chainId, transactionHash, logIndex])
+  @@index([chainId, blockNumber(sort: Desc)])
+  @@index([chainId, eventName])
+  @@index([orphaned])
+  @@map("blockchain_event_logs")
+}
+
+/// Snapshotted ERC-20 / native balances from RPC (linked `User.walletAddress`).
+model WalletOnChainBalance {
+  id        String   @id @default(uuid()) @db.Uuid
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId String @db.Uuid
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  chainId Int @map("chain_id")
+
+  /// `0x0000…0000` denotes native gas token for this row.
+  tokenAddress String @map("token_address") @db.VarChar(42)
+
+  symbol   String? @db.VarChar(32)
+  decimals Int
+
+  /// uint256 balance as exact decimal string
+  rawBalance String @map("raw_balance") @db.VarChar(128)
+
+  formattedBalance Decimal @map("formatted_balance") @db.Decimal(38, 18)
+
+  syncedAt DateTime @map("synced_at")
+
+  blockNumber BigInt? @map("block_number")
+
+  @@unique([userId, chainId, tokenAddress])
+  @@index([userId, chainId])
+  @@map("wallet_onchain_balances")
+}
+
+/// Platform custodial / ledger wallet balances (collateral, e.g. USDC/pUSD equivalent)
+model Wallet {
+  id        String   @id @default(uuid()) @db.Uuid
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId String @unique @db.Uuid
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  /// Withdrawable + usable for new orders
+  availableBalance Decimal @default(0) @db.Decimal(28, 8)
+  /// Locked in open orders / pending settlement
+  lockedBalance    Decimal @default(0) @db.Decimal(28, 8)
+
+  @@index([userId])
+}
+
+/// One trading portfolio per user; holds positions (YES/NO per market)
+model Portfolio {
+  id        String   @id @default(uuid()) @db.Uuid
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId String @unique @db.Uuid
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  positions Position[]
+
+  /// Denormalized: sum of realized PnL from closed trades / redemptions (maintain in app layer)
+  realizedPnlUsd Decimal @default(0) @db.Decimal(28, 8)
+  /// Last full mark-to-market snapshot (optional, for dashboards)
+  lastMarkUsd    Decimal? @db.Decimal(28, 8)
+  lastMarkedAt   DateTime?
+
+  transactions Transaction[]
+
+  @@index([userId])
+}
+
+// ---------------------------------------------------------------------------
+// Taxonomy
+// ---------------------------------------------------------------------------
+
+model Category {
+  id        String   @id @default(uuid()) @db.Uuid
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  slug  String @unique
+  name  String
+  /// Self-referential hierarchy (e.g. Politics → Elections)
+  parentId String? @db.Uuid
+  parent   Category?  @relation("CategoryTree", fields: [parentId], references: [id], onDelete: SetNull)
+  children Category[] @relation("CategoryTree")
+
+  markets Market[]
+
+  @@index([parentId])
+  @@index([slug])
+}
+
+// ---------------------------------------------------------------------------
+// Markets
+// ---------------------------------------------------------------------------
+
+model Market {
+  id        String   @id @default(uuid()) @db.Uuid
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  slug        String @unique
+  title       String
+  description String? @db.Text
+
+  categoryId String?   @db.Uuid
+  category   Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+
+  creatorId String? @db.Uuid
+  creator   User?   @relation("MarketCreator", fields: [creatorId], references: [id], onDelete: SetNull)
+
+  status MarketStatus @default(DRAFT)
+
+  opensAt   DateTime?
+  closesAt  DateTime?
+  resolvedAt DateTime?
+
+  /// Implied probability mid for YES (0–1); maintain from last trade or oracle
+  yesPrice Decimal? @db.Decimal(10, 9)
+  noPrice  Decimal? @db.Decimal(10, 9)
+
+  /// After resolution — which outcome won (VOID = invalid market)
+  resolvedOutcome OutcomeSide?
+  isVoid          Boolean      @default(false)
+
+  resolutionStatus ResolutionStatus @default(NONE)
+  resolutionReason String?          @db.Text
+  /// External oracle / proposal id (e.g. UMA assertion id)
+  oracleAssertionId String? @unique @db.VarChar(256)
+
+  /// Cumulative traded notional (platform metric)
+  volumeTotalUsd Decimal @default(0) @db.Decimal(28, 8)
+  /// Rolling 24h volume for trending (refresh via job)
+  volume24hUsd   Decimal @default(0) @db.Decimal(28, 8)
+  liquidityUsd   Decimal @default(0) @db.Decimal(28, 8)
+  /// Custodial collateral backing open interest (settlement pool).
+  collateralPoolUsd Decimal @default(0) @db.Decimal(28, 8)
+
+  /// Denormalized trending rank score (volume, liquidity, velocity — computed offline)
+  trendingScore Decimal @default(0) @db.Decimal(20, 6)
+  trendingUpdatedAt DateTime?
+
+  /// Multi-provider discovery — copied from linked `CryptoTokenSignal` during ingest (OPEN markets).
+  signalProviderCount Int @default(0)
+  signalHotScore      Decimal? @db.Decimal(22, 8)
+  signalLastSeenAt    DateTime?
+  /// Cross-source momentum rank for list lane `cross_hot` / `breaking`.
+  externalMomentumScore Decimal @default(0) @db.Decimal(20, 6)
+
+  /// Maker/taker fee in basis points (e.g. 10 = 0.10%)
+  takerFeeBps Int @default(0)
+  makerFeeBps Int @default(0)
+
+  trades         Trade[]
+  positions      Position[]
+  activities     Activity[]
+  transactions   Transaction[]
+  platformFees   PlatformFee[]
+
+  /// Auto-ingested crypto-linked market (at most one per signal row).
+  cryptoSignalId String?           @unique @db.Uuid
+  cryptoSignal   CryptoTokenSignal? @relation(fields: [cryptoSignalId], references: [id], onDelete: SetNull)
+  autoGenerated  Boolean           @default(false)
+
+  /// Deterministic fingerprint for semantically identical auto-markets (cross-signal dedupe).
+  generationKey  String? @unique @db.VarChar(320)
+  /// Generator template id, horizons, targets — drives oracle copy & lifecycle tooling.
+  generationMeta Json?   @db.JsonB
+
+  @@index([status, closesAt])
+  @@index([categoryId, status])
+  @@index([status, trendingScore(sort: Desc)])
+  @@index([volume24hUsd(sort: Desc)])
+  @@index([createdAt(sort: Desc)])
+  @@index([status, externalMomentumScore(sort: Desc)])
+  @@index([status, signalLastSeenAt(sort: Desc)])
+}
+
+// ---------------------------------------------------------------------------
+// Positions (YES / NO shares per market)
+// ---------------------------------------------------------------------------
+
+model Position {
+  id        String   @id @default(uuid()) @db.Uuid
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  portfolioId String    @db.Uuid
+  portfolio   Portfolio @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+
+  marketId String @db.Uuid
+  market   Market @relation(fields: [marketId], references: [id], onDelete: Restrict)
+
+  side OutcomeSide
+
+  /// Share quantity (8 dp is enough for retail; increase if needed)
+  quantity Decimal @db.Decimal(28, 8)
+  /// Volume-weighted average entry price in [0, 1]
+  avgEntryPrice Decimal @db.Decimal(10, 9)
+
+  @@unique([portfolioId, marketId, side])
+  @@index([marketId])
+  @@index([portfolioId])
+}
+
+// ---------------------------------------------------------------------------
+// Trades (matched CLOB fills)
+// ---------------------------------------------------------------------------
+
+model Trade {
+  id        String   @id @default(uuid()) @db.Uuid
+  createdAt DateTime @default(now())
+
+  marketId String @db.Uuid
+  market   Market @relation(fields: [marketId], references: [id], onDelete: Restrict)
+
+  /// Outcome token traded at this price (YES or NO)
+  outcome OutcomeSide
+
+  /// Price per share in [0, 1]
+  price    Decimal @db.Decimal(10, 9)
+  quantity Decimal @db.Decimal(28, 8)
+  /// price * quantity (notional in collateral units)
+  notionalUsd Decimal @db.Decimal(28, 8)
+
+  buyerId  String @db.Uuid
+  buyer    User   @relation("TradeBuyer", fields: [buyerId], references: [id], onDelete: Restrict)
+  sellerId String @db.Uuid
+  seller   User   @relation("TradeSeller", fields: [sellerId], references: [id], onDelete: Restrict)
+
+  /// Aggressor (took liquidity)
+  takerId String @db.Uuid
+  taker   User   @relation("TradeTaker", fields: [takerId], references: [id], onDelete: Restrict)
+
+  /// Passive side (resting order)
+  makerId String @db.Uuid
+  maker   User   @relation("TradeMaker", fields: [makerId], references: [id], onDelete: Restrict)
+
+  /// Surrogate for idempotent ingestion from matching engine
+  externalRef String? @unique @db.VarChar(128)
+
+  feeBuyerUsd  Decimal @default(0) @db.Decimal(28, 8)
+  feeSellerUsd Decimal @default(0) @db.Decimal(28, 8)
+
+  executedAt DateTime
+
+  platformFee   PlatformFee?
+  activities    Activity[]
+  ledgerEntries Transaction[]
+
+  @@index([marketId, executedAt(sort: Desc)])
+  @@index([buyerId, executedAt(sort: Desc)])
+  @@index([sellerId, executedAt(sort: Desc)])
+  @@index([executedAt(sort: Desc)])
+}
+
+// ---------------------------------------------------------------------------
+// Ledger
+// ---------------------------------------------------------------------------
+
+model Transaction {
+  id        String   @id @default(uuid()) @db.Uuid
+  createdAt DateTime @default(now())
+
+  userId String? @db.Uuid
+  user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  portfolioId String?    @db.Uuid
+  portfolio   Portfolio? @relation(fields: [portfolioId], references: [id], onDelete: SetNull)
+
+  marketId String? @db.Uuid
+  market   Market? @relation(fields: [marketId], references: [id], onDelete: SetNull)
+
+  tradeId String? @db.Uuid
+  trade   Trade?  @relation(fields: [tradeId], references: [id], onDelete: SetNull)
+
+  type   TransactionType
+  /// Signed amount: credit positive, debit negative in collateral units
+  amountUsd     Decimal  @db.Decimal(28, 8)
+  balanceAfter  Decimal? @db.Decimal(28, 8)
+  /// Flexible payload: tx hash, note, etc.
+  metadata Json? @db.JsonB
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([portfolioId, createdAt(sort: Desc)])
+  @@index([type, createdAt(sort: Desc)])
+  @@index([marketId, createdAt(sort: Desc)])
+  @@index([tradeId])
+}
+
+// ---------------------------------------------------------------------------
+// Platform revenue (admin / finance reporting)
+// ---------------------------------------------------------------------------
+
+model PlatformFee {
+  id        String   @id @default(uuid()) @db.Uuid
+  createdAt DateTime @default(now())
+
+  tradeId String @unique @db.Uuid
+  trade   Trade  @relation(fields: [tradeId], references: [id], onDelete: Cascade)
+
+  marketId String @db.Uuid
+  market   Market @relation(fields: [marketId], references: [id], onDelete: Restrict)
+
+  /// Total platform take on this trade (maker + taker fees net)
+  amountUsd Decimal @db.Decimal(28, 8)
+
+  @@index([marketId, createdAt(sort: Desc)])
+  @@index([createdAt(sort: Desc)])
+}
+
+// ---------------------------------------------------------------------------
+// Crypto ingestion (external feeds → signals → draft markets)
+// ---------------------------------------------------------------------------
+
+model CryptoIngestionRun {
+  id        String   @id @default(uuid()) @db.Uuid
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  /// Deterministic key (e.g. hourly bucket) so overlapping crons skip safely.
+  idempotencyKey String             @unique @db.VarChar(160)
+  status         IngestionRunStatus @default(PENDING)
+  startedAt      DateTime?
+  finishedAt     DateTime?
+
+  stats        Json? @db.JsonB
+  errorMessage String? @db.Text
+
+  signals CryptoTokenSignal[]
+
+  @@index([status, createdAt(sort: Desc)])
+}
+
+/// Latest merged snapshot per upstream dedupe key — duplicate prevention via unique `dedupeKey`.
+model CryptoTokenSignal {
+  id        String   @id @default(uuid()) @db.Uuid
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  ingestionRunId String?             @db.Uuid
+  ingestionRun   CryptoIngestionRun? @relation(fields: [ingestionRunId], references: [id], onDelete: SetNull)
+
+  dedupeKey String @unique @db.VarChar(280)
+
+  chainId      String? @db.VarChar(64)
+  tokenAddress String? @db.VarChar(160)
+  coingeckoId  String? @db.VarChar(160)
+  symbol       String? @db.VarChar(48)
+  name         String? @db.VarChar(320)
+
+  priceUsd       Decimal?  @db.Decimal(28, 12)
+  liquidityUsd   Decimal?  @db.Decimal(28, 8)
+  volume24hUsd   Decimal?  @db.Decimal(28, 8)
+  fdvUsd         Decimal?  @db.Decimal(28, 8)
+  change24hPct   Decimal?  @db.Decimal(18, 8)
+  pairCreatedAt  DateTime?
+
+  imageUrl    String? @db.Text
+  pairAddress String? @db.VarChar(160)
+  dexId       String? @db.VarChar(96)
+
+  providers String[] @default([])
+
+  /// Raw category scores from adapters (`trending_all`, `memecoin_pump`, …).
+  categoryScores Json @db.JsonB
+
+  hotScore         Decimal @default(0) @db.Decimal(22, 8)
+  volatilityScore  Decimal @default(0) @db.Decimal(22, 8)
+  volumeScore      Decimal @default(0) @db.Decimal(22, 8)
+  memeScore        Decimal @default(0) @db.Decimal(22, 8)
+  primaryBucket    String  @db.VarChar(64)
+
+  /// Rolling “latest activity” hint — extend with DEX txn stats later.
+  activitySnapshot Json? @db.JsonB
+
+  lastSeenAt  DateTime @default(now())
+  firstSeenAt DateTime @default(now())
+
+  markets Market[]
+
+  @@index([hotScore(sort: Desc)])
+  @@index([memeScore(sort: Desc)])
+  @@index([volume24hUsd(sort: Desc)])
+  @@index([primaryBucket, hotScore(sort: Desc)])
+  @@index([lastSeenAt(sort: Desc)])
+}
+
+// ---------------------------------------------------------------------------
+// Activity feed (user-facing + analytics)
+// ---------------------------------------------------------------------------
+
+model Activity {
+  id        String   @id @default(uuid()) @db.Uuid
+  createdAt DateTime @default(now())
+
+  type ActivityType
+
+  userId String? @db.Uuid
+  user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  marketId String? @db.Uuid
+  market   Market? @relation(fields: [marketId], references: [id], onDelete: Cascade)
+
+  tradeId String? @db.Uuid
+  trade   Trade?  @relation(fields: [tradeId], references: [id], onDelete: SetNull)
+
+  /// Public label + structured fields for UI
+  title   String?
+  payload Json @db.JsonB
+
+  @@index([marketId, createdAt(sort: Desc)])
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([type, createdAt(sort: Desc)])
+  @@index([createdAt(sort: Desc)])
+}
+
+// ---------------------------------------------------------------------------
+// Admin
+// ---------------------------------------------------------------------------
+
+/// Staff record linked 1:1 to User (role should be ADMIN or MODERATOR)
+model Admin {
+  id        String   @id @default(uuid()) @db.Uuid
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId String @unique @db.Uuid
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  /// Optional flags for fine-grained permissions
+  canResolveMarkets Boolean @default(false)
+  canAdjustWallets  Boolean @default(false)
+  canManageUsers    Boolean @default(false)
+
+  auditLogs AdminAuditLog[]
+
+  @@index([userId])
+}
+
+model AdminAuditLog {
+  id        String   @id @default(uuid()) @db.Uuid
+  createdAt DateTime @default(now())
+
+  adminId String @db.Uuid
+  admin   Admin  @relation(fields: [adminId], references: [id], onDelete: Cascade)
+
+  action     String @db.VarChar(128)
+  targetType String @db.VarChar(64)
+  targetId   String? @db.Uuid
+
+  targetUserId String? @db.Uuid
+  targetUser   User?   @relation("AuditTargetUser", fields: [targetUserId], references: [id], onDelete: SetNull)
+
+  metadata  Json?   @db.JsonB
+  ipAddress String? @db.VarChar(64)
+
+  @@index([adminId, createdAt(sort: Desc)])
+  @@index([targetType, targetId])
+  @@index([createdAt(sort: Desc)])
+}

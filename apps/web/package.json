@@ -15,9 +15,9 @@
   },
   "dependencies": {
     "@orakly/config": "*",
-    "@orakly/crypto-integrations": "file:../../orakly-backend/packages/crypto-integrations",
-    "@orakly/database": "file:../../orakly-backend/packages/database",
-    "@orakly/jobs": "file:../../orakly-backend/packages/jobs",
+    "@orakly/crypto-integrations": "*",
+    "@orakly/database": "*",
+    "@orakly/jobs": "*",
     "@orakly/realtime-protocol": "*",
     "@orakly/types": "*",
     "@orakly/utils": "*",

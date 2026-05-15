@@ -5,21 +5,8 @@ import { fileURLToPath } from "node:url";
 import { config as loadEnv } from "dotenv";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-/** In-repo clone/link, sibling repo, or legacy monorepo `packages/database`. */
-const inRepoBackendDbEnv = path.resolve(
-  __dirname,
-  "../../orakly-backend/packages/database/.env",
-);
-const siblingBackendDbEnv = path.resolve(
-  __dirname,
-  "../../../orakly-backend/packages/database/.env",
-);
-const monorepoDbEnv = path.resolve(__dirname, "../../packages/database/.env");
-const databaseEnvPath = existsSync(inRepoBackendDbEnv)
-  ? inRepoBackendDbEnv
-  : existsSync(siblingBackendDbEnv)
-    ? siblingBackendDbEnv
-    : monorepoDbEnv;
+/** Monorepo database package (Railway `DATABASE_URL` is set on Vercel, not in this file). */
+const databaseEnvPath = path.resolve(__dirname, "../../packages/database/.env");
 
 /** Prefer OS / hosting env; otherwise reuse the Prisma package `.env` for local dev. */
 if (!process.env.DATABASE_URL && existsSync(databaseEnvPath)) {
