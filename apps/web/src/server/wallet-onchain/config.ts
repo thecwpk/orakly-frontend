@@ -1,5 +1,6 @@
 import "server-only";
 
+import { getBscTestnetRpcUrl } from "@/lib/chain-public-env";
 import { testBnbChain } from "@/providers/web3/chains";
 
 function envNum(name: string, fallback: number): number {
@@ -53,14 +54,27 @@ export type WalletOnChainRuntimeConfig = {
   minSyncIntervalMs: number;
 };
 
+function defaultCollateralTokenFromEnv(): WalletOnChainToken[] {
+  const addr = process.env.NEXT_PUBLIC_COLLATERAL_ADDRESS?.trim();
+  if (!addr?.startsWith("0x")) return [];
+  const decimals = envNum("NEXT_PUBLIC_COLLATERAL_DECIMALS", 6);
+  return [
+    {
+      address: addr.toLowerCase() as `0x${string}`,
+      symbol: "USDC",
+      decimals,
+    },
+  ];
+}
+
 export function getWalletOnChainConfig(): WalletOnChainRuntimeConfig | null {
   const rpcUrl =
-    process.env.WALLET_ONCHAIN_RPC_URL?.trim() ||
-    process.env.NEXT_PUBLIC_TBNB_RPC_URL?.trim();
+    process.env.WALLET_ONCHAIN_RPC_URL?.trim() || getBscTestnetRpcUrl();
   if (!rpcUrl) return null;
 
   const chainId = envNum("WALLET_ONCHAIN_CHAIN_ID", testBnbChain.id);
-  const tokens = parseWalletTokenList(process.env.WALLET_ONCHAIN_TOKENS);
+  const parsed = parseWalletTokenList(process.env.WALLET_ONCHAIN_TOKENS);
+  const tokens = parsed.length > 0 ? parsed : defaultCollateralTokenFromEnv();
 
   const nativeSymbol =
     process.env.WALLET_ONCHAIN_NATIVE_SYMBOL?.trim() ||

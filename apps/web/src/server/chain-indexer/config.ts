@@ -1,5 +1,6 @@
 import "server-only";
 
+import { getBscTestnetRpcUrl, getFactoryAddressRaw } from "@/lib/chain-public-env";
 import { defineChain } from "viem";
 
 function envBool(name: string, fallback: boolean): boolean {
@@ -39,10 +40,11 @@ export type ChainIndexerConfig = {
 export function getChainIndexerConfig(): ChainIndexerConfig | null {
   if (!envBool("CHAIN_INDEXER_ENABLED", false)) return null;
 
-  const rpcUrl = process.env.CHAIN_INDEXER_RPC_URL?.trim();
+  const rpcUrl = process.env.CHAIN_INDEXER_RPC_URL?.trim() || getBscTestnetRpcUrl();
   if (!rpcUrl) return null;
 
-  const rawAddr = process.env.CHAIN_INDEXER_CONTRACT_ADDRESSES?.trim();
+  const rawAddr =
+    process.env.CHAIN_INDEXER_CONTRACT_ADDRESSES?.trim() || getFactoryAddressRaw();
   if (!rawAddr) return null;
 
   const contractAddresses = rawAddr
