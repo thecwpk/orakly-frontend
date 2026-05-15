@@ -400,7 +400,17 @@ async function main() {
   }
 }
 
-main().catch((e) => {
-  console.error(e);
-  process.exit(1);
-});
+/** Only when invoked via `prisma db seed` / `tsx prisma/seed.ts` — not when bundled by Next.js. */
+function isSeedCli(): boolean {
+  const entry = process.argv[1];
+  if (!entry) return false;
+  const norm = entry.replace(/\\/g, "/");
+  return norm.endsWith("/prisma/seed.ts") || norm.endsWith("/prisma/seed.js");
+}
+
+if (isSeedCli()) {
+  main().catch((e) => {
+    console.error(e);
+    process.exit(1);
+  });
+}
