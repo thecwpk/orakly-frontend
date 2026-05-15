@@ -1,5 +1,5 @@
-export { SOCKET_EVENTS, type SocketEventName } from "./events";
-export { globalFeedRoom, marketRoom, userPortfolioRoom } from "./rooms";
+export { SOCKET_EVENTS, type SocketEventName } from "./events.js";
+export { globalFeedRoom, marketRoom, userPortfolioRoom } from "./rooms.js";
 export type {
   FeedActivityPayload,
   IngestEnvelope,
@@ -8,4 +8,4 @@ export type {
   RtBatchItem,
   RtBatchPayload,
   TradeInstantPayload,
-} from "./payloads";
+} from "./payloads.js";
