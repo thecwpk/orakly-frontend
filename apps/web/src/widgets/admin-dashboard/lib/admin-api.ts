@@ -1,5 +1,15 @@
 const BASE = "/api/v1/admin";
 
+/** Client-only: skip `/admin/me` when no operator cookie (avoids noisy 401 in DevTools). */
+export const ADMIN_SESSION_COOKIE = "orakly_admin_session";
+
+export function hasAdminSessionCookie(): boolean {
+  if (typeof document === "undefined") return false;
+  return document.cookie
+    .split(";")
+    .some((part) => part.trim().startsWith(`${ADMIN_SESSION_COOKIE}=`));
+}
+
 /** Shared with `AuthBridge` so operator session stays one React Query cache entry. */
 export const adminMeQueryKey = ["admin", "me"] as const;
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { AdminApiError, fetchAdminMe } from "../lib/admin-api";
+import { AdminApiError, fetchAdminMe, hasAdminSessionCookie } from "../lib/admin-api";
 
 const ADMIN_NAV_SESSION_KEY = ["admin", "navSession"] as const;
 
@@ -12,6 +12,7 @@ const ADMIN_NAV_SESSION_KEY = ["admin", "navSession"] as const;
 export function useAdminNavSession() {
   return useQuery({
     queryKey: ADMIN_NAV_SESSION_KEY,
+    enabled: hasAdminSessionCookie(),
     queryFn: async () => {
       try {
         return await fetchAdminMe();
