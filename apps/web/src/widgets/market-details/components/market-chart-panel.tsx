@@ -163,10 +163,10 @@ function MarketChartPanelInner({
         </div>
       </div>
       <div
-        className="w-full min-h-0 px-1.5 pb-1 pt-1.5 sm:pb-1.5 sm:pt-2"
-        style={{ height: chartHeight }}
+        className="w-full min-h-0 min-w-[1px] px-1.5 pb-1 pt-1.5 sm:pb-1.5 sm:pt-2"
+        style={{ height: chartHeight, minHeight: chartHeight }}
       >
-        <ResponsiveContainer width="100%" height="100%" debounce={32}>
+        <ResponsiveContainer width="100%" height={chartHeight} debounce={32}>
           {tab === "implied" ?
             <AreaChart data={impliedChartRows} margin={CHART_MARGIN}>
               <defs>

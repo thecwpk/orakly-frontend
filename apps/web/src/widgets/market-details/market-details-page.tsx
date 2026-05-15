@@ -1,7 +1,7 @@
 "use client";
 
 import type { Market } from "@orakly/types";
-import { notFound, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useMemo } from "react";
 import {
   useMarketBySlugQuery,
@@ -19,6 +19,7 @@ import { MarketComments } from "./components/market-comments";
 import { MarketDetailsHeader } from "./components/market-details-header";
 import { MarketDetailsSkeleton } from "./components/market-details-skeleton";
 import { MarketNewsPanel } from "./components/market-news-panel";
+import { MarketNotFound } from "./components/market-not-found";
 import { MarketOrderBook } from "./components/market-order-book";
 import { MarketRealtimeStrip } from "./components/market-realtime-strip";
 import { MarketRelated } from "./components/market-related";
@@ -35,15 +36,13 @@ function resolveTradeMarketId(market: Market): string | null {
   return null;
 }
 
-function MarketDetailsBody({ slug }: { slug: string }) {
+/** Hooks + layout only mount after slug resolves to a DB market (avoids render-loop from `notFound()`). */
+function MarketDetailsLoaded({ market }: { market: Market }) {
   const actorId = useAuthStore((s) => s.tradingUserId ?? undefined);
   const searchParams = useSearchParams();
-  const marketQ = useMarketBySlugQuery(slug);
   const { data: markets = [] } = useMarketsFeedQuery();
 
-  const market = marketQ.data;
-
-  const tradeMarketId = market ? resolveTradeMarketId(market) : null;
+  const tradeMarketId = resolveTradeMarketId(market);
 
   useMarketRoom(tradeMarketId ?? undefined);
   const rt = useMarketRealtime(tradeMarketId ?? undefined);
@@ -54,27 +53,25 @@ function MarketDetailsBody({ slug }: { slug: string }) {
   const odds = oddsQuery.data;
 
   const midYes = useMemo(
-    () => mergeMidYes(market?.probability ?? 0.5, odds, rt),
+    () => mergeMidYes(market.probability ?? 0.5, odds, rt),
     [market, odds, rt],
   );
 
   const { yesLabel, noLabel } = useMemo(
-    () => mergeYesNoDisplay(market?.probability ?? 0.5, odds, rt),
+    () => mergeYesNoDisplay(market.probability ?? 0.5, odds, rt),
     [market, odds, rt],
   );
 
-  // Honor `?side=YES|NO` from MarketCard quick-trade buttons.
   const sideParam = (searchParams?.get("side") ?? "").toUpperCase();
   const initialOutcome: "YES" | "NO" = sideParam === "NO" ? "NO" : "YES";
 
   const tradeDisabled =
-    market && market.status !== "OPEN"
+    market.status !== "OPEN"
       ? `Market is ${market.status.toLowerCase()} — trading disabled.`
       : null;
 
-  const tradeModalMarket: TradeModalMarket | null = useMemo(() => {
-    if (!market) return null;
-    return {
+  const tradeModalMarket: TradeModalMarket | null = useMemo(
+    () => ({
       tradeMarketId,
       slug: market.slug,
       title: market.title,
@@ -82,16 +79,9 @@ function MarketDetailsBody({ slug }: { slug: string }) {
       midYes,
       status: market.status,
       closesAt: market.closesAt,
-    };
-  }, [market, midYes, tradeMarketId]);
-
-  if (marketQ.isLoading && !market) {
-    return <MarketDetailsSkeleton />;
-  }
-
-  if (marketQ.isError || !market) {
-    notFound();
-  }
+    }),
+    [market, midYes, tradeMarketId],
+  );
 
   return (
     <main className="py-r8 text-zinc-100 lg:py-s40">
@@ -193,7 +183,20 @@ function MarketDetailsBody({ slug }: { slug: string }) {
   );
 }
 
+function MarketDetailsBody({ slug }: { slug: string }) {
+  const marketQ = useMarketBySlugQuery(slug);
+
+  if (marketQ.isLoading && !marketQ.data) {
+    return <MarketDetailsSkeleton />;
+  }
+
+  if (marketQ.isError || !marketQ.data) {
+    return <MarketNotFound slug={slug} />;
+  }
+
+  return <MarketDetailsLoaded market={marketQ.data} />;
+}
+
 export function MarketDetailsPage({ slug }: { slug: string }) {
-  /* SocketProvider is mounted once globally by `AppShell`. */
   return <MarketDetailsBody slug={slug} />;
 }
