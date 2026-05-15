@@ -1,21 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
-import {
-  ArrowRight,
-  BarChart3,
-  CheckCircle2,
-  Gauge,
-  LineChart,
-  Megaphone,
-  Shield,
-  TrendingUp,
-  Trophy,
-  Users,
-} from "lucide-react";
+import { CheckCircle2, Megaphone, TrendingUp, Trophy, Users } from "lucide-react";
 
-import { ROUTES } from "@/shared/constants/routes";
 import { LANDING_IMAGES } from "@/widgets/landing/lib/landing-image-paths";
 import { cn } from "@/lib/utils";
 import { LandingReveal } from "@/widgets/landing/sections/marketing-landing-layout";
@@ -23,9 +10,7 @@ import {
   communityFeatures,
   earlyAccessBullets,
   futureRoadmap,
-  oraklyFramework,
   securityItems,
-  tradeBandMetrics,
   visionPoints,
   visionSpecStrip,
   whyOraklyBridgeColumns,
@@ -48,8 +33,6 @@ const communityStats = [
   { label: "Market ideas", value: "Crowdsourced" },
   { label: "Reputation", value: "On-chain friendly" },
 ] as const;
-
-const metricIcons = [BarChart3, Gauge, Shield] as const;
 
 export function MarketingLandingVision() {
   return (
@@ -93,9 +76,6 @@ export function MarketingLandingVision() {
                 </li>
               ))}
             </ul>
-            <p className="mt-6 max-w-[42rem] text-sm leading-relaxed text-foreground/85">
-              Built for traders who live in feeds and explorers — serious settlement discipline, crypto-native cadence.
-            </p>
           </div>
           <aside className="min-w-0 lg:pt-1">
             <div className="overflow-hidden rounded-2xl border border-white/[0.08] bg-background/35 shadow-[0_28px_56px_-36px_rgba(0,0,0,0.82)] backdrop-blur-xl">
@@ -174,7 +154,7 @@ export function MarketingLandingWhyOrakly() {
                 </li>
               ))}
             </ul>
-            <p className="mt-5 text-sm font-semibold text-yes">Move with the narrative — not after the recap.</p>
+            <p className="mt-5 text-sm font-semibold text-yes">Built for velocity — not weekend-only political slips.</p>
           </div>
         </div>
 
@@ -193,48 +173,12 @@ export function MarketingLandingWhyOrakly() {
             </div>
           ))}
         </div>
-
-        <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-          {tradeBandMetrics.map((m, i) => {
-            const Icon = metricIcons[i] ?? BarChart3;
-            return (
-              <div
-                key={m.label}
-                className="group flex min-w-0 flex-1 basis-full gap-3 rounded-xl border border-white/[0.06] bg-background/40 px-4 py-3.5 transition hover:border-yes/25 hover:bg-yes/[0.03] sm:basis-[calc(33.333%-0.5rem)]"
-              >
-                <span className="inline-flex size-9 shrink-0 items-center justify-center rounded-lg border border-white/[0.08] bg-background/60 text-yes shadow-inner transition group-hover:shadow-[0_0_20px_-4px_color-mix(in_srgb,var(--yes)_35%,transparent)]">
-                  <Icon className="size-4" aria-hidden />
-                </span>
-                <div className="min-w-0">
-                  <p className={landingEyebrow}>{m.label}</p>
-                  <p className="mt-1 text-sm font-semibold text-foreground">{m.headline}</p>
-                  <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">{m.fact}</p>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-
-        <div className="mt-10">
-          <p className={landingEyebrow}>Orakly framework</p>
-          <div className="mt-4 grid gap-3 md:grid-cols-3">
-            {oraklyFramework.map((item) => (
-              <div
-                key={item.k}
-                className="rounded-xl border border-transparent bg-gradient-to-b from-white/[0.04] to-transparent px-4 py-4 transition hover:border-yes/15"
-              >
-                <p className="text-sm font-semibold text-foreground">{item.k}</p>
-                <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{item.d}</p>
-              </div>
-            ))}
-          </div>
-        </div>
       </LandingReveal>
     </section>
   );
 }
 
-const communityCellIcons = [Megaphone, Users, Trophy, TrendingUp, LineChart] as const;
+const communityCellIcons = [Megaphone, Users, Trophy, TrendingUp] as const;
 
 export function MarketingLandingCommunity() {
   return (
@@ -405,62 +349,6 @@ export function MarketingLandingFuture() {
             </li>
           ))}
         </ul>
-        <p className="mt-6 max-w-[42rem] text-sm leading-relaxed text-muted-foreground">
-          Attention already moves markets; Orakly builds rails so traders can express it with clear rules.
-        </p>
-      </LandingReveal>
-    </section>
-  );
-}
-
-export function MarketingLandingLiveCta() {
-  return (
-    <section
-      id="live-cta"
-      className={cn(
-        "relative w-full scroll-mt-28 overflow-hidden",
-        "bg-[linear-gradient(95deg,oklch(0.14_0.008_260),hsl(var(--background))_50%,oklch(0.13_0.01_255))]",
-      )}
-    >
-      <div
-        className="pointer-events-none absolute inset-0 opacity-[0.4] [background-image:linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px)] [background-size:100%_24px]"
-        aria-hidden
-      />
-      <div
-        className="pointer-events-none absolute inset-y-0 left-0 w-2/5 bg-[radial-gradient(ellipse_at_0%_50%,oklch(0.2_0.02_260_/_0.12),transparent_72%)]"
-        aria-hidden
-      />
-      <LandingReveal
-        className={cn(
-          landingRailSection,
-          "relative flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between lg:gap-10",
-        )}
-      >
-        <div className="min-w-0 max-w-xl text-left">
-          <p className={cn(landingEyebrow, "text-foreground/45")}>Ready to trade?</p>
-          <h2 className={cn(landingH2Editorial, "!mt-2 max-w-xl")}>Open live markets on your timeline</h2>
-          <p className={landingLeadMuted}>
-            Docs cover settlement and pricing; the app is where you size risk. Same rail, same transparency bar.
-          </p>
-          <p className="mt-3 font-mono text-[10px] uppercase tracking-[0.14em] text-muted-foreground">
-            On-chain settlement · Continuous pricing while open
-          </p>
-        </div>
-        <div className="flex shrink-0 flex-wrap items-center gap-2.5 lg:justify-end">
-          <Link
-            href={ROUTES.markets}
-            className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition hover:brightness-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yes focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-          >
-            Start trading
-            <ArrowRight className="size-4" aria-hidden />
-          </Link>
-          <Link
-            href={ROUTES.discover}
-            className="inline-flex items-center rounded-xl border border-border/75 bg-background/50 px-5 py-2.5 text-sm font-semibold text-foreground backdrop-blur-sm transition hover:bg-muted/35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/25 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-          >
-            Read docs
-          </Link>
-        </div>
       </LandingReveal>
     </section>
   );
@@ -501,36 +389,19 @@ export function MarketingLandingEarlyAccess() {
               Join waitlist
             </a>
           </div>
-          <div className="mt-6 grid gap-6 border-t border-white/[0.06] pt-6 md:grid-cols-[1fr_auto] md:items-start">
-            <div>
-              <p className={landingEyebrow}>You will get to</p>
-              <ul className="mt-3 space-y-2">
-                {earlyAccessBullets.map((b) => (
-                  <li key={b.title} className="flex gap-2 text-sm text-muted-foreground">
-                    <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-yes" strokeWidth={1.35} aria-hidden />
-                    <span>
-                      <span className="font-medium text-foreground">{b.title}</span>
-                      <span> — {b.body}</span>
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div className="flex flex-col gap-2 md:items-end">
-              <a
-                href="#footer"
-                className="inline-flex items-center justify-center rounded-xl border border-border/75 bg-muted/15 px-4 py-2 text-sm font-medium text-foreground transition hover:bg-muted/35 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground/25 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-              >
-                Request early access
-              </a>
-              <Link
-                href={ROUTES.markets}
-                className="inline-flex items-center justify-center gap-2 text-sm font-medium text-yes transition hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yes/40 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-              >
-                Launch app
-                <ArrowRight className="size-4" aria-hidden />
-              </Link>
-            </div>
+          <div className="mt-6 border-t border-white/[0.06] pt-6">
+            <p className={landingEyebrow}>You will get to</p>
+            <ul className="mt-3 space-y-2">
+              {earlyAccessBullets.map((b) => (
+                <li key={b.title} className="flex gap-2 text-sm text-muted-foreground">
+                  <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-yes" strokeWidth={1.35} aria-hidden />
+                  <span>
+                    <span className="font-medium text-foreground">{b.title}</span>
+                    <span> — {b.body}</span>
+                  </span>
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
       </LandingReveal>

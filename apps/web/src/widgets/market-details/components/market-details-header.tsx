@@ -176,7 +176,7 @@ function MarketDetailsHeaderInner({
     <header className="space-y-2 border-b border-white/[0.06] pb-3">
       <div className="flex flex-wrap items-center gap-1.5 gap-y-2">
         <PrefetchLink
-          href={ROUTES.marketsBrowse}
+          href={ROUTES.discover}
           className="inline-flex h-8 shrink-0 items-center gap-1 rounded-md bg-white/[0.04] px-2 text-[11px] font-medium text-zinc-300 ring-1 ring-white/[0.08] transition hover:bg-white/[0.08] hover:text-white"
         >
           <ArrowLeft className="h-3 w-3" />

@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils";
 
 const NAVIGATE = [
   { label: "Markets", href: "#markets" },
-  { label: "Dapp", href: ROUTES.marketsBrowse },
+  { label: "Dapp", href: ROUTES.discover },
   { label: "Docs", href: "#footer" },
   { label: "Community", href: "#community" },
   { label: "Help", href: "#early-access" },

@@ -55,7 +55,7 @@ export function SuccessScreen({
               <ArrowRight className="h-3.5 w-3.5" />
             </Link>
             <Link
-              href={ROUTES.marketsBrowse}
+              href={ROUTES.discover}
               className="inline-flex items-center gap-1.5 rounded-xl bg-white/[0.05] px-4 py-2.5 text-[13px] font-medium text-zinc-200 ring-1 ring-white/10 transition hover:bg-white/[0.1]"
             >
               Back to markets

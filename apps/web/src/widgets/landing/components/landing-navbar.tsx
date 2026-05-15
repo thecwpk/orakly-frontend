@@ -18,12 +18,13 @@ import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import { PremiumPolymarketConnect } from "@/features/wallet/components/premium-polymarket-connect";
 import { ROUTES } from "@/shared/constants/routes";
+import { BrandWordmarkLink } from "@/shared/ui";
 import { useShowAdminNavLink } from "@/widgets/admin-dashboard/hooks/use-admin-nav-session";
 import { isMarketsExplorerNavActive } from "@/widgets/app-shell/lib/nav-config";
 
 /** Primary destinations — live discovery is `/markets` (marketing entry is `/`). */
 const PRIMARY_NAV = [
-  { label: "Markets", href: ROUTES.marketsBrowse, explorer: true },
+  { label: "Markets", href: ROUTES.discover, explorer: true },
   { label: "Portfolio", href: ROUTES.portfolio },
 ] as const;
 
@@ -67,15 +68,12 @@ export function LandingNavbar() {
   return (
     <header className="sticky top-0 z-50 border-b border-white/[0.06] bg-[#050508]/85 backdrop-blur-xl supports-[backdrop-filter]:bg-[#050508]/70">
       <div className="mx-auto flex h-14 max-w-6xl items-center gap-3 px-4 sm:h-[3.75rem] sm:gap-5 sm:px-6">
-        <Link
+        <BrandWordmarkLink
           href={ROUTES.home}
-          className="flex shrink-0 flex-col leading-none transition hover:opacity-90"
+          tone="onDark"
           onClick={() => setOpen(false)}
-        >
-          <span className="text-[15px] font-semibold tracking-tight text-white sm:text-base">
-            Orakly
-          </span>
-        </Link>
+          className="flex shrink-0 flex-col leading-none"
+        />
 
         <nav
           className="hidden min-w-0 flex-1 items-center justify-center gap-1 lg:flex xl:gap-1.5"

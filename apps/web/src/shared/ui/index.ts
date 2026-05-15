@@ -34,3 +34,4 @@ export { Hairline } from "./hairline";
 export { MetricTile, MetricGrid, type MetricTileProps } from "./metric-tile";
 export { EmptyState } from "./empty-state";
 export { PrefetchLink } from "./prefetch-link";
+export { BrandWordmarkLink, type BrandWordmarkLinkProps, type BrandWordmarkTone } from "./brand-wordmark-link";

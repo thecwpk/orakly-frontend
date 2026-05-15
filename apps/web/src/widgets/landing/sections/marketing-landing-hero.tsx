@@ -94,7 +94,7 @@ export function MarketingLandingHero() {
                 <ArrowRight className="size-4" aria-hidden />
               </Link>
               <Link
-                href={ROUTES.marketsBrowse}
+                href={ROUTES.discover}
                 className="inline-flex items-center gap-2 rounded-xl border border-white/[0.1] bg-background/35 px-5 py-2.5 text-sm font-semibold text-foreground shadow-sm backdrop-blur-md transition hover:border-yes/35 hover:bg-yes/[0.06] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yes/60 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
               >
                 Explore markets

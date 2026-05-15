@@ -54,7 +54,7 @@ const SEED_NOTIFICATIONS: Notification[] = [
     title: "New market launched",
     body: "Will SOL flip ETH by year-end? — seeded with $5k.",
     at: new Date(Date.now() - 28 * 60 * 60_000).toISOString(),
-    href: ROUTES.marketsBrowse,
+    href: ROUTES.discover,
     read: true,
   },
 ];

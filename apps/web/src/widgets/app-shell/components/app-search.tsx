@@ -50,7 +50,7 @@ export function AppSearch({
     if (submitTarget === "home") {
       if (!q) {
         signalNavigationStart();
-        router.push(ROUTES.marketsBrowse);
+        router.push(ROUTES.discover);
         return;
       }
       signalNavigationStart();
@@ -59,7 +59,7 @@ export function AppSearch({
     }
     if (!q) {
       signalNavigationStart();
-      router.push(ROUTES.marketsBrowse);
+      router.push(ROUTES.discover);
       return;
     }
     signalNavigationStart();

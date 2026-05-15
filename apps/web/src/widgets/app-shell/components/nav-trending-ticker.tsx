@@ -145,7 +145,7 @@ export function NavTrendingTicker({
       </div>
       {mode === "markets" ? (
         <PrefetchLink
-          href={ROUTES.marketsBrowse}
+          href={ROUTES.discover}
           className={cn(
             "shrink-0 whitespace-nowrap pl-1 font-mono text-[9px] font-medium uppercase tracking-[0.06em] text-yes/85 transition-colors hover:text-yes",
             compact ? "hidden sm:inline" : "",

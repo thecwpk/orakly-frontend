@@ -68,9 +68,10 @@ export function isMarketsBrowseActive(
   return !trendingQueryOn(searchParams);
 }
 
-/** Legacy helper — any discovery / market detail surface (e.g. marketing navbar). */
+/** Legacy helper — discovery surface: `/discover` + `/markets` detail routes. */
 export function isMarketsExplorerNavActive(pathname: string | null): boolean {
   if (!pathname) return false;
+  if (pathname === ROUTES.discover || pathname.startsWith(`${ROUTES.discover}/`)) return true;
   if (pathname === "/markets") return true;
   return pathname.startsWith("/markets/");
 }
@@ -108,7 +109,7 @@ export const NAV_GROUPS: readonly NavGroup[] = [
     id: "rail",
     items: [
       {
-        href: ROUTES.marketsBrowse,
+        href: ROUTES.discover,
         label: "Markets",
         icon: LayoutGrid,
         marketsBrowse: true,
@@ -146,7 +147,7 @@ export const NAV_GROUPS: readonly NavGroup[] = [
 /** Mobile dock — dense primary flows; Wallet lives in header popover. */
 export const MOBILE_DOCK_ITEMS: readonly NavItem[] = [
   {
-    href: ROUTES.marketsBrowse,
+    href: ROUTES.discover,
     label: "Markets",
     icon: LayoutGrid,
     marketsBrowse: true,

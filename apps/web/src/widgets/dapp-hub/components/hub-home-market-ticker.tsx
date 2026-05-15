@@ -62,7 +62,7 @@ export function HubHomeMarketTicker({ markets }: { markets: readonly Market[] })
               node.kind === "viewAll" ? (
                 <PrefetchLink
                   key={`${node.key}-${i}`}
-                  href={ROUTES.marketsBrowse}
+                  href={ROUTES.discover}
                   className="mb-ticker__view-all--inline"
                 >
                   View all

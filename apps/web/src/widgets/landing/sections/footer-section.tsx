@@ -3,7 +3,7 @@ import { ROUTES } from "@/shared/constants/routes";
 
 const LINKS = [
   { label: "Hub", href: ROUTES.marketsTrending },
-  { label: "Markets", href: ROUTES.marketsBrowse },
+  { label: "Markets", href: ROUTES.discover },
   { label: "Portfolio", href: ROUTES.portfolio },
   { label: "Wallet", href: ROUTES.wallet },
 ] as const;

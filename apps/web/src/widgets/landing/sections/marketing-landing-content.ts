@@ -20,31 +20,23 @@ export const visionPoints = [
 ] as const;
 
 export const visionSpecStrip = [
-  { k: "Trade format", v: "YES / NO shares" },
-  { k: "Pricing", v: "Continuous, flow-driven" },
-  { k: "Settlement", v: "On-chain, verifiable" },
+  { k: "Audience", v: "Feed-native traders" },
+  { k: "Horizon", v: "Intraday narratives" },
+  { k: "Expression", v: "Binary outcomes" },
 ] as const;
 
 export const whyOraklyFeatures = [
   {
-    title: "Crypto-native narratives",
-    detail: "Markets track themes traders already argue about on-chain and in feeds.",
+    title: "Meme and theme velocity",
+    detail: "Contracts sized for rotations that move faster than generic news baskets.",
   },
   {
-    title: "Meme-driven cycles",
-    detail: "Fast rotations map to contracts built for short horizons.",
+    title: "Live flow repricing",
+    detail: "YES / NO prices move with orders — not end-of-day batch marks.",
   },
   {
-    title: "Sentiment shifts",
-    detail: "Odds update as participants trade — not after a manual refresh.",
-  },
-  {
-    title: "Probability discovery",
-    detail: "YES / NO prices read as live implied probability while markets are open.",
-  },
-  {
-    title: "Transparent participation",
-    detail: "Collateral, resolution, and payout logic stay inspectable.",
+    title: "Rules before size",
+    detail: "Collateral and resolution criteria stay inspectable before you commit capital.",
   },
 ] as const;
 
@@ -52,51 +44,16 @@ export const whyOraklyBridgeColumns = [
   {
     title: "What traders get",
     lines: [
-      "Readable implied probability before each click.",
-      "Direct entry and exit while the market is live.",
-      "Rules and settlement surfaced up front.",
+      "Markets grouped by narrative, not only by ticker.",
+      "Resize or flatten while the contract is still open.",
     ],
   },
   {
     title: "What the platform optimizes for",
     lines: [
-      "Context per narrative market — why it exists, what resolves it.",
-      "Stablecoin flow for crypto-native participants.",
-      "Infrastructure aimed at verifiable outcomes.",
+      "Human-readable resolution paths per market.",
+      "Participant-driven listings instead of a static catalog editor.",
     ],
-  },
-] as const;
-
-export const tradeBandMetrics = [
-  {
-    label: "Probability visibility",
-    headline: "Read the tape fast",
-    fact: "YES / NO prices summarize crowd conviction at a glance.",
-  },
-  {
-    label: "Execution path",
-    headline: "Fewer steps to risk-on",
-    fact: "Discovery → quote → trade stays linear in-app.",
-  },
-  {
-    label: "Settlement trust",
-    headline: "Verify, do not guess",
-    fact: "Resolutions tie to rules you can audit.",
-  },
-] as const;
-
-export const oraklyFramework = [
-  {
-    k: "Market context first",
-    d: "Narrative framing and pricing appear before you commit size.",
-  },
-  {
-    k: "Execution clarity",
-    d: "Short trade flow on purpose — less hesitation at entry.",
-  },
-  {
-    k: "Transparent resolution",
-    d: "Outcomes follow published criteria with on-chain finality where applicable.",
   },
 ] as const;
 
@@ -114,12 +71,8 @@ export const communityFeatures = [
     detail: "Benchmark conviction against other narrative traders.",
   },
   {
-    verb: "Earn from accurate predictions",
+    verb: "Earn on resolution",
     detail: "Winning positions settle in stablecoin terms when markets resolve.",
-  },
-  {
-    verb: "Discover narratives early",
-    detail: "Surface themes before mainstream timelines.",
   },
 ] as const;
 
@@ -137,7 +90,7 @@ export const securityItems = [
     body: "Collateral and payouts in familiar stable units for predictable sizing.",
   },
   {
-    title: "Transparent mechanics",
+    title: "Fee and state clarity",
     body: "Fees, funding, and market states visible before you trade.",
   },
   {
@@ -191,15 +144,11 @@ export const futureRoadmap = [
 
 export const earlyAccessBullets = [
   {
-    title: "Explore live narrative markets",
-    body: "Real odds on crypto-native themes before public noise.",
+    title: "Beta access and roadmap visibility",
+    body: "See what ships next and where your feedback lands.",
   },
   {
-    title: "Participate in beta access",
-    body: "Feedback on execution, risk tools, and discovery flows.",
-  },
-  {
-    title: "Shape prediction-market UX",
-    body: "Influence what traders see first when a narrative ignites.",
+    title: "Shape discovery and risk UX",
+    body: "Influence what traders see first when a narrative spikes.",
   },
 ] as const;

@@ -116,14 +116,14 @@ export function UserMenu() {
           <DropdownMenuSubContent sideOffset={10} alignOffset={0} className={subMenuPanel}>
             {MARKET_CATEGORIES.map((cat) => (
               <DropdownMenuItem key={cat.slug} asChild className={categoryRow}>
-                <PrefetchLink href={`${ROUTES.markets}?cat=${encodeURIComponent(cat.slug)}`}>
+                <PrefetchLink href={`${ROUTES.discover}?cat=${encodeURIComponent(cat.slug)}`}>
                   {cat.name}
                 </PrefetchLink>
               </DropdownMenuItem>
             ))}
             <DropdownMenuSeparator className="bg-white/[0.06]" />
             <DropdownMenuItem asChild className={categoryRow}>
-              <PrefetchLink href={ROUTES.marketsBrowse}>
+              <PrefetchLink href={ROUTES.discover}>
                 Full explorer
               </PrefetchLink>
             </DropdownMenuItem>

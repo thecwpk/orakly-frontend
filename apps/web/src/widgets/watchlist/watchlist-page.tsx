@@ -33,14 +33,14 @@ function EmptyState() {
       </p>
       <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
         <Link
-          href={ROUTES.marketsBrowse}
+          href={ROUTES.discover}
           className="inline-flex items-center gap-1.5 rounded-lg bg-cyan-500/12 px-3 py-2 text-[12px] font-semibold text-cyan-100 ring-1 ring-cyan-400/25 transition hover:bg-cyan-500/18"
         >
           Open markets
           <ArrowUpRight className="h-3.5 w-3.5" />
         </Link>
         <Link
-          href={ROUTES.marketsBrowse}
+          href={ROUTES.discover}
           className="inline-flex items-center gap-1.5 rounded-lg bg-white/[0.04] px-3 py-2 text-[12px] font-medium text-zinc-300 ring-1 ring-white/[0.08] transition hover:bg-white/[0.07]"
         >
           Hub

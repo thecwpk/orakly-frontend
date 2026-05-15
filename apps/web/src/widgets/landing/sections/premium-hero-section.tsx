@@ -7,13 +7,11 @@ import { ArrowRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
-import { LANDING_IMAGES } from "../lib/landing-image-paths";
+import { BRAND_LOGO_FOR_DARK_NAV, BRAND_LOGO_FOR_LIGHT_NAV } from "@/shared/constants/brand-logos";
 import { ROUTES } from "@/shared/constants/routes";
+import { LANDING_IMAGES } from "../lib/landing-image-paths";
 
 const easeOut = [0.22, 1, 0.36, 1] as const;
-
-const BRAND_MARK_FOR_DARK_BG = "/brand/orakly-mark-light.PNG";
-const BRAND_MARK_FOR_LIGHT_BG = "/brand/orakly-mark-dark.PNG";
 
 const headline = "The Prediction Market for Crypto Attention";
 
@@ -286,7 +284,7 @@ export function PremiumHeroSection({ navbar }: PremiumHeroSectionProps) {
                     style={{ borderWidth: 1, borderColor: "var(--border-soft)", borderStyle: "solid" }}
                   >
                     <Image
-                      src={BRAND_MARK_FOR_LIGHT_BG}
+                      src={BRAND_LOGO_FOR_LIGHT_NAV}
                       alt="Orakly"
                       width={44}
                       height={44}
@@ -294,7 +292,7 @@ export function PremiumHeroSection({ navbar }: PremiumHeroSectionProps) {
                       priority
                     />
                     <Image
-                      src={BRAND_MARK_FOR_DARK_BG}
+                      src={BRAND_LOGO_FOR_DARK_NAV}
                       alt="Orakly"
                       width={44}
                       height={44}
@@ -363,20 +361,23 @@ export function PremiumHeroSection({ navbar }: PremiumHeroSectionProps) {
                       <ArrowRight className="size-4 opacity-80 transition-transform duration-300 group-hover:translate-x-0.5" aria-hidden />
                     </Link>
                   </motion.span>
-                  <motion.a
-                    href="#markets"
+                  <motion.span
                     whileHover={reduceMotion ? undefined : { y: -2 }}
                     whileTap={reduceMotion ? undefined : { scale: 0.98 }}
                     transition={{ type: "spring", stiffness: 420, damping: 28 }}
-                    className={cn(
-                      "inline-flex items-center justify-center rounded-md px-6 py-3 text-[13px] font-medium text-[var(--text-primary)]",
-                      "bg-[var(--bg-3)]/60 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] backdrop-blur-md",
-                      "transition duration-200 hover:bg-[var(--bg-3)]",
-                    )}
-                    style={{ borderWidth: 1, borderColor: "var(--border-soft)", borderStyle: "solid" }}
                   >
-                    Explore Markets
-                  </motion.a>
+                    <Link
+                      href={ROUTES.discover}
+                      className={cn(
+                        "inline-flex items-center justify-center rounded-md px-6 py-3 text-[13px] font-medium text-[var(--text-primary)]",
+                        "bg-[var(--bg-3)]/60 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] backdrop-blur-md",
+                        "transition duration-200 hover:bg-[var(--bg-3)]",
+                      )}
+                      style={{ borderWidth: 1, borderColor: "var(--border-soft)", borderStyle: "solid" }}
+                    >
+                      Explore Markets
+                    </Link>
+                  </motion.span>
                   <motion.a
                     href="#early-access"
                     whileHover={reduceMotion ? undefined : { x: 3 }}

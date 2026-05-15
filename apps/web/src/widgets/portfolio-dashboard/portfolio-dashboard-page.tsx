@@ -53,7 +53,7 @@ function NoSessionPanel() {
       }
       secondaryAction={
         <PrefetchLink
-          href={ROUTES.marketsBrowse}
+          href={ROUTES.discover}
           className="inline-flex items-center gap-r16 rounded-[3px] bg-white/[0.05] px-r24 py-r16 font-mono text-[11px] font-semibold text-zinc-200 transition hover:bg-white/[0.08] active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/15"
         >
           <ArrowLeft className="h-3.5 w-3.5" /> Markets
@@ -141,7 +141,7 @@ const PortfolioDashboardInner = memo(function PortfolioDashboardInner({
           }
           actions={
             <PrefetchLink
-              href={ROUTES.marketsBrowse}
+              href={ROUTES.discover}
               className="inline-flex items-center gap-r16 rounded-[3px] border border-white/[0.08] bg-white/[0.03] px-r16 py-r8 font-mono text-[9.5px] font-medium uppercase tracking-[0.06em] text-zinc-400 transition hover:border-white/[0.12] hover:bg-white/[0.05] hover:text-zinc-200 active:scale-[0.98]"
             >
               <ArrowLeft className="h-3.5 w-3.5 opacity-80" />

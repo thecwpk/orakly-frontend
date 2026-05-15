@@ -39,7 +39,7 @@ function PositionsPanelInner({
           Size routes from Markets · fills sync here
         </p>
         <Link
-          href={ROUTES.marketsBrowse}
+          href={ROUTES.discover}
           prefetch
           className="mt-r24 inline-flex rounded-[3px] bg-white/[0.06] px-r16 py-r8 font-mono text-[10px] font-semibold uppercase tracking-wide text-zinc-200 transition hover:bg-white/[0.09]"
         >

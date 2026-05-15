@@ -24,7 +24,6 @@ import {
   MarketingLandingCommunity,
   MarketingLandingEarlyAccess,
   MarketingLandingFuture,
-  MarketingLandingLiveCta,
   MarketingLandingSecurity,
   MarketingLandingVision,
   MarketingLandingWhyOrakly,
@@ -54,12 +53,6 @@ const exampleMarkets = [
   "Will AI tokens outperform meme coins in the next 24 hours?",
   "Which narrative dominates this weekend?",
   "Will a new meme coin reach $10M first?",
-] as const;
-
-const pillarStats = [
-  { label: "Odds", value: "Live" },
-  { label: "Format", value: "YES / NO" },
-  { label: "Payouts", value: "Verifiable" },
 ] as const;
 
 const pillars = [
@@ -130,7 +123,7 @@ export function MarketingLandingSections() {
                   </h2>
                 </div>
                 <Link
-                  href={ROUTES.marketsBrowse}
+                  href={ROUTES.discover}
                   className="inline-flex w-fit shrink-0 items-center gap-1 text-sm font-medium text-foreground/90 transition hover:text-yes focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yes/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                 >
                   View markets
@@ -200,18 +193,8 @@ export function MarketingLandingSections() {
           <p className={landingLeadMuted}>
             Read implied probability fast, size with fewer steps, and see resolution rules before you commit.
           </p>
-          <div className="relative mt-10 flex flex-wrap gap-x-12 gap-y-6 pb-10 before:absolute before:inset-x-0 before:bottom-0 before:h-px before:bg-gradient-to-r before:from-transparent before:via-white/[0.09] before:to-transparent">
-            {pillarStats.map((s) => (
-              <div key={s.label}>
-                <p className="font-display text-2xl font-bold tabular-nums tracking-tight text-foreground drop-shadow-[0_0_32px_oklch(0.55_0.12_85_/_0.25)] sm:text-3xl">
-                  {s.value}
-                </p>
-                <p className="mt-1 text-[10px] font-medium uppercase tracking-[0.16em] text-muted-foreground">{s.label}</p>
-              </div>
-            ))}
-          </div>
 
-          <div className="relative mt-8 grid gap-4 lg:grid-cols-3">
+          <div className="relative mt-10 grid gap-4 lg:grid-cols-3">
             {pillars.map((item) => {
               const Icon = item.icon;
               return (
@@ -433,8 +416,6 @@ export function MarketingLandingSections() {
 
       <MarketingLandingFuture />
 
-      <MarketingLandingLiveCta />
-
       <MarketingLandingEarlyAccess />
 
       <section
@@ -455,11 +436,7 @@ export function MarketingLandingSections() {
             <span className="mt-1 block text-foreground/90">— not only the candle</span>
           </h2>
           <p className={cn(landingLeadMuted, "mt-4 max-w-[42rem]")}>
-            Trade conviction on crypto-native questions. Read the rules first, then size.
-          </p>
-          <p className="mt-6 font-mono text-[10px] font-semibold uppercase tracking-[0.22em] text-violet-200/60">Orakly Market</p>
-          <p className="mt-1 font-display text-xl font-bold text-cyan-200/95 drop-shadow-[0_0_24px_rgba(34,211,238,0.25)] sm:text-2xl">
-            Predict the narrative.
+            Binary markets on crypto-native questions — commit size in the app once you have read the rules.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Link
@@ -512,7 +489,7 @@ export function MarketingLandingSections() {
               <p className={landingEyebrow}>Product</p>
               <nav className="mt-3 flex flex-col gap-1.5 text-sm" aria-label="Footer product links">
                 <Link
-                  href={ROUTES.marketsBrowse}
+                  href={ROUTES.discover}
                   className="text-foreground/90 transition hover:text-yes focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yes/40 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                 >
                   Markets
@@ -522,12 +499,6 @@ export function MarketingLandingSections() {
                   className="text-foreground/90 transition hover:text-yes focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yes/40 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                 >
                   Launch app
-                </Link>
-                <Link
-                  href={ROUTES.discover}
-                  className="text-foreground/90 transition hover:text-yes focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yes/40 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-                >
-                  Discover
                 </Link>
                 <a
                   href="#features"

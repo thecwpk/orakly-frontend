@@ -5,7 +5,9 @@ import { useState } from "react";
 import { Menu, X } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { BrandWordmarkLink } from "@/shared/ui";
 import { ROUTES } from "@/shared/constants/routes";
+
 type NavRow = {
   label: string;
   landing: { href: string; isRoute: boolean };
@@ -16,8 +18,8 @@ const NAV_ROWS: NavRow[] = [
   { label: "Discover", landing: { href: ROUTES.discover, isRoute: true }, app: { href: ROUTES.discover, isRoute: true } },
   {
     label: "Markets",
-    landing: { href: "#markets", isRoute: false },
-    app: { href: ROUTES.marketsBrowse, isRoute: true },
+    landing: { href: ROUTES.discover, isRoute: true },
+    app: { href: ROUTES.discover, isRoute: true },
   },
   { label: "Dapp", landing: { href: "#how-it-works", isRoute: false }, app: { href: ROUTES.markets, isRoute: true } },
   {
@@ -102,15 +104,7 @@ export function GlobalMarketingNavbar({ variant, appendActions, chrome = "defaul
       )}
     >
       <div className="flex h-14 w-full max-w-none items-center justify-between gap-3 px-4 sm:gap-4 sm:px-6 lg:px-8">
-        <Link
-          href={brandHref}
-          className={cn(
-            "shrink-0 font-semibold tracking-tight transition",
-            glass ? "text-[var(--text-primary)] hover:text-[var(--accent-soft)]" : "text-foreground hover:text-yes/90",
-          )}
-        >
-          Orakly
-        </Link>
+        <BrandWordmarkLink href={brandHref} tone={glass ? "onDark" : "theme"} className="shrink-0" />
 
         <nav className="hidden items-center gap-6 lg:gap-8 md:flex">{NAV_ROWS.map(renderNavLink)}</nav>
 

@@ -2,7 +2,8 @@
 
 import type { Market } from "@orakly/types";
 import { Loader2, RefreshCw } from "lucide-react";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import { MARKET_CATEGORIES } from "@/features/markets/lib/categories";
 import { cn } from "@/lib/utils";
@@ -38,9 +39,22 @@ const ACCENTS = ["cyan", "violet", "emerald", "rose", "amber"] as const;
 
 export function MarketingDiscoverPage() {
   const queryClient = useQueryClient();
+  const searchParams = useSearchParams();
   const [tab, setTab] = useState<DiscoverTab>("all");
   const [category, setCategory] = useState<string>("all");
   const [search, setSearch] = useState("");
+
+  useEffect(() => {
+    const raw = searchParams.get("cat");
+    if (!raw) return;
+    if (raw === "all") {
+      setCategory("all");
+      return;
+    }
+    if (MARKET_CATEGORIES.some((c) => c.slug === raw)) {
+      setCategory(raw);
+    }
+  }, [searchParams]);
 
   const prefetchLane = useCallback(
     (tid: DiscoverTab) => {
