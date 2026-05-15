@@ -12,7 +12,8 @@
     "lint": "eslint --max-warnings 0",
     "check-types": "next typegen && tsc --noEmit",
     "env:generate": "node scripts/generate-env-secrets.mjs",
-    "bootstrap:dev": "node scripts/bootstrap-dev.mjs"
+    "bootstrap:dev": "node scripts/bootstrap-dev.mjs",
+    "verify:vercel": "node scripts/verify-vercel.mjs"
   },
   "dependencies": {
     "@orakly/config": "*",
