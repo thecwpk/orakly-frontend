@@ -66,13 +66,13 @@ export function LandingNavbar() {
   }, [menuOpen]);
 
   return (
-    <header className="sticky top-0 z-50 border-b border-white/[0.06] bg-[#050508]/85 backdrop-blur-xl supports-[backdrop-filter]:bg-[#050508]/70">
+    <header className="sticky top-0 z-50 border-b border-sky-500/10 bg-[hsl(225_32%_11%_/_0.88)] backdrop-blur-xl supports-[backdrop-filter]:bg-[hsl(225_34%_12%_/_0.72)]">
       <div className="mx-auto flex h-14 max-w-6xl items-center gap-3 px-4 sm:h-[3.75rem] sm:gap-5 sm:px-6">
         <BrandWordmarkLink
           href={ROUTES.home}
-          tone="onDark"
+          showTitle
           onClick={() => setOpen(false)}
-          className="flex shrink-0 flex-col leading-none"
+          className="shrink-0"
         />
 
         <nav

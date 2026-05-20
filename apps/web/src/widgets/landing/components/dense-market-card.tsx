@@ -88,7 +88,10 @@ export function DenseMarketCard({
 
   if (href) {
     return (
-      <Link href={href} className="block focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500/40 rounded-xl">
+      <Link
+        href={href}
+        className="block min-w-0 rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500/40"
+      >
         {card}
       </Link>
     );

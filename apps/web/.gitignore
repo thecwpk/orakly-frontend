@@ -33,6 +33,7 @@ yarn-error.log*
 .env.production.local
 .env.production
 env.vercel.generated
+env.railway*.generated
 
 # vercel
 .vercel

@@ -17,7 +17,7 @@ const TESTIMONIALS = [
     quote:
       "The YES/NO tape feels like a market, not a raffle ticket. That matters when liquidity is thin.",
     name: "Elias R.",
-    meta: "Community markets · beta",
+    meta: "Community markets · retail flow",
     initials: "ER",
   },
 ] as const;
@@ -29,11 +29,10 @@ export function SocialProofSection() {
         <div className="text-center">
           <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-muted-foreground">Early voices</p>
           <h2 className="mt-3 text-2xl font-semibold text-foreground sm:text-3xl">
-            Traders like you, testing the narrative layer
+            Traders like you, reading the narrative layer first
           </h2>
           <p className="mx-auto mt-3 max-w-lg text-sm text-muted-foreground">
-            Illustrative beta feedback — composite quotes for positioning only,
-            not verified endorsements.
+            Illustrative feedback — composite quotes for positioning only, not verified endorsements.
           </p>
         </div>
 

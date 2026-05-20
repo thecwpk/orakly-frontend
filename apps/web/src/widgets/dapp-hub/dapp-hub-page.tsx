@@ -14,7 +14,8 @@ import { useLiveActivityFeed } from "@/websocket/hooks/useLiveActivityFeed";
 import { HubFeaturedTradingCard } from "./components/hub-featured-trading-card";
 import { HubHomeMarketTicker } from "./components/hub-home-market-ticker";
 import { HubMarketsBrowseBlock } from "./components/hub-markets-browse-block";
-import { HubBreakingHotTopicsStack } from "./components/hub-breaking-hot-topics-stack";
+import { HubBreakingNewsPanel } from "./components/hub-breaking-hot-topics-stack";
+import { HubHotTopicsSlider } from "./components/hub-hot-topics-slider";
 import { HubSpotlightCarouselNav } from "./components/hub-spotlight-desk";
 import { pickCrossLaneHotMarkets } from "./lib/hub-cross-lane-hot-topics";
 import { mergeHubSpotlightMarkets } from "./lib/merge-hub-spotlight-markets";
@@ -292,19 +293,19 @@ export function DappHubPage() {
     featuredFive.length === 0 &&
     (trendingListQ.isPending || secondaryLanesPending);
 
-  const breakingHotStackProps = {
+  const breakingPanelProps = {
     breakingMarkets: trendingTape,
-    hotMarkets: crossLaneHotTopTen,
     excludeId: spotlightExcludeId,
     liveSet,
     loadingBreaking: trendingTapeQ.isLoading,
-    loadingHot: hubLaneQueriesLoading && crossLaneHotTopTen.length === 0,
   };
+
+  const hotSliderLoading = hubLaneQueriesLoading && crossLaneHotTopTen.length === 0;
 
   const asideSurfaceClass = "mb-aside-surface overflow-hidden rounded-2xl";
 
   return (
-    <div className="mb-root">
+    <div className="mb-root hub-app-canvas pb-[max(1rem,env(safe-area-inset-bottom,0px))] lg:pb-2">
       {hubDatabaseDown ? (
         <div
           role="alert"
@@ -323,18 +324,18 @@ export function DappHubPage() {
 
       <div className="mb-shell">
         <div className="mb-main">
-          <section className="scroll-mt-4">
+          <section className="scroll-mt-4 flex min-h-0 min-w-0 flex-1 flex-col">
             {spotlightSkeleton ? (
-              <div className="mb-hero mb-hero-grid min-w-0 space-y-4">
+              <div className="mb-hero mb-hero-grid flex min-h-0 min-w-0 flex-1 flex-col space-y-4">
                 <div className="h-10 animate-pulse rounded-lg bg-white/[0.05]" />
-                <div className="min-h-[min(52vh,420px)] animate-pulse rounded-lg bg-white/[0.05]" />
+                <div className="min-h-[min(52vh,420px)] flex-1 animate-pulse rounded-lg bg-white/[0.05]" />
                 <div className="min-[1100px]:hidden">
-                  <HubBreakingHotTopicsStack {...breakingHotStackProps} className={asideSurfaceClass} />
+                  <HubBreakingNewsPanel {...breakingPanelProps} className={asideSurfaceClass} />
                 </div>
               </div>
             ) : spotlightMarket ? (
-              <div className="mb-hero mb-hero-grid space-y-6">
-                <div className="mb-hero-desk-unified overflow-hidden rounded-2xl border border-border bg-card shadow-[0_20px_60px_-28px_rgb(0_0_0/0.45)] ring-1 ring-border/50">
+              <div className="mb-hero mb-hero-grid flex min-h-0 min-w-0 flex-1 flex-col space-y-6">
+                <div className="mb-hero-desk-unified flex min-h-[min(52vh,420px)] min-w-0 flex-1 flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-[0_20px_60px_-28px_hsl(228_45%_4%/0.4)] ring-1 ring-border/50">
                   <HubFeaturedTradingCard
                     market={spotlightMarket}
                     isLive={liveSet.has(spotlightMarket.id)}
@@ -348,34 +349,38 @@ export function DappHubPage() {
                   />
                 </div>
                 <div className="min-[1100px]:hidden">
-                  <HubBreakingHotTopicsStack {...breakingHotStackProps} className={asideSurfaceClass} />
+                  <HubBreakingNewsPanel {...breakingPanelProps} className={asideSurfaceClass} />
                 </div>
               </div>
             ) : hubDatabaseDown ? (
-              <div className="mb-hero mb-hero-grid space-y-5">
+              <div className="mb-hero mb-hero-grid flex min-h-0 min-w-0 flex-1 flex-col space-y-5">
                 <p className={cn(panel, "px-3 py-4 text-center text-[11px] text-destructive")}>
                   Markets unavailable — database not connected on server.
                 </p>
                 <div className="min-[1100px]:hidden">
-                  <HubBreakingHotTopicsStack {...breakingHotStackProps} className={asideSurfaceClass} />
+                  <HubBreakingNewsPanel {...breakingPanelProps} className={asideSurfaceClass} />
                 </div>
               </div>
             ) : (
-              <div className="mb-hero mb-hero-grid space-y-5">
+              <div className="mb-hero mb-hero-grid flex min-h-0 min-w-0 flex-1 flex-col space-y-5">
                 <p className={cn(panel, "px-3 py-4 text-center text-[11px] text-muted-foreground")}>
                   Feed syncing… (waiting for markets in database)
                 </p>
                 <div className="min-[1100px]:hidden">
-                  <HubBreakingHotTopicsStack {...breakingHotStackProps} className={asideSurfaceClass} />
+                  <HubBreakingNewsPanel {...breakingPanelProps} className={asideSurfaceClass} />
                 </div>
               </div>
             )}
           </section>
         </div>
 
-        <aside className="mb-aside hidden min-[1100px]:block">
-          <HubBreakingHotTopicsStack {...breakingHotStackProps} className={asideSurfaceClass} />
+        <aside className="mb-aside hidden min-h-0 min-[1100px]:flex min-[1100px]:flex-col">
+          <HubBreakingNewsPanel {...breakingPanelProps} className={cn(asideSurfaceClass, "min-h-0 flex-1")} />
         </aside>
+      </div>
+
+      <div className="mb-hot-topics-bleed" style={appStickyToolbarBleedStyle}>
+        <HubHotTopicsSlider hotMarkets={crossLaneHotTopTen} loadingHot={hotSliderLoading} />
       </div>
 
       <div
@@ -398,9 +403,9 @@ export function DappHubPage() {
         />
       </div>
 
-      <div className="mb-shell-footer">
-        <div className="pb-6 pt-2">
-          <details className="group rounded-xl border border-border bg-card/40 ring-1 ring-border/40 [&_summary::-webkit-details-marker]:hidden">
+      <footer className="mb-shell-footer mt-2 border-t border-border/70 bg-muted/[0.06] pt-8 pb-10 lg:pb-12">
+        <div className="pb-2 pt-0">
+          <details className="group rounded-xl border border-border bg-card/55 shadow-sm ring-1 ring-border/50 [&_summary::-webkit-details-marker]:hidden">
             <summary className="flex cursor-pointer list-none items-center justify-between gap-2 px-3 py-2.5 font-mono text-[10px] font-medium uppercase tracking-[0.1em] text-muted-foreground transition hover:bg-muted/30 hover:text-foreground">
               <span>Live desk · terminal tape</span>
               <span className="text-muted-foreground/70 group-open:rotate-180 motion-safe:transition-transform">▼</span>
@@ -419,10 +424,13 @@ export function DappHubPage() {
           </details>
         </div>
 
-        <p className="mb-hub-footer-band text-[10px] leading-relaxed text-muted-foreground">
-          Markets involve risk; prices reflect consensus not advice.
-        </p>
-      </div>
+        <div className="mb-hub-footer-band mt-6 rounded-lg border border-border/80 bg-card/40 px-4 py-3 text-center ring-1 ring-border/35">
+          <p className="text-[11px] font-medium leading-relaxed text-foreground/90">
+            Markets involve risk; prices reflect consensus not advice.
+          </p>
+          <p className="mt-1 font-mono text-[9px] text-muted-foreground">Orakly · Trading hub</p>
+        </div>
+      </footer>
     </div>
   );
 }

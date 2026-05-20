@@ -183,14 +183,20 @@ export function HubFeaturedTradingCard({
       data-hub-featured-card
       className={cn(
         "flex min-w-0 max-w-full flex-col overflow-hidden rounded-xl border border-border bg-card shadow-sm",
-        queueMerged && "rounded-none border-0 border-b border-border/80 bg-transparent shadow-none ring-0",
+        queueMerged &&
+          "h-full min-h-0 flex-1 rounded-none border-0 border-b border-border/80 bg-transparent shadow-none ring-0",
       )}
     >
       {/*
         Layout: full-width header (thumb · title · share/star), then 45/55 grid so the chart only spans
         the “desk” block (chance → wire), matching PM-style alignment. Chart size follows its cell (RO).
       */}
-      <div className="hub-featured-card__body box-border min-w-0 px-4 py-4 sm:px-5 sm:py-4 lg:px-5 lg:py-4">
+      <div
+        className={cn(
+          "hub-featured-card__body box-border min-w-0 px-4 py-4 sm:px-5 sm:py-4 lg:px-5 lg:py-4",
+          queueMerged && "flex min-h-0 flex-1 flex-col",
+        )}
+      >
         {/* Row 1 — title rail (icons top-right) */}
         <header className="mb-4 flex min-w-0 items-start gap-3 sm:mb-4 sm:gap-3.5">
           <HubMarketThumb category={market.category} title={market.title} />
@@ -223,7 +229,12 @@ export function HubFeaturedTradingCard({
         </header>
 
         {/* Row 2 — desk + chart (reference ~45 / ~55) */}
-        <div className="grid min-h-0 min-w-0 grid-cols-1 gap-5 lg:grid-cols-[minmax(0,43%)_minmax(0,57%)] lg:items-stretch lg:gap-5">
+        <div
+          className={cn(
+            "grid min-h-0 min-w-0 grid-cols-1 gap-5 lg:grid-cols-[minmax(0,43%)_minmax(0,57%)] lg:items-stretch lg:gap-5",
+            queueMerged && "min-h-0 flex-1 lg:min-h-[240px]",
+          )}
+        >
           <div role="region" aria-label="Market summary" className="box-border flex min-h-0 min-w-0 flex-col">
             <section className="mb-3 min-w-0" aria-label="Current probability">
               <div className="flex min-w-0 flex-wrap items-end justify-between gap-2">
@@ -316,7 +327,10 @@ export function HubFeaturedTradingCard({
 
           <div
             ref={chartRef}
-            className="relative flex min-h-[200px] min-w-0 flex-1 flex-col justify-center bg-transparent lg:min-h-0 lg:items-end"
+            className={cn(
+              "relative flex min-h-[200px] min-w-0 flex-1 flex-col justify-center bg-transparent lg:min-h-0 lg:items-end",
+              queueMerged && "min-h-[220px] lg:min-h-0",
+            )}
             role="region"
             aria-label="Probability chart"
           >

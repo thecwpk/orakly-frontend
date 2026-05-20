@@ -202,7 +202,7 @@ function DirectoryTradeChip({
         "min-h-[32px] flex-1 rounded-md py-1.5 text-[11px] font-medium outline-none transition-[color,background-color,border-color,box-shadow] sm:min-h-[34px] sm:py-2",
         yes
           ? "border border-yes/35 bg-yes/10 text-yes hover:border-yes/50 hover:bg-yes/18 focus-visible:ring-2 focus-visible:ring-yes/30 focus-visible:ring-offset-2 focus-visible:ring-offset-card"
-          : "border border-rose-500/35 bg-rose-500/10 text-rose-200 hover:border-rose-400/45 hover:bg-rose-500/15 focus-visible:ring-2 focus-visible:ring-rose-500/30 focus-visible:ring-offset-2 focus-visible:ring-offset-card",
+          : "border border-no/30 bg-no/10 text-no hover:border-no/45 hover:bg-no/16 focus-visible:ring-2 focus-visible:ring-no/30 focus-visible:ring-offset-2 focus-visible:ring-offset-card",
         disabled && "pointer-events-none opacity-45",
       )}
     >
@@ -303,7 +303,7 @@ function MarketCardImpl({
   const sparkH = isFeatured ? 26 : isCompact ? 17 : 20;
 
   const titleClass = cn(
-    "line-clamp-2 font-semibold tracking-tight text-zinc-50 transition-colors duration-300 group-hover:text-white",
+    "line-clamp-2 font-semibold tracking-tight text-foreground transition-colors duration-300",
     isCompact && "text-[11px] leading-snug sm:text-[12px]",
     !isCompact && !isFeatured && "text-[12px] leading-snug sm:text-[13px]",
     isFeatured && "text-[12.5px] leading-snug sm:text-[13.5px] md:text-[14.5px]",
@@ -334,16 +334,16 @@ function MarketCardImpl({
         "border transition-[box-shadow,border-color,transform] duration-200 ease-out",
         pmBrowse
           ? cn(
-              "rounded-lg border-white/[0.055] bg-card",
-              "shadow-none",
-              "hover:border-white/[0.1] hover:bg-secondary/35",
+              "rounded-lg border-border/90 bg-gradient-to-b from-card via-card to-secondary/30",
+              "shadow-sm ring-1 ring-border/60",
+              "hover:border-primary/30 hover:from-secondary/45 hover:to-card hover:ring-primary/20",
             )
           : cn(
               "border-white/[0.07]",
-              "bg-gradient-to-br from-[#101018]/98 via-[#090911]/98 to-[#060609]/98",
-              "shadow-[0_22px_48px_-32px_rgba(0,0,0,0.92),inset_0_1px_0_rgba(255,255,255,0.055)]",
+              "bg-gradient-to-br from-[hsl(228_26%_16%/0.97)] via-[hsl(228_28%_12%/0.98)] to-[hsl(232_32%_9%/0.99)]",
+              "shadow-[0_22px_48px_-32px_hsl(228_40%_6%/0.62),inset_0_1px_0_rgba(255,255,255,0.055)]",
               isSubtleChrome
-                ? "hover:border-white/[0.11] hover:shadow-[0_28px_56px_-36px_rgba(0,0,0,0.95),inset_0_1px_0_rgba(255,255,255,0.07)]"
+                ? "hover:border-white/[0.11] hover:shadow-[0_28px_56px_-36px_hsl(228_42%_5%/0.68),inset_0_1px_0_rgba(255,255,255,0.07)]"
                 : cn(
                     "hover:border-white/[0.09]",
                     ACCENT_RING[accent],
@@ -367,6 +367,12 @@ function MarketCardImpl({
           pmBrowse ? "hidden" : "opacity-70",
         )}
       />
+      {pmBrowse ? (
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-x-0 top-0 h-[38%] bg-gradient-to-b from-primary/[0.07] to-transparent"
+        />
+      ) : null}
       {/* Accent bloom — subtle idle, stronger on hover */}
       {!pmBrowse ? (
         <div
@@ -382,12 +388,12 @@ function MarketCardImpl({
       {!pmBrowse ? (
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/35 to-transparent"
+          className="pointer-events-none absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-[hsl(228_35%_8%/0.48)] to-transparent"
         />
       ) : (
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-x-0 bottom-0 h-1/5 bg-gradient-to-t from-black/[0.07] to-transparent opacity-80"
+          className="pointer-events-none absolute inset-x-0 bottom-0 h-1/5 bg-gradient-to-t from-primary/[0.06] to-transparent opacity-90"
         />
       )}
 
@@ -396,7 +402,7 @@ function MarketCardImpl({
           <div className="relative flex flex-col gap-3 sm:gap-3.5">
             <header className="flex items-start gap-2.5 sm:gap-3">
               <div
-                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-white/[0.04] text-[11px] font-semibold uppercase tracking-tight text-zinc-400 ring-1 ring-white/[0.06] sm:h-10 sm:w-10 sm:text-[12px]"
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-primary/10 text-[11px] font-semibold uppercase tracking-tight text-muted-foreground ring-1 ring-border/80 sm:h-10 sm:w-10 sm:text-[12px]"
                 aria-hidden
               >
                 {thumbLetter}
@@ -407,15 +413,15 @@ function MarketCardImpl({
                   title={market.title}
                   className={cn(
                     "block min-h-[3.75rem] rounded-sm outline-none sm:min-h-[4rem]",
-                    "focus-visible:ring-2 focus-visible:ring-zinc-500/40 focus-visible:ring-offset-2 focus-visible:ring-offset-card",
+                    "focus-visible:ring-2 focus-visible:ring-primary/35 focus-visible:ring-offset-2 focus-visible:ring-offset-card",
                   )}
                 >
-                  <h3 className="line-clamp-3 text-left text-[12.5px] font-medium leading-snug tracking-tight text-zinc-100 transition-colors group-hover:text-zinc-50 sm:text-[13px] sm:leading-snug">
+                  <h3 className="line-clamp-3 text-left text-[13px] font-semibold leading-snug tracking-tight text-foreground transition-colors group-hover:text-foreground sm:text-[13.5px] sm:leading-snug">
                     {market.title}
                   </h3>
                 </Link>
                 {browseCategoryLabel ? (
-                  <p className="mt-1.5 truncate text-[9px] font-medium uppercase tracking-[0.12em] text-zinc-600">
+                  <p className="mt-1.5 truncate text-[9.5px] font-medium uppercase tracking-[0.12em] text-muted-foreground/90">
                     {browseCategoryLabel}
                   </p>
                 ) : null}
@@ -428,7 +434,7 @@ function MarketCardImpl({
               role="group"
               aria-label="Implied probability by outcome"
             >
-              <div className="rounded-md border border-border bg-muted/25 px-2 py-1 text-center">
+              <div className="rounded-md border border-yes/20 bg-yes/8 px-2 py-1 text-center">
                 <span className="block text-[8.5px] font-medium uppercase tracking-[0.1em] text-muted-foreground">
                   Yes
                 </span>
@@ -436,24 +442,24 @@ function MarketCardImpl({
                   {yesPct}%
                 </span>
               </div>
-              <div className="rounded-md border border-border bg-muted/25 px-2 py-1 text-center">
+              <div className="rounded-md border border-no/20 bg-no/8 px-2 py-1 text-center">
                 <span className="block text-[8.5px] font-medium uppercase tracking-[0.1em] text-muted-foreground">
                   No
                 </span>
-                <span className="font-mono text-[11.5px] font-medium tabular-nums text-rose-300/95 sm:text-[12px]">
+                <span className="font-mono text-[11.5px] font-medium tabular-nums text-no sm:text-[12px]">
                   {noPct}%
                 </span>
               </div>
             </div>
 
-            <div className="relative z-[1] overflow-hidden rounded-md border border-border bg-muted/15 px-1 py-1">
-              <div className="flex items-center justify-between gap-2 px-1 pb-0.5 pt-0.5">
-                <span className="text-[8px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+            <div className="relative z-[1] overflow-hidden rounded-md border border-border/85 bg-muted/25 px-1.5 py-1.5">
+              <div className="flex items-center justify-between gap-2 px-0.5 pb-1 pt-0.5">
+                <span className="text-[8.5px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
                   Live odds
                 </span>
-                <span className="font-mono text-[9px] font-medium tabular-nums text-yes">{yesPct}% yes</span>
+                <span className="font-mono text-[9.5px] font-medium tabular-nums text-yes">{yesPct}% yes</span>
               </div>
-              <div className="flex w-full justify-center rounded bg-background/40 px-0.5">
+              <div className="flex w-full justify-center rounded-md bg-background/60 px-0.5 ring-1 ring-border/40">
                 <Sparkline
                   data={sparkData}
                   tone="emerald"
@@ -507,7 +513,7 @@ function MarketCardImpl({
             {/* SUPPORTIVE: category · live · spark · watchlist */}
             <header className="flex items-start gap-2">
               <div className="flex min-w-0 flex-1 flex-wrap items-center gap-1">
-                <span className="rounded-md bg-black/35 px-1.5 py-px text-[8.5px] font-semibold uppercase tracking-[0.12em] text-zinc-500 ring-1 ring-white/[0.06]">
+                <span className="rounded-md bg-[hsl(228_32%_14%/0.55)] px-1.5 py-px text-[8.5px] font-semibold uppercase tracking-[0.12em] text-zinc-400 ring-1 ring-white/[0.08]">
                   {market.category}
                 </span>
                 {isLive ? (
@@ -528,12 +534,12 @@ function MarketCardImpl({
                   </span>
                 )}
                 {tradedAgoLabel && isLive ? (
-                  <span className="font-mono text-[9px] text-zinc-600">{tradedAgoLabel} ago</span>
+                  <span className="font-mono text-[9px] text-zinc-500">{tradedAgoLabel} ago</span>
                 ) : null}
               </div>
 
               <div className="flex shrink-0 items-start gap-1.5 pl-1">
-                <div className="rounded-md bg-black/30 py-0.5 pl-1 pr-0.5 ring-1 ring-white/[0.05]">
+                <div className="rounded-md bg-[hsl(228_30%_12%/0.52)] py-0.5 pl-1 pr-0.5 ring-1 ring-white/[0.07]">
                   <Sparkline
                     data={sparkData}
                     tone={accent}
@@ -554,7 +560,7 @@ function MarketCardImpl({
               href={detailsHref}
               className={cn(
                 "relative mt-2 block rounded-md outline-none",
-                "focus-visible:ring-2 focus-visible:ring-cyan-400/35 focus-visible:ring-offset-2 focus-visible:ring-offset-[#090911]",
+                "focus-visible:ring-2 focus-visible:ring-cyan-400/35 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
               )}
             >
               <h3 className={titleClass}>{market.title}</h3>
@@ -564,7 +570,7 @@ function MarketCardImpl({
             <div className={cn("relative mt-2.5", !isCompact && "mt-3")}>
               <div className="flex items-end justify-between gap-2 sm:gap-3">
                 <div className="min-w-0 flex-1">
-                  <p className="text-[8.5px] font-semibold uppercase tracking-[0.14em] text-zinc-600">
+                  <p className="text-[8.5px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
                     Yes
                   </p>
                   <p className={cn(oddsClass, "text-cyan-400 drop-shadow-[0_0_20px_rgba(34,211,238,0.18)]")}>
@@ -577,7 +583,7 @@ function MarketCardImpl({
                   aria-hidden
                 />
                 <div className="min-w-0 flex-1 text-right">
-                  <p className="text-[8.5px] font-semibold uppercase tracking-[0.14em] text-zinc-600">
+                  <p className="text-[8.5px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
                     No
                   </p>
                   <p className={cn(oddsClass, "text-rose-400 drop-shadow-[0_0_20px_rgba(251,113,133,0.14)]")}>
@@ -587,7 +593,7 @@ function MarketCardImpl({
                 </div>
               </div>
 
-              <div className="relative mt-2 h-[3px] overflow-hidden rounded-full bg-black/50 ring-1 ring-white/[0.05]">
+              <div className="relative mt-2 h-[3px] overflow-hidden rounded-full bg-[hsl(228_28%_10%/0.62)] ring-1 ring-white/[0.06]">
                 <div className="absolute inset-y-0 left-0 w-full bg-gradient-to-r from-white/[0.03] to-transparent" />
                 <motion.div
                   key={`${market.id}-${yesPct}`}
@@ -610,7 +616,7 @@ function MarketCardImpl({
               )}
             >
               <div className="flex flex-col gap-0">
-                <span className="text-[8px] font-semibold uppercase tracking-[0.14em] text-zinc-600">
+                <span className="text-[8px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
                   Vol
                 </span>
                 <span className="font-mono text-[10.5px] font-medium tabular-nums text-zinc-200">
@@ -619,7 +625,7 @@ function MarketCardImpl({
               </div>
               <div className="hidden h-7 w-px bg-white/[0.06] sm:block" aria-hidden />
               <div className="flex flex-col gap-0">
-                <span className="text-[8px] font-semibold uppercase tracking-[0.14em] text-zinc-600">
+                <span className="text-[8px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
                   Liq
                 </span>
                 <span className="font-mono text-[10.5px] font-medium tabular-nums text-zinc-300">
@@ -627,7 +633,7 @@ function MarketCardImpl({
                 </span>
               </div>
               <div className="ml-auto flex min-w-0 flex-col items-end gap-0 text-right sm:ml-0">
-                <span className="text-[8px] font-semibold uppercase tracking-[0.14em] text-zinc-600">
+                <span className="text-[8px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
                   Resolve
                 </span>
                 <span
@@ -651,14 +657,14 @@ function MarketCardImpl({
             {/* Volume intensity — thin, supportive */}
             <div className="relative mt-2">
               <div className="mb-1 flex items-center justify-between gap-2">
-                <span className="text-[8px] font-semibold uppercase tracking-[0.14em] text-zinc-700">
+                <span className="text-[8px] font-semibold uppercase tracking-[0.14em] text-zinc-600">
                   Flow vs book
                 </span>
-                <span className="font-mono text-[9px] tabular-nums text-zinc-600">
+                <span className="font-mono text-[9px] tabular-nums text-zinc-500">
                   {Math.round(volRatio * 100)}%
                 </span>
               </div>
-              <div className="h-[2px] overflow-hidden rounded-full bg-black/55 ring-1 ring-white/[0.04]">
+              <div className="h-[2px] overflow-hidden rounded-full bg-[hsl(228_28%_10%/0.65)] ring-1 ring-white/[0.05]">
                 <motion.div
                   className={cn("h-full rounded-full bg-gradient-to-r", ACCENT_VOL[accent])}
                   initial={{ width: 0 }}
@@ -681,7 +687,7 @@ function MarketCardImpl({
         >
           <Link
             href={detailsHref}
-            className="pointer-events-auto inline-flex items-center gap-1 rounded-lg bg-black/55 px-2 py-1 text-[10px] font-semibold text-zinc-100 ring-1 ring-white/[0.1] backdrop-blur-sm transition hover:bg-cyan-500/18 hover:text-cyan-50 hover:ring-cyan-400/35"
+            className="pointer-events-auto inline-flex items-center gap-1 rounded-lg bg-[hsl(228_32%_12%/0.75)] px-2 py-1 text-[10px] font-semibold text-zinc-100 ring-1 ring-white/[0.1] backdrop-blur-sm transition hover:bg-cyan-500/18 hover:text-cyan-50 hover:ring-cyan-400/35"
           >
             Trade
             <ArrowUpRight className="h-3 w-3 opacity-80" />

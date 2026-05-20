@@ -43,6 +43,8 @@ function MarketActivityFeedInner({
   whaleMinUsd = DEFAULT_WHALE_USD,
   maxRows = 40,
   heading,
+  className,
+  fillColumn,
 }: {
   tradeMarketId: string | null;
   rt: MarketRealtimeSnapshot;
@@ -51,6 +53,10 @@ function MarketActivityFeedInner({
   whaleMinUsd?: number;
   maxRows?: number;
   heading?: { title: string; subtitle?: string };
+  /** Extra layout classes from page (width, flex). */
+  className?: string;
+  /** Taller pane that stretches with the sibling column on desktop main activity row. */
+  fillColumn?: boolean;
 }) {
   const feed = useLiveActivityFeed();
 
@@ -97,6 +103,7 @@ function MarketActivityFeedInner({
   }, [feed, filter, maxRows, rt.tradesRecent, tradeMarketId, whaleMinUsd]);
 
   const isCompact = density === "compact";
+  const stretchList = Boolean(fillColumn && !isCompact);
   const title = heading?.title ?? "Activity";
   const subtitle =
     heading?.subtitle ??
@@ -109,12 +116,14 @@ function MarketActivityFeedInner({
   return (
     <div
       className={cn(
-        "overflow-hidden rounded-lg border border-white/[0.06] bg-[#08080f]/90 ring-1 ring-white/[0.04]",
+        "min-w-0 overflow-hidden rounded-lg border border-white/[0.07] bg-[hsl(228_26%_10%/0.92)] ring-1 ring-white/[0.05]",
         !isCompact && "glass-panel-strong rounded-2xl",
+        stretchList && "flex min-h-0 flex-1 flex-col lg:h-full",
+        className,
       )}
     >
       <div
-        className={cn("border-b border-white/6", isCompact ? "px-2.5 py-2" : "px-4 py-3")}
+        className={cn("border-b border-white/6 shrink-0", isCompact ? "px-2.5 py-2" : "px-4 py-3")}
       >
         <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-zinc-600">
           {title}
@@ -125,15 +134,22 @@ function MarketActivityFeedInner({
       </div>
       <ul
         className={cn(
-          "divide-y divide-white/4 overflow-y-auto overscroll-contain",
-          isCompact ? "max-h-[240px]" : "max-h-[320px]",
+          "divide-y divide-white/4 overscroll-contain",
+          stretchList &&
+            cn(
+              "min-h-[260px] flex-1 lg:min-h-0",
+              rows.length === 0 ? "flex flex-col overflow-hidden" : "overflow-y-auto",
+            ),
+          !stretchList && cn("overflow-y-auto", isCompact ? "max-h-[240px]" : "max-h-[320px]"),
         )}
       >
         {rows.length === 0 ?
           <li
             className={cn(
               "text-center text-zinc-500",
-              isCompact ? "px-3 py-6 text-[11px]" : "px-4 py-8 text-[12px]",
+              stretchList && !isCompact && "flex flex-1 flex-col items-center justify-center px-5 py-14 text-[13px] leading-relaxed",
+              !(stretchList && !isCompact) &&
+                (isCompact ? "px-3 py-6 text-[11px]" : "px-4 py-8 text-[12px]"),
             )}
           >
             {tradeMarketId ?

@@ -7,7 +7,7 @@ import { SectionShell } from "../components/section-shell";
 
 const traders = [
   { rank: 1, handle: "whale.eth", pnl: "+$2.41M", win: "62%", mkts: 418, streak: "9W" },
-  { rank: 2, handle: "desk-tokyo-07", pnl: "+$1.82M", win: "58%", mkts: 612, streak: "5W" },
+  { rank: 2, handle: "desk-tokyo-07", pnl: "+$1.71M", win: "58%", mkts: 612, streak: "5W" },
   { rank: 3, handle: "0xfa…90", pnl: "+$1.29M", win: "54%", mkts: 204, streak: "3W" },
   { rank: 4, handle: "arb-lab", pnl: "+$980k", win: "61%", mkts: 892, streak: "11W" },
   { rank: 5, handle: "flow-eu", pnl: "+$742k", win: "52%", mkts: 340, streak: "2W" },

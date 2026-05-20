@@ -18,28 +18,28 @@ export function TrendingMarketCardSkeleton({
         )}
       >
         <div className="flex items-start gap-2.5 sm:gap-3">
+        <div
+          className="skeleton-shimmer h-9 w-9 shrink-0 rounded-md bg-muted/50 ring-1 ring-border/60 sm:h-10 sm:w-10"
+          style={{ animationDelay: `${index * 60}ms` }}
+        />
+        <div className="min-w-0 flex-1 space-y-2 pt-0.5">
           <div
-            className="skeleton-shimmer h-9 w-9 shrink-0 rounded-md bg-white/[0.05] sm:h-10 sm:w-10"
-            style={{ animationDelay: `${index * 60}ms` }}
+            className="skeleton-shimmer h-3 rounded-md bg-muted/55"
+            style={{ width: "100%", animationDelay: `${index * 60 + 40}ms` }}
           />
-          <div className="min-w-0 flex-1 space-y-2 pt-0.5">
-            <div
-              className="skeleton-shimmer h-3 rounded-md bg-white/[0.06]"
-              style={{ width: "100%", animationDelay: `${index * 60 + 40}ms` }}
-            />
-            <div
-              className="skeleton-shimmer h-3 rounded-md bg-white/[0.05]"
-              style={{ width: "72%", animationDelay: `${index * 60 + 80}ms` }}
-            />
-            <div
-              className="skeleton-shimmer h-2 w-20 rounded bg-white/[0.04]"
-              style={{ animationDelay: `${index * 60 + 100}ms` }}
-            />
-          </div>
           <div
-            className="skeleton-shimmer h-11 w-11 shrink-0 rounded-full bg-white/[0.04]"
-            style={{ animationDelay: `${index * 60 + 60}ms` }}
+            className="skeleton-shimmer h-3 rounded-md bg-muted/45"
+            style={{ width: "72%", animationDelay: `${index * 60 + 80}ms` }}
           />
+          <div
+            className="skeleton-shimmer h-2 w-20 rounded bg-muted/40"
+            style={{ animationDelay: `${index * 60 + 100}ms` }}
+          />
+        </div>
+        <div
+          className="skeleton-shimmer h-11 w-11 shrink-0 rounded-full bg-muted/45 ring-1 ring-border/50"
+          style={{ animationDelay: `${index * 60 + 60}ms` }}
+        />
         </div>
         <div className="mt-3 grid grid-cols-2 gap-2 sm:gap-2">
           <div
@@ -57,21 +57,21 @@ export function TrendingMarketCardSkeleton({
         />
         <div className="mt-2.5 grid grid-cols-2 gap-1.5 sm:gap-2">
           <div
-            className="skeleton-shimmer h-8 rounded-md bg-white/[0.04] sm:h-[34px]"
+            className="skeleton-shimmer h-8 rounded-md bg-primary/10 sm:h-[34px]"
             style={{ animationDelay: `${index * 60 + 140}ms` }}
           />
           <div
-            className="skeleton-shimmer h-8 rounded-md bg-white/[0.04] sm:h-[34px]"
+            className="skeleton-shimmer h-8 rounded-md bg-no/10 sm:h-[34px]"
             style={{ animationDelay: `${index * 60 + 160}ms` }}
           />
         </div>
-        <div className="mt-3 flex items-center justify-between border-t border-white/[0.06] pt-2.5 sm:pt-3">
+        <div className="mt-3 flex items-center justify-between border-t border-border pt-2.5 sm:pt-3">
           <div
-            className="skeleton-shimmer h-2.5 w-16 rounded bg-white/[0.04]"
+            className="skeleton-shimmer h-2.5 w-16 rounded bg-muted/45"
             style={{ animationDelay: `${index * 60 + 180}ms` }}
           />
           <div
-            className="skeleton-shimmer h-4 w-4 rounded bg-white/[0.04]"
+            className="skeleton-shimmer h-4 w-4 rounded bg-muted/40"
             style={{ animationDelay: `${index * 60 + 200}ms` }}
           />
         </div>

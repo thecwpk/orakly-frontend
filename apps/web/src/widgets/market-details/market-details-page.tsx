@@ -87,9 +87,16 @@ function MarketDetailsLoaded({ market }: { market: Market }) {
     [market, midYes, tradeMarketId],
   );
 
+  const hasRelatedMarkets = useMemo(() => {
+    if (!markets?.length) return false;
+    return markets.some(
+      (m) => m.slug !== market.slug && m.category === market.category,
+    );
+  }, [markets, market.slug, market.category]);
+
   return (
     <main className="py-r8 text-zinc-100 lg:py-s40">
-      <div className="mx-auto max-w-[min(1600px,100%)]">
+      <div className="mx-auto w-full max-w-[min(1580px,100%)] px-4 sm:px-5 lg:px-6">
         <MarketDetailsHeader
           market={market}
           yesLabel={yesLabel}
@@ -98,8 +105,8 @@ function MarketDetailsLoaded({ market }: { market: Market }) {
           tradeMarketId={tradeMarketId}
         />
 
-        <div className="mt-r16 flex flex-col gap-r16 lg:mt-r24 lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(320px,400px)] lg:items-start lg:gap-r24">
-          <div className="min-w-0 space-y-r16 lg:space-y-r24 lg:pb-0 pb-[var(--mobile-trade-desk-clearance)]">
+        <div className="relative mt-r16 flex flex-col gap-r16 lg:mt-r24 lg:gap-y-8">
+          <div className="min-w-0 w-full max-w-none space-y-r16 pb-[var(--mobile-trade-desk-clearance)] lg:space-y-r8 lg:pb-0">
             <MarketChartPanel
               slug={market.slug}
               volumeUsd={market.volumeUsd}
@@ -118,55 +125,115 @@ function MarketDetailsLoaded({ market }: { market: Market }) {
               rt={rt}
             />
 
-            <div className="grid gap-r16 lg:grid-cols-[minmax(0,1.15fr)_minmax(260px,0.85fr)]">
+            {/*
+              Desktop: volume | order book | trade desk in one row (balanced, no tall empty rail).
+              Mobile: fixed bottom dock (second desk instance) — resize may reset local form state.
+            */}
+            <div className="grid min-w-0 gap-4 max-lg:grid-cols-1 lg:grid-cols-3 lg:items-start lg:gap-5">
               <MarketVolumeChart
                 slug={market.slug}
                 rt={rt}
-                className="rounded-lg border border-white/[0.06] bg-[#07070d]/95 shadow-none ring-1 ring-white/[0.05] [box-shadow:none]"
+                className="min-w-0 rounded-lg border border-white/[0.08] bg-[hsl(228_28%_10%/0.96)] shadow-none ring-1 ring-white/[0.06] [box-shadow:none]"
               />
-              <MarketOrderBook
-                slug={market.slug}
-                midYes={midYes}
-                liquidityUsd={market.liquidityUsd}
-              />
+              <div className="min-w-0">
+                <MarketOrderBook
+                  slug={market.slug}
+                  midYes={midYes}
+                  liquidityUsd={market.liquidityUsd}
+                />
+              </div>
+              <div className="hidden min-h-0 min-w-0 lg:block lg:self-start">
+                <div className="lg:sticky lg:top-[calc(var(--app-topbar-h)+8px)] lg:w-full">
+                  <MarketTradingDesk
+                    key="desk-desktop"
+                    marketId={tradeMarketId}
+                    userId={actorId}
+                    yesDisplay={yesLabel}
+                    noDisplay={noLabel}
+                    disabledHint={tradeDisabled}
+                    tradeModalMarket={tradeModalMarket}
+                    initialOutcome={initialOutcome}
+                    market={market}
+                    odds={odds}
+                    rt={rt}
+                    midYes={midYes}
+                  />
+                </div>
+              </div>
             </div>
 
-            <div className="grid gap-r16 lg:grid-cols-[minmax(0,1fr)_minmax(0,340px)]">
-              <MarketActivityFeed tradeMarketId={tradeMarketId} rt={rt} />
-              <div className="space-y-r12">
+            {/*
+              Equal halves: activity (left) vs wire + notes (right); height follows content.
+            */}
+            <div className="grid min-h-0 min-w-0 gap-5 lg:grid-cols-2 lg:items-start lg:gap-6">
+              <div className="min-h-0 min-w-0">
+                <MarketActivityFeed
+                  tradeMarketId={tradeMarketId}
+                  rt={rt}
+                  className="w-full"
+                />
+              </div>
+              <div className="flex min-h-0 min-w-0 flex-col gap-5">
                 <MarketNewsPanel market={market} />
                 <MarketComments slug={market.slug} />
               </div>
             </div>
 
-            <section className="mt-s40 space-y-r16 border-t border-white/[0.06] pt-r24 lg:mt-s48 lg:pt-s40">
-              <MarketRelated
-                currentSlug={market.slug}
-                category={market.category}
-                markets={markets}
-              />
-              <MarketActivityFeed
-                tradeMarketId={tradeMarketId}
-                rt={rt}
-                density="compact"
-                filter="whales"
-                maxRows={14}
-                heading={{ title: "Large prints", subtitle: "Whale-sized fills" }}
-              />
+            <section
+              className={cn(
+                "mt-s40 grid min-w-0 gap-5 border-t border-white/[0.08] pt-r24 lg:mt-s48 lg:pt-s40",
+                hasRelatedMarkets ? "lg:grid-cols-2 lg:gap-6 lg:items-start" : "lg:grid-cols-1",
+              )}
+            >
+              {hasRelatedMarkets ? (
+                <>
+                  <div className="min-w-0">
+                    <MarketRelated
+                      currentSlug={market.slug}
+                      category={market.category}
+                      markets={markets}
+                    />
+                  </div>
+                  <div className="flex min-h-0 min-w-0">
+                    <MarketActivityFeed
+                      tradeMarketId={tradeMarketId}
+                      rt={rt}
+                      density="compact"
+                      filter="whales"
+                      maxRows={14}
+                      heading={{ title: "Large prints", subtitle: "Whale-sized fills" }}
+                      className="w-full"
+                    />
+                  </div>
+                </>
+              ) : (
+                <div className="min-w-0">
+                  <MarketActivityFeed
+                    tradeMarketId={tradeMarketId}
+                    rt={rt}
+                    density="compact"
+                    filter="whales"
+                    maxRows={14}
+                    heading={{ title: "Large prints", subtitle: "Whale-sized fills" }}
+                    className="w-full"
+                  />
+                </div>
+              )}
             </section>
           </div>
 
           <aside
             className={cn(
-              "min-w-0 lg:self-start lg:relative lg:block",
-              "max-lg:fixed max-lg:left-0 max-lg:right-0 max-lg:z-[38]",
-              "max-lg:bottom-[var(--app-mobile-dock-h)] max-lg:border-t max-lg:border-white/[0.08]",
-              "max-lg:bg-[#07070d]/96 max-lg:backdrop-blur-xl max-lg:shadow-[0_-12px_44px_rgba(0,0,0,0.58)]",
-              "max-lg:max-h-[min(44vh,336px)] max-lg:overflow-y-auto max-lg:overscroll-contain max-lg:scrollbar-terminal",
+              "min-w-0 w-full lg:hidden",
+              "fixed bottom-[var(--app-mobile-dock-h)] left-0 right-0 z-[38]",
+              "border-t border-white/[0.08]",
+              "bg-[hsl(228_26%_11%/0.96)] backdrop-blur-xl shadow-[0_-12px_44px_hsl(228_40%_4%/0.45)]",
+              "max-h-[min(44vh,336px)] overflow-y-auto overscroll-contain scrollbar-terminal",
             )}
           >
-            <div className="max-lg:p-2 lg:sticky lg:top-[calc(var(--app-topbar-h)+8px)] lg:p-0">
+            <div className="p-2">
               <MarketTradingDesk
+                key="desk-mobile"
                 marketId={tradeMarketId}
                 userId={actorId}
                 yesDisplay={yesLabel}

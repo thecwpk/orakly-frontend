@@ -56,6 +56,8 @@ const DEFAULT_SNAPSHOT: MarketRealtimeSnapshot = {
 type Bucket = {
   snapshot: MarketRealtimeSnapshot;
   listeners: Set<() => void>;
+  /** Bumps every `emit()` so `useSyncExternalStore` sees a change while `snapshot` is mutated in place. */
+  storeRev: number;
 };
 
 const buckets = new Map<string, Bucket>();
@@ -73,6 +75,7 @@ function ensureBucket(marketId: string): Bucket {
         meta: null,
       },
       listeners: new Set(),
+      storeRev: 0,
     };
     buckets.set(marketId, b);
   }
@@ -80,6 +83,7 @@ function ensureBucket(marketId: string): Bucket {
 }
 
 function emit(bucket: Bucket) {
+  bucket.storeRev += 1;
   for (const fn of bucket.listeners) fn();
 }
 
@@ -155,6 +159,12 @@ export function getMarketRealtimeSnapshot(
 ): MarketRealtimeSnapshot {
   if (!marketId) return EMPTY_MARKET_REALTIME_SNAPSHOT;
   return ensureBucket(marketId).snapshot;
+}
+
+/** Monotonic revision for `useSyncExternalStore` — updates on every WS apply for this market. */
+export function getMarketRealtimeStoreRev(marketId: string | undefined): number {
+  if (!marketId) return 0;
+  return ensureBucket(marketId).storeRev;
 }
 
 export function applyRtBatch(payload: RtBatchPayload) {

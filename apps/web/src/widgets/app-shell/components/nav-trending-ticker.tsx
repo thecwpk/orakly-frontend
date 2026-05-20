@@ -49,7 +49,9 @@ export function NavTrendingTicker({
       text: r.title ?? r.activityType,
     }));
     if (!slice.length) {
-      return [{ key: "idle", text: "Tape idle · executions stream when venues trade." }];
+      const idle = { key: "idle", text: "Tape idle · executions stream when venues trade." };
+      /** Duplicate so marquee animation runs instead of a single static chip */
+      return [idle, idle];
     }
     return [...slice, ...slice];
   }, [tape]);
@@ -81,11 +83,11 @@ export function NavTrendingTicker({
           <>
             <div
               aria-hidden
-              className="pointer-events-none absolute inset-y-0 left-0 z-[1] w-6 bg-gradient-to-r from-black/55 to-transparent sm:w-8"
+              className="pointer-events-none absolute inset-y-0 left-0 z-[1] w-6 bg-gradient-to-r from-background to-transparent sm:w-8"
             />
             <div
               aria-hidden
-              className="pointer-events-none absolute inset-y-0 right-0 z-[1] w-8 bg-gradient-to-l from-black/55 to-transparent sm:w-10"
+              className="pointer-events-none absolute inset-y-0 right-0 z-[1] w-8 bg-gradient-to-l from-background to-transparent sm:w-10"
             />
           </>
         ) : null}

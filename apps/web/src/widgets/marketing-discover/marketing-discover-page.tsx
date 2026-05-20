@@ -23,7 +23,7 @@ import {
 } from "./lib/discover-client-lanes";
 
 const TABS: { id: DiscoverTab; label: string; hint?: string }[] = [
-  { id: "all", label: "All markets", hint: "Directory" },
+  { id: "all", label: "All markets" },
   { id: "list_trending", label: "Trending" },
   { id: "list_new", label: "New listings" },
   { id: "cross_hot", label: "Cross-hot", hint: "Multi-API" },
@@ -140,41 +140,15 @@ export function MarketingDiscoverPage() {
   };
 
   return (
-    <div className="marketing-discover min-w-0 bg-gradient-to-b from-background via-background to-muted/20 text-foreground">
+    <div className="marketing-discover min-w-0 text-foreground">
       <div className="mx-auto max-w-7xl px-4 pb-20 pt-6 sm:px-6 lg:px-8">
-        <header className="mb-8 border-b border-border/60 pb-6">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
-                Discover
-              </p>
-              <h1 className="mt-1 text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
-                Markets directory
-              </h1>
-              <p className="mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground">
-                Each lane matches the live server ranking (trending, new, volume, activity, hot).
-                Switch tabs to load that feed — prior results stay visible while the next lane loads.
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={() => void refetchAll()}
-              disabled={isFetching}
-              aria-label="Refresh markets"
-              title="Refresh markets from server"
-              className="inline-flex h-10 shrink-0 items-center justify-center gap-2 self-start rounded-lg border border-border bg-card/90 px-4 text-sm font-medium text-foreground shadow-sm transition hover:bg-muted/40 disabled:opacity-50 sm:self-auto"
-            >
-              {isFetching ? (
-                <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
-              ) : (
-                <RefreshCw className="h-4 w-4 text-muted-foreground" />
-              )}
-              Refresh
-            </button>
-          </div>
+        <header className="mb-6 border-b border-border/60 pb-6">
+          <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+            Discover
+          </p>
 
           <div
-            className="mt-6 flex min-w-0 gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            className="mt-4 flex min-w-0 gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
             role="tablist"
             aria-label="Market lanes"
           >
@@ -207,48 +181,67 @@ export function MarketingDiscoverPage() {
               );
             })}
           </div>
-        </header>
 
-        <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-          <div className="flex min-w-0 flex-1 flex-wrap gap-2">
-            <button
-              type="button"
-              onClick={() => setCategory("all")}
-              className={cn(
-                "rounded-lg border px-3 py-1.5 text-xs font-medium transition",
-                category === "all"
-                  ? "border-yes/40 bg-yes/10 text-foreground"
-                  : "border-border bg-card/60 text-muted-foreground hover:bg-muted/30",
-              )}
-            >
-              All categories
-            </button>
-            {MARKET_CATEGORIES.map((c) => (
-              <button
-                key={c.slug}
-                type="button"
-                onClick={() => setCategory(c.slug)}
-                className={cn(
-                  "rounded-lg border px-3 py-1.5 text-xs font-medium transition",
-                  category === c.slug
-                    ? "border-yes/40 bg-yes/10 text-foreground"
-                    : "border-border bg-card/60 text-muted-foreground hover:bg-muted/30 hover:text-foreground",
-                )}
-              >
-                {c.name}
-              </button>
-            ))}
+          <div className="mt-5 border-t border-border/40 pt-5">
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between lg:gap-6">
+              <div className="flex min-w-0 flex-1 flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={() => setCategory("all")}
+                  className={cn(
+                    "rounded-lg border px-3 py-1.5 text-xs font-medium transition",
+                    category === "all"
+                      ? "border-yes/40 bg-yes/10 text-foreground"
+                      : "border-border bg-card/60 text-muted-foreground hover:bg-muted/30",
+                  )}
+                >
+                  All categories
+                </button>
+                {MARKET_CATEGORIES.map((c) => (
+                  <button
+                    key={c.slug}
+                    type="button"
+                    onClick={() => setCategory(c.slug)}
+                    className={cn(
+                      "rounded-lg border px-3 py-1.5 text-xs font-medium transition",
+                      category === c.slug
+                        ? "border-yes/40 bg-yes/10 text-foreground"
+                        : "border-border bg-card/60 text-muted-foreground hover:bg-muted/30 hover:text-foreground",
+                    )}
+                  >
+                    {c.name}
+                  </button>
+                ))}
+              </div>
+              <div className="flex w-full min-w-0 flex-col gap-2 sm:flex-row sm:items-center sm:justify-end lg:w-auto lg:max-w-xl lg:flex-initial">
+                <label className="block min-w-0 flex-1 sm:max-w-md">
+                  <span className="sr-only">Search markets</span>
+                  <input
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    placeholder="Search by title…"
+                    className="h-10 w-full rounded-lg border border-border bg-card px-3 text-sm outline-none ring-0 placeholder:text-muted-foreground focus:border-yes/40"
+                  />
+                </label>
+                <button
+                  type="button"
+                  onClick={() => void refetchAll()}
+                  disabled={isFetching}
+                  aria-label="Refresh markets"
+                  title="Refresh markets from server"
+                  className="inline-flex h-10 shrink-0 items-center justify-center gap-2 rounded-lg border border-border bg-card/90 px-4 text-sm font-medium text-foreground shadow-sm transition hover:bg-muted/40 disabled:opacity-50"
+                >
+                  {isFetching ? (
+                    <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                  ) : (
+                    <RefreshCw className="h-4 w-4 text-muted-foreground" />
+                  )}
+                  Refresh
+                </button>
+              </div>
+            </div>
           </div>
-          <label className="block w-full min-w-0 lg:max-w-sm">
-            <span className="sr-only">Search markets</span>
-            <input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search by title…"
-              className="h-10 w-full rounded-lg border border-border bg-card px-3 text-sm outline-none ring-0 placeholder:text-muted-foreground focus:border-yes/40"
-            />
-          </label>
-        </div>
+        </header>
 
         <p className="mb-8 font-mono text-[10px] text-muted-foreground">
           {isError ? "Could not load markets." : null}

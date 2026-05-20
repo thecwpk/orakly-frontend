@@ -74,7 +74,7 @@ function SideToggle({
     <div
       role="group"
       aria-label="Order book side"
-      className="inline-flex items-center gap-0.5 rounded-md bg-black/30 p-0.5 ring-1 ring-white/[0.08]"
+      className="inline-flex items-center gap-0.5 rounded-md bg-[hsl(228_28%_12%/0.55)] p-0.5 ring-1 ring-white/[0.08]"
     >
       {(["YES", "NO"] as const).map((s) => {
         const active = s === side;
@@ -191,7 +191,7 @@ function MarketOrderBookInner({
             {bestAsk !== null ? `${bestAsk.toFixed(1)}¢` : "—"}
           </span>
         </span>
-        <span className="rounded-md bg-black/40 px-2 py-0.5 font-mono text-[10.5px] tabular-nums text-zinc-200 ring-1 ring-white/[0.08]">
+        <span className="rounded-md bg-[hsl(228_26%_10%/0.65)] px-2 py-0.5 font-mono text-[10.5px] tabular-nums text-zinc-200 ring-1 ring-white/[0.09]">
           mid {book.midCents}¢ · spread {book.spreadBps}bps
         </span>
         <span className="inline-flex items-center justify-end gap-1 text-[10.5px] text-zinc-500">

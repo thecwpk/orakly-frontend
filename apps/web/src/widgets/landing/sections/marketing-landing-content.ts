@@ -1,42 +1,50 @@
-/** Copy and messaging for marketing landing — keep UI components separate. */
+/**
+ * Orakly landing copy — rich sections without repeating the same idea three ways.
+ */
 
-export const visionPoints = [
-  {
-    title: "Beyond price-only speculation",
-    body: "Express belief about narratives and outcomes — not only spot charts.",
-  },
-  {
-    title: "Narratives drive momentum",
-    body: "Rotations and social velocity show up as moving odds instead of scattered threads.",
-  },
-  {
-    title: "Attention creates volatility",
-    body: "When attention spikes, pricing responds — you see the shift in probability, not after a recap.",
-  },
-  {
-    title: "Conviction defines opportunity",
-    body: "Entry timing maps to how participants lean YES vs NO, with transparent pricing.",
-  },
+/** Qualitative proof strip — avoids fixed counts that change as listings grow. */
+export const heroProofStats = [
+  { label: "Markets", value: "Live" },
+  { label: "Liquidity", value: "Deep" },
+  { label: "Themes", value: "Broad" },
+  { label: "Settlement", value: "On-chain" },
 ] as const;
 
-export const visionSpecStrip = [
-  { k: "Audience", v: "Feed-native traders" },
-  { k: "Horizon", v: "Intraday narratives" },
-  { k: "Expression", v: "Binary outcomes" },
+export const whyOraklyCells = [
+  {
+    title: "Live odds, on-chain",
+    body: "YES and NO prices update with order flow and settle on-chain. No batch marks.",
+  },
+  {
+    title: "Rules before size",
+    body: "Resolution criteria and collateral are visible on every market before you commit capital.",
+  },
+  {
+    title: "Built with the crowd",
+    body: "Markets the community proposes, ranks, and earns from. Reputation is on-chain.",
+  },
 ] as const;
 
 export const whyOraklyFeatures = [
   {
-    title: "Meme and theme velocity",
-    detail: "Contracts sized for rotations that move faster than generic news baskets.",
+    title: "Crypto-native questions",
+    detail: "Markets track themes traders already debate on-chain and in feeds.",
   },
   {
-    title: "Live flow repricing",
-    detail: "YES / NO prices move with orders — not end-of-day batch marks.",
+    title: "Fast-moving cycles",
+    detail: "Short horizons map to contracts built for rotations, not year-long holds.",
   },
   {
-    title: "Rules before size",
-    detail: "Collateral and resolution criteria stay inspectable before you commit capital.",
+    title: "Sentiment in the tape",
+    detail: "Odds update as participants trade — not after a manual refresh.",
+  },
+  {
+    title: "Probability discovery",
+    detail: "YES / NO prices read as live implied probability while markets are open.",
+  },
+  {
+    title: "Transparent participation",
+    detail: "Collateral, resolution, and payout logic stay inspectable.",
   },
 ] as const;
 
@@ -44,111 +52,178 @@ export const whyOraklyBridgeColumns = [
   {
     title: "What traders get",
     lines: [
-      "Markets grouped by narrative, not only by ticker.",
-      "Resize or flatten while the contract is still open.",
+      "Readable implied probability before each click.",
+      "Direct entry and exit while the market is live.",
+      "Rules and settlement surfaced up front.",
     ],
   },
   {
     title: "What the platform optimizes for",
     lines: [
-      "Human-readable resolution paths per market.",
-      "Participant-driven listings instead of a static catalog editor.",
+      "Context per market — why it exists, what resolves it.",
+      "Stablecoin flow for crypto-native participants.",
+      "Infrastructure aimed at verifiable outcomes.",
     ],
   },
 ] as const;
 
-export const communityFeatures = [
+export const tradeBandMetrics = [
   {
-    verb: "Create markets",
-    detail: "Propose contracts the community actually wants to trade.",
+    label: "Probability visibility",
+    headline: "Read the tape fast",
+    fact: "YES / NO prices summarize crowd conviction at a glance.",
   },
   {
-    verb: "Build reputation",
-    detail: "Accuracy and participation feed public performance signals.",
+    label: "Execution path",
+    headline: "Fewer steps to risk-on",
+    fact: "Discovery → quote → trade stays linear in-app.",
   },
   {
-    verb: "Compete on leaderboards",
-    detail: "Benchmark conviction against other narrative traders.",
-  },
-  {
-    verb: "Earn on resolution",
-    detail: "Winning positions settle in stablecoin terms when markets resolve.",
+    label: "Settlement trust",
+    headline: "Verify, do not guess",
+    fact: "Resolutions tie to rules you can audit.",
   },
 ] as const;
 
-export const securityItems = [
+export const oraklyFramework = [
+  {
+    k: "Market context first",
+    d: "Framing and pricing appear before you commit size.",
+  },
+  {
+    k: "Execution clarity",
+    d: "Short trade flow on purpose — less hesitation at entry.",
+  },
+  {
+    k: "Transparent resolution",
+    d: "Outcomes follow published criteria with on-chain finality.",
+  },
+] as const;
+
+export const howSteps = [
+  {
+    n: 1,
+    title: "Discover",
+    body: "Browse live YES/NO markets across crypto, macro, sports, tech, and more.",
+    tag: "Browse",
+  },
+  {
+    n: 2,
+    title: "Trade",
+    body: "Buy YES or NO with stablecoin collateral. Reposition or exit while the market is open.",
+    tag: "Sides",
+  },
+  {
+    n: 3,
+    title: "Settle",
+    body: "Winning positions redeem on-chain through published resolution rules.",
+    tag: "Finality",
+  },
+] as const;
+
+export const trustPillars = [
   {
     title: "On-chain settlement",
-    body: "Winning sides redeem through contract logic — payouts stay traceable.",
+    body: "Payouts execute through public contracts. Every settlement is traceable.",
   },
   {
-    title: "Decentralized resolution",
-    body: "Criteria defined up front; no single opaque operator flipping outcomes.",
+    title: "Transparent resolution",
+    body: "Criteria are defined up front. No opaque operator can flip an outcome.",
   },
   {
-    title: "Stablecoin-based trading",
-    body: "Collateral and payouts in familiar stable units for predictable sizing.",
+    title: "Stablecoin collateral",
+    body: "Sizes, fees, and payouts denominated in familiar stable units.",
   },
   {
-    title: "Fee and state clarity",
-    body: "Fees, funding, and market states visible before you trade.",
-  },
-  {
-    title: "Community-driven ecosystem",
-    body: "Liquidity and discovery from participants — markets follow what crypto actually cares about.",
+    title: "Open market state",
+    body: "Fees, funding, status, and depth are inspectable before you trade.",
   },
 ] as const;
 
-export const futureRoadmap = [
+export const roadmapQuarters = [
   {
-    title: "Narrative indexes",
-    body: "Bundle themes so traders can express broad conviction.",
-    phase: "Next" as const,
+    quarter: "Now",
+    status: "Shipping",
+    items: [
+      { title: "Live market catalog", note: "macro, crypto, politics, sports, tech, science" },
+      { title: "On-chain settlement", note: "stablecoin collateral, verifiable outcomes" },
+    ],
   },
   {
-    title: "Social trading",
-    body: "Follow credible flows and mirror sizing with guardrails.",
-    phase: "Next" as const,
+    quarter: "Q3 2026",
+    status: "Next",
+    items: [
+      { title: "Narrative indexes", note: "bundle markets into themes" },
+      { title: "Mobile-first PWA", note: "no install, fast trade" },
+    ],
   },
   {
-    title: "Copy trading",
-    body: "Allocate to strategies you trust with explicit risk limits.",
-    phase: "Later" as const,
+    quarter: "Q4 2026",
+    status: "Planned",
+    items: [
+      { title: "Community-listed markets", note: "permissionless creation flow" },
+      { title: "Reputation & leaderboards", note: "on-chain accuracy signal" },
+    ],
   },
   {
-    title: "Creator markets",
-    body: "Trusted voices spin up narrative markets with clear resolution paths.",
-    phase: "Later" as const,
-  },
-  {
-    title: "AI-powered trend discovery",
-    body: "Surface emerging narratives from noisy feeds — human judgment stays in the loop.",
-    phase: "Later" as const,
-  },
-  {
-    title: "Narrative analytics",
-    body: "Historical odds, liquidity, and cohort behavior explaining probability moves.",
-    phase: "Later" as const,
-  },
-  {
-    title: "Reputation systems",
-    body: "Portable accuracy signals so good calls compound into credibility.",
-    phase: "Later" as const,
-  },
-  {
-    title: "Multi-chain markets",
-    body: "Meet traders where they custody without fragmenting resolution logic.",
-    phase: "Later" as const,
+    quarter: "2027",
+    status: "Vision",
+    items: [
+      { title: "Social + copy trading", note: "follow credible flows" },
+      { title: "Multi-chain expansion", note: "meet traders where they custody" },
+    ],
   },
 ] as const;
 
+export const faqItems = [
+  {
+    q: "What is a YES/NO prediction market?",
+    a: "A binary contract on a real-world question. YES shares pay out 1 unit if the event resolves true. NO shares pay out 1 unit if it resolves false. The live price reads as the market's implied probability.",
+  },
+  {
+    q: "How does settlement work?",
+    a: "Markets settle on-chain with collateral and payouts denominated in stablecoins where applicable, so sizing stays predictable. Supported networks are listed in the app as they go live.",
+  },
+  {
+    q: "How are markets resolved?",
+    a: "Every market ships with explicit, published resolution criteria. Outcomes execute through public contracts so payouts stay traceable on-chain.",
+  },
+  {
+    q: "What does it cost to trade?",
+    a: "Fee and funding schedules are visible on each market before you size. There is no hidden spread layer above the on-chain quote.",
+  },
+  {
+    q: "Is Orakly available everywhere?",
+    a: "Availability varies by jurisdiction and product phase. The app will note any regional restrictions before you sign up or trade.",
+  },
+  {
+    q: "How does the email list work?",
+    a: "Leave your email below to receive product and roadmap updates. We use the address only for that purpose — no spam, no resale.",
+  },
+] as const;
+
+/** @deprecated — kept for imports that still reference vision copy. */
+export const visionPoints = whyOraklyCells.map((c) => ({ title: c.title, body: c.body }));
+export const visionSpecStrip = [
+  { k: "Trade format", v: "YES / NO shares" },
+  { k: "Pricing", v: "Continuous, flow-driven" },
+  { k: "Settlement", v: "On-chain, verifiable" },
+] as const;
+export const communityFeatures = [
+  { verb: "Create markets", detail: "Propose contracts the community wants to trade." },
+  { verb: "Build reputation", detail: "Accuracy and participation feed public performance signals." },
+  { verb: "Compete on leaderboards", detail: "Benchmark conviction against other traders." },
+  { verb: "Earn on resolution", detail: "Winning positions settle in stablecoin terms." },
+] as const;
+export const securityItems = trustPillars.map((p) => ({ title: p.title, body: p.body }));
+export const futureRoadmap = roadmapQuarters.flatMap((q) =>
+  q.items.map((i) => ({
+    title: i.title,
+    body: i.note,
+    phase: (q.status === "Next" ? "Next" : "Later") as "Next" | "Later",
+  })),
+);
 export const earlyAccessBullets = [
-  {
-    title: "Beta access and roadmap visibility",
-    body: "See what ships next and where your feedback lands.",
-  },
-  {
-    title: "Shape discovery and risk UX",
-    body: "Influence what traders see first when a narrative spikes.",
-  },
+  { title: "Product updates", body: "Roadmap and release notes in your inbox." },
+  { title: "No noise", body: "We only message when there is something worth your time." },
 ] as const;

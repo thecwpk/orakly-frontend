@@ -3,6 +3,7 @@
 import { useSyncExternalStore } from "react";
 import {
   getMarketRealtimeSnapshot,
+  getMarketRealtimeStoreRev,
   subscribeMarketRealtime,
   type MarketRealtimeSnapshot,
 } from "../store/market-realtime-store";
@@ -18,9 +19,13 @@ const SSR_SNAPSHOT: MarketRealtimeSnapshot = {
 
 /** Odds + liquidity + volumes + recent trades for one market — one external-store notify per batch. */
 export function useMarketRealtime(marketId: string | undefined) {
-  return useSyncExternalStore(
+  const rev = useSyncExternalStore(
     (cb) => subscribeMarketRealtime(marketId, cb),
-    () => (marketId ? getMarketRealtimeSnapshot(marketId) : SSR_SNAPSHOT),
-    () => SSR_SNAPSHOT,
+    () => getMarketRealtimeStoreRev(marketId),
+    () => 0,
   );
+
+  void rev;
+
+  return marketId ? getMarketRealtimeSnapshot(marketId) : SSR_SNAPSHOT;
 }

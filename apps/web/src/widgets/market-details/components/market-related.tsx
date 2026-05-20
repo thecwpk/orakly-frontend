@@ -23,12 +23,11 @@ function MarketRelatedInner({
   if (!related.length) return null;
 
   return (
-    <div className="glass-panel-strong overflow-hidden rounded-2xl">
-      <div className="border-b border-white/6 px-4 py-3">
-        <p className="text-[11px] font-semibold uppercase tracking-wider text-zinc-500">Related</p>
-        <p className="text-sm font-medium text-white">Same category</p>
-      </div>
-      <div className="grid gap-2 p-3 sm:grid-cols-2">
+    <div className="glass-panel-strong min-w-0 overflow-x-hidden rounded-2xl border border-white/[0.06] ring-1 ring-white/[0.04]">
+      {/*
+        auto-fit + minmax: never squash cards into toothpick columns (was xl:grid-cols-3 in ~half-width pane).
+      */}
+      <div className="grid min-w-0 gap-3 p-3 sm:gap-4 sm:p-4 [grid-template-columns:repeat(auto-fit,minmax(min(100%,278px),1fr))] [&>a]:min-w-0">
         {related.map((m, i) => (
           <DenseMarketCard
             key={m.slug}

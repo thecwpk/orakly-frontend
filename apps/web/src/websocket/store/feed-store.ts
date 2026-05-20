@@ -10,7 +10,11 @@ export const EMPTY_FEED_SNAPSHOT: readonly Row[] = Object.freeze([]);
 const rows: Row[] = [];
 const listeners = new Set<() => void>();
 
+/** Bump on tape mutation so `useSyncExternalStore` snapshot changes (rows array stays same ref). */
+let feedGeneration = 0;
+
 function notify() {
+  feedGeneration += 1;
   for (const fn of listeners) fn();
 }
 
@@ -21,6 +25,10 @@ export function subscribeFeed(cb: () => void): () => void {
 
 export function getFeedSnapshot(): readonly Row[] {
   return rows;
+}
+
+export function getFeedGeneration(): number {
+  return feedGeneration;
 }
 
 export function applyFeedActivity(payload: FeedActivityPayload) {

@@ -215,7 +215,12 @@ export function MarketingLandingKeyframes() {
         position: absolute;
         inset: 0;
         pointer-events: none;
-        background: linear-gradient(100deg, transparent 15%, color-mix(in srgb, var(--yes) 10%, transparent) 45%, transparent 75%);
+        background: linear-gradient(
+          100deg,
+          transparent 15%,
+          color-mix(in srgb, var(--yes) 10%, transparent) 45%,
+          transparent 75%
+        );
         transform: translateX(-85%);
         animation: hwSweep 4.6s ease-in-out infinite;
       }
@@ -223,6 +228,9 @@ export function MarketingLandingKeyframes() {
         border-color: color-mix(in srgb, var(--yes) 24%, var(--border));
         transform: translateY(-1px);
         box-shadow: 0 14px 36px -26px rgba(0, 0, 0, 0.75);
+      }
+      .wo-metric-glow {
+        animation: woMetricGlow 3.8s ease-in-out infinite;
       }
       @keyframes hwSpin {
         to {
@@ -284,10 +292,152 @@ export function MarketingLandingKeyframes() {
           filter: brightness(1.25);
         }
       }
+      @keyframes hwStepGlow {
+        0%,
+        100% {
+          box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 0 0 rgba(0, 0, 0, 0);
+        }
+        50% {
+          box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 18px 40px -28px color-mix(in srgb, var(--yes) 18%, transparent);
+        }
+      }
+      @keyframes hwSweep {
+        0% {
+          transform: translateX(-85%);
+        }
+        45%,
+        100% {
+          transform: translateX(85%);
+        }
+      }
+      @keyframes woMetricGlow {
+        0%,
+        100% {
+          border-color: rgba(255, 255, 255, 0.06);
+        }
+        50% {
+          border-color: color-mix(in srgb, var(--yes) 28%, transparent);
+        }
+      }
+
+      .wo-trad-grid-drift {
+        animation: woTradGridDrift 22s linear infinite;
+      }
+      .wo-trad-orb {
+        animation: woTradOrb 8s ease-in-out infinite;
+      }
+      .wo-trad-stale-badge {
+        animation: woTradStalePulse 2.8s ease-in-out infinite;
+      }
+      .wo-trad-frozen-odds {
+        animation: woTradFrozen 3.2s ease-in-out infinite;
+      }
+      .wo-trad-row:nth-child(odd) {
+        animation: woTradRowFade 4s ease-in-out infinite;
+      }
+      .wo-trad-spinner {
+        animation: woTradSpin 1.4s linear infinite;
+      }
+      .wo-trad-progress-bar {
+        animation: woTradProgress 2.8s ease-in-out infinite;
+      }
+      .wo-trad-scan::after {
+        content: "";
+        position: absolute;
+        inset: -20% 0;
+        background: linear-gradient(
+          180deg,
+          transparent 0%,
+          rgba(255, 255, 255, 0.03) 48%,
+          transparent 100%
+        );
+        animation: woTradScan 5.5s ease-in-out infinite;
+        pointer-events: none;
+      }
+      @keyframes woTradGridDrift {
+        to {
+          transform: translate3d(-12px, -8px, 0);
+        }
+      }
+      @keyframes woTradOrb {
+        0%,
+        100% {
+          opacity: 0.5;
+          transform: translateY(0);
+        }
+        50% {
+          opacity: 0.85;
+          transform: translateY(-8px);
+        }
+      }
+      @keyframes woTradStalePulse {
+        0%,
+        100% {
+          border-color: rgba(113, 113, 122, 0.35);
+          color: rgb(113 113 122);
+        }
+        50% {
+          border-color: rgba(113, 113, 122, 0.55);
+          color: rgb(161 161 170);
+        }
+      }
+      @keyframes woTradFrozen {
+        0%,
+        100% {
+          opacity: 0.55;
+        }
+        50% {
+          opacity: 0.85;
+        }
+      }
+      @keyframes woTradRowFade {
+        0%,
+        100% {
+          background-color: transparent;
+        }
+        50% {
+          background-color: rgba(255, 255, 255, 0.02);
+        }
+      }
+      @keyframes woTradSpin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      @keyframes woTradProgress {
+        0%,
+        100% {
+          width: 32%;
+          opacity: 0.7;
+        }
+        50% {
+          width: 41%;
+          opacity: 1;
+        }
+      }
+      @keyframes woTradScan {
+        0% {
+          transform: translateY(-100%);
+        }
+        100% {
+          transform: translateY(100%);
+        }
+      }
       @media (prefers-reduced-motion: reduce) {
         .hw-cycle-ring::before,
         .hw-cycle-core,
-        .hw-node {
+        .hw-node,
+        .hw-step,
+        .hw-step::after,
+        .wo-metric-glow,
+        .wo-trad-grid-drift,
+        .wo-trad-orb,
+        .wo-trad-stale-badge,
+        .wo-trad-frozen-odds,
+        .wo-trad-row,
+        .wo-trad-spinner,
+        .wo-trad-progress-bar,
+        .wo-trad-scan::after {
           animation: none !important;
         }
       }

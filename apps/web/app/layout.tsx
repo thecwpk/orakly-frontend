@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import { Inter, Space_Grotesk, Syne } from "next/font/google";
@@ -29,10 +29,53 @@ const geistMono = localFont({
   variable: "--font-geist-mono",
 });
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://orakly-frontend-web.vercel.app";
+
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: dark)", color: "#0c1220" },
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+  ],
+  colorScheme: "dark light",
+  width: "device-width",
+  initialScale: 1,
+};
+
 export const metadata: Metadata = {
-  title: "Orakly Market — Trade conviction",
+  metadataBase: new URL(siteUrl),
+  title: {
+    default: "Orakly Market — YES/NO prediction markets, on-chain",
+    template: "%s · Orakly Market",
+  },
   description:
-    "Premium prediction market liquidity — crypto, macro, memes, and realtime odds.",
+    "Trade live YES/NO odds on crypto, macro, sports, and tech. Transparent rules, stablecoin rails, and verifiable on-chain settlement.",
+  applicationName: "Orakly Market",
+  keywords: [
+    "prediction markets",
+    "on-chain",
+    "crypto",
+    "YES NO",
+    "DeFi",
+    "Orakly",
+  ],
+  alternates: { canonical: "/" },
+  openGraph: {
+    type: "website",
+    url: "/",
+    siteName: "Orakly Market",
+    title: "Orakly Market — YES/NO prediction markets, on-chain",
+    description:
+      "Trade live YES/NO odds on crypto, macro, sports, and tech. Transparent rules, stablecoin rails, and verifiable on-chain settlement.",
+    locale: "en_US",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Orakly Market — YES/NO on-chain",
+    description: "On-chain prediction markets. Trade live YES/NO odds.",
+    creator: "@orakly",
+  },
+  robots: { index: true, follow: true },
+  category: "finance",
 };
 
 export default function RootLayout({

@@ -158,14 +158,14 @@ export function HubMarketsBrowseBlock({
   );
 
   const iconGhost =
-    "flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-muted-foreground outline-none transition-colors hover:bg-muted/50 hover:text-foreground focus-visible:ring-2 focus-visible:ring-yes/30 focus-visible:ring-offset-2 focus-visible:ring-offset-background";
+    "flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-muted-foreground outline-none transition-colors hover:bg-muted/50 hover:text-foreground focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:ring-offset-2 focus-visible:ring-offset-background";
 
   const gridClass = view === "list" ? "grid grid-cols-1 gap-2 sm:gap-2.5" : "mb-grid";
 
   return (
     <section
       id="live-markets"
-      className={cn("relative w-full overflow-hidden rounded-2xl bg-background/65 mb-markets-surface")}
+      className={cn("relative w-full overflow-hidden rounded-2xl bg-background/55 mb-markets-surface")}
       aria-labelledby="hub-browse-heading"
     >
       <div
@@ -177,7 +177,7 @@ export function HubMarketsBrowseBlock({
       />
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_85%_55%_at_50%_-30%,rgba(255,255,255,0.045),transparent_55%)]"
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_85%_55%_at_50%_-28%,hsl(220_45%_42%/0.12),transparent_58%)]"
       />
 
       <div className="relative">
@@ -191,18 +191,18 @@ export function HubMarketsBrowseBlock({
               >
                 All markets
               </h2>
-              <p className="max-w-2xl text-pretty font-mono text-[10.5px] leading-relaxed text-muted-foreground sm:text-[11px]">
-                <span className="text-yes/90">{tabLabel}</span>
-                <span className="text-muted-foreground/70"> · </span>
-                <span className="tabular-nums">{displayed.length} markets</span>
-                <span className="text-muted-foreground/70"> · </span>
-                <span className="tabular-nums">{stripStats.openCount} open</span>
-                <span className="text-muted-foreground/70"> · </span>
-                <span className="tabular-nums">skew {stripStats.skewPct}% yes</span>
-                <span className="text-muted-foreground/70"> · </span>
-                <span className="tabular-nums">vol {formatCompactUsd(stripStats.volUsd)}</span>
-                <span className="text-muted-foreground/70"> · </span>
-                <span className="tabular-nums">{liveInPreview} live</span>
+              <p className="max-w-2xl text-pretty font-mono text-[11px] leading-relaxed text-muted-foreground sm:text-[11.5px]">
+                <span className="font-semibold text-primary/95">{tabLabel}</span>
+                <span className="text-muted-foreground/80"> · </span>
+                <span className="tabular-nums text-foreground/90">{displayed.length} markets</span>
+                <span className="text-muted-foreground/80"> · </span>
+                <span className="tabular-nums text-foreground/90">{stripStats.openCount} open</span>
+                <span className="text-muted-foreground/80"> · </span>
+                <span className="tabular-nums text-foreground/90">skew {stripStats.skewPct}% yes</span>
+                <span className="text-muted-foreground/80"> · </span>
+                <span className="tabular-nums text-foreground/90">vol {formatCompactUsd(stripStats.volUsd)}</span>
+                <span className="text-muted-foreground/80"> · </span>
+                <span className="tabular-nums text-yes/90">{liveInPreview} live</span>
               </p>
             </div>
             <div className="flex shrink-0 items-center gap-0.5 pt-0.5" role="toolbar" aria-label="Market shortcuts">
@@ -266,9 +266,9 @@ export function HubMarketsBrowseBlock({
                     onClick={() => setTab(id)}
                     className={cn(
                       "relative shrink-0 snap-start rounded-full border px-3.5 py-2 text-[12.5px] font-medium tracking-tight transition-[border-color,background-color,color,box-shadow] sm:px-4 sm:py-2.5 sm:text-[13px]",
-                      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yes/35 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+                      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
                       active
-                        ? "border-yes/40 bg-yes/10 text-yes shadow-[0_0_22px_-10px_color-mix(in_srgb,var(--yes)_38%,transparent)]"
+                        ? "border-primary/35 bg-primary/10 text-foreground shadow-[0_0_20px_-10px_color-mix(in_srgb,var(--primary)_22%,transparent)]"
                         : "border-border bg-card/70 text-muted-foreground hover:border-border hover:bg-muted/45 hover:text-foreground",
                     )}
                   >
@@ -281,7 +281,7 @@ export function HubMarketsBrowseBlock({
           <PrefetchLink
             href={moreHref}
             onMouseEnter={onPrefetchDirectory}
-            className="flex shrink-0 items-center gap-1 border-l border-border px-3 py-2.5 text-[12px] font-medium text-yes/85 transition-colors hover:bg-yes/10 hover:text-yes focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-yes/30 sm:px-3.5"
+            className="flex shrink-0 items-center gap-1 border-l border-border px-3 py-2.5 text-[12px] font-medium text-primary/90 transition-colors hover:bg-primary/10 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary/25 sm:px-3.5"
             aria-label="Open full directory for this lane"
           >
             <span className="hidden sm:inline">More</span>

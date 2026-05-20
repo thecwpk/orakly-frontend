@@ -21,6 +21,28 @@ import type { MarketRealtimeSnapshot } from "@/websocket/store/market-realtime-s
 import { useSocketRegistry } from "@/websocket/socket-registry";
 import { buildMarketDetailStatCells } from "./market-stats-strip";
 
+function parseLooseNumber(raw: string | undefined): number | null {
+  if (raw == null || raw === "") return null;
+  const n = Number.parseFloat(String(raw).replace(/[^0-9.-]+/g, ""));
+  return Number.isFinite(n) ? n : null;
+}
+
+/** Readable quote line — probabilities as ¢, USD-ish as compact, long junk trimmed. */
+function formatExecPxLine(raw: string | undefined): string {
+  if (raw == null || raw === "") return "—";
+  const n = parseLooseNumber(raw);
+  if (n == null) return raw.length > 16 ? `${raw.slice(0, 16)}…` : raw;
+  if (n >= 0 && n <= 1) return `${(n * 100).toFixed(2)}¢`;
+  return `${n.toFixed(n < 10 ? 4 : 2)}`;
+}
+
+function formatNotionalLine(raw: string | undefined): string {
+  if (raw == null || raw === "") return "—";
+  const n = parseLooseNumber(raw);
+  if (n == null) return raw;
+  return formatCompactUsd(n);
+}
+
 function ConnectionPill({ className }: { className?: string }) {
   const { connectionStatus: status } = useSocketRegistry();
   const label =
@@ -134,9 +156,9 @@ function MarketTradingDeskInner({
   return (
     <div
       className={cn(
-        "flex flex-col gap-1.5 rounded-lg border border-white/[0.06] bg-[#07070d]/95 p-2 shadow-sm shadow-black/25 ring-1 ring-white/[0.06]",
-        "sm:gap-2 sm:p-2.5",
-        "lg:max-h-[calc(100vh-var(--app-topbar-h)-12px)] lg:overflow-y-auto lg:overscroll-contain",
+        "flex flex-col gap-2 rounded-xl border border-white/[0.08] bg-[hsl(228_26%_11%/0.97)] p-2.5 shadow-[0_16px_40px_-24px_hsl(228_40%_8%/0.55)] ring-1 ring-white/[0.07]",
+        "sm:gap-2.5 sm:p-3",
+        "lg:overflow-visible lg:shadow-[0_20px_50px_-28px_hsl(228_40%_8%/0.5)]",
       )}
     >
       <div className="flex items-start justify-between gap-2">
@@ -172,7 +194,7 @@ function MarketTradingDeskInner({
             "rounded-md px-2 py-[7px] text-center text-[11px] font-semibold transition ring-1 sm:py-2 sm:text-[12px]",
             outcome === "YES" ?
               "bg-cyan-500/15 text-cyan-100 ring-cyan-400/35"
-            : "bg-black/25 text-zinc-500 ring-white/6 hover:text-zinc-300",
+            : "bg-[hsl(228_28%_15%/0.45)] text-zinc-500 ring-white/[0.08] hover:bg-[hsl(228_28%_18%/0.5)] hover:text-zinc-300",
           )}
         >
           YES <span className="ml-1 font-mono text-[10px] opacity-80">{yesDisplay}</span>
@@ -184,14 +206,14 @@ function MarketTradingDeskInner({
             "rounded-md px-2 py-[7px] text-center text-[11px] font-semibold transition ring-1 sm:py-2 sm:text-[12px]",
             outcome === "NO" ?
               "bg-violet-500/15 text-violet-100 ring-violet-400/35"
-            : "bg-black/25 text-zinc-500 ring-white/6 hover:text-zinc-300",
+            : "bg-[hsl(228_28%_15%/0.45)] text-zinc-500 ring-white/[0.08] hover:bg-[hsl(228_28%_18%/0.5)] hover:text-zinc-300",
           )}
         >
           NO <span className="ml-1 font-mono text-[10px] opacity-80">{noDisplay}</span>
         </button>
       </div>
 
-      <div className="flex gap-1 rounded-md bg-black/35 p-0.5 ring-1 ring-white/10">
+      <div className="flex gap-1 rounded-md bg-[hsl(228_28%_13%/0.55)] p-0.5 ring-1 ring-white/[0.08]">
         {(["BUY", "SELL"] as const).map((d) => (
           <button
             key={d}
@@ -219,38 +241,44 @@ function MarketTradingDeskInner({
           value={qty}
           onChange={(e) => setQty(e.target.value)}
           inputMode="decimal"
-          className="mt-1 w-full rounded-md border border-white/8 bg-black/45 px-2.5 py-1.5 font-mono text-[13px] text-white outline-none ring-0 placeholder:text-zinc-600 focus:border-cyan-500/40"
+          className="mt-1 w-full rounded-md border border-white/[0.1] bg-[hsl(228_28%_10%/0.75)] px-2.5 py-1.5 font-mono text-[13px] text-white outline-none ring-0 placeholder:text-zinc-600 focus:border-cyan-500/40"
           placeholder="25"
         />
       </div>
 
-      <div className="space-y-1 rounded-lg bg-black/35 px-2.5 py-2 font-mono text-[10.5px] text-zinc-400 ring-1 ring-white/5">
+      <div className="space-y-1.5 rounded-lg bg-[hsl(228_28%_12%/0.55)] px-2.5 py-2.5 font-mono text-[10.5px] text-zinc-400 ring-1 ring-white/[0.06]">
         <div className="flex justify-between gap-2">
-          <span>Exec px</span>
+          <span className="shrink-0 text-zinc-500">Exec px</span>
           <motion.span
             key={`${quote.dataUpdatedAt}-${quote.data?.execPrice ?? ""}`}
             initial={{ opacity: 0.55 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.14 }}
             className={cn(
-              "font-medium text-cyan-200/90",
+              "min-w-0 text-right font-medium tabular-nums text-cyan-200/90",
               quote.isFetching && "text-cyan-300/70",
             )}
           >
-            {quote.isFetching ? "…" : (quote.data?.execPrice ?? "—")}
+            {quote.isFetching ? "…" : formatExecPxLine(quote.data?.execPrice)}
           </motion.span>
         </div>
         <div className="flex justify-between gap-2">
-          <span>Notional</span>
-          <span>{quote.data?.notionalUsd ?? "—"}</span>
+          <span className="text-zinc-500">Notional</span>
+          <span className="min-w-0 text-right tabular-nums text-zinc-200">
+            {quote.isFetching ? "…" : formatNotionalLine(quote.data?.notionalUsd)}
+          </span>
         </div>
         <div className="flex justify-between gap-2">
-          <span>Fee</span>
-          <span>{quote.data?.feeUsd ?? "—"}</span>
+          <span className="text-zinc-500">Fee</span>
+          <span className="tabular-nums text-zinc-200">
+            {quote.isFetching ? "…" : formatNotionalLine(quote.data?.feeUsd)}
+          </span>
         </div>
-        <div className="flex justify-between gap-2 border-t border-white/6 pt-1">
-          <span>After (YES)</span>
-          <span className="text-zinc-300">{quote.data?.impliedYesAfter ?? "—"}</span>
+        <div className="flex justify-between gap-2 border-t border-white/[0.07] pt-1">
+          <span className="text-zinc-500">After (YES)</span>
+          <span className="min-w-0 text-right tabular-nums text-zinc-200">
+            {quote.isFetching ? "…" : formatExecPxLine(quote.data?.impliedYesAfter)}
+          </span>
         </div>
         <div className="flex justify-between gap-2 border-t border-white/6 pt-1">
           <span className="text-zinc-500">Est. max payout</span>
@@ -275,12 +303,12 @@ function MarketTradingDeskInner({
         </div>
       </div>
 
-      <div className="hidden gap-1 sm:grid sm:grid-cols-2 sm:gap-1">
+      <div className="hidden gap-1.5 sm:grid sm:grid-cols-2 sm:gap-1.5">
         {statCells.map((c, i) => (
           <div
             key={c.label}
             className={cn(
-              "rounded-md bg-black/30 px-2 py-1.5 ring-1 ring-white/[0.05]",
+              "rounded-md bg-[hsl(228_28%_14%/0.45)] px-2 py-1.5 ring-1 ring-white/[0.06]",
               i === statCells.length - 1 && statCells.length % 2 === 1 && "col-span-2",
             )}
           >

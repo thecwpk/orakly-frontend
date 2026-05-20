@@ -1,14 +1,21 @@
 import { BRAND_LOGO_FOR_DARK_NAV, BRAND_LOGO_WORDMARK_SVG } from "@/shared/constants/brand-logos";
 
-const P = "/pictures";
-
-/** Your assets live in `apps/web/public/pictures/` (served as `/pictures/...`). */
+/**
+ * Brand asset paths for the marketing landing. Decorative raster JPGs
+ * (`herobackground.jpg`, `Background.jpg`, `values.jpg`) were removed —
+ * the active landing surface is fully CSS-driven for bandwidth + perf.
+ *
+ * `hero`, `background`, and `values` are kept as deprecation stubs that
+ * resolve to the SVG brand mark so the inactive `premium-hero-section.tsx`
+ * variant compiles. Delete them once the dead variant is removed.
+ */
 export const LANDING_IMAGES = {
-  hero: `${P}/herobackground.jpg`,
-  /** Optional photo for Vision — add `public/pictures/values.jpg` to use it instead of the brand mark in UI. */
-  values: `${P}/values.jpg`,
-  /** Same light wordmark as dark nav; SVG kept for tiny inline uses if needed. */
   visionBrandMark: BRAND_LOGO_FOR_DARK_NAV,
   visionBrandMarkSvg: BRAND_LOGO_WORDMARK_SVG,
-  background: `${P}/Background.jpg`,
+  /** @deprecated decorative raster removed — points at brand mark for compile safety. */
+  hero: BRAND_LOGO_WORDMARK_SVG,
+  /** @deprecated decorative raster removed — points at brand mark for compile safety. */
+  background: BRAND_LOGO_WORDMARK_SVG,
+  /** @deprecated decorative raster removed — points at brand mark for compile safety. */
+  values: BRAND_LOGO_WORDMARK_SVG,
 } as const;
