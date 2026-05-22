@@ -15,6 +15,8 @@ const SOCIALS = [
   { label: "Discord", href: "#footer" },
 ] as const;
 
+const NEW_TAB = { target: "_blank" as const, rel: "noopener noreferrer" as const };
+
 const footerPadX = "px-[var(--space-4)] sm:px-[var(--space-6)] lg:px-[var(--space-7)]";
 
 export function OraklyMarketingFooter() {
@@ -36,7 +38,7 @@ export function OraklyMarketingFooter() {
           <p className="font-mono text-[9px] uppercase tracking-[0.16em] text-[var(--text-muted)]">Navigate</p>
           <nav className="mt-3 flex flex-col gap-1.5 text-[13px]">
             {NAVIGATE.map(({ label, href }) => (
-              <a key={label} href={href} className="text-[var(--text-secondary)] transition hover:text-[var(--accent-soft)]">
+              <a key={label} href={href} className="text-[var(--text-secondary)] transition hover:text-[var(--accent-soft)]" {...NEW_TAB}>
                 {label}
               </a>
             ))}
@@ -46,7 +48,7 @@ export function OraklyMarketingFooter() {
           <p className="font-mono text-[9px] uppercase tracking-[0.16em] text-[var(--text-muted)]">Socials</p>
           <nav className="mt-3 flex flex-col gap-1.5 text-[13px]">
             {SOCIALS.map(({ label, href }) => (
-              <a key={label} href={href} className="text-[var(--text-secondary)] transition hover:text-[var(--accent-soft)]">
+              <a key={label} href={href} className="text-[var(--text-secondary)] transition hover:text-[var(--accent-soft)]" {...NEW_TAB}>
                 {label}
               </a>
             ))}
@@ -62,13 +64,13 @@ export function OraklyMarketingFooter() {
           Prices are volatile. This site is not legal, tax, or investment advice. Features vary by jurisdiction.
         </p>
         <div className="mt-4 flex flex-wrap gap-x-5 gap-y-1 text-[11px]">
-          <a href="#footer" className="text-[var(--text-muted)] transition hover:text-[var(--accent-soft)]">
+          <a href="#footer" className="text-[var(--text-muted)] transition hover:text-[var(--accent-soft)]" {...NEW_TAB}>
             Terms
           </a>
-          <a href="#footer" className="text-[var(--text-muted)] transition hover:text-[var(--accent-soft)]">
+          <a href="#footer" className="text-[var(--text-muted)] transition hover:text-[var(--accent-soft)]" {...NEW_TAB}>
             Privacy
           </a>
-          <a href="#footer" className="text-[var(--text-muted)] transition hover:text-[var(--accent-soft)]">
+          <a href="#footer" className="text-[var(--text-muted)] transition hover:text-[var(--accent-soft)]" {...NEW_TAB}>
             Compliance
           </a>
         </div>

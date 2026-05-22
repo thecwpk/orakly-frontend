@@ -25,6 +25,8 @@ export function ensureDiscoveryTrendingSearchParam(
       qs.set(key, raw);
     }
   }
-  qs.set("trending", "1");
+  const rawFeed = searchParams.feed;
+  const feedFirst = Array.isArray(rawFeed) ? rawFeed[0] : rawFeed;
+  qs.set("trending", feedFirst === "cross_hot" ? "0" : "1");
   redirect(`${pathname}?${qs.toString()}`);
 }

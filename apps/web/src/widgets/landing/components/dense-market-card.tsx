@@ -12,12 +12,15 @@ export function DenseMarketCard({
   accent = "cyan",
   index = 0,
   href,
+  openInNewTab = false,
 }: {
   market: Market;
   accent?: "cyan" | "violet" | "rose";
   index?: number;
   /** When set, the whole card navigates to this path (e.g. `/markets/${slug}`). */
   href?: string;
+  /** Marketing-style surfaces: keep landing page while opening the destination in a new tab. */
+  openInNewTab?: boolean;
 }) {
   const pct = Math.round(market.probability * 100);
   const edge =
@@ -91,6 +94,7 @@ export function DenseMarketCard({
       <Link
         href={href}
         className="block min-w-0 rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500/40"
+        {...(openInNewTab ? ({ target: "_blank", rel: "noopener noreferrer" } as const) : {})}
       >
         {card}
       </Link>

@@ -44,6 +44,7 @@ export function TrendingCryptoSection() {
               href={`/markets/${market.slug}`}
               accent="cyan"
               index={i}
+              openInNewTab
             />
           ))}
         </div>

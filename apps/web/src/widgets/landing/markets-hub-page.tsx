@@ -7,6 +7,8 @@ import { TrendingPredictionMarketsSection } from "@/widgets/trending-prediction-
 import { CategoriesSection } from "./sections/categories-section";
 import { MemeTrendsSection } from "./sections/meme-trends-section";
 
+const NEW_TAB = { target: "_blank" as const, rel: "noopener noreferrer" as const };
+
 export function MarketsHubPage() {
   return (
     <main className="flex flex-col pb-s64 pt-s48 md:pb-s72 md:pt-s56">
@@ -22,6 +24,7 @@ export function MarketsHubPage() {
         <Link
           href={ROUTES.marketCreate}
           className="neon-edge-cyan inline-flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-cyan-500/90 to-violet-500/85 px-3.5 py-2 text-[13px] font-semibold text-zinc-950 shadow-md shadow-cyan-500/10 transition hover:brightness-105"
+          {...NEW_TAB}
         >
           <Plus className="h-3.5 w-3.5" />
           Create market

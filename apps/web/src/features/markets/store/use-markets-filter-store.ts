@@ -2,6 +2,7 @@
 
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import type { MarketsExplorerFeedPreset } from "@/shared/constants/routes";
 
 export type MarketsSort =
   | "volume24h"
@@ -54,6 +55,13 @@ type MarketsFilterStore = {
   viewMode: MarketsViewMode;
   setViewMode: (mode: MarketsViewMode) => void;
 
+  /**
+   * Optional server-feed lens for `/markets` (`?feed=cross_hot`).
+   * `null` = full directory via explorer feed.
+   */
+  explorerFeed: MarketsExplorerFeedPreset | null;
+  setExplorerFeed: (feed: MarketsExplorerFeedPreset | null) => void;
+
   /** Reset all filters to defaults (search included). */
   reset: () => void;
 };
@@ -66,6 +74,7 @@ const DEFAULTS = {
   minLiquidityUsd: 0,
   minVolumeUsd: 0,
   viewMode: "grid" as MarketsViewMode,
+  explorerFeed: null as MarketsExplorerFeedPreset | null,
 };
 
 export const useMarketsFilterStore = create<MarketsFilterStore>()(
@@ -82,6 +91,7 @@ export const useMarketsFilterStore = create<MarketsFilterStore>()(
       setMinLiquidityUsd: (minLiquidityUsd) => set({ minLiquidityUsd }),
       setMinVolumeUsd: (minVolumeUsd) => set({ minVolumeUsd }),
       setViewMode: (viewMode) => set({ viewMode }),
+      setExplorerFeed: (explorerFeed) => set({ explorerFeed }),
 
       reset: () => set({ ...DEFAULTS }),
     }),
@@ -108,5 +118,6 @@ export const selectActiveFilterCount = (s: MarketsFilterStore): number => {
   if (s.sort !== "volume24h") n++;
   if (s.minLiquidityUsd > 0) n++;
   if (s.minVolumeUsd > 0) n++;
+  if (s.explorerFeed) n++;
   return n;
 };

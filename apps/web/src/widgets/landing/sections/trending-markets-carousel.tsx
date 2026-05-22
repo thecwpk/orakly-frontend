@@ -221,6 +221,7 @@ export function TrendingMarketsCarousel() {
                   index={idx}
                   accent={ACCENTS[idx % ACCENTS.length] as Accent}
                   href={ROUTES.market(market.slug)}
+                  openInNewTab
                 />
                 <div className="absolute right-2.5 top-2.5">
                   <WatchlistStar slug={market.slug} size="xs" />

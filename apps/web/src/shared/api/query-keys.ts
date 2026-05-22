@@ -58,6 +58,8 @@ export const queryKeys = {
         params.filter,
         params.take,
       ] as const,
+    /** GET /api/v1/markets/hub-preview — bundled hub lanes + hot topics. */
+    hubPreview: () => [...marketsRoot(), "hubPreview"] as const,
     detail: (marketId: string) => [...marketsRoot(), "detail", marketId] as const,
     odds: (marketId: string) =>
       [...marketsRoot(), "detail", marketId, "odds"] as const,

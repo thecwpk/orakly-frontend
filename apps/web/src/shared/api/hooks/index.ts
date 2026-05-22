@@ -5,6 +5,7 @@ export { useDebouncedValue } from "./useDebouncedValue";
 /* ---------------------------------------------------------------- */
 
 export { useMarketsFeedQuery } from "./useMarketsFeedQuery";
+export { useHubMarketsPreviewQuery } from "./useHubMarketsPreviewQuery";
 export { useSpotPricesQuery } from "./useSpotPricesQuery";
 export { useExplorerMarketsFeedQuery } from "./useExplorerMarketsFeedQuery";
 export {

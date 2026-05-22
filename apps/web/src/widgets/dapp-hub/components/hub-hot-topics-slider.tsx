@@ -5,7 +5,7 @@ import { PrefetchLink } from "@/shared/ui";
 import { ChevronRight, Flame } from "lucide-react";
 import type { Market } from "@orakly/types";
 import { cn } from "@/lib/utils";
-import { ROUTES } from "@/shared/constants/routes";
+import { ROUTES, marketsExplorerFeedUrl } from "@/shared/constants/routes";
 import { useHydrationSafeReducedMotion } from "@/lib/use-hydration-safe-reduced-motion";
 
 function fmtUsdToday(n: number): string {
@@ -95,7 +95,7 @@ export function HubHotTopicsSlider({
     <section className="mb-hot-topics-section border-t border-border/55 pb-6 pt-4 min-[1100px]:pb-7 min-[1100px]:pt-5" aria-labelledby="hub-hot-topics-heading">
       <div className={cn("mb-hot-topics-header-row mb-3 flex items-center justify-between gap-3", gutterX)}>
         <PrefetchLink
-          href={ROUTES.markets}
+          href={marketsExplorerFeedUrl("cross_hot")}
           className="flex min-w-0 items-center gap-2.5 rounded-xl border border-transparent px-1 py-1 transition hover:border-border/80 hover:bg-muted/25"
         >
           <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-no/10 ring-1 ring-no/22">

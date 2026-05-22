@@ -36,6 +36,8 @@ const SITEMAP_LINKS = [
   { label: "FAQ", href: "#faq" },
 ] as const;
 
+const NEW_TAB = { target: "_blank" as const, rel: "noopener noreferrer" as const };
+
 const footerLinkClass =
   "marketing-footer-link text-sm text-slate-300/90 transition-colors duration-200 hover:text-sky-200";
 
@@ -64,7 +66,7 @@ export function MarketingLandingFooter() {
       <div className={cn(landingBandInner, "relative")}>
         <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-12 lg:gap-8">
           <div className="sm:col-span-2 lg:col-span-5">
-            <BrandWordmarkLink href={ROUTES.home} showTitle variant="nav" className="shrink-0" />
+            <BrandWordmarkLink href={ROUTES.home} showTitle variant="nav" className="shrink-0" openInNewTab />
             <p className="mt-4 max-w-sm text-sm leading-relaxed text-slate-400">
               On-chain prediction markets across crypto, macro, sports, and tech. Transparent rules, stablecoin rails,
               settlement you can verify.
@@ -85,11 +87,11 @@ export function MarketingLandingFooter() {
             <nav className="mt-4 flex flex-col gap-2" aria-label="Footer product">
               {PRODUCT_LINKS.map((item) =>
                 item.external ? (
-                  <a key={item.label} href={item.href} className={footerLinkClass}>
+                  <a key={item.label} href={item.href} className={footerLinkClass} {...NEW_TAB}>
                     {item.label}
                   </a>
                 ) : (
-                  <Link key={item.label} href={item.href} className={footerLinkClass}>
+                  <Link key={item.label} href={item.href} className={footerLinkClass} {...NEW_TAB}>
                     {item.label}
                   </Link>
                 ),
@@ -101,7 +103,7 @@ export function MarketingLandingFooter() {
             <p className={cn(landingEyebrow, "text-violet-300/45")}>Community</p>
             <nav className="mt-4 flex flex-col gap-2" aria-label="Footer social">
               {COMMUNITY_LINKS.map((item) => (
-                <a key={item.label} href={item.href} rel="noopener noreferrer" className={footerLinkClass}>
+                <a key={item.label} href={item.href} className={footerLinkClass} {...NEW_TAB}>
                   {item.label}
                 </a>
               ))}
@@ -119,6 +121,7 @@ export function MarketingLandingFooter() {
                 key={item.label}
                 href={item.href}
                 className="marketing-footer-pill rounded-full px-2.5 py-1 text-[11px] text-slate-400 transition hover:text-sky-200"
+                {...NEW_TAB}
               >
                 {item.label}
               </a>

@@ -38,6 +38,9 @@ const NAV_ROWS: NavRow[] = [
   },
 ];
 
+/** Navbar escapes narrative/marketing surfaces into hubs/routes — open in fresh tabs while preserving referrer UX parity where feasible */
+const NEW_TAB = { target: "_blank" as const, rel: "noopener noreferrer" as const };
+
 export type GlobalMarketingNavbarProps = {
   variant: "landing" | "app";
   appendActions?: ReactNode;
@@ -69,13 +72,13 @@ export function GlobalMarketingNavbar({ variant, appendActions, chrome = "defaul
     const spec = app ? row.app : row.landing;
     if (spec.isRoute) {
       return (
-        <Link key={row.label} href={spec.href} className={navLinkClass}>
+        <Link key={row.label} href={spec.href} className={navLinkClass} {...NEW_TAB}>
           {row.label}
         </Link>
       );
     }
     return (
-      <a key={row.label} href={spec.href} className={navLinkClass}>
+      <a key={row.label} href={spec.href} className={navLinkClass} {...NEW_TAB}>
         {row.label}
       </a>
     );
@@ -91,13 +94,13 @@ export function GlobalMarketingNavbar({ variant, appendActions, chrome = "defaul
     );
     if (spec.isRoute) {
       return (
-        <Link key={row.label} href={spec.href} className={className} onClick={onNavigate}>
+        <Link key={row.label} href={spec.href} className={className} onClick={onNavigate} {...NEW_TAB}>
           {row.label}
         </Link>
       );
     }
     return (
-      <a key={row.label} href={spec.href} className={className} onClick={onNavigate}>
+      <a key={row.label} href={spec.href} className={className} onClick={onNavigate} {...NEW_TAB}>
         {row.label}
       </a>
     );
@@ -126,6 +129,7 @@ export function GlobalMarketingNavbar({ variant, appendActions, chrome = "defaul
           showTitle
           variant="nav"
           priority
+          openInNewTab
           className="relative z-[2] min-w-0 shrink-0"
         />
 
@@ -137,10 +141,10 @@ export function GlobalMarketingNavbar({ variant, appendActions, chrome = "defaul
         </nav>
 
         <div className="relative z-[2] ml-auto flex items-center gap-2 sm:gap-2.5">
-          <Link href={ROUTES.signIn} className="marketing-nav-signin hidden sm:inline-flex">
+          <Link href={ROUTES.signIn} className="marketing-nav-signin hidden sm:inline-flex" {...NEW_TAB}>
             Sign in
           </Link>
-          <Link href={ROUTES.dapp} className="marketing-nav-cta hidden sm:inline-flex">
+          <Link href={ROUTES.dapp} className="marketing-nav-cta hidden sm:inline-flex" {...NEW_TAB}>
             Launch app
           </Link>
           {appendActions ? (
@@ -173,6 +177,7 @@ export function GlobalMarketingNavbar({ variant, appendActions, chrome = "defaul
               href={ROUTES.signIn}
               className="marketing-nav-signin justify-center py-2.5"
               onClick={() => setOpen(false)}
+              {...NEW_TAB}
             >
               Sign in
             </Link>
@@ -180,6 +185,7 @@ export function GlobalMarketingNavbar({ variant, appendActions, chrome = "defaul
               href={ROUTES.dapp}
               className="marketing-nav-cta justify-center py-2.5"
               onClick={() => setOpen(false)}
+              {...NEW_TAB}
             >
               Launch app
             </Link>

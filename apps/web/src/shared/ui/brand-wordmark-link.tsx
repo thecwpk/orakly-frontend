@@ -21,6 +21,8 @@ export type BrandWordmarkLinkProps = {
   imgClassName?: string;
   priority?: boolean;
   onClick?: () => void;
+  /** Opens in a new tab — used by marketing chrome / footer where CTAs leave the narrative page. */
+  openInNewTab?: boolean;
 };
 
 /**
@@ -34,9 +36,11 @@ export function BrandWordmarkLink({
   imgClassName,
   priority = false,
   onClick,
+  openInNewTab = false,
 }: BrandWordmarkLinkProps) {
   const [failed, setFailed] = useState(false);
   const nav = variant === "nav";
+  const newTab = openInNewTab ? ({ target: "_blank", rel: "noopener noreferrer" } as const) : {};
 
   if (failed) {
     return (
@@ -45,6 +49,7 @@ export function BrandWordmarkLink({
         onClick={onClick}
         className={cn("flex shrink-0 items-center gap-2.5", className)}
         aria-label="Orakly Market home"
+        {...newTab}
       >
         <BrandTitleFallback nav={nav} />
       </Link>
@@ -61,6 +66,7 @@ export function BrandWordmarkLink({
         className,
       )}
       aria-label="Orakly Market home"
+      {...newTab}
     >
       <span
         className={cn(

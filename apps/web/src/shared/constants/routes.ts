@@ -22,6 +22,11 @@ export const ROUTES = {
   marketsTrending: "/markets?trending=1",
   /** Full directory — trending filter off (“Markets” in primary nav). */
   marketsBrowse: "/markets?trending=0",
+  /**
+   * Polymarket-style “Breaking” hub — OPEN markets with fresh live signals (`filter=breaking` on API).
+   * Implemented as dedicated route so it is not rewritten by `/markets` canonical `trending` redirect.
+   */
+  marketsBreaking: "/markets/breaking",
   watchlist: "/watchlist",
   portfolio: "/portfolio",
   /** Signed-in user overview (not operator admin). */
@@ -54,3 +59,16 @@ export const ROUTES = {
   /* Legacy → permanent redirect to /activity */
   pulse: "/pulse",
 } as const;
+
+/** Valid `feed=` values for `/markets` explorer preset rail (canonical share links). */
+export type MarketsExplorerFeedPreset = "cross_hot";
+
+/**
+ * Canonical `/markets` URL with explorer feed preset (`trending=0` + `feed=`).
+ */
+export function marketsExplorerFeedUrl(preset: MarketsExplorerFeedPreset): string {
+  const q = new URLSearchParams();
+  q.set("trending", "0");
+  q.set("feed", preset);
+  return `${ROUTES.markets}?${q.toString()}`;
+}

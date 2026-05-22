@@ -8,6 +8,8 @@ const LINKS = [
   { label: "Wallet", href: ROUTES.wallet },
 ] as const;
 
+const NEW_TAB = { target: "_blank" as const, rel: "noopener noreferrer" as const };
+
 export function FooterSection() {
   return (
     <footer className="border-t border-white/[0.06] bg-black/25 py-5">
@@ -18,6 +20,7 @@ export function FooterSection() {
               key={href}
               href={href}
               className="text-zinc-400 transition hover:text-zinc-200"
+              {...NEW_TAB}
             >
               {label}
             </Link>

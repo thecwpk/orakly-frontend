@@ -5,7 +5,7 @@ import { PrefetchLink } from "@/shared/ui";
 import { buildActivityRows } from "@/features/realtime-activity/lib/build-rows";
 import { useNotificationsStore } from "@/features/notifications";
 import { cn } from "@/lib/utils";
-import { useMarketsFeedQuery, useMarketsFeedScopedQuery } from "@/shared/api/hooks";
+import { useMarketsFeedQuery, useHubMarketsPreviewQuery } from "@/shared/api/hooks";
 import { usePrefetchMarketsFeed } from "@/shared/api/prefetch";
 import { ROUTES } from "@/shared/constants/routes";
 import { appStickyToolbarBleedStyle } from "@/shared/constants/page-layout";
@@ -17,7 +17,6 @@ import { HubMarketsBrowseBlock } from "./components/hub-markets-browse-block";
 import { HubBreakingNewsPanel } from "./components/hub-breaking-hot-topics-stack";
 import { HubHotTopicsSlider } from "./components/hub-hot-topics-slider";
 import { HubSpotlightCarouselNav } from "./components/hub-spotlight-desk";
-import { pickCrossLaneHotMarkets } from "./lib/hub-cross-lane-hot-topics";
 import { mergeHubSpotlightMarkets } from "./lib/merge-hub-spotlight-markets";
 import { uniqMarkets } from "./lib/uniq-markets";
 import "./dapp-hub-home.css";
@@ -34,6 +33,10 @@ const LEDGER_VARIANTS = new Set([
   "MARKET_CREATED",
   "MARKET_CLOSED",
 ]);
+
+const HUB_MOVERS_RANKING =
+  process.env.NEXT_PUBLIC_HUB_MOVERS_RANKING === "1" ||
+  process.env.NEXT_PUBLIC_HUB_MOVERS_RANKING?.toLowerCase() === "true";
 
 function fmtUsdShort(n: number): string {
   if (!Number.isFinite(n) || n <= 0) return "—";
@@ -89,111 +92,29 @@ function TerminalLiveBands({
 }
 
 export function DappHubPage() {
-  const [hubSecondaryLanesReady, setHubSecondaryLanesReady] = useState(false);
-
-  useEffect(() => {
-    let cancelled = false;
-    let ricId: ReturnType<typeof requestIdleCallback> | undefined;
-    let rafOuter = 0;
-    let rafInner = 0;
-
-    if (typeof requestIdleCallback !== "undefined") {
-      ricId = requestIdleCallback(
-        () => {
-          if (!cancelled) setHubSecondaryLanesReady(true);
-        },
-        { timeout: 480 },
-      );
-    } else {
-      rafOuter = requestAnimationFrame(() => {
-        rafInner = requestAnimationFrame(() => {
-          if (!cancelled) setHubSecondaryLanesReady(true);
-        });
-      });
-    }
-
-    return () => {
-      cancelled = true;
-      if (ricId !== undefined) cancelIdleCallback(ricId);
-      if (rafOuter) cancelAnimationFrame(rafOuter);
-      if (rafInner) cancelAnimationFrame(rafInner);
-    };
-  }, []);
-
   const prefetchDirectory = usePrefetchMarketsFeed();
   const marketsIndexQ = useMarketsFeedQuery();
+  const hubPreview = useHubMarketsPreviewQuery();
   const notifications = useNotificationsStore((s) => s.notifications);
   const tape = useLiveActivityFeed();
 
-  const trendingListQ = useMarketsFeedScopedQuery({
-    scope: "hub",
-    lane: "list",
-    filter: "trending",
-    take: 28,
-  });
-  const trendingTapeQ = useMarketsFeedScopedQuery({
-    scope: "hub",
-    lane: "trending",
-    trendingBy: "volume",
-    take: 28,
-    enabled: hubSecondaryLanesReady,
-  });
-  const trendingActivityQ = useMarketsFeedScopedQuery({
-    scope: "hub",
-    lane: "trending",
-    trendingBy: "activity",
-    take: 28,
-    enabled: hubSecondaryLanesReady,
-  });
-  const trendingHotQ = useMarketsFeedScopedQuery({
-    scope: "hub",
-    lane: "trending",
-    trendingBy: "hot",
-    take: 28,
-    enabled: hubSecondaryLanesReady,
-  });
-  const trendingNewTrendingQ = useMarketsFeedScopedQuery({
-    scope: "hub",
-    lane: "trending",
-    trendingBy: "new",
-    take: 28,
-    enabled: hubSecondaryLanesReady,
-  });
+  const pack = hubPreview.data;
+  const trendingList = useMemo(() => pack?.trendingList ?? [], [pack?.trendingList]);
+  const breakingSignals = useMemo(() => pack?.breaking ?? [], [pack?.breaking]);
+  const movers24h = useMemo(() => pack?.movers24h ?? [], [pack?.movers24h]);
+  const trendingTape = useMemo(() => pack?.trendingTape ?? [], [pack?.trendingTape]);
+  const trendingActivity = useMemo(() => pack?.trendingActivity ?? [], [pack?.trendingActivity]);
+  const trendingHot = useMemo(() => pack?.trendingHot ?? [], [pack?.trendingHot]);
+  const trendingNewTrending = useMemo(() => pack?.trendingNew ?? [], [pack?.trendingNew]);
 
-  const trendingList = useMemo(() => trendingListQ.data ?? [], [trendingListQ.data]);
-  const trendingTape = useMemo(() => trendingTapeQ.data ?? [], [trendingTapeQ.data]);
-  const trendingActivity = useMemo(() => trendingActivityQ.data ?? [], [trendingActivityQ.data]);
-  const trendingHot = useMemo(() => trendingHotQ.data ?? [], [trendingHotQ.data]);
-  const trendingNewTrending = useMemo(() => trendingNewTrendingQ.data ?? [], [trendingNewTrendingQ.data]);
+  const hubLaneQueriesLoading = hubPreview.isLoading && !pack;
 
-  const hubLaneQueriesLoading =
-    trendingListQ.isLoading ||
-    (hubSecondaryLanesReady &&
-      (trendingTapeQ.isLoading ||
-        trendingActivityQ.isLoading ||
-        trendingHotQ.isLoading ||
-        trendingNewTrendingQ.isLoading));
-
-  const hubDatabaseDown =
-    trendingListQ.isError ||
-    trendingTapeQ.isError ||
-    trendingActivityQ.isError ||
-    trendingHotQ.isError ||
-    trendingNewTrendingQ.isError;
-
+  const hubDatabaseDown = hubPreview.isError;
   const hubDatabaseMessage =
-    trendingListQ.error?.message ??
-    trendingTapeQ.error?.message ??
+    hubPreview.error?.message ??
     "Postgres unreachable on Vercel — fix DATABASE_URL (Neon URL from apps/web/.env.local).";
 
-  const crossLaneHotTopTen = useMemo(
-    () =>
-      pickCrossLaneHotMarkets(
-        [trendingList, trendingTape, trendingActivity, trendingHot, trendingNewTrending],
-        10,
-      ),
-    [trendingList, trendingTape, trendingActivity, trendingHot, trendingNewTrending],
-  );
+  const crossLaneHotTopTen = useMemo(() => pack?.hotTopics ?? [], [pack?.hotTopics]);
 
   const featuredFive = useMemo(
     () =>
@@ -229,13 +150,24 @@ export function DappHubPage() {
     () =>
       uniqMarkets([
         featuredFive,
+        movers24h,
+        breakingSignals,
         trendingTape,
         trendingList,
         trendingActivity,
         trendingHot,
         trendingNewTrending,
       ]).map((m) => m.id),
-    [featuredFive, trendingTape, trendingList, trendingActivity, trendingHot, trendingNewTrending],
+    [
+      featuredFive,
+      movers24h,
+      breakingSignals,
+      trendingTape,
+      trendingList,
+      trendingActivity,
+      trendingHot,
+      trendingNewTrending,
+    ],
   );
   const { liveSet } = useLiveMarketStatus(hubIds);
 
@@ -282,22 +214,32 @@ export function DappHubPage() {
 
   const spotlightMarket = featuredFive[spotlightIdx];
   const spotlightExcludeId = spotlightMarket?.id;
-  const secondaryLanesPending =
-    hubSecondaryLanesReady &&
-    (trendingTapeQ.isPending ||
-      trendingActivityQ.isPending ||
-      trendingHotQ.isPending ||
-      trendingNewTrendingQ.isPending);
 
   const spotlightSkeleton =
-    featuredFive.length === 0 &&
-    (trendingListQ.isPending || secondaryLanesPending);
+    featuredFive.length === 0 && hubPreview.isPending && !pack && !hubDatabaseDown;
+
+  const breakingDisplayMarkets = useMemo(() => {
+    if (HUB_MOVERS_RANKING && movers24h.length > 0) return movers24h;
+    if (breakingSignals.length > 0) return breakingSignals;
+    return trendingActivity;
+  }, [movers24h, breakingSignals, trendingActivity]);
+
+  const breakingRailMode = useMemo(() => {
+    if (HUB_MOVERS_RANKING && movers24h.length > 0) return "movers_24h" as const;
+    if (breakingSignals.length > 0) return "live_signals" as const;
+    return "liquidity_movers" as const;
+  }, [movers24h, breakingSignals]);
+
+  const breakingPanelLoading =
+    !breakingDisplayMarkets.length && hubPreview.isPending && !pack && !hubDatabaseDown;
 
   const breakingPanelProps = {
-    breakingMarkets: trendingTape,
+    breakingMarkets: breakingDisplayMarkets,
     excludeId: spotlightExcludeId,
     liveSet,
-    loadingBreaking: trendingTapeQ.isLoading,
+    loadingBreaking: breakingPanelLoading,
+    railMode: breakingRailMode,
+    moreHref: ROUTES.marketsBreaking,
   };
 
   const hotSliderLoading = hubLaneQueriesLoading && crossLaneHotTopTen.length === 0;
@@ -394,11 +336,11 @@ export function DappHubPage() {
           trendingActivity={trendingActivity}
           trendingHot={trendingHot}
           trendingNewTrending={trendingNewTrending}
-          loadingTrendingList={trendingListQ.isLoading}
-          loadingTrendingTape={trendingTapeQ.isLoading}
-          loadingTrendingActivity={trendingActivityQ.isLoading}
-          loadingTrendingHot={trendingHotQ.isLoading}
-          loadingTrendingNew={trendingNewTrendingQ.isLoading}
+          loadingTrendingList={hubLaneQueriesLoading}
+          loadingTrendingTape={hubLaneQueriesLoading}
+          loadingTrendingActivity={hubLaneQueriesLoading}
+          loadingTrendingHot={hubLaneQueriesLoading}
+          loadingTrendingNew={hubLaneQueriesLoading}
           onPrefetchDirectory={() => prefetchDirectory()}
         />
       </div>

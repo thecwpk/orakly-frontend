@@ -103,13 +103,15 @@ function BreakingMarketCard({
   );
 }
 
-/** Breaking tape only — pairs with `HubHotTopicsSlider` on the hub home row. */
+/** Breaking rail — live-signal scan with Polymarket-style “see all” destination. */
 export function HubBreakingNewsPanel({
   breakingMarkets,
   excludeId,
   liveSet,
   loadingBreaking,
   breakingTake = 5,
+  railMode = "live_signals",
+  moreHref,
   className,
 }: {
   breakingMarkets: readonly Market[];
@@ -117,8 +119,19 @@ export function HubBreakingNewsPanel({
   liveSet: ReadonlySet<string>;
   loadingBreaking?: boolean;
   breakingTake?: number;
+  /** `live_signals`: server `filter=breaking`. `liquidity_movers`: fallback 24h volume rail. `movers_24h`: snapshot delta rank (flag-gated). */
+  railMode?: "live_signals" | "liquidity_movers" | "movers_24h";
+  /** Canonical “see all” route (default `/markets/breaking`). */
+  moreHref?: string;
   className?: string;
 }) {
+  const seeAllHref = moreHref ?? ROUTES.marketsBreaking;
+  const subtitle =
+    railMode === "live_signals"
+      ? "Live signal feed · markets with fresh upstream tape"
+      : railMode === "movers_24h"
+        ? "24h odds movers · ranked from snapshot mid vs current mid"
+        : "24h liquidity movers · shown when no linked signals yet";
   const breakingRows = useMemo(
     () => pickBreakingRows(breakingMarkets, excludeId, breakingTake),
     [breakingMarkets, excludeId, breakingTake],
@@ -128,16 +141,19 @@ export function HubBreakingNewsPanel({
     <div className={cn("mb-breaking-panel relative flex h-full min-h-0 flex-col overflow-hidden", className)}>
       <div className="shrink-0 px-2.5 pb-1 pt-3 sm:px-3">
         <PrefetchLink
-          href={ROUTES.marketsTrending}
+          href={seeAllHref}
           className="mb-2.5 flex items-center justify-between gap-3 rounded-xl border border-transparent px-1 py-1 transition hover:border-border/80 hover:bg-muted/25"
         >
-          <div className="flex min-w-0 items-center gap-2.5">
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-yes/12 ring-1 ring-yes/25">
-              <Zap className="size-[18px] text-yes" aria-hidden />
-            </span>
-            <span className="text-[14px] font-semibold leading-none tracking-tight text-foreground">Breaking news</span>
+          <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+            <div className="flex items-center gap-2.5">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-yes/12 ring-1 ring-yes/25">
+                <Zap className="size-[18px] text-yes" aria-hidden />
+              </span>
+              <span className="text-[14px] font-semibold leading-none tracking-tight text-foreground">Breaking</span>
+            </div>
+            <p className="pl-[3.25rem] text-[10px] font-medium leading-snug text-muted-foreground">{subtitle}</p>
           </div>
-          <ChevronRight className="size-4 shrink-0 text-muted-foreground" aria-hidden />
+          <ChevronRight className="size-4 shrink-0 self-start text-muted-foreground" aria-hidden />
         </PrefetchLink>
       </div>
 
@@ -151,7 +167,13 @@ export function HubBreakingNewsPanel({
             ))}
           </ul>
         ) : !breakingRows.length ? (
-          <p className="py-8 text-center font-mono text-[10px] text-muted-foreground">Tape warming…</p>
+          <p className="py-8 text-center font-mono text-[10px] text-muted-foreground">
+            {railMode === "live_signals"
+              ? "Linked signals appear when crypto tape is ingested."
+              : railMode === "movers_24h"
+                ? "Sampling odds snapshots — run the cron sampler or wait for the next interval."
+                : "Tape warming…"}
+          </p>
         ) : (
           <ul className="flex flex-col gap-2.5">
             {breakingRows.map((m) => (

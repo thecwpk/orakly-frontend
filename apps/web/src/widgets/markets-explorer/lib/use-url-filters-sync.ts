@@ -7,10 +7,13 @@ import {
   useMarketsFilterStore,
   type MarketsSort,
 } from "@/features/markets/store/use-markets-filter-store";
+import type { MarketsExplorerFeedPreset } from "@/shared/constants/routes";
 
 const VALID_SORTS = new Set<MarketsSort>(
   MARKETS_SORT_OPTIONS.map((s) => s.id),
 );
+
+const VALID_EXPLORER_FEEDS = new Set<MarketsExplorerFeedPreset>(["cross_hot"]);
 
 function isDiscoveryFeedPath(pathname: string | null): boolean {
   return pathname === "/markets";
@@ -26,7 +29,7 @@ function parseUsdFloor(raw: string | null): number {
 /**
  * Two-way URL ↔ filter-store sync on `/markets`.
  *
- * Params: `q`, `cat`, `sort`, `trending`, `minLiq`, `minVol`.
+ * Params: `q`, `cat`, `sort`, `trending`, `minLiq`, `minVol`, `feed`.
  */
 export function useUrlFiltersSync() {
   const router = useRouter();
@@ -45,6 +48,8 @@ export function useUrlFiltersSync() {
   const setMinLiquidityUsd = useMarketsFilterStore((s) => s.setMinLiquidityUsd);
   const minVolumeUsd = useMarketsFilterStore((s) => s.minVolumeUsd);
   const setMinVolumeUsd = useMarketsFilterStore((s) => s.setMinVolumeUsd);
+  const explorerFeed = useMarketsFilterStore((s) => s.explorerFeed);
+  const setExplorerFeed = useMarketsFilterStore((s) => s.setExplorerFeed);
 
   const hydratedRef = useRef(false);
 
@@ -55,6 +60,7 @@ export function useUrlFiltersSync() {
     const t = params?.get("trending");
     const ml = parseUsdFloor(params?.get("minLiq"));
     const mv = parseUsdFloor(params?.get("minVol"));
+    const fd = params?.get("feed");
 
     if (q !== search) setSearch(q);
     if (cat !== category) setCategory(cat);
@@ -68,6 +74,9 @@ export function useUrlFiltersSync() {
     if (isDiscoveryFeedPath(pathname)) {
       if (ml !== minLiquidityUsd) setMinLiquidityUsd(ml);
       if (mv !== minVolumeUsd) setMinVolumeUsd(mv);
+      const nextFeed =
+        fd && VALID_EXPLORER_FEEDS.has(fd as MarketsExplorerFeedPreset) ? (fd as MarketsExplorerFeedPreset) : null;
+      if (nextFeed !== explorerFeed) setExplorerFeed(nextFeed);
     }
 
     hydratedRef.current = true;
@@ -89,6 +98,7 @@ export function useUrlFiltersSync() {
     if (discoveryFeed) {
       if (minLiquidityUsd > 0) next.set("minLiq", String(minLiquidityUsd));
       if (minVolumeUsd > 0) next.set("minVol", String(minVolumeUsd));
+      if (explorerFeed) next.set("feed", explorerFeed);
     }
 
     const nextStr = next.toString();
@@ -104,6 +114,7 @@ export function useUrlFiltersSync() {
     trending,
     minLiquidityUsd,
     minVolumeUsd,
+    explorerFeed,
     pathname,
     params,
     router,

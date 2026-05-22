@@ -14,6 +14,8 @@ import {
 } from "@/widgets/landing/sections/marketing-landing-rail";
 import { LandingReveal } from "@/widgets/landing/sections/marketing-landing-layout";
 
+const NEW_TAB = { target: "_blank" as const, rel: "noopener noreferrer" as const };
+
 /**
  * Curated 6-market preview baked at build time. The data is a static
  * mirror of `packages/database/prisma/seed.ts` so the landing surfaces
@@ -121,6 +123,7 @@ export function LiveMarketsGrid() {
           <Link
             href={ROUTES.discover}
             className="inline-flex w-fit shrink-0 items-center gap-1.5 rounded-md border border-white/[0.08] bg-background/40 px-3.5 py-2 text-sm font-medium text-foreground transition hover:border-yes/35 hover:bg-yes/[0.06] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yes/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+            {...NEW_TAB}
           >
             View all markets
             <ArrowRight className="size-4" aria-hidden />
@@ -135,6 +138,7 @@ export function LiveMarketsGrid() {
                 accent={ACCENTS[i % ACCENTS.length]}
                 index={i}
                 href={ROUTES.market(m.slug)}
+                openInNewTab
               />
             </li>
           ))}

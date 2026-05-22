@@ -13,6 +13,8 @@ import {
 } from "@/widgets/landing/sections/marketing-landing-rail";
 import { LandingReveal } from "@/widgets/landing/sections/marketing-landing-layout";
 
+const NEW_TAB = { target: "_blank" as const, rel: "noopener noreferrer" as const };
+
 /**
  * Single closing surface — merges v1 `early-access` + `final-cta` sections.
  * Visitor sees the real form first, with the secondary "Launch app" link
@@ -50,6 +52,7 @@ export function WaitlistFinalCta() {
           <Link
             href={ROUTES.dapp}
             className="inline-flex items-center gap-1.5 font-semibold text-foreground hover:text-yes focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yes/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+            {...NEW_TAB}
           >
             Launch app
             <ArrowRight className="size-4" aria-hidden />

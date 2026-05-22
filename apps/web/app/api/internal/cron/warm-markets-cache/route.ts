@@ -25,12 +25,15 @@ export async function GET(req: Request) {
   }
 
   const paths = [
-    /* /dapp hub — five lanes + hot-topics inputs */
+    "/api/v1/markets/hub-preview",
+    /* /dapp hub — consolidated preview + mover lane cache */
     "/api/v1/markets?scope=hub&lane=list&filter=trending&take=28",
     "/api/v1/markets?scope=hub&lane=trending&trendingBy=volume&take=28",
     "/api/v1/markets?scope=hub&lane=trending&trendingBy=activity&take=28",
     "/api/v1/markets?scope=hub&lane=trending&trendingBy=hot&take=28",
     "/api/v1/markets?scope=hub&lane=trending&trendingBy=new&take=28",
+    "/api/v1/markets?scope=hub&lane=list&filter=breaking&take=24",
+    "/api/v1/markets?scope=hub&lane=list&filter=movers_24h&take=24",
     /* discover / directory */
     "/api/v1/markets?scope=full&lane=directory&take=120",
     "/api/v1/markets?scope=full&lane=list&filter=cross_hot&take=120",

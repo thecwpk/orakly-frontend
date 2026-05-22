@@ -46,6 +46,7 @@ export function invalidateMarketsFeed(qc: QueryClient) {
   void qc.invalidateQueries({
     queryKey: [...queryKeys.markets.root(), "feedScoped"],
   });
+  void qc.invalidateQueries({ queryKey: queryKeys.markets.hubPreview() });
 }
 
 /* ---------------------------------------------------------------- */

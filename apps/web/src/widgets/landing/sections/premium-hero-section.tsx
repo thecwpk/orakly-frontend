@@ -11,6 +11,8 @@ import { BRAND_LOGO_FOR_DARK_NAV, BRAND_LOGO_FOR_LIGHT_NAV } from "@/shared/cons
 import { ROUTES } from "@/shared/constants/routes";
 import { LANDING_IMAGES } from "../lib/landing-image-paths";
 
+const NEW_TAB = { target: "_blank" as const, rel: "noopener noreferrer" as const };
+
 const easeOut = [0.22, 1, 0.36, 1] as const;
 
 const headline = "The Prediction Market for Crypto Attention";
@@ -356,6 +358,7 @@ export function PremiumHeroSection({ navbar }: PremiumHeroSectionProps) {
                         "shadow-[inset_0_1px_0_rgba(255,255,255,0.35)]",
                         "transition duration-200 hover:brightness-110",
                       )}
+                      {...NEW_TAB}
                     >
                       Launch App
                       <ArrowRight className="size-4 opacity-80 transition-transform duration-300 group-hover:translate-x-0.5" aria-hidden />
@@ -374,6 +377,7 @@ export function PremiumHeroSection({ navbar }: PremiumHeroSectionProps) {
                         "transition duration-200 hover:bg-[var(--bg-3)]",
                       )}
                       style={{ borderWidth: 1, borderColor: "var(--border-soft)", borderStyle: "solid" }}
+                      {...NEW_TAB}
                     >
                       Explore Markets
                     </Link>
@@ -382,6 +386,7 @@ export function PremiumHeroSection({ navbar }: PremiumHeroSectionProps) {
                     href="#early-access"
                     whileHover={reduceMotion ? undefined : { x: 3 }}
                     className="text-sm font-medium text-[var(--accent-strong)] underline-offset-[6px] transition hover:text-[var(--accent-soft)] hover:underline"
+                    {...NEW_TAB}
                   >
                     Join Early Access
                   </motion.a>

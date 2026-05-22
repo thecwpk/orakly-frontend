@@ -49,6 +49,7 @@ function parseListFilter(raw: string | null): MarketsListLaneFilter {
     "ending_soon",
     "high_volume",
     "moonshots",
+    "movers_24h",
   ];
   if (raw && (allowed as string[]).includes(raw)) {
     return raw as MarketsListLaneFilter;

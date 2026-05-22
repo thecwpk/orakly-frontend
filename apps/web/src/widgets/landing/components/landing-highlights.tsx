@@ -4,6 +4,8 @@ import { Activity, ArrowRight, LayoutGrid } from "lucide-react";
 import Link from "next/link";
 import { ROUTES } from "@/shared/constants/routes";
 
+const NEW_TAB = { target: "_blank" as const, rel: "noopener noreferrer" as const };
+
 export function LandingHighlights() {
   return (
     <section
@@ -20,6 +22,7 @@ export function LandingHighlights() {
         <Link
           href={ROUTES.discover}
           className="group neon-edge-cyan glass-panel-strong relative overflow-hidden rounded-2xl p-5 transition hover:bg-white/[0.02] sm:p-6"
+          {...NEW_TAB}
         >
           <div className="flex items-start justify-between gap-3">
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-cyan-500/15 ring-1 ring-cyan-400/25">
@@ -36,6 +39,7 @@ export function LandingHighlights() {
         <Link
           href="/pulse"
           className="group neon-edge-violet glass-panel-strong relative overflow-hidden rounded-2xl p-5 transition hover:bg-white/[0.02] sm:p-6"
+          {...NEW_TAB}
         >
           <div className="flex items-start justify-between gap-3">
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-violet-500/15 ring-1 ring-violet-400/25">

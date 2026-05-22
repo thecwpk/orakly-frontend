@@ -8,6 +8,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { MARKET_CATEGORIES } from "@/features/markets/lib/categories";
 import { useMarketsFilterStore } from "@/features/markets/store/use-markets-filter-store";
 import { useExplorerMarketsFeedQuery } from "@/shared/api/hooks/useExplorerMarketsFeedQuery";
+import { useMarketsFeedScopedQuery } from "@/shared/api/hooks";
 import { invalidateMarketsFeed } from "@/shared/api/invalidate";
 import { appStickyToolbarBleedStyle } from "@/shared/constants/page-layout";
 import { ROUTES } from "@/shared/constants/routes";
@@ -37,8 +38,18 @@ export function MarketsExplorerPage() {
   const reduceMotion = useReducedMotion();
 
   const qc = useQueryClient();
-  const { data, isLoading, isFetching, isError, refetch, dataUpdatedAt } =
-    useExplorerMarketsFeedQuery();
+  const explorerFeed = useMarketsFilterStore((s) => s.explorerFeed);
+  const directoryQ = useExplorerMarketsFeedQuery(explorerFeed !== "cross_hot");
+  const crossHotQ = useMarketsFeedScopedQuery({
+    scope: "full",
+    lane: "list",
+    filter: "cross_hot",
+    take: 120,
+    enabled: explorerFeed === "cross_hot",
+  });
+
+  const activeFeed = explorerFeed === "cross_hot" ? crossHotQ : directoryQ;
+  const { data, isLoading, isFetching, isError, refetch, dataUpdatedAt } = activeFeed;
 
   const search = useMarketsFilterStore((s) => s.searchTerm);
   const category = useMarketsFilterStore((s) => s.category);
@@ -48,6 +59,7 @@ export function MarketsExplorerPage() {
   const minVolumeUsd = useMarketsFilterStore((s) => s.minVolumeUsd);
   const viewMode = useMarketsFilterStore((s) => s.viewMode);
   const reset = useMarketsFilterStore((s) => s.reset);
+  const setExplorerFeed = useMarketsFilterStore((s) => s.setExplorerFeed);
 
   const all = useMemo(() => data ?? [], [data]);
 
@@ -139,7 +151,7 @@ export function MarketsExplorerPage() {
     if (typeof window !== "undefined") {
       window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
     }
-  }, [search, category, sort, trendingOnly, minLiquidityUsd, minVolumeUsd]);
+  }, [search, category, sort, trendingOnly, minLiquidityUsd, minVolumeUsd, explorerFeed]);
 
   const updatedAtLabel = useMemo(() => {
     if (!dataUpdatedAt) return null;
@@ -165,7 +177,7 @@ export function MarketsExplorerPage() {
   const showingCount = visible.length;
   const totalCount = ranked.length;
 
-  const gridAnimKey = `${search}|${category}|${sort}|${trendingOnly}|${minLiquidityUsd}|${minVolumeUsd}|${viewMode}`;
+  const gridAnimKey = `${explorerFeed}|${search}|${category}|${sort}|${trendingOnly}|${minLiquidityUsd}|${minVolumeUsd}|${viewMode}`;
 
   const gridContainerVariants = {
     hidden: { opacity: reduceMotion ? 1 : 0 },
@@ -234,6 +246,22 @@ export function MarketsExplorerPage() {
           </div>
         </header>
 
+        {explorerFeed === "cross_hot" ?
+          <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-cyan-500/20 bg-cyan-500/[0.07] px-4 py-3 text-[12px] text-cyan-50/95">
+            <span>
+              Showing <strong className="font-semibold text-white">cross-hot</strong> — crypto-linked momentum from the
+              server-ranked feed. Category and search still refine this slice.
+            </span>
+            <button
+              type="button"
+              className="shrink-0 rounded-md bg-white/[0.08] px-3 py-1.5 text-[11px] font-semibold text-white ring-1 ring-white/15 transition hover:bg-white/[0.14]"
+              onClick={() => setExplorerFeed(null)}
+            >
+              Full directory
+            </button>
+          </div>
+        : null}
+
         <div className="xl:hidden">
           <MarketsHotNarrativesRail markets={hotNarratives} />
         </div>
@@ -281,7 +309,8 @@ export function MarketsExplorerPage() {
                   category !== "all" ||
                   trendingOnly ||
                   minLiquidityUsd > 0 ||
-                  minVolumeUsd > 0
+                  minVolumeUsd > 0 ||
+                  Boolean(explorerFeed)
                 }
               />
             ) : viewMode === "grid" ? (

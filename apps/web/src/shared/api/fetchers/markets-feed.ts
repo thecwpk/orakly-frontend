@@ -17,7 +17,8 @@ export type MarketsFeedScopedListFilter =
   | "rug_watch"
   | "ending_soon"
   | "high_volume"
-  | "moonshots";
+  | "moonshots"
+  | "movers_24h";
 
 export type MarketsFeedScopedParams = {
   scope: "hub" | "full";
