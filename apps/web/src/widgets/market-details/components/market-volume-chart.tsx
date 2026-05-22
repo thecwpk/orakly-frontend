@@ -6,6 +6,7 @@ import { memo, useId, useMemo } from "react";
 import { useMarketVolumeWindowQuery } from "@/shared/api/hooks";
 import type { MarketRealtimeSnapshot } from "@/websocket/store/market-realtime-store";
 import { cn } from "@/lib/utils";
+import { marketDetailPanelClass } from "./market-detail-section";
 import {
   mergeTradesIntoVolumeRows,
   summarizeVolumeChartRows,
@@ -13,7 +14,7 @@ import {
 } from "../lib/volume-history";
 
 const VB_W = 520;
-const VB_H = 188;
+const VB_H = 148;
 const PAD = { l: 44, r: 44, t: 10, b: 28 };
 const INNER_W = VB_W - PAD.l - PAD.r;
 const INNER_H = VB_H - PAD.t - PAD.b;
@@ -37,7 +38,7 @@ function VolumeSvgChart({ rows, gradBuyId, gradSellId }: { rows: VolumeChartRow[
   return (
     <svg
       viewBox={`0 0 ${VB_W} ${VB_H}`}
-      className="h-[216px] w-full text-zinc-500"
+      className="h-[168px] w-full text-zinc-500"
       preserveAspectRatio="xMidYMid meet"
       role="img"
       aria-label="24 hour volume chart"
@@ -165,15 +166,15 @@ function MarketVolumeChartInner({
 
   const chartBody =
     q.isLoading ? (
-      <div className="flex h-[216px] w-full items-center justify-center rounded-lg bg-white/[0.02] text-xs text-zinc-600">
+      <div className="flex h-[168px] w-full items-center justify-center rounded-lg bg-white/[0.02] text-xs text-zinc-600">
         Loading volume…
       </div>
     ) : q.isError ? (
-      <div className="flex h-[216px] w-full items-center justify-center rounded-lg bg-white/[0.02] text-xs text-rose-400/90">
+      <div className="flex h-[168px] w-full items-center justify-center rounded-lg bg-white/[0.02] text-xs text-rose-400/90">
         Could not load volume chart
       </div>
     ) : mergedRows.length === 0 ? (
-      <div className="flex h-[216px] w-full items-center justify-center text-xs text-zinc-600">
+      <div className="flex h-[168px] w-full items-center justify-center text-xs text-zinc-600">
         No data
       </div>
     ) : (
@@ -183,19 +184,16 @@ function MarketVolumeChartInner({
   return (
     <div
       className={cn(
-        "glass-panel-strong neon-edge-violet flex flex-col overflow-hidden rounded-2xl",
+        marketDetailPanelClass,
+        "flex flex-col overflow-hidden",
         className,
       )}
     >
-      <div className="flex flex-wrap items-start justify-between gap-3 border-b border-white/[0.06] px-4 py-3">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/[0.06] px-2.5 py-2">
         <div>
-          <p className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-zinc-500">
-            <BarChart3 className="h-3 w-3" />
-            Volume · 24h
-          </p>
-          <p className="text-sm font-medium text-white">
-            {formatCompactUsd(win.totalUsd)}{" "}
-            <span className="text-[12px] text-zinc-500">notional</span>
+          <p className="inline-flex items-center gap-1.5 text-[11px] font-medium text-zinc-300">
+            <BarChart3 className="h-3 w-3 text-zinc-500" />
+            24h · {formatCompactUsd(win.totalUsd)}
           </p>
         </div>
 

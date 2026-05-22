@@ -1,10 +1,9 @@
 "use client";
 
-import type { Market } from "@orakly/types";
 import { formatCompactUsd } from "@orakly/utils";
 import { ChevronRight, Zap } from "lucide-react";
 import { motion } from "framer-motion";
-import { memo, useCallback, useMemo, useState } from "react";
+import { memo, useCallback, useState } from "react";
 import Link from "next/link";
 import { toast } from "sonner";
 import type { TradeModalMarket } from "@/features/trading/store/use-trade-modal-store";
@@ -19,7 +18,7 @@ import { ROUTES } from "@/shared/constants/routes";
 import { useIsAuthenticated } from "@/state/selectors/auth.selectors";
 import type { MarketRealtimeSnapshot } from "@/websocket/store/market-realtime-store";
 import { useSocketRegistry } from "@/websocket/socket-registry";
-import { buildMarketDetailStatCells } from "./market-stats-strip";
+import { marketDetailPanelClass } from "./market-detail-section";
 
 function parseLooseNumber(raw: string | undefined): number | null {
   if (raw == null || raw === "") return null;
@@ -83,10 +82,10 @@ function MarketTradingDeskInner({
   disabledHint,
   tradeModalMarket,
   initialOutcome = "YES",
-  market,
   odds,
   rt,
   midYes,
+  compact = false,
 }: {
   marketId: string | null;
   userId: string | undefined;
@@ -101,10 +100,11 @@ function MarketTradingDeskInner({
    * directly on the right outcome.
    */
   initialOutcome?: "YES" | "NO";
-  market: Market;
   odds: MarketOddsDto | undefined;
   rt: MarketRealtimeSnapshot;
   midYes: number;
+  /** Tighter panel — stats live in overview; used on market detail page. */
+  compact?: boolean;
 }) {
   const [outcome, setOutcome] = useState<"YES" | "NO">(initialOutcome);
   const [direction, setDirection] = useState<"BUY" | "SELL">("BUY");
@@ -134,11 +134,6 @@ function MarketTradingDeskInner({
 
   const bal = portfolio.data?.wallet?.availableBalanceUsd;
 
-  const statCells = useMemo(
-    () => buildMarketDetailStatCells(market, odds, rt),
-    [market, odds, rt],
-  );
-
   const qtyNum = Number.parseFloat(qty.trim());
   const qtyOk = Number.isFinite(qtyNum) && qtyNum > 0;
 
@@ -156,32 +151,26 @@ function MarketTradingDeskInner({
   return (
     <div
       className={cn(
-        "flex flex-col gap-2 rounded-xl border border-white/[0.08] bg-[hsl(228_26%_11%/0.97)] p-2.5 shadow-[0_16px_40px_-24px_hsl(228_40%_8%/0.55)] ring-1 ring-white/[0.07]",
-        "sm:gap-2.5 sm:p-3",
-        "lg:overflow-visible lg:shadow-[0_20px_50px_-28px_hsl(228_40%_8%/0.5)]",
+        marketDetailPanelClass,
+        "flex flex-col",
+        compact ? "gap-1.5 p-2" : "gap-2 p-2.5 sm:gap-2.5 sm:p-3",
       )}
     >
-      <div className="flex items-start justify-between gap-2">
-        <div className="min-w-0">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-zinc-600">
-            Trade
-          </p>
-          <p className="font-mono text-[12px] font-semibold tabular-nums text-zinc-100">
-            Mid {(midYes * 100).toFixed(1)}¢
-          </p>
-          <p className="text-[10px] text-zinc-500">Quote preview · modal confirms</p>
-        </div>
+      <div className="flex items-center justify-between gap-2">
+        <p className="font-mono text-[11px] font-semibold tabular-nums text-zinc-200">
+          Mid {(midYes * 100).toFixed(1)}¢
+        </p>
         <ConnectionPill className="shrink-0" />
       </div>
 
       {!marketId ?
-        <div className="rounded-xl bg-amber-500/10 px-3 py-2 text-[12px] text-amber-100 ring-1 ring-amber-500/25">
+        <div className="rounded-md bg-amber-500/10 px-2.5 py-1.5 text-[11px] text-amber-100 ring-1 ring-amber-500/25">
           Trading is not wired for this listing yet. Browse other open markets or check back later.
         </div>
       : null}
 
       {disabledHint ?
-        <div className="rounded-xl bg-rose-500/10 px-3 py-2 text-[12px] text-rose-100 ring-1 ring-rose-500/25">
+        <div className="rounded-md bg-rose-500/10 px-2.5 py-1.5 text-[11px] text-rose-100 ring-1 ring-rose-500/25">
           {disabledHint}
         </div>
       : null}
@@ -246,9 +235,9 @@ function MarketTradingDeskInner({
         />
       </div>
 
-      <div className="space-y-1.5 rounded-lg bg-[hsl(228_28%_12%/0.55)] px-2.5 py-2.5 font-mono text-[10.5px] text-zinc-400 ring-1 ring-white/[0.06]">
+      <div className="space-y-1 rounded-md bg-[hsl(228_28%_12%/0.55)] px-2 py-1.5 font-mono text-[10px] text-zinc-400 ring-1 ring-white/[0.06]">
         <div className="flex justify-between gap-2">
-          <span className="shrink-0 text-zinc-500">Exec px</span>
+          <span className="shrink-0 text-zinc-500">Exec</span>
           <motion.span
             key={`${quote.dataUpdatedAt}-${quote.data?.execPrice ?? ""}`}
             initial={{ opacity: 0.55 }}
@@ -274,52 +263,37 @@ function MarketTradingDeskInner({
             {quote.isFetching ? "…" : formatNotionalLine(quote.data?.feeUsd)}
           </span>
         </div>
-        <div className="flex justify-between gap-2 border-t border-white/[0.07] pt-1">
-          <span className="text-zinc-500">After (YES)</span>
-          <span className="min-w-0 text-right tabular-nums text-zinc-200">
-            {quote.isFetching ? "…" : formatExecPxLine(quote.data?.impliedYesAfter)}
-          </span>
-        </div>
-        <div className="flex justify-between gap-2 border-t border-white/6 pt-1">
-          <span className="text-zinc-500">Est. max payout</span>
-          <span className="text-zinc-200">
-            {estMaxPayoutUsd != null ? formatCompactUsd(estMaxPayoutUsd) : "—"}
-          </span>
-        </div>
-        <div className="flex justify-between gap-2">
-          <span className="text-zinc-500">Est. P&amp;L if ITM</span>
-          <span
-            className={cn(
-              estProfitIfWin != null &&
-                estProfitIfWin > 0 &&
-                "text-emerald-300/95",
-              estProfitIfWin != null && estProfitIfWin < 0 && "text-rose-300/90",
-            )}
-          >
-            {estProfitIfWin != null && Number.isFinite(estProfitIfWin) ?
-              `${estProfitIfWin >= 0 ? "+" : ""}${formatCompactUsd(estProfitIfWin)}`
-            : "—"}
-          </span>
-        </div>
-      </div>
-
-      <div className="hidden gap-1.5 sm:grid sm:grid-cols-2 sm:gap-1.5">
-        {statCells.map((c, i) => (
-          <div
-            key={c.label}
-            className={cn(
-              "rounded-md bg-[hsl(228_28%_14%/0.45)] px-2 py-1.5 ring-1 ring-white/[0.06]",
-              i === statCells.length - 1 && statCells.length % 2 === 1 && "col-span-2",
-            )}
-          >
-            <p className="text-[8.5px] font-semibold uppercase tracking-wider text-zinc-600">
-              {c.label}
-            </p>
-            <p className="mt-0.5 font-mono text-[11px] font-medium tabular-nums text-zinc-200">
-              {c.value}
-            </p>
-          </div>
-        ))}
+        {!compact ? (
+          <>
+            <div className="flex justify-between gap-2 border-t border-white/[0.07] pt-1">
+              <span className="text-zinc-500">After (YES)</span>
+              <span className="min-w-0 text-right tabular-nums text-zinc-200">
+                {quote.isFetching ? "…" : formatExecPxLine(quote.data?.impliedYesAfter)}
+              </span>
+            </div>
+            <div className="flex justify-between gap-2 border-t border-white/6 pt-1">
+              <span className="text-zinc-500">Est. max payout</span>
+              <span className="text-zinc-200">
+                {estMaxPayoutUsd != null ? formatCompactUsd(estMaxPayoutUsd) : "—"}
+              </span>
+            </div>
+            <div className="flex justify-between gap-2">
+              <span className="text-zinc-500">Est. P&amp;L if ITM</span>
+              <span
+                className={cn(
+                  estProfitIfWin != null &&
+                    estProfitIfWin > 0 &&
+                    "text-emerald-300/95",
+                  estProfitIfWin != null && estProfitIfWin < 0 && "text-rose-300/90",
+                )}
+              >
+                {estProfitIfWin != null && Number.isFinite(estProfitIfWin) ?
+                  `${estProfitIfWin >= 0 ? "+" : ""}${formatCompactUsd(estProfitIfWin)}`
+                : "—"}
+              </span>
+            </div>
+          </>
+        ) : null}
       </div>
 
       <div className="flex items-center justify-between text-[10px] text-zinc-500">
@@ -355,9 +329,13 @@ function MarketTradingDeskInner({
           <ChevronRight className="h-4 w-4 opacity-80" />
         </button>
       )}
-      <p className="text-center text-[9px] leading-snug text-zinc-600">
-        {tradingSignedIn ? "Modal execution · Portfolio reflects fills" : "Connect wallet and sign in from Wallet to enable trading."}
-      </p>
+      {!compact ? (
+        <p className="text-center text-[9px] leading-snug text-zinc-600">
+          {tradingSignedIn ?
+            "Modal execution · Portfolio reflects fills"
+          : "Connect wallet and sign in from Wallet to enable trading."}
+        </p>
+      ) : null}
     </div>
   );
 }

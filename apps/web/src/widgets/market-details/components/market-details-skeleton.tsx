@@ -1,48 +1,47 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import { SkeletonLine } from "@/widgets/landing/components/landing-skeletons";
+import { marketDetailPanelClass } from "./market-detail-section";
 
 export function MarketDetailsSkeleton() {
   return (
-    <div className="min-h-screen px-3 py-4 text-zinc-100 sm:px-4 lg:py-5">
-      <div className="mx-auto max-w-[min(1600px,100%)]">
-        <div className="flex flex-wrap items-center gap-2 pb-3">
+    <div className="px-3 py-3 text-zinc-100 sm:px-4 lg:py-4">
+      <div className="mx-auto max-w-[min(1440px,100%)]">
+        <div className="flex flex-wrap items-center gap-2 pb-2.5">
           {Array.from({ length: 4 }).map((_, i) => (
             <SkeletonLine
               key={i}
-              className={`h-8 rounded-md ${i === 0 ? "w-24" : "w-[5.5rem]"}`}
+              className={`h-7 rounded-md ${i === 0 ? "w-20" : "w-14"}`}
               shimmer
             />
           ))}
           <div className="ml-auto flex gap-1.5">
-            <SkeletonLine className="h-8 w-20 rounded-md" shimmer />
-            <SkeletonLine className="h-8 w-8 rounded-md" shimmer />
-            <SkeletonLine className="h-8 w-8 rounded-md" shimmer />
+            <SkeletonLine className="h-7 w-16 rounded-md" shimmer />
+            <SkeletonLine className="h-7 w-7 rounded-md" shimmer />
           </div>
         </div>
 
-        <SkeletonLine className="h-8 w-[88%] max-w-3xl rounded-md" shimmer />
+        <SkeletonLine className="h-6 w-[90%] max-w-2xl rounded-md" shimmer />
 
-        <div className="mt-4 space-y-3 lg:min-w-0">
-          <SkeletonLine className="h-[384px] w-full rounded-lg" shimmer />
-          <SkeletonLine className="h-11 w-full rounded-lg" shimmer />
-          <div className="grid gap-2 lg:grid-cols-3">
-            <SkeletonLine className="h-[260px] rounded-lg" shimmer />
-            <SkeletonLine className="h-[260px] rounded-lg" shimmer />
-            <SkeletonLine
-              className="h-[min(420px,52vh)] rounded-lg lg:sticky lg:top-[calc(var(--app-topbar-h)+8px)]"
-              shimmer
-            />
+        <div className="mt-3 grid gap-3 lg:grid-cols-[minmax(0,1fr)_300px] lg:gap-4">
+          <div className="space-y-3">
+            <SkeletonLine className={cn(marketDetailPanelClass, "h-[168px] w-full")} shimmer />
+            <SkeletonLine className={cn(marketDetailPanelClass, "h-[200px] w-full")} shimmer />
+            <div className="grid gap-3 md:grid-cols-2">
+              <SkeletonLine className={cn(marketDetailPanelClass, "h-[200px] w-full")} shimmer />
+              <SkeletonLine className={cn(marketDetailPanelClass, "h-[200px] w-full")} shimmer />
+            </div>
+            <SkeletonLine className={cn(marketDetailPanelClass, "h-[220px] w-full")} shimmer />
+            <div className="grid gap-3 md:grid-cols-2">
+              <SkeletonLine className={cn(marketDetailPanelClass, "h-[180px] w-full")} shimmer />
+              <SkeletonLine className={cn(marketDetailPanelClass, "h-[180px] w-full")} shimmer />
+            </div>
           </div>
-          <div className="grid gap-2 lg:grid-cols-2">
-            <SkeletonLine className="h-[220px] rounded-lg" shimmer />
-            <SkeletonLine className="h-[220px] rounded-lg" shimmer />
-          </div>
-          <SkeletonLine className="h-[140px] rounded-lg" shimmer />
-          <div className="grid gap-2 lg:grid-cols-2">
-            <SkeletonLine className="h-[220px] rounded-lg" shimmer />
-            <SkeletonLine className="h-[220px] rounded-lg" shimmer />
-          </div>
+          <SkeletonLine
+            className={cn(marketDetailPanelClass, "hidden h-[320px] w-full lg:block")}
+            shimmer
+          />
         </div>
       </div>
     </div>

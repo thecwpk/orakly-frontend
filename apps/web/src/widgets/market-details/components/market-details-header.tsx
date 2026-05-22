@@ -48,33 +48,6 @@ function useNowTick(intervalMs = 30_000) {
   }, [intervalMs]);
 }
 
-function sentimentFromMid(midYes: number): {
-  label: string;
-  detail: string;
-  className: string;
-} {
-  const cents = Math.round(midYes * 100);
-  if (cents >= 58) {
-    return {
-      label: "YES-heavy",
-      detail: `${cents}¢ mid`,
-      className: "bg-cyan-500/12 text-cyan-200 ring-cyan-500/28",
-    };
-  }
-  if (cents <= 42) {
-    return {
-      label: "NO-heavy",
-      detail: `${cents}¢ mid`,
-      className: "bg-violet-500/12 text-violet-200 ring-violet-500/28",
-    };
-  }
-  return {
-    label: "Balanced",
-    detail: `${cents}¢ mid`,
-    className: "bg-white/[0.04] text-zinc-400 ring-white/[0.08]",
-  };
-}
-
 // ───────────────────────── share button
 
 function ShareButton({ slug }: { slug: string }) {
@@ -152,15 +125,9 @@ function MarketIdPill({ value }: { value: string | null }) {
 
 function MarketDetailsHeaderInner({
   market,
-  yesLabel,
-  noLabel,
-  midYes,
   tradeMarketId,
 }: {
   market: Market;
-  yesLabel: string;
-  noLabel: string;
-  midYes: number;
   tradeMarketId: string | null;
 }) {
   useNowTick();
@@ -170,10 +137,9 @@ function MarketDetailsHeaderInner({
     [market.closesAt],
   );
   const isOpen = market.status === "OPEN";
-  const sentiment = useMemo(() => sentimentFromMid(midYes), [midYes]);
 
   return (
-    <header className="space-y-2 border-b border-white/[0.06] pb-3">
+    <header className="space-y-1.5 border-b border-white/[0.06] pb-2.5">
       <div className="flex flex-wrap items-center gap-1.5 gap-y-2">
         <PrefetchLink
           href={ROUTES.discover}
@@ -224,25 +190,9 @@ function MarketDetailsHeaderInner({
           {expiry.isClosed ? "closed" : `${expiry.label} left`}
         </span>
 
-        <span
-          className={cn(
-            "inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-[10px] font-semibold ring-1",
-            sentiment.className,
-          )}
-          title="Volume-weighted lens approximation from mid price"
-        >
-          <span className="uppercase tracking-wide">{sentiment.label}</span>
-          <span className="font-mono text-[9.5px] opacity-90">{sentiment.detail}</span>
-        </span>
-
-        <span className="hidden items-center font-mono text-[10px] text-zinc-600 lg:inline-flex">
+        <span className="hidden items-center font-mono text-[10px] text-zinc-600 sm:inline-flex">
           Vol{" "}
           <span className="ml-1 text-zinc-400">{formatCompactUsd(market.volumeUsd ?? 0)}</span>
-          <span className="mx-1.5 text-zinc-700">·</span>
-          YES{" "}
-          <span className="ml-0.5 text-cyan-400/90">{yesLabel}</span>
-          <span className="mx-1 text-zinc-700">·</span>
-          NO <span className="ml-0.5 text-violet-400/90">{noLabel}</span>
         </span>
 
         <div className="ml-auto flex flex-shrink-0 items-center gap-1">
@@ -253,7 +203,7 @@ function MarketDetailsHeaderInner({
       </div>
 
       <div className="flex items-start gap-3">
-        <h1 className="min-w-0 flex-1 text-balance text-lg font-semibold leading-snug tracking-tight text-white sm:text-xl lg:text-[1.35rem]">
+        <h1 className="min-w-0 flex-1 text-balance text-base font-semibold leading-snug tracking-tight text-white sm:text-lg">
           {market.title}
         </h1>
       </div>

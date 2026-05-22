@@ -3,6 +3,8 @@
 import type { Market } from "@orakly/types";
 import { DenseMarketCard } from "@/widgets/landing/components/dense-market-card";
 import { memo, useMemo } from "react";
+import { marketDetailPanelClass } from "./market-detail-section";
+import { cn } from "@/lib/utils";
 
 function MarketRelatedInner({
   currentSlug,
@@ -23,11 +25,8 @@ function MarketRelatedInner({
   if (!related.length) return null;
 
   return (
-    <div className="glass-panel-strong min-w-0 overflow-x-hidden rounded-2xl border border-white/[0.06] ring-1 ring-white/[0.04]">
-      {/*
-        auto-fit + minmax: never squash cards into toothpick columns (was xl:grid-cols-3 in ~half-width pane).
-      */}
-      <div className="grid min-w-0 gap-3 p-3 sm:gap-4 sm:p-4 [grid-template-columns:repeat(auto-fit,minmax(min(100%,278px),1fr))] [&>a]:min-w-0">
+    <div className={cn(marketDetailPanelClass, "min-w-0 overflow-x-hidden p-2.5")}>
+      <div className="grid min-w-0 gap-2 [grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr))] [&>a]:min-w-0">
         {related.map((m, i) => (
           <DenseMarketCard
             key={m.slug}

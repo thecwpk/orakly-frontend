@@ -140,7 +140,7 @@ function MarketActivityFeedInner({
               "min-h-[260px] flex-1 lg:min-h-0",
               rows.length === 0 ? "flex flex-col overflow-hidden" : "overflow-y-auto",
             ),
-          !stretchList && cn("overflow-y-auto", isCompact ? "max-h-[240px]" : "max-h-[320px]"),
+          !stretchList && cn("overflow-y-auto", isCompact ? "max-h-[200px]" : "max-h-[220px]"),
         )}
       >
         {rows.length === 0 ?
@@ -154,9 +154,9 @@ function MarketActivityFeedInner({
           >
             {tradeMarketId ?
               filter === "whales" ?
-                "No whale prints in window."
-              : "Waiting for live prints…"
-            : "Subscribe to a market UUID to see filtered activity."}
+                "No large trades in the last hour — switch to All prints or check back when the market is active."
+              : "No trades yet this session. Odds and quotes still update; activity appears when someone trades."
+            : "Trading activity appears when this market is connected to the live venue."}
           </li>
         : rows.map((row, i) =>
             row.kind === "trade" ?

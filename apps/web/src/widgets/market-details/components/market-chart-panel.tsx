@@ -14,6 +14,8 @@ import {
   YAxis,
 } from "recharts";
 import { cn } from "@/lib/utils";
+import { SimulatedDataBadge } from "./simulated-data-badge";
+import { marketDetailPanelClass } from "./market-detail-section";
 import {
   buildImpliedHistory,
   buildVolumeHistory,
@@ -150,24 +152,12 @@ function MarketChartPanelInner({
   const canRenderChart = chartWidth >= 48;
 
   return (
-    <div
-      className={cn(
-        "overflow-hidden rounded-lg border border-white/[0.06] bg-[#07070d]/95 shadow-black/20 ring-1 ring-white/[0.05]",
-        isHero ? "shadow-md" : "shadow-sm shadow-black/15 ring-cyan-500/10",
-      )}
-    >
-      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/6 px-3 py-1.5 sm:py-2">
-        <div className="min-w-0">
-          <p className="text-[9px] font-semibold uppercase tracking-[0.14em] text-zinc-600">
-            Probability
-          </p>
-          <p
-            className={cn(
-              "font-semibold text-white",
-              isHero ? "text-[13px] sm:text-sm" : "text-[12.5px]",
-            )}
-          >
-            {tab === "implied" ? "YES implied — chart" : "Volume histogram"}
+    <div className={cn(marketDetailPanelClass, "overflow-hidden")}>
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/[0.06] px-2.5 py-1.5">
+        <div className="flex min-w-0 items-center gap-2">
+          <SimulatedDataBadge />
+          <p className="truncate text-[11px] text-zinc-400">
+            {tab === "implied" ? "Illustrative YES history" : "Illustrative volume"}
           </p>
         </div>
         <div className="flex rounded-md bg-black/35 p-0.5 ring-1 ring-white/10">

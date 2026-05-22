@@ -1,6 +1,8 @@
 "use client";
 
 import { memo, useCallback, useEffect, useState } from "react";
+import { cn } from "@/lib/utils";
+import { marketDetailPanelClass } from "./market-detail-section";
 
 type Comment = { id: string; body: string; at: number };
 
@@ -53,19 +55,17 @@ function MarketCommentsInner({ slug }: { slug: string }) {
 
   if (!mounted) {
     return (
-      <div className="glass-panel-strong h-[200px] animate-pulse rounded-2xl bg-white/2" aria-hidden />
+      <div className={cn(marketDetailPanelClass, "h-[160px] animate-pulse bg-white/2")} aria-hidden />
     );
   }
 
   return (
-    <div className="overflow-hidden rounded-lg border border-white/[0.06] bg-[#08080f]/90 ring-1 ring-white/[0.04]">
-      <div className="border-b border-white/6 px-3 py-2">
-        <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-zinc-600">
-          Comments
-        </p>
-        <p className="text-[12px] font-medium text-white">Session notes · local only</p>
+    <div className={cn(marketDetailPanelClass, "overflow-hidden")}>
+      <div className="border-b border-white/[0.06] px-2.5 py-2">
+        <p className="text-[12px] font-semibold text-zinc-200">Notes</p>
+        <p className="text-[10px] text-zinc-600">Saved in this browser session</p>
       </div>
-      <div className="space-y-2 p-3">
+      <div className="space-y-1.5 p-2.5">
         <textarea
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
@@ -81,7 +81,7 @@ function MarketCommentsInner({ slug }: { slug: string }) {
           Post
         </button>
       </div>
-      <ul className="max-h-[220px] divide-y divide-white/4 overflow-y-auto px-2 pb-2">
+      <ul className="max-h-[140px] divide-y divide-white/4 overflow-y-auto px-2 pb-2 scrollbar-terminal">
         {items.length === 0 ?
           <li className="px-2 py-6 text-center text-[12px] text-zinc-500">No comments yet.</li>
         : items.map((c) => (

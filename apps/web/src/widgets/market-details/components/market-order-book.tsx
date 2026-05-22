@@ -4,6 +4,8 @@ import { motion } from "framer-motion";
 import { ArrowDown, ArrowUp, Layers } from "lucide-react";
 import { memo, useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
+import { SimulatedDataBadge } from "./simulated-data-badge";
+import { marketDetailPanelClass } from "./market-detail-section";
 import {
   buildOrderBook,
   type OrderBookLevel,
@@ -123,6 +125,7 @@ function MarketOrderBookInner({
         side,
         midProb: midYes,
         liquidityUsd,
+        levels: 5,
       }),
     [slug, side, midYes, liquidityUsd],
   );
@@ -139,30 +142,27 @@ function MarketOrderBookInner({
   return (
     <div
       className={cn(
-        "glass-panel-strong neon-edge-cyan flex flex-col overflow-hidden rounded-2xl",
+        marketDetailPanelClass,
+        "flex max-h-[min(280px,42vh)] flex-col overflow-hidden",
         className,
       )}
     >
-      <div className="flex items-center justify-between gap-2 border-b border-white/[0.06] px-4 py-3">
-        <div>
-          <p className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-zinc-500">
-            <Layers className="h-3 w-3" />
-            Order book
-          </p>
-          <p className="text-sm font-medium text-white">
-            {side} contracts · L2
-          </p>
+      <div className="flex shrink-0 items-center justify-between gap-2 border-b border-white/[0.06] px-2.5 py-2">
+        <div className="flex min-w-0 items-center gap-1.5">
+          <Layers className="h-3 w-3 shrink-0 text-zinc-500" />
+          <span className="text-[11px] font-medium text-zinc-300">{side} book</span>
+          <SimulatedDataBadge />
         </div>
         <SideToggle side={side} onChange={setSide} />
       </div>
 
-      {/* column header */}
-      <div className="grid items-center gap-2 border-b border-white/[0.04] px-3 py-1.5 font-mono text-[9.5px] uppercase tracking-[0.18em] text-zinc-600 [grid-template-columns:minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)]">
+      <div className="grid shrink-0 items-center gap-2 border-b border-white/[0.04] px-2.5 py-1 font-mono text-[9px] uppercase tracking-[0.14em] text-zinc-600 [grid-template-columns:minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)]">
         <span>Price</span>
         <span className="text-right">Size</span>
         <span className="text-right">Sum</span>
       </div>
 
+      <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain scrollbar-terminal">
       {/* asks (descending) */}
       <ul className="flex flex-col-reverse">
         {asksDesc.map((lvl) => (
@@ -215,13 +215,13 @@ function MarketOrderBookInner({
           />
         ))}
       </ul>
+      </div>
 
-      <div className="flex items-center justify-between border-t border-white/[0.06] px-3 py-2 font-mono text-[10px] text-zinc-600">
+      <div className="flex shrink-0 items-center justify-between border-t border-white/[0.06] px-2.5 py-1.5 font-mono text-[9px] text-zinc-600">
         <span>
-          Depth{" "}
-          <span className="text-zinc-400">{formatSize(book.totalDepth)}</span>
+          Depth <span className="text-zinc-400">{formatSize(book.totalDepth)}</span>
         </span>
-        <span className="hidden sm:inline">Synthetic — pre-orderbook backend</span>
+        <span>mid {book.midCents}¢</span>
       </div>
     </div>
   );

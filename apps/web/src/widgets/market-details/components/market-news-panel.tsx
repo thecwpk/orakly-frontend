@@ -5,14 +5,19 @@ import { ExternalLink, Loader2 } from "lucide-react";
 import { useMemo } from "react";
 import { useDiscoveryNewsQuery } from "@/shared/api/hooks/use-discovery-news-query";
 import { cn } from "@/lib/utils";
+import { marketDetailPanelClass } from "./market-detail-section";
 
 export function buildMarketNewsQuery(market: Market): string {
   const t = market.title.replace(/["'`]/g, " ").trim();
   const words = t.split(/\s+/).filter(Boolean).slice(0, 10).join(" ");
-  const cat = (market.category ?? "").trim();
-  const q = cat
-    ? `(${cat}) prediction market ${words}`
-    : `${words} cryptocurrency prediction market`;
+  const cat = (market.category ?? "").trim().toLowerCase();
+  const cryptoish = ["crypto", "defi", "meme"].some((k) => cat.includes(k));
+  const q =
+    cat && !cryptoish
+      ? `${words} ${cat} markets news`
+      : cat
+        ? `(${cat}) ${words}`
+        : `${words} financial markets news`;
   return q.slice(0, 260);
 }
 
@@ -22,16 +27,10 @@ export function MarketNewsPanel({ market, className }: { market: Market; classNa
 
   return (
     <section
-      className={cn(
-        "rounded-xl border border-white/[0.08] bg-[#07070d]/90 p-4 ring-1 ring-white/[0.05] backdrop-blur-sm",
-        className,
-      )}
+      className={cn(marketDetailPanelClass, "p-3", className)}
       aria-label="Related headlines"
     >
-      <h2 className="text-sm font-semibold tracking-tight text-zinc-100">Related wire</h2>
-      <p className="mt-1 text-[11px] leading-snug text-zinc-500">
-        Headlines matched to this market. Links open the publisher.
-      </p>
+      <h2 className="text-[12px] font-semibold text-zinc-200">Wire</h2>
 
       {isLoading ? (
         <div className="mt-4 flex items-center gap-2 text-zinc-500">
@@ -43,8 +42,8 @@ export function MarketNewsPanel({ market, className }: { market: Market; classNa
         <p className="mt-3 text-xs text-rose-400">Headlines unavailable right now.</p>
       ) : null}
       {!isLoading && !isError && newsPayload?.articles?.length ? (
-        <ul className="mt-4 space-y-3">
-          {newsPayload.articles.slice(0, 10).map((a) => (
+        <ul className="mt-2 max-h-[200px] space-y-2 overflow-y-auto overscroll-contain scrollbar-terminal">
+          {newsPayload.articles.slice(0, 6).map((a) => (
             <li key={a.url} className="border-b border-white/[0.06] pb-3 last:border-b-0 last:pb-0">
               <a
                 href={a.url}
