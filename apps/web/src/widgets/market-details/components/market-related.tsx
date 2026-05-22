@@ -25,8 +25,8 @@ function MarketRelatedInner({
   if (!related.length) return null;
 
   return (
-    <div className={cn(marketDetailPanelClass, "min-w-0 overflow-x-hidden p-2.5")}>
-      <div className="grid min-w-0 gap-2 [grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr))] [&>a]:min-w-0">
+    <div className={cn(marketDetailPanelClass, "w-full min-w-0 overflow-x-hidden p-2.5 sm:p-3")}>
+      <div className="flex w-full min-w-0 flex-col gap-2.5 [&>a]:min-w-0 [&>a]:w-full">
         {related.map((m, i) => (
           <DenseMarketCard
             key={m.slug}

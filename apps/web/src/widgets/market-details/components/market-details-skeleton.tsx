@@ -4,6 +4,15 @@ import { cn } from "@/lib/utils";
 import { SkeletonLine } from "@/widgets/landing/components/landing-skeletons";
 import { marketDetailPanelClass } from "./market-detail-section";
 
+function SplitSkeleton() {
+  return (
+    <div className="grid gap-3 md:grid-cols-2 md:gap-4">
+      <SkeletonLine className={cn(marketDetailPanelClass, "h-[280px] w-full")} shimmer />
+      <SkeletonLine className={cn(marketDetailPanelClass, "h-[280px] w-full")} shimmer />
+    </div>
+  );
+}
+
 export function MarketDetailsSkeleton() {
   return (
     <div className="px-3 py-3 text-zinc-100 sm:px-4 lg:py-4">
@@ -23,25 +32,14 @@ export function MarketDetailsSkeleton() {
         </div>
 
         <SkeletonLine className="h-6 w-[90%] max-w-2xl rounded-md" shimmer />
+        <SkeletonLine className={cn(marketDetailPanelClass, "mt-3 h-[168px] w-full")} shimmer />
 
-        <div className="mt-3 grid gap-3 lg:grid-cols-[minmax(0,1fr)_300px] lg:gap-4">
-          <div className="space-y-3">
-            <SkeletonLine className={cn(marketDetailPanelClass, "h-[168px] w-full")} shimmer />
-            <SkeletonLine className={cn(marketDetailPanelClass, "h-[200px] w-full")} shimmer />
-            <div className="grid gap-3 md:grid-cols-2">
-              <SkeletonLine className={cn(marketDetailPanelClass, "h-[200px] w-full")} shimmer />
-              <SkeletonLine className={cn(marketDetailPanelClass, "h-[200px] w-full")} shimmer />
-            </div>
-            <SkeletonLine className={cn(marketDetailPanelClass, "h-[220px] w-full")} shimmer />
-            <div className="grid gap-3 md:grid-cols-2">
-              <SkeletonLine className={cn(marketDetailPanelClass, "h-[180px] w-full")} shimmer />
-              <SkeletonLine className={cn(marketDetailPanelClass, "h-[180px] w-full")} shimmer />
-            </div>
-          </div>
-          <SkeletonLine
-            className={cn(marketDetailPanelClass, "hidden h-[320px] w-full lg:block")}
-            shimmer
-          />
+        <div className="mt-3 space-y-4 lg:mt-4 lg:space-y-5">
+          <SplitSkeleton />
+          <SplitSkeleton />
+          <SkeletonLine className={cn(marketDetailPanelClass, "h-[220px] w-full")} shimmer />
+          <SplitSkeleton />
+          <SplitSkeleton />
         </div>
       </div>
     </div>

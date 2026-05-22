@@ -24,7 +24,7 @@ function save(slug: string, rows: Comment[]) {
   sessionStorage.setItem(storageKey(slug), JSON.stringify(rows));
 }
 
-function MarketCommentsInner({ slug }: { slug: string }) {
+function MarketCommentsInner({ slug, className }: { slug: string; className?: string }) {
   const [items, setItems] = useState<Comment[]>([]);
   const [draft, setDraft] = useState("");
   const [mounted, setMounted] = useState(false);
@@ -55,15 +55,20 @@ function MarketCommentsInner({ slug }: { slug: string }) {
 
   if (!mounted) {
     return (
-      <div className={cn(marketDetailPanelClass, "h-[160px] animate-pulse bg-white/2")} aria-hidden />
+      <div
+        className={cn(marketDetailPanelClass, "h-[160px] animate-pulse bg-white/2", className)}
+        aria-hidden
+      />
     );
   }
 
   return (
-    <div className={cn(marketDetailPanelClass, "overflow-hidden")}>
-      <div className="border-b border-white/[0.06] px-2.5 py-2">
-        <p className="text-[12px] font-semibold text-zinc-200">Notes</p>
-        <p className="text-[10px] text-zinc-600">Saved in this browser session</p>
+    <div className={cn(marketDetailPanelClass, "flex min-h-0 flex-col overflow-hidden", className)}>
+      <div className="shrink-0 border-b border-white/[0.06] px-3 py-2.5">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-zinc-600">
+          Comments
+        </p>
+        <p className="text-sm font-semibold text-zinc-100">Session notes · local only</p>
       </div>
       <div className="space-y-1.5 p-2.5">
         <textarea
@@ -81,7 +86,7 @@ function MarketCommentsInner({ slug }: { slug: string }) {
           Post
         </button>
       </div>
-      <ul className="max-h-[140px] divide-y divide-white/4 overflow-y-auto px-2 pb-2 scrollbar-terminal">
+      <ul className="min-h-0 flex-1 divide-y divide-white/4 overflow-y-auto px-2 pb-2 scrollbar-terminal">
         {items.length === 0 ?
           <li className="px-2 py-6 text-center text-[12px] text-zinc-500">No comments yet.</li>
         : items.map((c) => (

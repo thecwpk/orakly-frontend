@@ -12,12 +12,13 @@ import {
 import { useAuthStore } from "@/state/stores/auth.store";
 import { useMarketRealtime } from "@/websocket/hooks/useMarketRealtime";
 import { useMarketRoom } from "@/websocket/socket-registry";
-import { MarketActivitySection } from "./components/market-activity-section";
+import { MarketActivityFeed } from "./components/market-activity-feed";
 import { MarketChartPanel } from "./components/market-chart-panel";
 import { MarketComments } from "./components/market-comments";
 import { MarketDetailsHeader } from "./components/market-details-header";
 import { MarketDetailsSkeleton } from "./components/market-details-skeleton";
 import { MarketDetailSection } from "./components/market-detail-section";
+import { MarketDetailSplitRow } from "./components/market-detail-split-row";
 import { MarketNewsPanel } from "./components/market-news-panel";
 import { MarketNotFound } from "./components/market-not-found";
 import { MarketOrderBook } from "./components/market-order-book";
@@ -72,7 +73,6 @@ function TradeDeskBlock({
       disabledHint={disabledHint}
       tradeModalMarket={tradeModalMarket}
       initialOutcome={initialOutcome}
-      market={market}
       odds={odds}
       rt={rt}
       midYes={midYes}
@@ -158,77 +158,111 @@ function MarketDetailsLoaded({ market }: { market: Market }) {
       <div className="mx-auto w-full max-w-[min(1440px,100%)] px-3 sm:px-4 lg:px-5">
         <MarketDetailsHeader market={market} tradeMarketId={tradeMarketId} />
 
-        <div className="mt-3 grid items-start gap-3 lg:mt-4 lg:grid-cols-[minmax(0,1fr)_300px] lg:gap-4 xl:grid-cols-[minmax(0,1fr)_320px]">
-          <div className="flex min-w-0 flex-col gap-3">
-            <MarketOverviewPanel
-              market={market}
-              midYes={midYes}
-              midNo={noMid}
-              yesLabel={yesLabel}
-              noLabel={noLabel}
-              odds={odds}
-              rt={rt}
-            />
+        <div className="mt-3">
+          <MarketOverviewPanel
+            market={market}
+            midYes={midYes}
+            midNo={noMid}
+            yesLabel={yesLabel}
+            noLabel={noLabel}
+            odds={odds}
+            rt={rt}
+          />
+        </div>
 
-            <div id="market-trade-panel" className="lg:hidden">
-              <MarketDetailSection title="Trade" hint="Quote preview · confirm in modal">
-                <TradeDeskBlock deskKey="desk-mobile-inline" {...deskProps} />
+        <div className="mt-3 flex flex-col gap-4 lg:mt-4 lg:gap-5">
+          {/* §1 — chart left · trade desk right */}
+          <MarketDetailSplitRow
+            left={
+              <MarketDetailSection
+                title="Price"
+                hint="YES implied probability"
+                bodyClassName="min-h-0 flex-1"
+                className="h-full"
+              >
+                <MarketChartPanel
+                  slug={market.slug}
+                  volumeUsd={market.volumeUsd}
+                  midYes={midYes}
+                  odds={odds}
+                  rt={rt}
+                  chartHeight={220}
+                />
               </MarketDetailSection>
-            </div>
+            }
+            right={
+              <div id="market-trade-panel" className="h-full">
+                <MarketDetailSection
+                  title="Trade"
+                  hint="Quote preview · modal confirms"
+                  className="h-full"
+                  bodyClassName="h-full"
+                >
+                  <TradeDeskBlock deskKey="desk-main" {...deskProps} />
+                </MarketDetailSection>
+              </div>
+            }
+          />
 
-            <MarketDetailSection
-              title="Price"
-              hint="YES implied probability"
-              bodyClassName="min-w-0"
-            >
-              <MarketChartPanel
+          {/* §2 — 24h volume left · order book right */}
+          <MarketDetailSplitRow
+            left={
+              <MarketVolumeChart slug={market.slug} rt={rt} className="h-full min-h-[280px]" />
+            }
+            right={
+              <MarketOrderBook
                 slug={market.slug}
-                volumeUsd={market.volumeUsd}
                 midYes={midYes}
-                odds={odds}
-                rt={rt}
-                chartHeight={200}
+                liquidityUsd={market.liquidityUsd}
+                className="h-full min-h-[280px]"
+              />
+            }
+          />
+
+          {/* §3 — related markets full width */}
+          {hasRelatedMarkets ? (
+            <MarketDetailSection title="Related markets" hint="Same category · open pools">
+              <MarketRelated
+                currentSlug={market.slug}
+                category={market.category}
+                markets={markets}
               />
             </MarketDetailSection>
+          ) : null}
 
-            <MarketDetailSection title="Depth" hint="24h volume · order book preview">
-              <div className="grid min-w-0 gap-3 md:grid-cols-2">
-                <MarketVolumeChart slug={market.slug} rt={rt} className="min-w-0" />
-                <MarketOrderBook
-                  slug={market.slug}
-                  midYes={midYes}
-                  liquidityUsd={market.liquidityUsd}
-                />
-              </div>
-            </MarketDetailSection>
+          {/* §4 — trades left · news wire right */}
+          <MarketDetailSplitRow
+            className="lg:min-h-[300px]"
+            left={
+              <MarketActivityFeed
+                tradeMarketId={tradeMarketId}
+                rt={rt}
+                filter="trades-only"
+                maxRows={28}
+                fillColumn
+                heading={{ title: "Activity", subtitle: "Trades & feed" }}
+                className="h-full min-h-[280px]"
+              />
+            }
+            right={<MarketNewsPanel market={market} className="h-full min-h-[280px]" />}
+          />
 
-            <MarketActivitySection tradeMarketId={tradeMarketId} rt={rt} />
-
-            <MarketDetailSection title="Context">
-              <div className="grid gap-3 md:grid-cols-2">
-                <MarketNewsPanel market={market} />
-                <MarketComments slug={market.slug} />
-              </div>
-            </MarketDetailSection>
-
-            {hasRelatedMarkets ? (
-              <MarketDetailSection title="Related markets">
-                <MarketRelated
-                  currentSlug={market.slug}
-                  category={market.category}
-                  markets={markets}
-                />
-              </MarketDetailSection>
-            ) : null}
-          </div>
-
-          <aside className="hidden min-w-0 lg:block">
-            <div className="sticky top-[calc(var(--app-topbar-h)+6px)]">
-              <MarketDetailSection title="Trade" hint="Sticky while you scroll">
-                <TradeDeskBlock deskKey="desk-desktop" {...deskProps} />
-              </MarketDetailSection>
-            </div>
-          </aside>
+          {/* §5 — comments left · whale prints right */}
+          <MarketDetailSplitRow
+            className="lg:min-h-[260px]"
+            left={<MarketComments slug={market.slug} className="h-full min-h-[240px]" />}
+            right={
+              <MarketActivityFeed
+                tradeMarketId={tradeMarketId}
+                rt={rt}
+                filter="whales"
+                maxRows={24}
+                fillColumn
+                heading={{ title: "Large prints", subtitle: "Whale-sized fills" }}
+                className="h-full min-h-[240px]"
+              />
+            }
+          />
         </div>
       </div>
     </main>

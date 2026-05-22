@@ -154,8 +154,10 @@ function MarketActivityFeedInner({
           >
             {tradeMarketId ?
               filter === "whales" ?
-                "No large trades in the last hour — switch to All prints or check back when the market is active."
-              : "No trades yet this session. Odds and quotes still update; activity appears when someone trades."
+                "No whale prints in window."
+              : filter === "trades-only" ?
+                "Waiting for live prints…"
+              : "Waiting for live prints…"
             : "Trading activity appears when this market is connected to the live venue."}
           </li>
         : rows.map((row, i) =>

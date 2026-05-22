@@ -143,7 +143,7 @@ function MarketOrderBookInner({
     <div
       className={cn(
         marketDetailPanelClass,
-        "flex max-h-[min(280px,42vh)] flex-col overflow-hidden",
+        "flex min-h-[240px] flex-col overflow-hidden md:min-h-[280px]",
         className,
       )}
     >

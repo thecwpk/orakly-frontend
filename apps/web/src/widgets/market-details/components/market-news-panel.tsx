@@ -27,10 +27,16 @@ export function MarketNewsPanel({ market, className }: { market: Market; classNa
 
   return (
     <section
-      className={cn(marketDetailPanelClass, "p-3", className)}
+      className={cn(marketDetailPanelClass, "flex min-h-0 flex-col p-3 sm:p-3.5", className)}
       aria-label="Related headlines"
     >
-      <h2 className="text-[12px] font-semibold text-zinc-200">Wire</h2>
+      <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-zinc-600">
+        Context
+      </p>
+      <h2 className="text-sm font-semibold text-zinc-100">Related wire</h2>
+      <p className="mt-0.5 text-[11px] text-zinc-600">
+        Headlines matched to this market. Links open the publisher.
+      </p>
 
       {isLoading ? (
         <div className="mt-4 flex items-center gap-2 text-zinc-500">
@@ -42,7 +48,7 @@ export function MarketNewsPanel({ market, className }: { market: Market; classNa
         <p className="mt-3 text-xs text-rose-400">Headlines unavailable right now.</p>
       ) : null}
       {!isLoading && !isError && newsPayload?.articles?.length ? (
-        <ul className="mt-2 max-h-[200px] space-y-2 overflow-y-auto overscroll-contain scrollbar-terminal">
+        <ul className="mt-3 min-h-0 flex-1 space-y-2 overflow-y-auto overscroll-contain scrollbar-terminal max-h-none lg:max-h-[min(320px,50vh)]">
           {newsPayload.articles.slice(0, 6).map((a) => (
             <li key={a.url} className="border-b border-white/[0.06] pb-3 last:border-b-0 last:pb-0">
               <a
