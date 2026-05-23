@@ -1,8 +1,7 @@
-import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
-import { ROUTES } from "@/shared/constants/routes";
 import { cn } from "@/lib/utils";
+import { ComingSoonButton } from "@/widgets/landing/components/coming-soon-button";
 import { WaitlistForm } from "@/widgets/landing/sections/waitlist-form";
 import {
   landingEyebrow,
@@ -13,12 +12,8 @@ import {
 } from "@/widgets/landing/sections/marketing-landing-rail";
 import { LandingReveal } from "@/widgets/landing/sections/marketing-landing-layout";
 
-const NEW_TAB = { target: "_blank" as const, rel: "noopener noreferrer" as const };
-
 /**
  * Single closing surface — merges v1 `early-access` + `final-cta` sections.
- * Visitor sees the real form first, with the secondary "Launch app" link
- * for those ready to skip the queue.
  */
 export function WaitlistFinalCta() {
   return (
@@ -49,14 +44,10 @@ export function WaitlistFinalCta() {
 
         <div className="mx-auto mt-6 flex flex-wrap items-center justify-center gap-x-3 gap-y-2 text-sm text-muted-foreground">
           <span>Already in?</span>
-          <Link
-            href={ROUTES.dapp}
-            className="inline-flex items-center gap-1.5 font-semibold text-foreground hover:text-yes focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yes/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-            {...NEW_TAB}
-          >
+          <ComingSoonButton className="inline-flex items-center gap-1.5 font-semibold text-foreground hover:text-yes focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yes/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background">
             Launch app
             <ArrowRight className="size-4" aria-hidden />
-          </Link>
+          </ComingSoonButton>
         </div>
       </LandingReveal>
     </section>

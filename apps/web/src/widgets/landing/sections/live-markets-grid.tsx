@@ -1,9 +1,8 @@
 import type { Market } from "@orakly/types";
-import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
+import { ComingSoonButton } from "@/widgets/landing/components/coming-soon-button";
 import { DenseMarketCard } from "@/widgets/landing/components/dense-market-card";
-import { ROUTES } from "@/shared/constants/routes";
 import { cn } from "@/lib/utils";
 import {
   landingEyebrow,
@@ -13,8 +12,6 @@ import {
   landingSectionBand,
 } from "@/widgets/landing/sections/marketing-landing-rail";
 import { LandingReveal } from "@/widgets/landing/sections/marketing-landing-layout";
-
-const NEW_TAB = { target: "_blank" as const, rel: "noopener noreferrer" as const };
 
 /**
  * Curated 6-market preview baked at build time. The data is a static
@@ -120,26 +117,16 @@ export function LiveMarketsGrid() {
               A slice of what trades right now on Orakly. Prices reflect live order flow.
             </p>
           </div>
-          <Link
-            href={ROUTES.discover}
-            className="inline-flex w-fit shrink-0 items-center gap-1.5 rounded-md border border-white/[0.08] bg-background/40 px-3.5 py-2 text-sm font-medium text-foreground transition hover:border-yes/35 hover:bg-yes/[0.06] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yes/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-            {...NEW_TAB}
-          >
+          <ComingSoonButton className="inline-flex w-fit shrink-0 items-center gap-1.5 rounded-md border border-white/[0.08] bg-background/40 px-3.5 py-2 text-sm font-medium text-foreground transition hover:border-yes/35 hover:bg-yes/[0.06] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yes/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background">
             View all markets
             <ArrowRight className="size-4" aria-hidden />
-          </Link>
+          </ComingSoonButton>
         </div>
 
         <ul className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {SHOWCASE_MARKETS.map((m, i) => (
             <li key={m.id} className="contents">
-              <DenseMarketCard
-                market={m}
-                accent={ACCENTS[i % ACCENTS.length]}
-                index={i}
-                href={ROUTES.market(m.slug)}
-                openInNewTab
-              />
+              <DenseMarketCard market={m} accent={ACCENTS[i % ACCENTS.length]} index={i} />
             </li>
           ))}
         </ul>

@@ -106,12 +106,11 @@ export function BrandWordmarkLink({
 function BrandTitle({ nav }: { nav: boolean }) {
   if (nav) {
     return (
-      <span className="flex min-w-0 flex-col justify-center leading-[1.15]">
+      <span className="flex min-w-0 flex-col justify-center leading-[1.12]">
         <span className="font-display text-[1.05rem] font-bold tracking-[-0.03em] text-white sm:text-lg">
-          Orakly
-          <span className="font-semibold text-sky-200/90"> Market</span>
+          Orakly Market
         </span>
-        <span className="mt-0.5 hidden font-mono text-[9px] font-medium uppercase tracking-[0.22em] text-sky-400/55 sm:block">
+        <span className="mt-1 hidden font-mono text-[10px] font-semibold uppercase tracking-[0.2em] text-white/75 sm:block sm:text-[11px]">
           On-chain predictions
         </span>
       </span>
@@ -135,8 +134,8 @@ function BrandTitle({ nav }: { nav: boolean }) {
 function BrandTitleFallback({ nav }: { nav: boolean }) {
   if (nav) {
     return (
-      <span className="font-display text-base font-bold tracking-tight text-foreground sm:text-lg">
-        Orakly <span className="text-sky-300/90">Market</span>
+      <span className="font-display text-base font-bold tracking-tight text-white sm:text-lg">
+        Orakly Market
       </span>
     );
   }

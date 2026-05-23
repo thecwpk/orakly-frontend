@@ -6,14 +6,13 @@
 export const heroProofStats = [
   { label: "Markets", value: "Live" },
   { label: "Liquidity", value: "Deep" },
-  { label: "Themes", value: "Broad" },
   { label: "Settlement", value: "On-chain" },
 ] as const;
 
 export const whyOraklyCells = [
   {
     title: "Live odds, on-chain",
-    body: "YES and NO prices update with order flow and settle on-chain. No batch marks.",
+    body: "Live odds update with order flow and settle on-chain. No batch marks.",
   },
   {
     title: "Rules before size",
@@ -40,7 +39,7 @@ export const whyOraklyFeatures = [
   },
   {
     title: "Probability discovery",
-    detail: "YES / NO prices read as live implied probability while markets are open.",
+    detail: "Prices read as live implied probability while markets are open.",
   },
   {
     title: "Transparent participation",
@@ -71,7 +70,7 @@ export const tradeBandMetrics = [
   {
     label: "Probability visibility",
     headline: "Read the tape fast",
-    fact: "YES / NO prices summarize crowd conviction at a glance.",
+    fact: "Live prices summarize crowd conviction at a glance.",
   },
   {
     label: "Execution path",
@@ -104,13 +103,13 @@ export const howSteps = [
   {
     n: 1,
     title: "Discover",
-    body: "Browse live YES/NO markets across crypto, macro, sports, tech, and more.",
+    body: "Browse live markets across crypto, macro, sports, tech, and more.",
     tag: "Browse",
   },
   {
     n: 2,
     title: "Trade",
-    body: "Buy YES or NO with stablecoin collateral. Reposition or exit while the market is open.",
+    body: "Take a side with stablecoin collateral. Reposition or exit while the market is open.",
     tag: "Sides",
   },
   {
@@ -205,7 +204,7 @@ export const faqItems = [
 /** @deprecated — kept for imports that still reference vision copy. */
 export const visionPoints = whyOraklyCells.map((c) => ({ title: c.title, body: c.body }));
 export const visionSpecStrip = [
-  { k: "Trade format", v: "YES / NO shares" },
+  { k: "Trade format", v: "Binary shares" },
   { k: "Pricing", v: "Continuous, flow-driven" },
   { k: "Settlement", v: "On-chain, verifiable" },
 ] as const;

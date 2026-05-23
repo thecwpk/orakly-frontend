@@ -5,10 +5,10 @@ import { LandingPage } from "@/widgets/landing/landing-page";
 
 export const metadata: Metadata = {
   title: {
-    absolute: "Orakly Market — YES/NO prediction markets, on-chain",
+    absolute: "Orakly Market — on-chain prediction markets",
   },
   description:
-    "Trade live YES/NO odds on crypto, macro, sports, and tech. Transparent rules, stablecoin rails, and verifiable on-chain settlement. Subscribe for product updates.",
+    "Trade live odds on crypto, macro, sports, and tech. Transparent rules, stablecoin rails, and verifiable on-chain settlement. Subscribe for product updates.",
   alternates: { canonical: "/" },
 };
 

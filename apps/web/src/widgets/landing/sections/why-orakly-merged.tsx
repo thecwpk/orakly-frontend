@@ -50,7 +50,7 @@ export function WhyOraklyMerged() {
           Built for <span className="text-violet-200/95">crypto-native questions</span> — not generic catalogs
         </h2>
         <p className={landingLead}>
-          Same YES / NO mechanics you already understand — listings, flow, and settlement tuned for traders who move fast.
+          Binary markets you already understand — listings, flow, and settlement tuned for traders who move fast.
         </p>
 
         <div className="mt-8 grid min-h-[320px] overflow-hidden rounded-2xl ring-1 ring-violet-500/15 md:min-h-[380px] md:grid-cols-2">

@@ -1,4 +1,3 @@
-import { FaqSection } from "@/widgets/landing/sections/faq-section";
 import { HowItWorksAnimated } from "@/widgets/landing/sections/how-it-works-animated";
 import { LiveMarketsGrid } from "@/widgets/landing/sections/live-markets-grid";
 import { MarketingLandingFooter } from "@/widgets/landing/sections/marketing-landing-footer";
@@ -15,7 +14,6 @@ export function MarketingLandingSections() {
       <WhyOraklyMerged />
       <TrustStrip />
       <RoadmapTimeline />
-      <FaqSection />
       <WaitlistFinalCta />
       <MarketingLandingFooter />
     </>

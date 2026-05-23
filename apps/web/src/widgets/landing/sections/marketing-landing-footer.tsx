@@ -1,11 +1,11 @@
 "use client";
 
-import Link from "next/link";
 import { Layers } from "lucide-react";
 
-import { ROUTES } from "@/shared/constants/routes";
 import { BrandWordmarkLink } from "@/shared/ui";
 import { cn } from "@/lib/utils";
+import { ComingSoonButton } from "@/widgets/landing/components/coming-soon-button";
+import { LANDING_EXTERNAL_LINKS } from "@/widgets/landing/lib/landing-external-links";
 import {
   landingBandInner,
   landingEyebrow,
@@ -13,18 +13,16 @@ import {
 } from "@/widgets/landing/sections/marketing-landing-rail";
 
 const PRODUCT_LINKS = [
-  { label: "Markets", href: ROUTES.discover, external: false },
-  { label: "Launch app", href: ROUTES.dapp, external: false },
-  { label: "How it works", href: "#how-it-works", external: true },
-  { label: "Roadmap", href: "#roadmap", external: true },
-  { label: "FAQ", href: "#faq", external: true },
+  { label: "Markets", comingSoon: true },
+  { label: "Launch app", comingSoon: true },
+  { label: "How it works", href: "#how-it-works" },
+  { label: "Roadmap", href: "#roadmap" },
 ] as const;
 
 const COMMUNITY_LINKS = [
-  { label: "X / Twitter", href: "#" },
-  { label: "Telegram", href: "#" },
-  { label: "Discord", href: "#" },
-  { label: "Email updates", href: "#early-access" },
+  { label: "X / Twitter", href: LANDING_EXTERNAL_LINKS.twitter, external: true },
+  { label: "Dextool", href: LANDING_EXTERNAL_LINKS.dextools, external: true },
+  { label: "Email updates", href: "#early-access", external: false },
 ] as const;
 
 const SITEMAP_LINKS = [
@@ -33,13 +31,17 @@ const SITEMAP_LINKS = [
   { label: "Why Orakly", href: "#why" },
   { label: "Trust", href: "#trust" },
   { label: "Roadmap", href: "#roadmap" },
-  { label: "FAQ", href: "#faq" },
 ] as const;
 
 const NEW_TAB = { target: "_blank" as const, rel: "noopener noreferrer" as const };
 
 const footerLinkClass =
   "marketing-footer-link text-sm text-slate-300/90 transition-colors duration-200 hover:text-sky-200";
+
+function scrollToHash(hash: string) {
+  const id = hash.replace(/^#/, "");
+  document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+}
 
 /**
  * Exchange-style footer — blue-slate canvas, nav lockup, dense link columns.
@@ -66,7 +68,7 @@ export function MarketingLandingFooter() {
       <div className={cn(landingBandInner, "relative")}>
         <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-12 lg:gap-8">
           <div className="sm:col-span-2 lg:col-span-5">
-            <BrandWordmarkLink href={ROUTES.home} showTitle variant="nav" className="shrink-0" openInNewTab />
+            <BrandWordmarkLink href="#markets" showTitle variant="nav" className="shrink-0" />
             <p className="mt-4 max-w-sm text-sm leading-relaxed text-slate-400">
               On-chain prediction markets across crypto, macro, sports, and tech. Transparent rules, stablecoin rails,
               settlement you can verify.
@@ -86,14 +88,22 @@ export function MarketingLandingFooter() {
             <p className={cn(landingEyebrow, "text-sky-400/50")}>Product</p>
             <nav className="mt-4 flex flex-col gap-2" aria-label="Footer product">
               {PRODUCT_LINKS.map((item) =>
-                item.external ? (
-                  <a key={item.label} href={item.href} className={footerLinkClass} {...NEW_TAB}>
+                "comingSoon" in item ? (
+                  <ComingSoonButton key={item.label} className={cn(footerLinkClass, "text-left")}>
+                    {item.label}
+                  </ComingSoonButton>
+                ) : (
+                  <a
+                    key={item.label}
+                    href={item.href}
+                    className={footerLinkClass}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      scrollToHash(item.href);
+                    }}
+                  >
                     {item.label}
                   </a>
-                ) : (
-                  <Link key={item.label} href={item.href} className={footerLinkClass} {...NEW_TAB}>
-                    {item.label}
-                  </Link>
                 ),
               )}
             </nav>
@@ -102,11 +112,25 @@ export function MarketingLandingFooter() {
           <div className="lg:col-span-4">
             <p className={cn(landingEyebrow, "text-violet-300/45")}>Community</p>
             <nav className="mt-4 flex flex-col gap-2" aria-label="Footer social">
-              {COMMUNITY_LINKS.map((item) => (
-                <a key={item.label} href={item.href} className={footerLinkClass} {...NEW_TAB}>
-                  {item.label}
-                </a>
-              ))}
+              {COMMUNITY_LINKS.map((item) =>
+                item.external ? (
+                  <a key={item.label} href={item.href} className={footerLinkClass} {...NEW_TAB}>
+                    {item.label}
+                  </a>
+                ) : (
+                  <a
+                    key={item.label}
+                    href={item.href}
+                    className={footerLinkClass}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      scrollToHash(item.href);
+                    }}
+                  >
+                    {item.label}
+                  </a>
+                ),
+              )}
             </nav>
           </div>
         </div>
@@ -121,7 +145,10 @@ export function MarketingLandingFooter() {
                 key={item.label}
                 href={item.href}
                 className="marketing-footer-pill rounded-full px-2.5 py-1 text-[11px] text-slate-400 transition hover:text-sky-200"
-                {...NEW_TAB}
+                onClick={(e) => {
+                  e.preventDefault();
+                  scrollToHash(item.href);
+                }}
               >
                 {item.label}
               </a>

@@ -71,7 +71,7 @@ export function DenseMarketCard({
           </div>
           <div className="mt-3">
             <div className="flex items-center justify-between text-[10px] text-zinc-500">
-              <span>YES</span>
+              <span>Odds</span>
               <span className="font-mono text-cyan-300/90">{pct}%</span>
             </div>
             <div className="mt-1 h-1 overflow-hidden rounded-full bg-zinc-800/80">

@@ -3,7 +3,7 @@ import { MarketingNavbar } from "./sections/marketing-navbar";
 
 export function MainLandingPage() {
   return (
-    <div className="dark relative min-h-screen scroll-smooth bg-background text-foreground antialiased marketing-landing-canvas">
+    <div className="dark relative min-h-screen overflow-x-hidden scroll-smooth bg-background text-foreground antialiased marketing-landing-canvas">
       <a
         href="#main"
         className="sr-only fixed left-3 top-3 z-[100] rounded-md bg-foreground px-3 py-2 text-sm font-semibold text-background focus:not-sr-only focus:outline-none focus:ring-2 focus:ring-yes focus:ring-offset-2 focus:ring-offset-background"

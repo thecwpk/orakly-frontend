@@ -7,18 +7,20 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { BrandWordmarkLink } from "@/shared/ui";
 import { ROUTES } from "@/shared/constants/routes";
+import { ComingSoonButton } from "@/widgets/landing/components/coming-soon-button";
+import { LANDING_EXTERNAL_LINKS } from "@/widgets/landing/lib/landing-external-links";
 import { landingShell } from "@/widgets/landing/sections/marketing-landing-rail";
 
 type NavRow = {
   label: string;
-  landing: { href: string; isRoute: boolean };
+  landing: { href: string; isRoute: boolean; comingSoon?: boolean };
   app: { href: string; isRoute: boolean };
 };
 
 const NAV_ROWS: NavRow[] = [
   {
     label: "Markets",
-    landing: { href: "#live-markets", isRoute: false },
+    landing: { href: "#live-markets", isRoute: false, comingSoon: true },
     app: { href: ROUTES.discover, isRoute: true },
   },
   {
@@ -31,15 +33,15 @@ const NAV_ROWS: NavRow[] = [
     landing: { href: "#roadmap", isRoute: false },
     app: { href: `${ROUTES.home}#roadmap`, isRoute: true },
   },
-  {
-    label: "FAQ",
-    landing: { href: "#faq", isRoute: false },
-    app: { href: `${ROUTES.home}#faq`, isRoute: true },
-  },
 ];
 
-/** Navbar escapes narrative/marketing surfaces into hubs/routes — open in fresh tabs while preserving referrer UX parity where feasible */
 const NEW_TAB = { target: "_blank" as const, rel: "noopener noreferrer" as const };
+
+function scrollToHash(hash: string) {
+  const id = hash.replace(/^#/, "");
+  const el = document.getElementById(id);
+  if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+}
 
 export type GlobalMarketingNavbarProps = {
   variant: "landing" | "app";
@@ -68,43 +70,163 @@ export function GlobalMarketingNavbar({ variant, appendActions, chrome = "defaul
       : "text-slate-300/90 hover:bg-sky-500/[0.08] hover:text-white",
   );
 
-  const renderNavLink = (row: NavRow) => {
-    const spec = app ? row.app : row.landing;
-    if (spec.isRoute) {
+  const externalLinkClass = cn(
+    "marketing-nav-signin hidden sm:inline-flex",
+    glass && "text-[var(--text-muted)]",
+  );
+
+  const renderLandingAnchor = (row: NavRow, onNavigate?: () => void) => {
+    const spec = row.landing;
+    if (spec.comingSoon) {
       return (
-        <Link key={row.label} href={spec.href} className={navLinkClass} {...NEW_TAB}>
+        <ComingSoonButton
+          key={row.label}
+          className={navLinkClass}
+          onClick={onNavigate}
+        >
           {row.label}
-        </Link>
+        </ComingSoonButton>
       );
     }
     return (
-      <a key={row.label} href={spec.href} className={navLinkClass} {...NEW_TAB}>
+      <a
+        key={row.label}
+        href={spec.href}
+        className={navLinkClass}
+        onClick={(e) => {
+          e.preventDefault();
+          scrollToHash(spec.href);
+          onNavigate?.();
+        }}
+      >
         {row.label}
       </a>
     );
   };
 
-  const renderMobileNavLink = (row: NavRow, onNavigate: () => void) => {
-    const spec = app ? row.app : row.landing;
-    const className = cn(
-      "rounded-xl px-3 py-2.5 text-sm font-medium transition",
-      glass
-        ? "text-[var(--text-muted)] hover:bg-white/[0.06] hover:text-[var(--text-primary)]"
-        : "text-slate-300 hover:bg-sky-500/[0.08] hover:text-white",
-    );
-    if (spec.isRoute) {
-      return (
-        <Link key={row.label} href={spec.href} className={className} onClick={onNavigate} {...NEW_TAB}>
-          {row.label}
-        </Link>
-      );
-    }
+  const renderNavLink = (row: NavRow) => {
+    if (!app) return renderLandingAnchor(row);
+    const spec = row.app;
     return (
-      <a key={row.label} href={spec.href} className={className} onClick={onNavigate} {...NEW_TAB}>
+      <Link key={row.label} href={spec.href} className={navLinkClass} {...NEW_TAB}>
         {row.label}
-      </a>
+      </Link>
     );
   };
+
+  const renderMobileNavLink = (row: NavRow, onNavigate: () => void) => {
+    if (!app) {
+      const spec = row.landing;
+      if (spec.comingSoon) {
+        return (
+          <ComingSoonButton
+            key={row.label}
+            className={cn(
+              "rounded-xl px-3 py-2.5 text-left text-sm font-medium transition",
+              glass
+                ? "text-[var(--text-muted)] hover:bg-white/[0.06] hover:text-[var(--text-primary)]"
+                : "text-slate-300 hover:bg-sky-500/[0.08] hover:text-white",
+            )}
+            onClick={onNavigate}
+          >
+            {row.label}
+          </ComingSoonButton>
+        );
+      }
+      return (
+        <a
+          key={row.label}
+          href={spec.href}
+          className={cn(
+            "rounded-xl px-3 py-2.5 text-sm font-medium transition",
+            glass
+              ? "text-[var(--text-muted)] hover:bg-white/[0.06] hover:text-[var(--text-primary)]"
+              : "text-slate-300 hover:bg-sky-500/[0.08] hover:text-white",
+          )}
+          onClick={(e) => {
+            e.preventDefault();
+            scrollToHash(spec.href);
+            onNavigate();
+          }}
+        >
+          {row.label}
+        </a>
+      );
+    }
+    const spec = row.app;
+    return (
+      <Link key={row.label} href={spec.href} className={navLinkClass} onClick={onNavigate} {...NEW_TAB}>
+        {row.label}
+      </Link>
+    );
+  };
+
+  const rightActions = app ? (
+    <>
+      <Link href={ROUTES.signIn} className="marketing-nav-signin hidden sm:inline-flex" {...NEW_TAB}>
+        Sign in
+      </Link>
+      <Link href={ROUTES.dapp} className="marketing-nav-cta hidden sm:inline-flex" {...NEW_TAB}>
+        Launch app
+      </Link>
+    </>
+  ) : (
+    <>
+      <a href={LANDING_EXTERNAL_LINKS.twitter} className={externalLinkClass} {...NEW_TAB}>
+        Twitter
+      </a>
+      <a href={LANDING_EXTERNAL_LINKS.dextools} className={externalLinkClass} {...NEW_TAB}>
+        Dextool
+      </a>
+      <ComingSoonButton className="marketing-nav-cta hidden sm:inline-flex">Launch app</ComingSoonButton>
+    </>
+  );
+
+  const mobileRightActions = app ? (
+    <>
+      <Link
+        href={ROUTES.signIn}
+        className="marketing-nav-signin justify-center py-2.5"
+        onClick={() => setOpen(false)}
+        {...NEW_TAB}
+      >
+        Sign in
+      </Link>
+      <Link
+        href={ROUTES.dapp}
+        className="marketing-nav-cta justify-center py-2.5"
+        onClick={() => setOpen(false)}
+        {...NEW_TAB}
+      >
+        Launch app
+      </Link>
+    </>
+  ) : (
+    <>
+      <a
+        href={LANDING_EXTERNAL_LINKS.twitter}
+        className="marketing-nav-signin justify-center py-2.5"
+        onClick={() => setOpen(false)}
+        {...NEW_TAB}
+      >
+        Twitter
+      </a>
+      <a
+        href={LANDING_EXTERNAL_LINKS.dextools}
+        className="marketing-nav-signin justify-center py-2.5"
+        onClick={() => setOpen(false)}
+        {...NEW_TAB}
+      >
+        Dextool
+      </a>
+      <ComingSoonButton
+        className="marketing-nav-cta w-full justify-center py-2.5"
+        onClick={() => setOpen(false)}
+      >
+        Launch app
+      </ComingSoonButton>
+    </>
+  );
 
   return (
     <header
@@ -120,35 +242,30 @@ export function GlobalMarketingNavbar({ variant, appendActions, chrome = "defaul
       <div
         className={cn(
           landingShell,
-          "relative flex items-center justify-between gap-3 transition-[height] duration-200 sm:gap-4",
+          "relative flex items-center justify-between gap-2 transition-[height] duration-200 sm:gap-3",
           !app && scrolled ? "h-[3.25rem]" : "h-14 sm:h-[3.75rem]",
         )}
       >
         <BrandWordmarkLink
-          href={ROUTES.home}
+          href={app ? ROUTES.home : "#markets"}
           showTitle
           variant="nav"
           priority
-          openInNewTab
+          openInNewTab={app}
           className="relative z-[2] min-w-0 shrink-0"
         />
 
         <nav
-          className="absolute left-1/2 z-[1] hidden -translate-x-1/2 items-center gap-0.5 rounded-full border border-white/[0.06] bg-white/[0.03] p-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] backdrop-blur-md md:flex"
+          className="absolute left-1/2 z-[1] hidden max-w-[min(100vw-12rem,28rem)] -translate-x-1/2 items-center gap-0.5 overflow-x-auto rounded-full border border-white/[0.06] bg-white/[0.03] p-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] backdrop-blur-md [-ms-overflow-style:none] [scrollbar-width:none] md:flex [&::-webkit-scrollbar]:hidden"
           aria-label="Primary"
         >
           {NAV_ROWS.map(renderNavLink)}
         </nav>
 
-        <div className="relative z-[2] ml-auto flex items-center gap-2 sm:gap-2.5">
-          <Link href={ROUTES.signIn} className="marketing-nav-signin hidden sm:inline-flex" {...NEW_TAB}>
-            Sign in
-          </Link>
-          <Link href={ROUTES.dapp} className="marketing-nav-cta hidden sm:inline-flex" {...NEW_TAB}>
-            Launch app
-          </Link>
+        <div className="relative z-[2] ml-auto flex min-w-0 shrink-0 items-center justify-end gap-1.5 sm:gap-2">
+          {rightActions}
           {appendActions ? (
-            <span className="ml-0.5 flex shrink-0 items-center gap-2 border-l border-white/[0.08] pl-2.5 sm:pl-3">
+            <span className="ml-0.5 flex shrink-0 items-center gap-2 border-l border-white/[0.08] pl-2 sm:pl-2.5">
               {appendActions}
             </span>
           ) : null}
@@ -172,24 +289,7 @@ export function GlobalMarketingNavbar({ variant, appendActions, chrome = "defaul
       >
         <nav className={cn(landingShell, "flex flex-col gap-1 py-3")} aria-label="Mobile primary">
           {NAV_ROWS.map((row) => renderMobileNavLink(row, () => setOpen(false)))}
-          <div className="mt-2 flex flex-col gap-2 border-t border-white/[0.06] pt-3">
-            <Link
-              href={ROUTES.signIn}
-              className="marketing-nav-signin justify-center py-2.5"
-              onClick={() => setOpen(false)}
-              {...NEW_TAB}
-            >
-              Sign in
-            </Link>
-            <Link
-              href={ROUTES.dapp}
-              className="marketing-nav-cta justify-center py-2.5"
-              onClick={() => setOpen(false)}
-              {...NEW_TAB}
-            >
-              Launch app
-            </Link>
-          </div>
+          <div className="mt-2 flex flex-col gap-2 border-t border-white/[0.06] pt-3">{mobileRightActions}</div>
         </nav>
       </div>
     </header>
