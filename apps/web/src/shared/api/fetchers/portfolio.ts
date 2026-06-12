@@ -1,4 +1,4 @@
-import { apiClient } from "@/api/client/http-client";
+import { backendRequest } from "../backend-client";
 import { unwrapApiResult } from "../unwrap";
 import { tradingActorHeaders } from "./trading-headers";
 
@@ -38,13 +38,14 @@ export type PortfolioSnapshot = {
     };
   }>;
   realizedPnlUsd: string;
-  /** Populated when RPC env + linked `User.walletAddress` are configured. */
   onChain: PortfolioOnChainSnapshot | null;
 };
 
-export async function fetchPortfolio(): Promise<PortfolioSnapshot> {
-  const res = await apiClient.request<PortfolioSnapshot>("/api/v1/portfolio", {
+export async function fetchPortfolio(userId?: string): Promise<PortfolioSnapshot> {
+  const sp = userId ? `?userId=${encodeURIComponent(userId)}` : "";
+  const res = await backendRequest<PortfolioSnapshot>(`/portfolio${sp}`, {
     headers: tradingActorHeaders(),
   });
-  return unwrapApiResult(res);
+  const data = unwrapApiResult(res);
+  return { ...data, onChain: data.onChain ?? null };
 }

@@ -2,72 +2,23 @@
 
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { ROUTES } from "@/shared/constants/routes";
 import type {
   Notification,
   NotificationFilter,
   NotificationKind,
 } from "../types";
 
-const SEED_NOTIFICATIONS: Notification[] = [
-  {
-    id: "n-1",
-    kind: "FILL",
-    title: "Filled — BTC ATH Q3",
-    body: "Bought 1,200 YES @ 47¢. Realized slip 0.3 bps.",
-    at: new Date(Date.now() - 90_000).toISOString(),
-    href: "/markets/btc-ath-q3",
-    marketSlug: "btc-ath-q3",
-    read: false,
-  },
-  {
-    id: "n-2",
-    kind: "ALERT",
-    title: "Odds moved — Fed cut by July",
-    body: "YES crossed 65% threshold (was 61%).",
-    at: new Date(Date.now() - 6 * 60_000).toISOString(),
-    href: "/markets/fed-rate-cut-june",
-    marketSlug: "fed-rate-cut-june",
-    read: false,
-  },
-  {
-    id: "n-3",
-    kind: "SETTLE",
-    title: "Settlement — Election turnout",
-    body: "Resolved YES. Net +$240 credited to portfolio.",
-    at: new Date(Date.now() - 60 * 60_000).toISOString(),
-    href: "/markets/election-turnout-2028",
-    marketSlug: "election-turnout-2028",
-    read: false,
-  },
-  {
-    id: "n-4",
-    kind: "MENTION",
-    title: "ConvexAlpha mentioned you",
-    body: "“Nice fade on the macro tape this morning.”",
-    at: new Date(Date.now() - 4 * 60 * 60_000).toISOString(),
-    read: true,
-  },
-  {
-    id: "n-5",
-    kind: "SYSTEM",
-    title: "New market launched",
-    body: "Will SOL flip ETH by year-end? — seeded with $5k.",
-    at: new Date(Date.now() - 28 * 60 * 60_000).toISOString(),
-    href: ROUTES.discover,
-    read: true,
-  },
-];
-
 type NotificationsStore = {
   notifications: Notification[];
   filter: NotificationFilter;
-  /** Per-session: whether the popover is open. Not persisted. */
   popoverOpen: boolean;
+  /** Server-backed rows merged at read time in the popover hook. */
+  hydratedFromApi: boolean;
 
   setFilter: (f: NotificationFilter) => void;
   setPopoverOpen: (open: boolean) => void;
   togglePopover: () => void;
+  setFromApi: (rows: Notification[]) => void;
 
   push: (n: Notification) => void;
   markRead: (id: string) => void;
@@ -78,13 +29,25 @@ type NotificationsStore = {
 export const useNotificationsStore = create<NotificationsStore>()(
   persist(
     (set) => ({
-      notifications: SEED_NOTIFICATIONS,
+      notifications: [],
       filter: "all",
       popoverOpen: false,
+      hydratedFromApi: false,
 
       setFilter: (filter) => set({ filter }),
       setPopoverOpen: (popoverOpen) => set({ popoverOpen }),
       togglePopover: () => set((s) => ({ popoverOpen: !s.popoverOpen })),
+
+      setFromApi: (rows) =>
+        set((s) => {
+          const localOnly = s.notifications.filter(
+            (n) => !rows.some((r) => r.id === n.id),
+          );
+          return {
+            hydratedFromApi: true,
+            notifications: [...rows, ...localOnly].slice(0, 120),
+          };
+        }),
 
       push: (n) =>
         set((s) => ({
@@ -103,14 +66,15 @@ export const useNotificationsStore = create<NotificationsStore>()(
         set((s) => ({
           notifications: s.notifications.map((n) => ({ ...n, read: true })),
         })),
-      clear: () => set({ notifications: [] }),
+      clear: () => set({ notifications: [], hydratedFromApi: false }),
     }),
     {
       name: "orakly:notifications",
-      version: 1,
+      version: 2,
       partialize: (s) => ({
         notifications: s.notifications,
         filter: s.filter,
+        hydratedFromApi: s.hydratedFromApi,
       }),
     },
   ),

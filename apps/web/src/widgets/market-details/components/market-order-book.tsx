@@ -1,15 +1,15 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ArrowDown, ArrowUp, Layers } from "lucide-react";
+import { ArrowDown, ArrowUp, Layers, Loader2 } from "lucide-react";
 import { memo, useMemo, useState } from "react";
+import { useMarketTradesQuery } from "@/shared/api/hooks/useMarketTradesQuery";
 import { cn } from "@/lib/utils";
-import { SimulatedDataBadge } from "./simulated-data-badge";
 import { marketDetailPanelClass } from "./market-detail-section";
 import {
-  buildOrderBook,
+  tradesToBook,
   type OrderBookLevel,
-} from "../lib/order-book";
+} from "../lib/trades-to-book";
 
 type Side = "YES" | "NO";
 
@@ -18,7 +18,6 @@ function formatSize(n: number): string {
   return n.toString();
 }
 
-// Single ladder row.
 const Row = memo(function RowImpl({
   level,
   totalDepth,
@@ -105,37 +104,23 @@ function SideToggle({
 }
 
 function MarketOrderBookInner({
-  slug,
+  marketId,
   midYes,
-  liquidityUsd,
   className,
 }: {
-  slug: string;
-  /** Mid YES probability (0..1). */
+  marketId: string;
   midYes: number;
-  liquidityUsd: number;
   className?: string;
 }) {
   const [side, setSide] = useState<Side>("YES");
+  const tradesQ = useMarketTradesQuery(marketId, 100);
 
   const book = useMemo(
-    () =>
-      buildOrderBook({
-        slug,
-        side,
-        midProb: midYes,
-        liquidityUsd,
-        levels: 5,
-      }),
-    [slug, side, midYes, liquidityUsd],
+    () => tradesToBook(tradesQ.data ?? [], side, midYes),
+    [tradesQ.data, side, midYes],
   );
 
-  // Reverse asks so lowest ask is closest to the mid (market-standard layout).
-  const asksDesc = useMemo(
-    () => [...book.asks].reverse(),
-    [book.asks],
-  );
-
+  const asksDesc = useMemo(() => [...book.asks].reverse(), [book.asks]);
   const bestAsk = book.asks[0]?.priceCents ?? null;
   const bestBid = book.bids[0]?.priceCents ?? null;
 
@@ -150,8 +135,10 @@ function MarketOrderBookInner({
       <div className="flex shrink-0 items-center justify-between gap-2 border-b border-white/[0.06] px-2.5 py-2">
         <div className="flex min-w-0 items-center gap-1.5">
           <Layers className="h-3 w-3 shrink-0 text-zinc-500" />
-          <span className="text-[11px] font-medium text-zinc-300">{side} book</span>
-          <SimulatedDataBadge />
+          <span className="text-[11px] font-medium text-zinc-300">{side} tape</span>
+          {tradesQ.isLoading && (
+            <Loader2 className="h-3 w-3 animate-spin text-zinc-500" />
+          )}
         </div>
         <SideToggle side={side} onChange={setSide} />
       </div>
@@ -163,58 +150,63 @@ function MarketOrderBookInner({
       </div>
 
       <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain scrollbar-terminal">
-      {/* asks (descending) */}
-      <ul className="flex flex-col-reverse">
-        {asksDesc.map((lvl) => (
-          <Row
-            key={`ask-${lvl.priceCents}`}
-            level={lvl}
-            totalDepth={book.totalDepth}
-            variant="ask"
-            isBest={lvl.priceCents === bestAsk}
-          />
-        ))}
-      </ul>
+        {book.totalDepth === 0 && !tradesQ.isLoading ? (
+          <p className="px-3 py-6 text-center text-[11px] text-zinc-500">
+            No trades yet for {side}
+          </p>
+        ) : (
+          <>
+            <ul className="flex flex-col-reverse">
+              {asksDesc.map((lvl) => (
+                <Row
+                  key={`ask-${lvl.priceCents}`}
+                  level={lvl}
+                  totalDepth={book.totalDepth}
+                  variant="ask"
+                  isBest={lvl.priceCents === bestAsk}
+                />
+              ))}
+            </ul>
 
-      {/* mid + spread strip */}
-      <motion.div
-        layout
-        className="grid items-center gap-2 border-y border-white/[0.06] bg-gradient-to-r from-cyan-500/5 via-white/[0.04] to-violet-500/5 px-3 py-1.5 text-[11px]"
-        style={{
-          gridTemplateColumns: "minmax(0,1fr) minmax(0,auto) minmax(0,1fr)",
-        }}
-      >
-        <span className="inline-flex items-center gap-1 text-[10.5px] text-zinc-500">
-          <ArrowUp className="h-2.5 w-2.5 text-rose-400" />
-          Best ask{" "}
-          <span className="font-mono text-zinc-300">
-            {bestAsk !== null ? `${bestAsk.toFixed(1)}¢` : "—"}
-          </span>
-        </span>
-        <span className="rounded-md bg-[hsl(228_26%_10%/0.65)] px-2 py-0.5 font-mono text-[10.5px] tabular-nums text-zinc-200 ring-1 ring-white/[0.09]">
-          mid {book.midCents}¢ · spread {book.spreadBps}bps
-        </span>
-        <span className="inline-flex items-center justify-end gap-1 text-[10.5px] text-zinc-500">
-          Best bid{" "}
-          <span className="font-mono text-zinc-300">
-            {bestBid !== null ? `${bestBid.toFixed(1)}¢` : "—"}
-          </span>
-          <ArrowDown className="h-2.5 w-2.5 text-emerald-400" />
-        </span>
-      </motion.div>
+            <motion.div
+              layout
+              className="grid items-center gap-2 border-y border-white/[0.06] bg-gradient-to-r from-cyan-500/5 via-white/[0.04] to-violet-500/5 px-3 py-1.5 text-[11px]"
+              style={{
+                gridTemplateColumns: "minmax(0,1fr) minmax(0,auto) minmax(0,1fr)",
+              }}
+            >
+              <span className="inline-flex items-center gap-1 text-[10.5px] text-zinc-500">
+                <ArrowUp className="h-2.5 w-2.5 text-rose-400" />
+                Best ask{" "}
+                <span className="font-mono text-zinc-300">
+                  {bestAsk !== null ? `${bestAsk.toFixed(1)}¢` : "—"}
+                </span>
+              </span>
+              <span className="rounded-md bg-[hsl(228_26%_10%/0.65)] px-2 py-0.5 font-mono text-[10.5px] tabular-nums text-zinc-200 ring-1 ring-white/[0.09]">
+                mid {book.midCents}¢ · spread {book.spreadBps}bps
+              </span>
+              <span className="inline-flex items-center justify-end gap-1 text-[10.5px] text-zinc-500">
+                Best bid{" "}
+                <span className="font-mono text-zinc-300">
+                  {bestBid !== null ? `${bestBid.toFixed(1)}¢` : "—"}
+                </span>
+                <ArrowDown className="h-2.5 w-2.5 text-emerald-400" />
+              </span>
+            </motion.div>
 
-      {/* bids */}
-      <ul className="flex flex-col">
-        {book.bids.map((lvl) => (
-          <Row
-            key={`bid-${lvl.priceCents}`}
-            level={lvl}
-            totalDepth={book.totalDepth}
-            variant="bid"
-            isBest={lvl.priceCents === bestBid}
-          />
-        ))}
-      </ul>
+            <ul className="flex flex-col">
+              {book.bids.map((lvl) => (
+                <Row
+                  key={`bid-${lvl.priceCents}`}
+                  level={lvl}
+                  totalDepth={book.totalDepth}
+                  variant="bid"
+                  isBest={lvl.priceCents === bestBid}
+                />
+              ))}
+            </ul>
+          </>
+        )}
       </div>
 
       <div className="flex shrink-0 items-center justify-between border-t border-white/[0.06] px-2.5 py-1.5 font-mono text-[9px] text-zinc-600">

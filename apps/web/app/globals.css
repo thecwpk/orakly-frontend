@@ -119,7 +119,7 @@
 
 :root {
   /* Shell — primary chrome row height (matches marketing nav `h-14`) + ticker row. */
-  --app-topbar-row-h: 3.5rem;
+  --app-topbar-row-h: 4.5rem;
   --app-topbar-ticker-h: 1.375rem;
   --app-topbar-h: calc(var(--app-topbar-row-h) + var(--app-topbar-ticker-h));
   --app-chrome: rgba(8, 8, 11, 0.94);
@@ -230,7 +230,7 @@
 
 /** Hub home — markets ticker lives in `DappHubPage` (`.mb-ticker`), not under navbar. */
 .hub-shell-density {
-  --app-topbar-row-h: 3.5rem;
+  --app-topbar-row-h: 4.5rem;
   --app-topbar-ticker-h: 0px;
   --app-topbar-h: var(--app-topbar-row-h);
   /** Hub: pull content in — less empty band vs default shell. */

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { RealtimeActivityFeed } from "@/features/realtime-activity";
 import { ProfileAchievements } from "./components/profile-achievements";
 import { ProfileEquityChart } from "./components/profile-equity-chart";
@@ -8,36 +8,39 @@ import { ProfileHero } from "./components/profile-hero";
 import { ProfilePortfolioOverview } from "./components/profile-portfolio-overview";
 import { ProfileStatsGrid } from "./components/profile-stats-grid";
 import { ProfileTradeHistory } from "./components/profile-trade-history";
-import { buildTraderProfile } from "./lib/mock-profile";
+import { useProfileData } from "./hooks/use-profile-data";
 import type { ProfileWindow } from "./lib/types";
 
 export type ProfilePageProps = {
-  /** Public profile when set; "your own" profile when omitted. */
   address?: string;
 };
 
 export function ProfilePage({ address }: ProfilePageProps) {
   const isMine = !address;
   const [window, setWindow] = useState<ProfileWindow>("30d");
+  const { profile, isLoading } = useProfileData(address);
 
-  const profile = useMemo(
-    () => buildTraderProfile({ address, window, isMine }),
-    [address, window, isMine],
-  );
+  if (isLoading || !profile) {
+    return (
+      <main className="mx-auto flex max-w-6xl flex-col pb-s64 pt-s48 md:pt-s56">
+        <p className="px-4 text-sm text-zinc-500">Loading profile…</p>
+      </main>
+    );
+  }
 
   return (
     <main className="mx-auto flex max-w-6xl flex-col pb-s64 pt-s48 md:pt-s56">
       <div className="mb-r24">
-      <ProfileHero
-        address={profile.address}
-        alias={profile.alias}
-        isMine={isMine}
-        rank={profile.rank}
-        followers={profile.followers}
-        following={profile.following}
-        joinedAt={profile.joinedAt}
-        stats={profile.stats}
-      />
+        <ProfileHero
+          address={profile.address}
+          alias={profile.alias}
+          isMine={isMine}
+          rank={profile.rank}
+          followers={profile.followers}
+          following={profile.following}
+          joinedAt={profile.joinedAt}
+          stats={profile.stats}
+        />
       </div>
 
       <ProfileStatsGrid className="mb-s40" stats={profile.stats} />

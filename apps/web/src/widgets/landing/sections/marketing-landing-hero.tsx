@@ -45,7 +45,7 @@ export function MarketingLandingHero() {
           Live · On-chain
         </div>
 
-        <div className="relative mt-6 flex flex-col-reverse gap-10 lg:grid lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] lg:items-center lg:gap-12">
+        <div className="relative mt-6 flex flex-col gap-8 sm:gap-10 lg:grid lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] lg:items-center lg:gap-12">
           <div className="min-w-0">
             <h1 className={landingDisplay}>Trade conviction with transparent on-chain odds.</h1>
             <p className={cn(landingLead, "text-foreground")}>

@@ -1,18 +1,8 @@
-import type { Metadata } from "next";
-import { redirect } from "next/navigation";
+import { permanentRedirect, redirect } from "next/navigation";
 
-import { LandingPage } from "@/widgets/landing/landing-page";
+import { ROUTES } from "@/shared/constants/routes";
 
-export const metadata: Metadata = {
-  title: {
-    absolute: "Orakly Market — on-chain prediction markets",
-  },
-  description:
-    "Trade live odds on crypto, macro, sports, and tech. Transparent rules, stablecoin rails, and verifiable on-chain settlement. Subscribe for product updates.",
-  alternates: { canonical: "/" },
-};
-
-/** Site entry — marketing landing at `/` (static content; open `/markets` to trade). */
+/** Site entry — trading hub at `/dapp` (marketing lives on separate orakly-landing). */
 export default async function HomePage({
   searchParams,
 }: {
@@ -32,5 +22,5 @@ export default async function HomePage({
     redirect(`/markets?${qs.toString()}`);
   }
 
-  return <LandingPage />;
+  permanentRedirect(ROUTES.dapp);
 }

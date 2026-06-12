@@ -9,9 +9,11 @@ import { toast } from "sonner";
 import { useAccount, useBalance } from "wagmi";
 import { useWalletSessionQuery } from "@/features/wallet";
 import {
+  useLedgerQuery,
   useMarketsFeedQuery,
   usePortfolioQuery,
   useTradesInfiniteQuery,
+  useWalletBalanceQuery,
 } from "@/shared/api/hooks";
 import { useAuthStore } from "@/state/stores/auth.store";
 import { ROUTES } from "@/shared/constants/routes";
@@ -23,7 +25,6 @@ import { WalletBalanceHero } from "./components/wallet-balance-hero";
 import { WalletTransactions } from "./components/wallet-transactions";
 import { buildWalletTransactions } from "./lib/build-transactions";
 import { parseUsd } from "./lib/format";
-import { useWalletMovementsStore } from "./store/wallet-movements-store";
 
 type DialogState =
   | { open: false }
@@ -38,17 +39,25 @@ export function WalletPage() {
   });
   const { data: session } = useWalletSessionQuery();
   const portfolioQ = usePortfolioQuery(actorId);
+  const balanceQ = useWalletBalanceQuery(actorId);
+  const ledgerQ = useLedgerQuery(actorId);
   const tradesQ = useTradesInfiniteQuery(actorId);
   const marketsQ = useMarketsFeedQuery();
-  const movements = useWalletMovementsStore((s) => s.movements);
 
   const [dialog, setDialog] = useState<DialogState>({ open: false });
   const [refreshing, setRefreshing] = useState(false);
 
-  // ── Custodial balances
-  const wallet = portfolioQ.data?.wallet;
-  const availableUsd = wallet ? parseUsd(wallet.availableBalanceUsd) : 0;
-  const lockedUsd = wallet ? parseUsd(wallet.lockedBalanceUsd) : 0;
+  // ── Custodial balances (ledger-derived via backend)
+  const availableUsd = balanceQ.data
+    ? parseUsd(balanceQ.data.availableBalanceUsd)
+    : portfolioQ.data?.wallet
+      ? parseUsd(portfolioQ.data.wallet.availableBalanceUsd)
+      : 0;
+  const lockedUsd = balanceQ.data
+    ? parseUsd(balanceQ.data.lockedBalanceUsd)
+    : portfolioQ.data?.wallet
+      ? parseUsd(portfolioQ.data.wallet.lockedBalanceUsd)
+      : 0;
   const onChainSnapshot = portfolioQ.data?.onChain ?? null;
 
   // ── Marked-positions value (so the hero matches the portfolio dashboard).
@@ -98,12 +107,12 @@ export function WalletPage() {
     () =>
       buildWalletTransactions({
         trades: flatTrades,
-        movements,
+        ledger: ledgerQ.data,
         userId: actorId,
         marketTitleById,
         max: 60,
       }),
-    [flatTrades, movements, actorId, marketTitleById],
+    [flatTrades, ledgerQ.data, actorId, marketTitleById],
   );
 
   // ── Refresh both the portfolio + on-chain RPC sync.
@@ -118,12 +127,14 @@ export function WalletPage() {
           credentials: "include",
         }).catch(() => null),
         portfolioQ.refetch(),
+        balanceQ.refetch(),
+        ledgerQ.refetch(),
       ]);
       toast.success("Balances refreshed");
     } finally {
       setRefreshing(false);
     }
-  }, [actorId, portfolioQ]);
+  }, [actorId, portfolioQ, balanceQ, ledgerQ]);
 
   return (
     <main className="mx-auto flex max-w-6xl flex-col pb-s64 pt-s48 md:pt-s56">
@@ -174,7 +185,7 @@ export function WalletPage() {
         onDeposit={() => setDialog({ open: true, kind: "DEPOSIT" })}
         onWithdraw={() => setDialog({ open: true, kind: "WITHDRAW" })}
         onRefresh={() => void handleRefresh()}
-        refreshing={refreshing || portfolioQ.isFetching}
+        refreshing={refreshing || portfolioQ.isFetching || balanceQ.isFetching}
       />
       </div>
 
@@ -197,7 +208,7 @@ export function WalletPage() {
 
       <WalletTransactions
         rows={txRows}
-        isLoading={portfolioQ.isLoading || tradesQ.isLoading}
+        isLoading={portfolioQ.isLoading || tradesQ.isLoading || ledgerQ.isLoading}
         isFetchingMore={tradesQ.isFetchingNextPage}
         hasNextPage={!!tradesQ.hasNextPage}
         onLoadMore={() => void tradesQ.fetchNextPage()}

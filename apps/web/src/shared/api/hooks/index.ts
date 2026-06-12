@@ -6,6 +6,13 @@ export { useDebouncedValue } from "./useDebouncedValue";
 
 export { useMarketsFeedQuery } from "./useMarketsFeedQuery";
 export { useHubMarketsPreviewQuery } from "./useHubMarketsPreviewQuery";
+export { useAttentionDashboardQuery } from "./useAttentionDashboardQuery";
+export { useHomeStatsQuery } from "./useHomeStatsQuery";
+export { useNarrativeWarsQuery } from "./useNarrativeWarsQuery";
+export { useConvictionMarketsQuery } from "./useConvictionMarketsQuery";
+export { useHubTrendingMarketsQuery } from "./useHubTrendingMarketsQuery";
+export { useCategoryOverviewQuery } from "./useCategoryOverviewQuery";
+export { useMarketSuggestionsQuery } from "./useMarketSuggestionsQuery";
 export { useSpotPricesQuery } from "./useSpotPricesQuery";
 export { useExplorerMarketsFeedQuery } from "./useExplorerMarketsFeedQuery";
 export {
@@ -16,9 +23,14 @@ export {
 export { useDiscoveryMarketsQuery } from "./use-discovery-markets-query";
 export { useDiscoveryNewsQuery } from "./use-discovery-news-query";
 export { usePortfolioQuery } from "./usePortfolioQuery";
+export { useWalletBalanceQuery } from "./useWalletBalanceQuery";
+export { useNotificationsQuery } from "./useNotificationsQuery";
+export { useLedgerQuery } from "./useLedgerQuery";
 export { useTradesInfiniteQuery } from "./useTradesInfiniteQuery";
 export { useMarketBySlugQuery } from "./useMarketBySlugQuery";
 export { useMarketOddsQuery } from "./useMarketOddsQuery";
+export { useMarketProbabilityQuery } from "./useMarketProbabilityQuery";
+export { useMarketTradesQuery } from "./useMarketTradesQuery";
 export { useMarketVolumeWindowQuery } from "./useMarketVolumeWindowQuery";
 export { useMarketQuoteDebouncedQuery } from "./useMarketQuoteDebouncedQuery";
 

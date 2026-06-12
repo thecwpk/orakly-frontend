@@ -32,8 +32,19 @@ const adminRoot = () => [...queryRoot, "admin"] as const;
 const healthRoot = () => [...queryRoot, "health"] as const;
 const referenceRoot = () => [...queryRoot, "reference"] as const;
 const discoveryRoot = () => [...queryRoot, "discovery"] as const;
+const hubRoot = () => [...queryRoot, "hub"] as const;
 
 export const queryKeys = {
+  hub: {
+    root: hubRoot,
+    attention: () => [...hubRoot(), "attention"] as const,
+    stats: () => [...hubRoot(), "stats"] as const,
+    narrativeWars: () => [...hubRoot(), "narrativeWars"] as const,
+    conviction: (take: number) => [...hubRoot(), "conviction", take] as const,
+    trending: (take: number) => [...hubRoot(), "trending", take] as const,
+    categories: () => [...hubRoot(), "categories"] as const,
+    suggestions: (take: number) => [...hubRoot(), "suggestions", take] as const,
+  },
   markets: {
     root: marketsRoot,
     /** GET /api/v1/markets — feed / featured list (directory `lane=directory`). */
@@ -63,10 +74,14 @@ export const queryKeys = {
     detail: (marketId: string) => [...marketsRoot(), "detail", marketId] as const,
     odds: (marketId: string) =>
       [...marketsRoot(), "detail", marketId, "odds"] as const,
+    probability: (marketId: string) =>
+      [...marketsRoot(), "detail", marketId, "probability"] as const,
+    trades: (marketId: string) =>
+      [...marketsRoot(), "detail", marketId, "trades"] as const,
     quote: (
       marketId: string,
       params: {
-        outcome: "YES" | "NO";
+        side: "FOR" | "AGAINST";
         direction: "BUY" | "SELL";
         quantity: string;
       },
@@ -115,6 +130,8 @@ export const queryKeys = {
 
   leaderboard: {
     root: leaderboardRoot,
+    traders: (windowKey: string) =>
+      [...leaderboardRoot(), "traders", windowKey] as const,
     /** `windowKey` ∈ "24h" | "7d" | "30d" | "all"; `sort` is optional. */
     list: (windowKey: string, sort?: string) =>
       [

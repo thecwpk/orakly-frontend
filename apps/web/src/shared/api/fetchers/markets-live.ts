@@ -1,5 +1,9 @@
 import type { Market } from "@orakly/types";
 import { apiClient } from "@/api/client/http-client";
+import type {
+  NarrativeTradeSide,
+  UiTradeDirection,
+} from "@/shared/trading/narrative-trade-side";
 import { unwrapApiResult } from "../unwrap";
 
 export type MarketOddsDto = {
@@ -75,13 +79,13 @@ export type MarketQuoteDto = {
 export async function fetchMarketQuote(
   marketId: string,
   params: {
-    outcome: "YES" | "NO";
-    direction: "BUY" | "SELL";
+    side: NarrativeTradeSide;
+    direction: UiTradeDirection;
     quantity: string;
   },
 ): Promise<MarketQuoteDto> {
   const sp = new URLSearchParams({
-    outcome: params.outcome,
+    side: params.side,
     direction: params.direction,
     quantity: params.quantity,
   });

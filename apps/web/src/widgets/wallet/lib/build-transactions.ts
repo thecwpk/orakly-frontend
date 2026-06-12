@@ -1,5 +1,5 @@
+import type { LedgerEntryDto } from "@/shared/api/fetchers/ledger";
 import type { TradeRow } from "@/shared/api/fetchers/trades";
-import type { WalletMovement } from "../store/wallet-movements-store";
 import { parseUsd } from "./format";
 
 export type WalletTxKind = "DEPOSIT" | "WITHDRAW" | "TRADE_BUY" | "TRADE_SELL";
@@ -19,13 +19,13 @@ export type WalletTxRow = {
 /** Build a unified, time-sorted list of wallet txs from trades + local movements. */
 export function buildWalletTransactions(input: {
   trades: TradeRow[];
-  movements: WalletMovement[];
+  ledger?: LedgerEntryDto[];
   userId: string | undefined;
   marketTitleById?: Map<string, string>;
   /** Optional cap on returned rows. */
   max?: number;
 }): WalletTxRow[] {
-  const { trades, movements, userId, marketTitleById, max = 50 } = input;
+  const { trades, ledger = [], userId, marketTitleById, max = 50 } = input;
 
   const rows: WalletTxRow[] = [];
 
@@ -53,15 +53,37 @@ export function buildWalletTransactions(input: {
     });
   }
 
-  for (const m of movements) {
+  for (const entry of ledger) {
+    const amount = parseUsd(entry.amount);
+    const kind =
+      entry.type === "DEPOSIT"
+        ? "DEPOSIT"
+        : entry.type === "WITHDRAW"
+          ? "WITHDRAW"
+          : entry.type === "TRADE"
+            ? amount < 0
+              ? "TRADE_BUY"
+              : "TRADE_SELL"
+            : entry.type === "PNL"
+              ? "TRADE_SELL"
+              : "DEPOSIT";
     rows.push({
-      id: `m:${m.id}`,
-      kind: m.kind,
-      amountUsd: m.kind === "DEPOSIT" ? m.amountUsd : -m.amountUsd,
-      label: m.kind === "DEPOSIT" ? "Deposit" : "Withdraw",
-      reference: m.hash,
-      status: m.status,
-      at: new Date(m.at).getTime(),
+      id: `l:${entry.id}`,
+      kind,
+      amountUsd: amount,
+      label:
+        entry.type === "DEPOSIT"
+          ? "Deposit"
+          : entry.type === "WITHDRAW"
+            ? "Withdraw"
+            : entry.type === "TRADE"
+              ? "Trade"
+              : entry.type === "PNL"
+                ? "Settlement"
+                : entry.type,
+      reference: entry.txHash ?? undefined,
+      status: "CONFIRMED",
+      at: new Date(entry.timestamp).getTime(),
     });
   }
 

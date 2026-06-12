@@ -6,14 +6,14 @@ import { buildVolumeWindow } from "@/widgets/market-details/lib/volume-history";
 
 type RouteCtx = { params: Promise<{ slug: string }> };
 
-/** GET — deterministic 24h volume buckets from DB `volumeTotalUsd` + slug seed (no client Date churn). */
+/** GET — 24h volume buckets from DB trades only. */
 export async function GET(_req: Request, ctx: RouteCtx) {
   const { slug: raw } = await ctx.params;
   const slug = decodeURIComponent(raw);
 
   const market = await prisma.market.findUnique({
     where: { slug },
-    select: { id: true, volumeTotalUsd: true },
+    select: { id: true },
   });
 
   if (!market) {
@@ -22,17 +22,27 @@ export async function GET(_req: Request, ctx: RouteCtx) {
     });
   }
 
-  const totalVolumeUsd = Number(market.volumeTotalUsd);
-  const safeVol = Number.isFinite(totalVolumeUsd) ? totalVolumeUsd : 0;
   const serverNow = Date.now();
+  const since = new Date(serverNow - 24 * 3_600_000);
 
-  const win = buildVolumeWindow({
-    slug,
-    marketId: market.id,
-    totalVolumeUsd: safeVol,
-    trades: [],
-    nowMs: serverNow,
+  const dbTrades = await prisma.trade.findMany({
+    where: { marketId: market.id, executedAt: { gte: since } },
+    select: {
+      notionalUsd: true,
+      buyerId: true,
+      sellerId: true,
+      executedAt: true,
+    },
+    orderBy: { executedAt: "asc" },
   });
+
+  const trades = dbTrades.map((t) => ({
+    side: "BUY" as const,
+    notionalUsd: t.notionalUsd.toFixed(),
+    at: t.executedAt.getTime(),
+  }));
+
+  const win = buildVolumeWindow({ trades, nowMs: serverNow });
 
   const rows = win.buckets.map((b) => ({
     at: b.at,

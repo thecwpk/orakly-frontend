@@ -10,7 +10,7 @@
  * Requires DATABASE_URL (see prisma.config.ts).
  */
 import "dotenv/config";
-import { MarketStatus, Prisma } from "@prisma/client";
+import { MarketStatus, NarrativeTrend, Prisma } from "@prisma/client";
 import { prisma } from "../src/client";
 
 type SeedMarket = {
@@ -34,6 +34,11 @@ const CATEGORIES: readonly { slug: string; name: string }[] = [
   { slug: "sports", name: "Sports" },
   { slug: "science", name: "Science" },
   { slug: "tech", name: "Tech" },
+  { slug: "meme-coins", name: "Meme Coins" },
+  { slug: "crypto-narratives", name: "Crypto Narratives" },
+  { slug: "ecosystems", name: "Ecosystems" },
+  { slug: "market-sentiment", name: "Market Sentiment" },
+  { slug: "industry-events", name: "Industry Events" },
 ];
 
 /** Curated so lifetime vs 24h vs trending vs createdAt diverge across hub sorts. */
@@ -328,10 +333,7 @@ const MARKETS: readonly SeedMarket[] = [
   },
 ];
 
-export async function runDatabaseSeed(): Promise<{
-  upserted: number;
-  openCount: number;
-}> {
+async function main() {
   for (const c of CATEGORIES) {
     await prisma.category.upsert({
       where: { slug: c.slug },
@@ -383,34 +385,67 @@ export async function runDatabaseSeed(): Promise<{
     });
   }
 
-  const openCount = await prisma.market.count({
-    where: { status: MarketStatus.OPEN },
-  });
-  return { upserted: MARKETS.length, openCount };
-}
+  const attentionSeed: {
+    narrative: string;
+    score: number;
+    trend: NarrativeTrend;
+    previousScore: number;
+  }[] = [
+    { narrative: "AI", score: 72, trend: NarrativeTrend.RISING, previousScore: 61 },
+    { narrative: "Memes", score: 58, trend: NarrativeTrend.COOLING, previousScore: 65 },
+    { narrative: "Base", score: 64, trend: NarrativeTrend.RISING, previousScore: 56 },
+    { narrative: "Solana", score: 59, trend: NarrativeTrend.STABLE, previousScore: 58 },
+    { narrative: "RWA", score: 55, trend: NarrativeTrend.RISING, previousScore: 48 },
+    { narrative: "Gaming", score: 42, trend: NarrativeTrend.COOLING, previousScore: 47 },
+    { narrative: "DeFi", score: 51, trend: NarrativeTrend.STABLE, previousScore: 50 },
+    { narrative: "ETF", score: 48, trend: NarrativeTrend.RISING, previousScore: 44 },
+  ];
 
-async function main() {
-  try {
-    const { upserted, openCount } = await runDatabaseSeed();
-    console.log(
-      `Seed complete: ${upserted} markets upserted; ${openCount} OPEN markets in DB.`,
-    );
-  } finally {
-    await prisma.$disconnect();
+  for (const row of attentionSeed) {
+    await prisma.attentionScore.upsert({
+      where: { narrative: row.narrative },
+      create: {
+        narrative: row.narrative,
+        score: new Prisma.Decimal(row.score),
+        trend: row.trend,
+        previousScore: new Prisma.Decimal(row.previousScore),
+      },
+      update: {
+        score: new Prisma.Decimal(row.score),
+        trend: row.trend,
+        previousScore: new Prisma.Decimal(row.previousScore),
+      },
+    });
   }
+
+  const suggestionTitles = [
+    "Will AI tokens outperform memecoins this month?",
+    "Will Base TVL exceed Solana this quarter?",
+    "Will RWA narratives beat gaming flows in 30 days?",
+  ];
+  for (const title of suggestionTitles) {
+    const existing = await prisma.marketSuggestion.findFirst({ where: { title } });
+    if (!existing) {
+      await prisma.marketSuggestion.create({
+        data: {
+          title,
+          category: "crypto-narratives",
+          votesUp: Math.floor(12 + Math.random() * 40),
+          status: "PENDING",
+        },
+      });
+    }
+  }
+
+  const count = await prisma.market.count({ where: { status: MarketStatus.OPEN } });
+  console.log(`Seed complete: ${MARKETS.length} markets upserted; ${count} OPEN markets in DB.`);
 }
 
-/** Only when invoked via `prisma db seed` / `tsx prisma/seed.ts` — not when bundled by Next.js. */
-function isSeedCli(): boolean {
-  const entry = process.argv[1];
-  if (!entry) return false;
-  const norm = entry.replace(/\\/g, "/");
-  return norm.endsWith("/prisma/seed.ts") || norm.endsWith("/prisma/seed.js");
-}
-
-if (isSeedCli()) {
-  main().catch((e) => {
+main()
+  .catch((e) => {
     console.error(e);
     process.exit(1);
+  })
+  .finally(async () => {
+    await prisma.$disconnect();
   });
-}

@@ -3,11 +3,12 @@ import { NextResponse } from "next/server";
 import { Prisma } from "@prisma/client";
 import { z } from "zod";
 import { quoteExecution } from "@/server/trading/queries";
+import { narrativeSideToExecutionOutcome } from "@/shared/trading/narrative-trade-side";
 import { ok, err } from "../../../_lib/response";
 import { API_ERROR_CODES } from "../../../_lib/errors";
 
 const querySchema = z.object({
-  outcome: z.enum(["YES", "NO"]),
+  side: z.enum(["FOR", "AGAINST"]),
   direction: z.enum(["BUY", "SELL"]),
   quantity: z.union([z.string(), z.number()]),
 });
@@ -31,9 +32,11 @@ export async function GET(req: NextRequest, ctx: RouteCtx) {
     : parsed.data.quantity,
   );
 
+  const outcome = narrativeSideToExecutionOutcome(parsed.data.side);
+
   const quote = await quoteExecution({
     marketId,
-    outcome: parsed.data.outcome,
+    outcome,
     direction: parsed.data.direction,
     quantity: q,
   });

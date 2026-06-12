@@ -11,7 +11,7 @@ export function usePortfolioQuery(userId: string | undefined) {
       userId ?
         queryKeys.portfolio.byUser(userId)
       : [...queryKeys.portfolio.root(), "__idle"],
-    queryFn: fetchPortfolio,
+    queryFn: () => fetchPortfolio(userId),
     enabled: !!userId,
     ...CACHE_POLICY.portfolio,
   });

@@ -1,7 +1,13 @@
 "use client";
 
+import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { buildTradersForWindow, summarizeTraders } from "../lib/mock-data";
+import { fetchTraderLeaderboard } from "@/shared/api/fetchers/leaderboard";
+import { queryKeys } from "@/shared/api/query-keys";
+import {
+  mapLeaderboardRow,
+  summarizeTraderRows,
+} from "../lib/map-trader-row";
 import { rankTraders, snapshotRanks } from "../lib/sort";
 import type { LeaderboardSortKey, LeaderboardWindow, RankedTrader } from "../lib/types";
 
@@ -15,14 +21,11 @@ export type UseLeaderboardResult = {
     averageWinRate: number;
     totalTrades: number;
   };
-  /** Movement summary used by the KPI strip — counts of climbers / sliders. */
   flux: { climbed: number; dropped: number; held: number };
+  isLoading: boolean;
+  isError: boolean;
 };
 
-/**
- * Computes the ranked + window-scoped trader list and tracks rank deltas
- * across re-renders so the table can animate movement smoothly.
- */
 export function useLeaderboard({
   window: timeWindow,
   sort,
@@ -31,11 +34,18 @@ export function useLeaderboard({
   sort: LeaderboardSortKey;
 }): UseLeaderboardResult {
   const previousRanks = useRef<Map<string, number>>(new Map());
-  // Forces a re-render whenever the previous-ranks map is updated, so rows
-  // recompute their delta after the first paint that follows a sort change.
   const [, setVersion] = useState(0);
 
-  const traders = useMemo(() => buildTradersForWindow(timeWindow), [timeWindow]);
+  const query = useQuery({
+    queryKey: queryKeys.leaderboard.traders(timeWindow),
+    queryFn: () => fetchTraderLeaderboard({ window: timeWindow, take: 100 }),
+    staleTime: 30_000,
+  });
+
+  const traders = useMemo(() => {
+    const rows = query.data ?? [];
+    return rows.map((r, i) => mapLeaderboardRow(r, i + 1));
+  }, [query.data]);
 
   const rows = useMemo(
     () =>
@@ -47,20 +57,15 @@ export function useLeaderboard({
     [traders, sort],
   );
 
-  // Snapshot the current ranks AFTER paint so the next sort/window change can
-  // diff against this state — `useEffect` defers this past the render commit.
   useEffect(() => {
     previousRanks.current = snapshotRanks(rows);
-    // Trigger one extra render so the rank-delta indicators clear after
-    // animating in.
     const id = window.setTimeout(() => setVersion((v) => v + 1), 1500);
     return () => window.clearTimeout(id);
   }, [rows]);
 
   const podium = rows.slice(0, 3);
   const rest = rows.slice(3);
-
-  const totals = useMemo(() => summarizeTraders(rows), [rows]);
+  const totals = useMemo(() => summarizeTraderRows(rows), [rows]);
 
   const flux = useMemo(() => {
     let climbed = 0;
@@ -74,5 +79,13 @@ export function useLeaderboard({
     return { climbed, dropped, held };
   }, [rows]);
 
-  return { rows, podium, rest, totals, flux };
+  return {
+    rows,
+    podium,
+    rest,
+    totals,
+    flux,
+    isLoading: query.isLoading,
+    isError: query.isError,
+  };
 }

@@ -210,12 +210,17 @@ function MarketDetailsLoaded({ market }: { market: Market }) {
               <MarketVolumeChart slug={market.slug} rt={rt} className="h-full min-h-[280px]" />
             }
             right={
-              <MarketOrderBook
-                slug={market.slug}
-                midYes={midYes}
-                liquidityUsd={market.liquidityUsd}
-                className="h-full min-h-[280px]"
-              />
+              tradeMarketId ? (
+                <MarketOrderBook
+                  marketId={tradeMarketId}
+                  midYes={midYes}
+                  className="h-full min-h-[280px]"
+                />
+              ) : (
+                <div className="flex h-full min-h-[280px] items-center justify-center rounded-lg border border-white/[0.06] text-[12px] text-zinc-500">
+                  Trades unavailable for this market
+                </div>
+              )
             }
           />
 

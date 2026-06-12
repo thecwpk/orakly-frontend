@@ -1,9 +1,9 @@
 import {
-  Activity,
   Briefcase,
+  Flame,
+  Home,
   LayoutGrid,
-  TrendingUp,
-  Wallet,
+  User,
   type LucideIcon,
 } from "lucide-react";
 import { ROUTES } from "@/shared/constants/routes";
@@ -21,6 +21,10 @@ export type NavItem = {
   marketsBrowse?: boolean;
   /** Active on `/markets` when `trending=1`. */
   trendingTape?: boolean;
+  /** Hub home `/dapp` exact match. */
+  hubHome?: boolean;
+  /** Attention section on hub (`/dapp#attention`). */
+  attentionAnchor?: boolean;
   /** Optional small badge text (static — e.g. "New"). */
   badge?: string;
   /** Live counter — optional badge on rich nav variants. */
@@ -56,36 +60,52 @@ export function isTrendingTapeActive(
   return pathname === "/markets";
 }
 
-/** Full Markets browse — directory + detail pages + marketing `/discover`; not the `/` hub tape. */
+/** Legacy helper — discovery surface: `/discover` + `/markets` detail routes. */
+export function isMarketsExplorerNavActive(pathname: string | null): boolean {
+  if (!pathname) return false;
+  if (pathname === ROUTES.discover || pathname.startsWith(`${ROUTES.discover}/`)) return true;
+  if (pathname === "/markets") return true;
+  return pathname.startsWith("/markets/");
+}
+
+/** Full Markets browse — directory + detail pages + marketing `/discover`. */
 export function isMarketsBrowseActive(
   pathname: string | null,
   searchParams: Pick<URLSearchParams, "get"> | null | undefined,
 ): boolean {
   if (!pathname) return false;
-  if (pathname === ROUTES.dapp || pathname.startsWith(`${ROUTES.dapp}/`)) return true;
+  if (pathname === ROUTES.dapp || pathname.startsWith(`${ROUTES.dapp}/`)) return false;
   if (pathname === ROUTES.discover || pathname.startsWith(`${ROUTES.discover}/`)) return true;
   if (pathname.startsWith("/markets/") && pathname !== "/markets") return true;
   if (pathname !== "/markets") return false;
   return !trendingQueryOn(searchParams);
 }
 
-/** Legacy helper — discovery surface: `/discover` + `/markets` detail routes. */
-export function isMarketsExplorerNavActive(pathname: string | null): boolean {
+export function isHubHomeActive(pathname: string | null): boolean {
   if (!pathname) return false;
-  if (pathname === ROUTES.dapp || pathname.startsWith(`${ROUTES.dapp}/`)) return true;
-  if (pathname === ROUTES.discover || pathname.startsWith(`${ROUTES.discover}/`)) return true;
-  if (pathname === "/markets") return true;
-  return pathname.startsWith("/markets/");
+  return pathname === ROUTES.dapp || pathname === ROUTES.home;
+}
+
+export function isAttentionAnchorActive(): boolean {
+  if (typeof window === "undefined") return false;
+  return window.location.hash === "#attention" && isHubHomeActive(window.location.pathname);
 }
 
 export function resolvePrimaryNavActive(
   pathname: string | null,
   item: Pick<
     NavItem,
-    "href" | "matchSubtree" | "marketsBrowse" | "trendingTape"
+    | "href"
+    | "matchSubtree"
+    | "marketsBrowse"
+    | "trendingTape"
+    | "hubHome"
+    | "attentionAnchor"
   >,
   searchParams?: Pick<URLSearchParams, "get"> | null,
 ): boolean {
+  if (item.attentionAnchor) return isAttentionAnchorActive();
+  if (item.hubHome) return isHubHomeActive(pathname) && !isAttentionAnchorActive();
   if (item.trendingTape) return isTrendingTapeActive(pathname, searchParams);
   if (item.marketsBrowse) return isMarketsBrowseActive(pathname, searchParams);
   return isPathActive(pathname, item.href, item.matchSubtree);
@@ -97,19 +117,26 @@ export function isPathActive(
   matchSubtree: boolean | undefined,
 ): boolean {
   if (!pathname) return false;
-  if (href === "/") return pathname === "/";
-  if (matchSubtree) return pathname === href || pathname.startsWith(`${href}/`);
-  return pathname === href;
+  const base = href.split("#")[0] ?? href;
+  if (base === "/") return pathname === "/";
+  if (matchSubtree) return pathname === base || pathname.startsWith(`${base}/`);
+  return pathname === base;
 }
 
 /**
- * Primary destinations for `g` chord shortcuts + mobile dock — top bar stays minimal;
- * Portfolio / Activity / Wallet sit in the profile menu on desktop.
+ * Primary destinations for `g` chord shortcuts + mobile dock.
  */
 export const NAV_GROUPS: readonly NavGroup[] = [
   {
     id: "rail",
     items: [
+      {
+        href: ROUTES.dapp,
+        label: "Home",
+        icon: Home,
+        hubHome: true,
+        shortcut: "g h",
+      },
       {
         href: ROUTES.discover,
         label: "Markets",
@@ -118,11 +145,11 @@ export const NAV_GROUPS: readonly NavGroup[] = [
         shortcut: "g m",
       },
       {
-        href: ROUTES.marketsTrending,
-        label: "Trending",
-        icon: TrendingUp,
-        trendingTape: true,
-        shortcut: "g t",
+        href: ROUTES.attention,
+        label: "Attention",
+        icon: Flame,
+        attentionAnchor: true,
+        shortcut: "g a",
       },
       {
         href: ROUTES.portfolio,
@@ -130,24 +157,18 @@ export const NAV_GROUPS: readonly NavGroup[] = [
         icon: Briefcase,
         shortcut: "g p",
       },
-      {
-        href: ROUTES.activity,
-        label: "Activity",
-        icon: Activity,
-        shortcut: "g a",
-      },
-      {
-        href: ROUTES.wallet,
-        label: "Wallet",
-        icon: Wallet,
-        shortcut: "g w",
-      },
     ],
   },
 ] as const;
 
-/** Mobile dock — dense primary flows; Wallet lives in header popover. */
+/** Mobile dock — hub spec: Home, Markets, Attention, Portfolio, Profile. */
 export const MOBILE_DOCK_ITEMS: readonly NavItem[] = [
+  {
+    href: ROUTES.dapp,
+    label: "Home",
+    icon: Home,
+    hubHome: true,
+  },
   {
     href: ROUTES.discover,
     label: "Markets",
@@ -155,10 +176,10 @@ export const MOBILE_DOCK_ITEMS: readonly NavItem[] = [
     marketsBrowse: true,
   },
   {
-    href: ROUTES.marketsTrending,
-    label: "Trending",
-    icon: TrendingUp,
-    trendingTape: true,
+    href: ROUTES.attention,
+    label: "Attention",
+    icon: Flame,
+    attentionAnchor: true,
   },
   {
     href: ROUTES.portfolio,
@@ -166,8 +187,9 @@ export const MOBILE_DOCK_ITEMS: readonly NavItem[] = [
     icon: Briefcase,
   },
   {
-    href: ROUTES.activity,
-    label: "Activity",
-    icon: Activity,
+    href: ROUTES.profile,
+    label: "Profile",
+    icon: User,
+    matchSubtree: true,
   },
 ] as const;

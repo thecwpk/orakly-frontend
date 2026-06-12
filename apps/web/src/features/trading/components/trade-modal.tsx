@@ -18,6 +18,7 @@ import {
 } from "./trade-compose-panel";
 import { TradeConfirmPanel } from "./trade-confirm-panel";
 import { TradeResultPanel } from "./trade-result-panel";
+import { toTradeApiSide } from "@/shared/trading/narrative-trade-side";
 import { cn } from "@/lib/utils";
 
 type Phase = "compose" | "confirm" | "result";
@@ -96,7 +97,7 @@ export function TradeModal() {
       exec.mutate(
         {
           marketId: market.tradeMarketId,
-          outcome: draft.outcome,
+          side: toTradeApiSide(draft.outcome, draft.direction),
           direction: draft.direction,
           quantity: String(draft.shares.toFixed(4)),
           idempotencyKey: tempIdempotencyKey(),

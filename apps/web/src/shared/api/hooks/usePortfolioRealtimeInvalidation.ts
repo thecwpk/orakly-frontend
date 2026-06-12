@@ -22,6 +22,9 @@ export function usePortfolioRealtimeInvalidation(
       debounceAsyncFn(() => {
         if (!userId) return;
         void qc.invalidateQueries({ queryKey: queryKeys.portfolio.byUser(userId) });
+        void qc.invalidateQueries({ queryKey: queryKeys.wallet.balance(userId) });
+        void qc.invalidateQueries({ queryKey: [...queryKeys.wallet.root(), userId, "ledger"] });
+        void qc.invalidateQueries({ queryKey: queryKeys.activity.notifications(userId) });
         void qc.invalidateQueries({ queryKey: queryKeys.trades.infinite(tradesScope) });
       }, debounceMs),
     [qc, userId, debounceMs, tradesScope],

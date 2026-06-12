@@ -13,8 +13,14 @@ import {
 import { memo, useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { useQueryClient } from "@tanstack/react-query";
+import {
+  postWalletDeposit,
+  postWalletWithdraw,
+} from "@/shared/api/fetchers/wallet-transfers";
+import { queryKeys } from "@/shared/api/query-keys";
+import { useAuthStore } from "@/state/stores/auth.store";
 import { compactUsd, fullUsd, shortAddress } from "../lib/format";
-import { useWalletMovementsStore } from "../store/wallet-movements-store";
 
 export type TransferKind = "DEPOSIT" | "WITHDRAW";
 
@@ -22,13 +28,6 @@ const PRESETS_DEPOSIT = [50, 250, 1000] as const;
 const PRESETS_WITHDRAW = [25, 100, 500] as const;
 
 type Phase = "compose" | "confirm" | "success";
-
-function fakeTxHash(): string {
-  if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
-    return `0x${crypto.randomUUID().replaceAll("-", "")}`.slice(0, 42);
-  }
-  return `0x${Math.random().toString(16).slice(2)}${Date.now().toString(16)}`.slice(0, 42);
-}
 
 function TransferDialogInner({
   open,
@@ -48,9 +47,10 @@ function TransferDialogInner({
   const [amount, setAmount] = useState("");
   const [phase, setPhase] = useState<Phase>("compose");
   const [submittedHash, setSubmittedHash] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
-  const addMovement = useWalletMovementsStore((s) => s.add);
-  const patchMovement = useWalletMovementsStore((s) => s.patch);
+  const actorId = useAuthStore((s) => s.tradingUserId ?? undefined);
+  const qc = useQueryClient();
 
   // Reset state when dialog reopens or kind changes.
   useEffect(() => {
@@ -81,34 +81,53 @@ function TransferDialogInner({
         : null;
 
   const submit = useCallback(async () => {
-    if (blockingError || !walletAddress) return;
-    const id = addMovement({
-      kind,
-      amountUsd: numericAmount,
-      status: "PENDING",
-      fromAddress: walletAddress,
-      hash: fakeTxHash(),
-    });
+    if (blockingError || !walletAddress || submitting) return;
+    setSubmitting(true);
+    try {
+      const result = isDeposit
+        ? await postWalletDeposit({
+            amountUsd: numericAmount,
+            userId: actorId,
+            txHash: walletAddress,
+          })
+        : await postWalletWithdraw({
+            amountUsd: numericAmount,
+            userId: actorId,
+          });
 
-    // Simulate network confirmation. Prod would await an on-chain receipt
-    // (or the backend's deposit-detected webhook).
-    await new Promise((resolve) => setTimeout(resolve, 1200));
+      if (actorId) {
+        await Promise.all([
+          qc.invalidateQueries({ queryKey: queryKeys.portfolio.byUser(actorId) }),
+          qc.invalidateQueries({ queryKey: queryKeys.wallet.balance(actorId) }),
+          qc.invalidateQueries({
+            queryKey: [...queryKeys.wallet.root(), actorId, "ledger"],
+          }),
+          qc.invalidateQueries({
+            queryKey: queryKeys.activity.notifications(actorId),
+          }),
+        ]);
+      }
 
-    const hash = fakeTxHash();
-    patchMovement(id, { status: "CONFIRMED", hash });
-    setSubmittedHash(hash);
-    setPhase("success");
-    toast.success(isDeposit ? "Deposit confirmed" : "Withdrawal queued", {
-      description: `${fullUsd(numericAmount)} · ${shortAddress(walletAddress)}`,
-    });
+      setSubmittedHash(result.txHash);
+      setPhase("success");
+      toast.success(isDeposit ? "Deposit confirmed" : "Withdrawal submitted", {
+        description: `${fullUsd(numericAmount)} · ${shortAddress(walletAddress)}`,
+      });
+    } catch (e) {
+      toast.error(isDeposit ? "Deposit failed" : "Withdrawal failed", {
+        description: e instanceof Error ? e.message : "Request failed",
+      });
+    } finally {
+      setSubmitting(false);
+    }
   }, [
     blockingError,
     walletAddress,
-    addMovement,
-    kind,
-    numericAmount,
-    patchMovement,
+    submitting,
     isDeposit,
+    numericAmount,
+    actorId,
+    qc,
   ]);
 
   return (
@@ -188,9 +207,8 @@ function TransferDialogInner({
               numericAmount={numericAmount}
               availableUsd={availableUsd}
               blockingError={blockingError}
-              isPending={phase === "confirm"}
+              isPending={submitting}
               onSubmit={() => {
-                setPhase("confirm");
                 void submit();
               }}
               onCancel={() => onOpenChange(false)}

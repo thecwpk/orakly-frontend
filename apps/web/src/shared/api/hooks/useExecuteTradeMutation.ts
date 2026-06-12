@@ -11,6 +11,7 @@ import type { TradesPage } from "../fetchers/trades";
 import type { PortfolioSnapshot } from "../fetchers/portfolio";
 import type { MarketOddsDto } from "../fetchers/markets-live";
 import { marketSubtreeFilter, queryKeys } from "../query-keys";
+import { narrativeSideToUiOutcome } from "@/shared/trading/narrative-trade-side";
 import {
   injectOptimisticTradePrint,
   stripOptimisticTradePrints,
@@ -60,11 +61,11 @@ export function useExecuteTradeMutation(options: {
     MutationCtx
   >({
     mutationFn: async (vars) => {
-      const { marketId, outcome, direction, quantity, clientSeq, idempotencyKey } =
+      const { marketId, side, direction, quantity, clientSeq, idempotencyKey } =
         vars;
       return postExecuteTrade({
         marketId,
-        outcome,
+        side,
         direction,
         quantity,
         clientSeq,
@@ -88,10 +89,11 @@ export function useExecuteTradeMutation(options: {
       );
 
       const opt = vars.optimistic;
+      const outcome = narrativeSideToUiOutcome(vars.side);
       const pending: TradesPage["trades"][number] = {
         id: tempTradeId(),
         marketId: vars.marketId,
-        outcome: vars.outcome,
+        outcome,
         price:
           opt ? String(opt.execPrice)
           : "pending",
@@ -170,7 +172,7 @@ export function useExecuteTradeMutation(options: {
 
         injectOptimisticTradePrint(vars.marketId, {
           side: vars.direction,
-          outcome: vars.outcome,
+          outcome,
           price: String(opt.execPrice),
           quantity: String(vars.quantity),
           notionalUsd: String(opt.notionalUsd),

@@ -25,11 +25,7 @@ export type EnrichedQuote = {
   takerFeeBps: number;
 };
 
-/**
- * Convert the raw `MarketQuoteDto` into typed numbers. Falls back to
- * client-side math when individual fields are missing — keeps the UI usable
- * even with a partially-implemented backend / mock route.
- */
+/** Requires backend quote API — no client-side pricing fallback. */
 export function enrichQuote(
   q: MarketQuoteDto | undefined,
   fallback: {
@@ -39,31 +35,30 @@ export function enrichQuote(
     outcome: "YES" | "NO";
   },
 ): EnrichedQuote {
-  const px =
-    parseFloatSafe(q?.execPrice) ??
-    (fallback.outcome === "YES" ? fallback.midYes : 1 - fallback.midYes);
-  const qty = fallback.quantity;
-  const notional =
-    parseFloatSafe(q?.notionalUsd) ?? Math.max(0, px * qty);
-  const feeBps = q?.takerFeeBps ?? 25;
-  const fee =
-    parseFloatSafe(q?.feeUsd) ?? Math.max(0, notional * (feeBps / 10_000));
-  const totalDebit =
-    parseFloatSafe(q?.totalDebitUsd) ?? notional + fee;
-  const netCredit =
-    parseFloatSafe(q?.netCreditUsd) ?? Math.max(0, notional - fee);
-  const after =
-    parseFloatSafe(q?.impliedYesAfter) ?? fallback.midYes;
+  if (!q) {
+    throw new Error("Quote unavailable — waiting for backend pricing");
+  }
+
+  const px = parseFloatSafe(q.execPrice);
+  const notional = parseFloatSafe(q.notionalUsd);
+  const fee = parseFloatSafe(q.feeUsd);
+  const totalDebit = parseFloatSafe(q.totalDebitUsd);
+  const netCredit = parseFloatSafe(q.netCreditUsd);
+  const after = parseFloatSafe(q.impliedYesAfter);
+
+  if (px == null || notional == null || fee == null || after == null) {
+    throw new Error("Incomplete quote from backend");
+  }
 
   return {
-    quantity: qty,
+    quantity: fallback.quantity,
     execPrice: px,
     notionalUsd: notional,
     feeUsd: fee,
-    totalDebitUsd: totalDebit,
-    netCreditUsd: netCredit,
+    totalDebitUsd: totalDebit ?? notional + fee,
+    netCreditUsd: netCredit ?? Math.max(0, notional - fee),
     impliedYesAfter: after,
-    takerFeeBps: feeBps,
+    takerFeeBps: q.takerFeeBps,
   };
 }
 

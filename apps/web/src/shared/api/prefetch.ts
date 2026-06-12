@@ -40,7 +40,7 @@ export async function prefetchPortfolio(
 ): Promise<void> {
   await qc.prefetchQuery({
     queryKey: queryKeys.portfolio.byUser(userId),
-    queryFn: fetchPortfolio,
+    queryFn: () => fetchPortfolio(userId),
     staleTime: CACHE_POLICY.portfolio.staleTime,
   });
 }

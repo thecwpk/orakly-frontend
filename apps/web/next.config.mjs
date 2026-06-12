@@ -20,7 +20,7 @@ if (!process.env.DATABASE_URL && existsSync(databaseEnvPath)) {
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   async redirects() {
-    return [{ source: "/welcome", destination: "/", permanent: true }];
+    return [{ source: "/welcome", destination: "/dapp", permanent: true }];
   },
   async rewrites() {
     const upstream = trimEnv("REALTIME_UPSTREAM_URL").replace(/\/$/, "");

@@ -58,10 +58,10 @@ export const metadata: Metadata = {
     "DeFi",
     "Orakly",
   ],
-  alternates: { canonical: "/" },
+  alternates: { canonical: "/dapp" },
   openGraph: {
     type: "website",
-    url: "/",
+    url: "/dapp",
     siteName: "Orakly Market",
     title: "Orakly Market — on-chain prediction markets",
     description:

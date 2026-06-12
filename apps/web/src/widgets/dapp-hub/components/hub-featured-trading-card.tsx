@@ -13,9 +13,13 @@ import { WatchlistStar } from "@/features/watchlist";
 import { cn } from "@/lib/utils";
 import { ROUTES } from "@/shared/constants/routes";
 import { PrefetchLink } from "@/shared/ui";
+import { useMarketTradesQuery } from "@/shared/api/hooks";
 import { HubChartTapeOverlay } from "./hub-chart-tape-overlay";
 import { HubSpotlightTradingChart } from "./hub-spotlight-trading-chart";
 import { buildSpotlightNewsLines } from "../lib/hub-spotlight-news";
+
+const UUID_RE =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 /** Polymarket-style headline probability accent */
 const PM_BLUE = "#2797FF";
@@ -149,11 +153,24 @@ export function HubFeaturedTradingCard({
 }) {
   const probability = market.probability ?? 0.5;
   const yesPct = Math.round(probability * 100);
+  const backendMarketId =
+    market.backendMarketId ?? (UUID_RE.test(market.id) ? market.id : undefined);
+  const tradesQ = useMarketTradesQuery(backendMarketId);
 
   useEffect(() => {
     seedProbabilityHistory(market.id, probability);
     reconcileProbabilityAnchor(market.id, probability);
   }, [market.id, probability]);
+
+  useEffect(() => {
+    const trades = tradesQ.data ?? [];
+    for (const tr of trades) {
+      const px = Number.parseFloat(tr.price);
+      if (Number.isFinite(px) && px > 0) {
+        reconcileProbabilityAnchor(market.id, px);
+      }
+    }
+  }, [market.id, tradesQ.data]);
 
   const tradingLocked = market.status !== "OPEN";
 

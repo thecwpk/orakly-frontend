@@ -1,6 +1,8 @@
 import { permanentRedirect } from "next/navigation";
 
-/** `/landing` is a permanent alias of `/` (entry is the root marketing page). */
+import { ROUTES } from "@/shared/constants/routes";
+
+/** Legacy in-app landing path — marketing site is separate; hub entry is `/dapp`. */
 export default function LegacyLandingPathRedirect() {
-  permanentRedirect("/");
+  permanentRedirect(ROUTES.dapp);
 }

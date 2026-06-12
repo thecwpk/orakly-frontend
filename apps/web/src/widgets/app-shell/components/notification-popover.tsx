@@ -11,8 +11,10 @@ import {
   TrendingUp,
 } from "lucide-react";
 import Link from "next/link";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { useShallow } from "zustand/react/shallow";
+import { useNotificationsQuery } from "@/shared/api/hooks";
+import { useAuthStore } from "@/state/stores/auth.store";
 import {
   NOTIFICATION_FILTERS,
   selectFilteredNotifications,
@@ -138,6 +140,8 @@ function NotificationRow({
 }
 
 export function NotificationBell() {
+  const actorId = useAuthStore((s) => s.tradingUserId ?? undefined);
+  const notificationsQ = useNotificationsQuery(actorId);
   const open = useNotificationsStore((s) => s.popoverOpen);
   const setOpen = useNotificationsStore((s) => s.setPopoverOpen);
   const unread = useNotificationsStore(selectUnreadCount);
@@ -145,8 +149,25 @@ export function NotificationBell() {
   const setFilter = useNotificationsStore((s) => s.setFilter);
   const markRead = useNotificationsStore((s) => s.markRead);
   const markAllRead = useNotificationsStore((s) => s.markAllRead);
+  const setFromApi = useNotificationsStore((s) => s.setFromApi);
   /** `.filter()` returns a new array each run — shallow-stabilize for useSyncExternalStore. */
   const list = useNotificationsStore(useShallow(selectFilteredNotifications));
+
+  useEffect(() => {
+    if (!notificationsQ.data) return;
+    setFromApi(
+      notificationsQ.data.map((n) => ({
+        id: n.id,
+        kind: n.kind,
+        title: n.title,
+        body: n.body,
+        at: n.at,
+        href: n.href ?? undefined,
+        marketSlug: n.marketSlug ?? undefined,
+        read: n.read,
+      })),
+    );
+  }, [notificationsQ.data, setFromApi]);
 
   const top = useMemo(() => list.slice(0, 18), [list]);
 

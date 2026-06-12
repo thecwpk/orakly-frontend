@@ -1,5 +1,6 @@
 "use client";
 
+import { usePathname } from "next/navigation";
 import { ROUTES } from "@/shared/constants/routes";
 import { BrandWordmarkLink, PrefetchLink } from "@/shared/ui";
 import { useShowAdminNavLink } from "@/widgets/admin-dashboard/hooks/use-admin-nav-session";
@@ -10,32 +11,57 @@ import { NotificationBell } from "./notification-popover";
 import { UserMenu } from "./user-menu";
 import { WalletPopover } from "./wallet-popover";
 import { useNavShortcuts } from "../lib/use-nav-shortcuts";
+import { isHubHomeActive, isAttentionAnchorActive } from "../lib/nav-config";
 
 export type AppTopbarDensity = "default" | "hub";
 
+type TopNavItem = {
+  href: string;
+  label: string;
+  kind: "home" | "markets" | "attention" | "portfolio";
+};
+
+const TOP_NAV: TopNavItem[] = [
+  { href: ROUTES.dapp, label: "Home", kind: "home" },
+  { href: ROUTES.discover, label: "Markets", kind: "markets" },
+  { href: ROUTES.attention, label: "Attention", kind: "attention" },
+  { href: ROUTES.portfolio, label: "Portfolio", kind: "portfolio" },
+];
+
+function navLinkClass(active: boolean) {
+  return cn(
+    "shrink-0 text-[13px] font-medium transition",
+    active ? "text-[#f5f5f5]" : "text-[#9ca3af] hover:text-[#f5f5f5]",
+  );
+}
+
 /**
- * Compact terminal navbar — explore link, category picker, search, wallet,
- * notifications, profile; secondary destinations live in the profile menu and
- * mobile dock (`g` chord shortcuts unchanged).
+ * Sticky terminal navbar — logo + primary nav, centered search, wallet.
  */
 export function AppTopbar({ density = "default" }: { density?: AppTopbarDensity }) {
   useNavShortcuts();
   const hub = density === "hub";
   const showAdminNav = useShowAdminNavLink();
+  const pathname = usePathname();
 
   return (
     <header
       role="banner"
       data-topbar-density={density}
-      className="relative sticky top-0 z-40 border-b border-app-subtle bg-app-chrome/97 backdrop-blur-sm supports-[backdrop-filter]:backdrop-blur-md chrome-edge-subtle"
+      className={cn(
+        "relative sticky top-0 z-40 border-b backdrop-blur-sm supports-[backdrop-filter]:backdrop-blur-md",
+        hub
+          ? "border-[#1d1d1d] bg-[#090909]/97"
+          : "border-app-subtle bg-app-chrome/97 chrome-edge-subtle",
+      )}
     >
       <div
         className={cn(
-          "flex h-[var(--app-topbar-row-h)] w-full items-center px-3 sm:px-4 lg:px-5",
-          hub ? "gap-2" : "gap-2 sm:gap-3 lg:gap-4",
+          "mx-auto flex h-[var(--app-topbar-row-h)] w-full max-w-[90rem] items-center px-3 sm:px-4 lg:px-6",
+          hub ? "gap-3" : "gap-2 sm:gap-3 lg:gap-4",
         )}
       >
-        <div className="flex min-w-0 shrink-0 items-center">
+        <div className="flex min-w-0 shrink-0 items-center gap-5">
           <BrandWordmarkLink
             href={ROUTES.dapp}
             showTitle
@@ -43,46 +69,55 @@ export function AppTopbar({ density = "default" }: { density?: AppTopbarDensity 
             priority
             className="min-w-0"
           />
-        </div>
-
-        <div className="min-w-0 flex-1 px-1 sm:px-2">
-          <div
-            className={cn(
-              "mx-auto w-full min-w-0",
-              hub ? "max-w-[420px]" : "max-w-xl lg:max-w-2xl",
-            )}
-          >
-            <AppSearch />
-          </div>
-        </div>
-
-        <div className="flex shrink-0 items-center gap-2 sm:gap-3">
-          <nav className="hidden min-w-0 items-center gap-4 lg:gap-5 md:flex">
-            <PrefetchLink
-              href={ROUTES.discover}
-              className="shrink-0 text-[13px] font-medium text-zinc-400 transition hover:text-white"
-            >
-              Markets
-            </PrefetchLink>
-            <PrefetchLink
-              href={ROUTES.portfolio}
-              className="shrink-0 text-[13px] font-medium text-zinc-400 transition hover:text-white"
-            >
-              Portfolio
-            </PrefetchLink>
+          <nav className="hidden items-center gap-4 md:flex lg:gap-5">
+            {TOP_NAV.map((item) => {
+              let active = false;
+              if (item.kind === "home") {
+                active = isHubHomeActive(pathname) && !isAttentionAnchorActive();
+              } else if (item.kind === "attention") {
+                active = isAttentionAnchorActive();
+              } else if (item.kind === "markets") {
+                active =
+                  pathname === ROUTES.discover ||
+                  pathname?.startsWith("/markets") === true;
+              } else if (item.kind === "portfolio") {
+                active = pathname === ROUTES.portfolio;
+              }
+              return (
+                <PrefetchLink
+                  key={item.href}
+                  href={item.href}
+                  className={navLinkClass(active)}
+                >
+                  {item.label}
+                </PrefetchLink>
+              );
+            })}
             {showAdminNav ? (
               <PrefetchLink
                 href={ROUTES.adminDashboard}
-                className="shrink-0 text-[13px] font-medium text-zinc-400 transition hover:text-white"
+                className={navLinkClass(pathname?.startsWith("/admin") ?? false)}
               >
                 Admin
               </PrefetchLink>
             ) : null}
           </nav>
-          <span className="hidden h-4 w-px shrink-0 bg-white/[0.08] md:block" aria-hidden />
-          <WalletPopover />
-          <NotificationBell />
-          <UserMenu />
+        </div>
+
+        <div className="min-w-0 flex-1 px-1 sm:px-2">
+          <div className="mx-auto w-full min-w-0 max-w-xl lg:max-w-2xl">
+            <AppSearch />
+          </div>
+        </div>
+
+        <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+          <WalletPopover connectLabel="Connect Wallet" />
+          {!hub ? (
+            <>
+              <NotificationBell />
+              <UserMenu />
+            </>
+          ) : null}
         </div>
       </div>
 

@@ -4,12 +4,14 @@
  * settings sidebar, and feature CTAs all read from it.
  */
 export const ROUTES = {
-  /** Public marketing entry — landing at `/`. */
-  home: "/",
-  /** Same as `home` (legacy `/landing` URL redirects to `/`). */
-  landing: "/",
-  /** Trading hub home — live tape, spotlight lanes, browse blocks. */
+  /** App entry — trading hub (`/` permanently redirects here). */
+  home: "/dapp",
+  /** Legacy in-app landing URL — redirects to `dapp`. Marketing site is separate. */
+  landing: "/landing",
+  /** Trading hub home — attention terminal, narrative wars, opportunities. */
   dapp: "/dapp",
+  /** Attention dashboard anchor on hub home. */
+  attention: "/dapp#attention",
   /** Live markets directory (marketing shell). */
   discover: "/discover",
   /** Primary exploration surface — dense grid, filters, infinite scroll. */

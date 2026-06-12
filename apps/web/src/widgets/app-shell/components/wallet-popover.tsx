@@ -22,8 +22,11 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { useWalletBalanceQuery } from "@/shared/api/hooks";
 import { ROUTES } from "@/shared/constants/routes";
+import { useAuthStore } from "@/state/stores/auth.store";
 import { cn } from "@/lib/utils";
+import { parseUsd } from "@/widgets/portfolio-dashboard/lib/portfolio-metrics";
 
 function truncate(addr: string) {
   return `${addr.slice(0, 6)}…${addr.slice(-4)}`;
@@ -41,8 +44,13 @@ function StatusDot({ tone }: { tone: "ok" | "warn" | "err" | "idle" }) {
   return <span className={cn("h-1.5 w-1.5 rounded-full", cls)} />;
 }
 
-function MockBalance() {
-  /* Mock data — replace with on-chain balances + custodial wallet balances. */
+function CustodialBalance({ userId }: { userId: string | undefined }) {
+  const balanceQ = useWalletBalanceQuery(userId);
+  const available = balanceQ.data
+    ? parseUsd(balanceQ.data.availableBalanceUsd)
+    : 0;
+  const locked = balanceQ.data ? parseUsd(balanceQ.data.lockedBalanceUsd) : 0;
+
   return (
     <div className="grid grid-cols-2 gap-2 px-3 py-2.5">
       <div className="rounded-lg bg-white/[0.03] px-2.5 py-2 ring-1 ring-white/[0.05]">
@@ -50,7 +58,9 @@ function MockBalance() {
           Available
         </p>
         <p className="mt-0.5 font-mono text-[14px] font-semibold text-white">
-          $12,480.20
+          {balanceQ.isLoading && !balanceQ.data
+            ? "—"
+            : `$${available.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
         </p>
       </div>
       <div className="rounded-lg bg-white/[0.03] px-2.5 py-2 ring-1 ring-white/[0.05]">
@@ -58,14 +68,17 @@ function MockBalance() {
           Locked
         </p>
         <p className="mt-0.5 font-mono text-[14px] font-semibold text-white">
-          $3,205.00
+          {balanceQ.isLoading && !balanceQ.data
+            ? "—"
+            : `$${locked.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
         </p>
       </div>
     </div>
   );
 }
 
-export function WalletPopover() {
+export function WalletPopover({ connectLabel = "Connect" }: { connectLabel?: string }) {
+  const actorId = useAuthStore((s) => s.tradingUserId ?? undefined);
   const [open, setOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const { address, status, chain: wagmiChain } = useAccount();
@@ -119,7 +132,7 @@ export function WalletPopover() {
               ) : (
                 <>
                   <Wallet className="h-3.5 w-3.5 shrink-0 text-emerald-300/95" strokeWidth={2} />
-                  <span>Connect</span>
+                  <span>{connectLabel}</span>
                 </>
               )}
             </motion.button>
@@ -127,7 +140,7 @@ export function WalletPopover() {
         }
 
         const addr = account?.address ?? address!;
-        const display = account?.displayName ?? truncate(addr);
+        const display = `${addr.slice(0, 6)}...${addr.slice(-4)}`;
         const pendingTx = account?.hasPendingTransactions ?? false;
 
         return (
@@ -248,7 +261,7 @@ export function WalletPopover() {
                 <ChevronDown className="h-3 w-3 -rotate-90 text-zinc-500" />
               </button>
 
-              <MockBalance />
+              <CustodialBalance userId={actorId} />
 
               <div className="grid grid-cols-2 gap-1.5 px-3 pb-2.5">
                 <Link

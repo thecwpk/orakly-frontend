@@ -158,12 +158,12 @@ export function UserMenu() {
           </PrefetchLink>
         </DropdownMenuItem>
         <DropdownMenuItem asChild className={menuItem}>
-          <Link href={`${ROUTES.home}#community`} prefetch={false}>
+          <Link href={ROUTES.discover} prefetch={false}>
             Help Center
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild className={menuItem}>
-          <Link href={`${ROUTES.home}#footer`} prefetch={false}>
+          <Link href={ROUTES.settings} prefetch={false}>
             Terms of Use
           </Link>
         </DropdownMenuItem>

@@ -26,12 +26,12 @@ const NAV_ROWS: NavRow[] = [
   {
     label: "How it works",
     landing: { href: "#how-it-works", isRoute: false },
-    app: { href: `${ROUTES.home}#how-it-works`, isRoute: true },
+    app: { href: ROUTES.discover, isRoute: true },
   },
   {
     label: "Roadmap",
     landing: { href: "#roadmap", isRoute: false },
-    app: { href: `${ROUTES.home}#roadmap`, isRoute: true },
+    app: { href: ROUTES.activity, isRoute: true },
   },
 ];
 
