@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import { DappHubPage } from "@/widgets/dapp-hub";
 
 export const metadata: Metadata = {
-  title: "Orakly — Trading hub",
+  title: "Orakly — Crypto Attention Market",
   description:
-    "Live prediction market hub — trending tape, spotlight markets, and realtime activity.",
+    "Attention-first narrative exchange — live attention scores, narrative wars, and conviction markets.",
 };
 
 export default function DappHomePage() {
