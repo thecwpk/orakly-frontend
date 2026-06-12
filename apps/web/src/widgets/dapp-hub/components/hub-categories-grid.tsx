@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useCategoryOverviewQuery } from "@/shared/api/hooks";
 import { ROUTES } from "@/shared/constants/routes";
 import { fmtCount, fmtUsdCompact } from "../lib/format-hub-metrics";
+import { HubSectionRetry } from "./hub-section-retry";
 import { HubSectionShell } from "./hub-section-shell";
 
 export function HubCategoriesGrid() {
@@ -21,6 +22,8 @@ export function HubCategoriesGrid() {
             <div key={i} className="hub-skeleton h-32 rounded-[var(--hub-radius)]" />
           ))}
         </div>
+      ) : categoriesQ.isError ? (
+        <HubSectionRetry onRetry={() => void categoriesQ.refetch()} />
       ) : (
         <div className="grid gap-[var(--hub-card-gap)] sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
           {(categoriesQ.data ?? []).map((cat) => (

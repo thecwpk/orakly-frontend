@@ -10,5 +10,6 @@ export function useMarketSuggestionsQuery(take = 5) {
     queryKey: queryKeys.hub.suggestions(take),
     queryFn: () => fetchMarketSuggestions(take),
     staleTime: 60_000,
+    refetchOnMount: true,
   });
 }

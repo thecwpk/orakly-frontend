@@ -10,5 +10,6 @@ export function useHubTrendingMarketsQuery(take = 20) {
     queryKey: queryKeys.hub.trending(take),
     queryFn: () => fetchHubTrendingMarkets(take),
     staleTime: 45_000,
+    refetchOnMount: true,
   });
 }

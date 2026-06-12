@@ -6,6 +6,7 @@ import { useConvictionMarketsQuery } from "@/shared/api/hooks";
 import { ROUTES } from "@/shared/constants/routes";
 import { fmtPct, fmtUsdCompact } from "../lib/format-hub-metrics";
 import { marketToTradeModal } from "../lib/open-hub-trade";
+import { HubSectionRetry } from "./hub-section-retry";
 import { HubSectionShell } from "./hub-section-shell";
 
 function formatEndDate(iso: string): string {
@@ -30,6 +31,8 @@ export function HubConvictionOpportunities() {
             <div key={i} className="hub-skeleton h-44 rounded-[var(--hub-radius)]" />
           ))}
         </div>
+      ) : convictionQ.isError ? (
+        <HubSectionRetry onRetry={() => void convictionQ.refetch()} />
       ) : (convictionQ.data ?? []).length === 0 ? (
         <p className="text-sm text-[var(--hub-muted)]">No open markets yet.</p>
       ) : (

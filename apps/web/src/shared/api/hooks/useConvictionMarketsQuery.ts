@@ -10,5 +10,6 @@ export function useConvictionMarketsQuery(take = 6) {
     queryKey: queryKeys.hub.conviction(take),
     queryFn: () => fetchConvictionMarkets(take),
     staleTime: 45_000,
+    refetchOnMount: true,
   });
 }

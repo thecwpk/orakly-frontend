@@ -58,7 +58,7 @@ const MARKETS: readonly SeedMarket[] = [
   {
     slug: "btc-ath-q3-2026",
     title: "BTC to hit a new all-time high in Q3 2026?",
-    categorySlug: "crypto",
+    categorySlug: "market-sentiment",
     volumeTotalUsd: 9_800_000,
     volume24hUsd: 1_420_000,
     trendingScore: 10540,
@@ -94,7 +94,7 @@ const MARKETS: readonly SeedMarket[] = [
   {
     slug: "solana-etf-2026",
     title: "Solana spot ETF approved in the US by end of 2026?",
-    categorySlug: "crypto",
+    categorySlug: "ecosystems",
     volumeTotalUsd: 2_400_000,
     volume24hUsd: 890_000,
     trendingScore: 9650,
@@ -130,7 +130,7 @@ const MARKETS: readonly SeedMarket[] = [
   {
     slug: "gpt5-pass-bar-exam",
     title: "Will a top LLM pass a bar-exam style benchmark at ≥90% before 2027?",
-    categorySlug: "tech",
+    categorySlug: "crypto-narratives",
     volumeTotalUsd: 560_000,
     volume24hUsd: 240_000,
     trendingScore: 8310,
@@ -190,7 +190,7 @@ const MARKETS: readonly SeedMarket[] = [
   {
     slug: "messi-mls-mvp-2026",
     title: "Messi wins MLS MVP for the 2026 season?",
-    categorySlug: "sports",
+    categorySlug: "meme-coins",
     volumeTotalUsd: 290_000,
     volume24hUsd: 410_000,
     trendingScore: 7560,
@@ -226,7 +226,7 @@ const MARKETS: readonly SeedMarket[] = [
   {
     slug: "base-mainnet-tvl-10b-2026",
     title: "Base chain DeFi TVL exceeds $10B before 2027?",
-    categorySlug: "crypto",
+    categorySlug: "ecosystems",
     volumeTotalUsd: 760_000,
     volume24hUsd: 520_000,
     trendingScore: 9125,
@@ -250,7 +250,7 @@ const MARKETS: readonly SeedMarket[] = [
   {
     slug: "openai-ipo-2027",
     title: "OpenAI completes an IPO before 2028?",
-    categorySlug: "tech",
+    categorySlug: "industry-events",
     volumeTotalUsd: 22_000_000,
     volume24hUsd: 95_000,
     trendingScore: 8620,

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useMarketSuggestionsQuery } from "@/shared/api/hooks";
 import { ROUTES } from "@/shared/constants/routes";
+import { HubSectionRetry } from "./hub-section-retry";
 import { HubSectionShell } from "./hub-section-shell";
 
 export function HubCommunityIntelligence() {
@@ -37,6 +38,10 @@ export function HubCommunityIntelligence() {
               <div className="hub-skeleton h-10 w-full" />
             </div>
           ))
+        ) : suggestionsQ.isError ? (
+          <p className="px-4 py-6">
+            <HubSectionRetry onRetry={() => void suggestionsQ.refetch()} />
+          </p>
         ) : (suggestionsQ.data ?? []).length === 0 ? (
           <p className="px-4 py-6 text-sm text-[var(--hub-muted)]">
             No community suggestions yet.

@@ -6,6 +6,7 @@ import { useHubTrendingMarketsQuery } from "@/shared/api/hooks";
 import { ROUTES } from "@/shared/constants/routes";
 import { fmtMomentum, fmtPct, fmtUsdCompact } from "../lib/format-hub-metrics";
 import { marketToTradeModal } from "../lib/open-hub-trade";
+import { HubSectionRetry } from "./hub-section-retry";
 import { HubSectionShell } from "./hub-section-shell";
 
 export function HubTrendingMarketsTable() {
@@ -19,6 +20,11 @@ export function HubTrendingMarketsTable() {
       subtitle="Where is volume flowing?"
     >
       <div className="hub-card overflow-x-auto">
+        {trendingQ.isError ? (
+          <p className="px-4 py-6">
+            <HubSectionRetry onRetry={() => void trendingQ.refetch()} />
+          </p>
+        ) : (
         <table className="w-full min-w-[640px] text-left text-sm">
           <thead>
             <tr className="border-b border-[var(--hub-border)] text-[11px] uppercase tracking-wider text-[var(--hub-muted)]">
@@ -77,7 +83,8 @@ export function HubTrendingMarketsTable() {
                 ))}
           </tbody>
         </table>
-        {!trendingQ.isLoading && (trendingQ.data ?? []).length === 0 ? (
+        )}
+        {!trendingQ.isLoading && !trendingQ.isError && (trendingQ.data ?? []).length === 0 ? (
           <p className="px-4 py-6 text-sm text-[var(--hub-muted)]">No trending markets.</p>
         ) : null}
       </div>

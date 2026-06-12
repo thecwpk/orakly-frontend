@@ -11,5 +11,6 @@ export function useCategoryOverviewQuery() {
     queryKey: queryKeys.hub.categories(),
     queryFn: fetchCategoriesOverview,
     ...CACHE_POLICY.categories,
+    refetchOnMount: true,
   });
 }
