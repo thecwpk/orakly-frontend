@@ -13,6 +13,7 @@ export { useConvictionMarketsQuery } from "./useConvictionMarketsQuery";
 export { useHubTrendingMarketsQuery } from "./useHubTrendingMarketsQuery";
 export { useCategoryOverviewQuery } from "./useCategoryOverviewQuery";
 export { useMarketSuggestionsQuery } from "./useMarketSuggestionsQuery";
+export { useVoteSuggestionMutation } from "./useVoteSuggestionMutation";
 export { useSpotPricesQuery } from "./useSpotPricesQuery";
 export { useExplorerMarketsFeedQuery } from "./useExplorerMarketsFeedQuery";
 export {

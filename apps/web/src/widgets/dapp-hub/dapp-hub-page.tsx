@@ -5,6 +5,7 @@ import { HubCategoriesGrid } from "./components/hub-categories-grid";
 import { HubCommunityIntelligence } from "./components/hub-community-intelligence";
 import { HubConvictionOpportunities } from "./components/hub-conviction-opportunities";
 import { HubHeroAttentionTerminal } from "./components/hub-hero-attention-terminal";
+import { HubHighVolumeSection } from "./components/hub-high-volume-section";
 import { HubNarrativeWarsSection } from "./components/hub-narrative-wars-section";
 import { HubNewOpportunities } from "./components/hub-new-opportunities";
 import { HubPortfolioShortcut } from "./components/hub-portfolio-shortcut";
@@ -20,12 +21,13 @@ export function DappHubPage() {
       <div className="hub-container hub-sections-stack pb-24">
         <HubHeroAttentionTerminal />
         <HubNarrativeWarsSection />
-        <HubConvictionOpportunities />
         <HubAttentionDashboard />
         <HubTrendingMarketsTable />
+        <HubHighVolumeSection />
+        <HubConvictionOpportunities />
         <HubNewOpportunities />
-        <HubCategoriesGrid />
         <HubCommunityIntelligence />
+        <HubCategoriesGrid />
         <HubPortfolioShortcut />
       </div>
     </div>

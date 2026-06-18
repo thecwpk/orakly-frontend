@@ -15,7 +15,7 @@ export function HubNewOpportunities() {
 
   return (
     <HubSectionShell
-      className="hub-section--desktop-only"
+      className="hub-section--mobile-reorder-new"
       title="New Opportunities"
       subtitle="Discover markets early."
     >

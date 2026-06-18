@@ -9,7 +9,7 @@ export function HubNarrativeWarsSection() {
 
   return (
     <HubSectionShell
-      className="hub-section--mobile-reorder-wars"
+      className="hub-section--mobile-reorder-wars hub-section-glass"
       title="Narrative Wars"
       subtitle="Who is winning the attention battle right now?"
     >

@@ -1,54 +1,21 @@
 import { revalidateTag } from "next/cache";
 import { NextResponse, type NextRequest } from "next/server";
-import type { Market } from "@orakly/types";
+import { MarketSuggestionStatus } from "@prisma/client";
+import { prisma } from "@orakly/database";
 import { createMarketSchema } from "@/api/schemas/create-market";
+import { resolveWalletSessionFromCookies } from "@/server/wallet-auth/resolve-wallet-session";
 import { API_ERROR_CODES } from "../../_lib/errors";
 import { err, ok } from "../../_lib/response";
 
-/**
- * Public submission endpoint for the `/markets/create` wizard.
- *
- * Distinct from `/api/v1/admin/markets` (admin-gated, Prisma-backed) — this route
- * intentionally accepts a draft market from any visitor and stores it in an
- * in-memory queue for moderation. Production would swap `pendingMarkets` for a
- * `MarketDraft` table with status="PENDING_REVIEW".
- */
-
-type PendingMarket = Market & { createdAt: string; pending: true };
-
-declare global {
-  var __oraklyPendingMarkets: PendingMarket[] | undefined;
-}
-
-const pendingMarkets: PendingMarket[] =
-  globalThis.__oraklyPendingMarkets ??
-  (globalThis.__oraklyPendingMarkets = []);
-
-function projectToMarket(input: {
-  id: string;
-  slug: string;
-  title: string;
-  category: string;
-  liquiditySeedUsd: number;
-  initialProbability: number;
-  closesAt: string;
-}): PendingMarket {
-  return {
-    id: input.id,
-    slug: input.slug,
-    title: input.title,
-    category: input.category,
-    volumeUsd: 0,
-    liquidityUsd: input.liquiditySeedUsd,
-    probability: input.initialProbability,
-    closesAt: input.closesAt,
-    status: "OPEN",
-    createdAt: new Date().toISOString(),
-    pending: true,
-  };
-}
-
+/** POST /api/v1/markets/create — community suggestion (wallet auth required). */
 export async function POST(req: NextRequest) {
+  const session = await resolveWalletSessionFromCookies();
+  if (!session?.userId) {
+    return NextResponse.json(err(API_ERROR_CODES.UNAUTHORIZED, "Wallet sign-in required"), {
+      status: 401,
+    });
+  }
+
   let json: unknown;
   try {
     json = await req.json();
@@ -63,49 +30,65 @@ export async function POST(req: NextRequest) {
   if (!parsed.success) {
     const first = parsed.error.issues[0];
     return NextResponse.json(
-      err(
-        API_ERROR_CODES.VALIDATION,
-        first?.message ?? "Invalid market submission.",
-      ),
+      err(API_ERROR_CODES.VALIDATION, first?.message ?? "Invalid market submission."),
       { status: 400 },
     );
   }
 
-  const slugTaken = pendingMarkets.some((m) => m.slug === parsed.data.slug);
-  if (slugTaken) {
-    return NextResponse.json(
-      err(API_ERROR_CODES.VALIDATION, "Slug is already taken."),
-      { status: 409 },
-    );
-  }
+  const data = parsed.data;
+  const resolutionNote = [
+    data.source,
+    data.sourceUrl ? `URL: ${data.sourceUrl}` : "",
+    data.resolverNote,
+  ]
+    .filter(Boolean)
+    .join(" · ");
 
-  const id =
-    typeof crypto !== "undefined" && "randomUUID" in crypto
-      ? crypto.randomUUID()
-      : `pending-${Date.now()}`;
-
-  const market = projectToMarket({
-    id,
-    slug: parsed.data.slug,
-    title: parsed.data.title,
-    category: parsed.data.category,
-    liquiditySeedUsd: parsed.data.liquiditySeedUsd,
-    initialProbability: parsed.data.initialProbability,
-    closesAt: parsed.data.closesAt,
+  const suggestion = await prisma.marketSuggestion.create({
+    data: {
+      title: data.title,
+      description: data.description || null,
+      category: data.category,
+      narrative: data.category,
+      submitterId: session.userId,
+      status: MarketSuggestionStatus.PENDING,
+      triggerReason: resolutionNote || "Community submission",
+    },
+    select: {
+      id: true,
+      title: true,
+      status: true,
+      createdAt: true,
+    },
   });
 
-  pendingMarkets.unshift(market);
-  if (pendingMarkets.length > 200) pendingMarkets.length = 200;
-
+  revalidateTag("hub-suggestions");
   revalidateTag("markets-feed");
 
-  return NextResponse.json(ok(market), {
-    headers: { "Cache-Control": "no-store" },
-  });
+  return NextResponse.json(
+    ok({
+      id: suggestion.id,
+      title: suggestion.title,
+      status: suggestion.status,
+      createdAt: suggestion.createdAt.toISOString(),
+      pending: true,
+    }),
+    { headers: { "Cache-Control": "no-store" } },
+  );
 }
 
 export async function GET() {
-  return NextResponse.json(ok(pendingMarkets), {
-    headers: { "Cache-Control": "no-store" },
+  const rows = await prisma.marketSuggestion.findMany({
+    where: { status: MarketSuggestionStatus.PENDING },
+    orderBy: { createdAt: "desc" },
+    take: 50,
+    select: {
+      id: true,
+      title: true,
+      category: true,
+      status: true,
+      createdAt: true,
+    },
   });
+  return NextResponse.json(ok(rows), { headers: { "Cache-Control": "no-store" } });
 }

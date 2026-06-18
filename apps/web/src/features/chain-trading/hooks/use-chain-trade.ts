@@ -6,22 +6,23 @@ import { useWriteContract } from "wagmi";
 import { wagmiConfig } from "@/providers/web3/wagmi-config";
 import { testBnbChain } from "@/providers/web3/chains";
 import { useWalletUiStore } from "@/features/wallet/store/wallet-ui.store";
-import { chainMarketTradeAbi } from "../abis/market-trade";
+import { marketAbi } from "../abis/market";
 import { getChainMarketTradeAddress } from "../config/contracts";
 import { formatChainTradeError } from "../lib/format-trade-error";
-import { outcomeToChainUint8, type TradeOutcomeSide } from "../lib/outcome";
+import type { TradeOutcomeSide } from "../lib/outcome";
 
 export type ChainTradeBuyArgs = {
-  /** On-chain market id (uint256) — map from app models via indexer/API metadata. */
-  onChainMarketId: bigint;
+  /** Market clone contract address (from factory / indexer). */
+  marketAddress?: `0x${string}`;
   outcome: TradeOutcomeSide;
-  /** Share / collateral units in wei — match contract decimals. */
-  quantityWei: bigint;
+  /** Collateral amount in token wei (6 decimals for USDC/tUSDT). */
+  collateralWei: bigint;
+  /** Minimum outcome tokens out (slippage); 0 accepts any. */
+  minOutWei?: bigint;
 };
 
 /**
- * Imperative **buy YES / buy NO** via `buyOutcomeShares`: wallet prompt → broadcast → receipt → toast.
- * Uses shared `useWalletUiStore` phases + `WalletTxConfirmationSync` already mounted in app shell.
+ * Imperative **buy YES / buy NO** via Market.sol `buyYes` / `buyNo`.
  */
 export function useChainTradeBuy() {
   const { writeContractAsync } = useWriteContract();
@@ -31,14 +32,17 @@ export function useChainTradeBuy() {
   const setErr = useWalletUiStore((s) => s.setTxError);
 
   return useMutation({
-    mutationKey: ["chain-trade", "buyOutcomeShares"],
+    mutationKey: ["chain-trade", "buyYesNo"],
     mutationFn: async (args: ChainTradeBuyArgs) => {
-      const contract = getChainMarketTradeAddress();
+      const contract = args.marketAddress ?? getChainMarketTradeAddress();
       if (!contract) {
         throw new Error(
-          "On-chain trading disabled — set NEXT_PUBLIC_CHAIN_MARKET_TRADE_ADDRESS",
+          "On-chain trading disabled — set NEXT_PUBLIC_CHAIN_MARKET_TRADE_ADDRESS or marketAddress",
         );
       }
+
+      const fn = args.outcome === "YES" ? "buyYes" : "buyNo";
+      const minOut = args.minOutWei ?? 0n;
 
       resetTx();
       setPhase("preparing");
@@ -47,13 +51,9 @@ export function useChainTradeBuy() {
         setPhase("pending_wallet");
         const hash = await writeContractAsync({
           address: contract,
-          abi: chainMarketTradeAbi,
-          functionName: "buyOutcomeShares",
-          args: [
-            args.onChainMarketId,
-            outcomeToChainUint8(args.outcome),
-            args.quantityWei,
-          ],
+          abi: marketAbi,
+          functionName: fn,
+          args: [args.collateralWei, minOut],
           chainId: testBnbChain.id,
         });
 

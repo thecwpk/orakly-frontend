@@ -12,7 +12,7 @@ export function HubCategoriesGrid() {
 
   return (
     <HubSectionShell
-      className="hub-section--desktop-only"
+      className="hub-section--mobile-reorder-categories hub-section-glass"
       title="Market Categories"
       subtitle="Browse by narrative taxonomy."
     >

@@ -20,7 +20,7 @@ async function postIngest(envelopes: IngestEnvelope[]): Promise<void> {
   const ac = new AbortController();
   const t = setTimeout(() => ac.abort(), 3_000);
   try {
-    await fetch(`${base}/internal/ingest`, {
+    const res = await fetch(`${base}/internal/ingest`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -29,6 +29,12 @@ async function postIngest(envelopes: IngestEnvelope[]): Promise<void> {
       body: JSON.stringify({ envelopes }),
       signal: ac.signal,
     });
+    if (!res.ok) {
+      const body = await res.text().catch(() => "");
+      console.error(
+        `[realtime] ingest failed status=${res.status} body=${body.slice(0, 200)}`,
+      );
+    }
   } finally {
     clearTimeout(t);
   }

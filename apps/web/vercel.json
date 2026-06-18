@@ -5,7 +5,9 @@
   "env": {
     "NEXT_PUBLIC_APP_URL": "https://orakly-frontend-web.vercel.app",
     "INTERNAL_APP_URL": "https://orakly-frontend-web.vercel.app",
-    "NEXT_PUBLIC_REALTIME_SAME_ORIGIN": "true"
+    "NEXT_PUBLIC_REALTIME_SAME_ORIGIN": "true",
+    "REALTIME_UPSTREAM_URL": "https://realtime-production-e37e.up.railway.app",
+    "REALTIME_INGEST_URL": "https://realtime-production-e37e.up.railway.app"
   },
   "crons": [
     {

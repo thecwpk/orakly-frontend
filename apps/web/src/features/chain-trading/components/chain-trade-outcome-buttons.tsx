@@ -13,10 +13,10 @@ export type ChainTradeOutcomeButtonsProps = {
   userId: string;
   /** App / API market UUID for cache + optimistic rows */
   appMarketId: string;
-  /** Contract `marketId` uint256 */
-  onChainMarketId: bigint;
-  /** Default share amount in wei (adjust UI to parseUnits) */
-  defaultQuantityWei: bigint;
+  /** Market clone contract address */
+  marketAddress?: `0x${string}`;
+  /** Default collateral in wei (6 decimals) */
+  defaultCollateralWei: bigint;
   tradesScope?: string;
   className?: string;
 };
@@ -28,15 +28,15 @@ export type ChainTradeOutcomeButtonsProps = {
 export function ChainTradeOutcomeButtons({
   userId,
   appMarketId,
-  onChainMarketId,
-  defaultQuantityWei,
+  marketAddress,
+  defaultCollateralWei,
   tradesScope,
   className,
 }: ChainTradeOutcomeButtonsProps) {
-  const [qty, setQty] = useState(defaultQuantityWei.toString());
+  const [qty, setQty] = useState(defaultCollateralWei.toString());
   const exec = useOptimisticChainTradeMutation({ userId, tradesScope });
 
-  const quantityWei = useMemo(() => {
+  const collateralWei = useMemo(() => {
     try {
       return BigInt(qty.trim() || "0");
     } catch {
@@ -44,22 +44,23 @@ export function ChainTradeOutcomeButtons({
     }
   }, [qty]);
 
-  const disabled = !isChainTradingConfigured() || quantityWei <= 0n;
+  const disabled =
+    (!isChainTradingConfigured() && !marketAddress) || collateralWei <= 0n;
 
   const submit = useCallback(
     (outcome: OptimisticChainTradeBody["outcome"]) => {
       if (disabled) return;
       exec.mutate({
         appMarketId,
-        onChainMarketId,
+        marketAddress,
         outcome,
-        quantityWei,
+        collateralWei,
       });
     },
-    [appMarketId, disabled, exec, onChainMarketId, quantityWei],
+    [appMarketId, disabled, exec, marketAddress, collateralWei],
   );
 
-  if (!isChainTradingConfigured()) {
+  if (!isChainTradingConfigured() && !marketAddress) {
     return (
       <div
         className={cn(
@@ -76,7 +77,7 @@ export function ChainTradeOutcomeButtons({
   return (
     <div className={cn("flex flex-col gap-3", className)}>
       <label className="text-[11px] font-semibold uppercase tracking-wide text-zinc-500">
-        Share amount (wei)
+        Collateral (wei)
         <input
           value={qty}
           onChange={(e) => setQty(e.target.value)}

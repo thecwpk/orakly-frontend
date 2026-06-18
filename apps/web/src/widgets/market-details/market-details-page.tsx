@@ -23,6 +23,7 @@ import { MarketNewsPanel } from "./components/market-news-panel";
 import { MarketNotFound } from "./components/market-not-found";
 import { MarketOrderBook } from "./components/market-order-book";
 import { MarketOverviewPanel } from "./components/market-overview-panel";
+import { MarketResolutionPanel } from "./components/market-resolution-panel";
 import { MarketRelated } from "./components/market-related";
 import { MarketTradingDesk } from "./components/market-trading-desk";
 import { MarketVolumeChart } from "./components/market-volume-chart";
@@ -168,6 +169,16 @@ function MarketDetailsLoaded({ market }: { market: Market }) {
             odds={odds}
             rt={rt}
           />
+        </div>
+
+        <div className="mt-3">
+          <MarketResolutionPanel market={market} />
+          {market.creatorDisplayName ? (
+            <p className="mt-2 text-center text-[11px] text-zinc-500">
+              Suggested by community member{" "}
+              <span className="text-zinc-300">{market.creatorDisplayName}</span>
+            </p>
+          ) : null}
         </div>
 
         <div className="mt-3 flex flex-col gap-4 lg:mt-4 lg:gap-5">

@@ -22,12 +22,18 @@ export async function GET(_req: Request, ctx: RouteCtx) {
       id: true,
       slug: true,
       title: true,
+      description: true,
       volumeTotalUsd: true,
       liquidityUsd: true,
       yesPrice: true,
       closesAt: true,
       status: true,
+      resolutionStatus: true,
+      resolutionReason: true,
+      resolvedOutcome: true,
+      generationMeta: true,
       category: { select: { name: true } },
+      creator: { select: { displayName: true, walletAddress: true } },
     },
   });
 

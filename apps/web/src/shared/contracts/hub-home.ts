@@ -55,5 +55,6 @@ export type MarketSuggestionRow = {
   narrative: string | null;
   status: string;
   creator: string;
+  creatorId?: string | null;
   createdAt: string;
 };

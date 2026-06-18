@@ -1,7 +1,6 @@
 "use client";
 
 import type { Market } from "@orakly/types";
-import { CircleHelp } from "lucide-react";
 import { memo, useMemo } from "react";
 import type { MarketOddsDto } from "@/shared/api/fetchers/markets-live";
 import type { MarketRealtimeSnapshot } from "@/websocket/store/market-realtime-store";
@@ -173,27 +172,6 @@ function MarketOverviewPanelInner({
           </dd>
         </div>
       </dl>
-
-      <details className="group mt-2.5 rounded-md border border-white/[0.06] bg-black/15">
-        <summary className="flex cursor-pointer list-none items-center gap-1.5 px-2.5 py-2 text-[12px] font-medium text-zinc-300 marker:content-none [&::-webkit-details-marker]:hidden">
-          <CircleHelp className="h-3.5 w-3.5 text-zinc-500" aria-hidden />
-          Resolution rules
-          <span className="ml-auto text-[10px] text-zinc-600 group-open:hidden">Show</span>
-          <span className="ml-auto hidden text-[10px] text-zinc-600 group-open:inline">
-            Hide
-          </span>
-        </summary>
-        <div className="space-y-1.5 border-t border-white/[0.06] px-2.5 py-2 text-[11px] leading-relaxed text-zinc-500">
-          <p>
-            <span className="text-cyan-200/90">YES</span> if{" "}
-            <span className="text-zinc-300">{market.title}</span>
-          </p>
-          <p>
-            <span className="text-violet-200/90">NO</span> otherwise by close.
-          </p>
-          <p>Resolved from public sources at settlement.</p>
-        </div>
-      </details>
     </section>
   );
 }

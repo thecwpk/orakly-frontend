@@ -14,4 +14,10 @@ export interface Market {
   status: MarketStatus;
   /** UUID for REST trading / odds when `id` is a display key */
   backendMarketId?: string;
+  description?: string | null;
+  resolutionReason?: string | null;
+  resolutionStatus?: string | null;
+  resolvedOutcome?: string | null;
+  generationMeta?: Record<string, unknown> | null;
+  creatorDisplayName?: string | null;
 }

@@ -25,7 +25,7 @@ export function createMarketSocket(options: MarketSocketOptions): Socket {
   return io(url, {
     path: options.path ?? "/socket.io",
     autoConnect: options.autoConnect ?? false,
-    transports: ["websocket", "polling"],
+    transports: ["polling", "websocket"],
     reconnectionAttempts: isProd ? 20 : Infinity,
     reconnectionDelay: 800,
     reconnectionDelayMax: 12_000,

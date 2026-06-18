@@ -15,7 +15,7 @@ export function HubTrendingMarketsTable() {
 
   return (
     <HubSectionShell
-      className="hub-section--mobile-reorder-trending"
+      className="hub-section--mobile-reorder-trending hub-section-glass"
       title="Trending Markets"
       subtitle="Where is volume flowing?"
     >

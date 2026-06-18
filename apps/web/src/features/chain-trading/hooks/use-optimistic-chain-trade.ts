@@ -42,9 +42,10 @@ export function useOptimisticChainTradeMutation(options: {
     mutationKey: ["chain-trade", "optimistic", userId, tradesScope],
     mutationFn: async (body: OptimisticChainTradeBody) => {
       const buy: ChainTradeBuyArgs = {
-        onChainMarketId: body.onChainMarketId,
+        marketAddress: body.marketAddress,
         outcome: body.outcome,
-        quantityWei: body.quantityWei,
+        collateralWei: body.collateralWei,
+        minOutWei: body.minOutWei,
       };
       await toast.promise(chainBuy.mutateAsync(buy), {
         loading: `Submitting ${body.outcome} on-chain…`,
@@ -70,7 +71,7 @@ export function useOptimisticChainTradeMutation(options: {
           marketId: body.appMarketId,
           outcome: body.outcome,
           price: "pending",
-          quantity: body.quantityWei.toString(),
+          quantity: body.collateralWei.toString(),
           notionalUsd: "pending",
           buyerId: userId,
           sellerId: userId,
