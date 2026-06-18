@@ -10,6 +10,7 @@ export function HubSectionShell({
   action,
   className,
   children,
+  compact,
 }: {
   id?: string;
   title: string;
@@ -17,9 +18,13 @@ export function HubSectionShell({
   action?: ReactNode;
   className?: string;
   children: ReactNode;
+  compact?: boolean;
 }) {
   return (
-    <section id={id} className={cn("hub-section", className)}>
+    <section
+      id={id}
+      className={cn("hub-section", compact && "hub-section--compact", className)}
+    >
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h2 className="hub-section-title">{title}</h2>

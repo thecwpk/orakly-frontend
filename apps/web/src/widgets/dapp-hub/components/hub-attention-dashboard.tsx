@@ -13,19 +13,19 @@ function isAccelerating(row: AttentionNarrativeRow): boolean {
 function groupLabel(kind: string): string {
   switch (kind) {
     case "accelerating":
-      return "🔥 Accelerating";
+      return "Accelerating";
     case "rising":
-      return "⚡ Rising";
+      return "Rising";
     case "stable":
-      return "➖ Stable";
+      return "Stable";
     case "cooling":
-      return "📉 Cooling";
+      return "Cooling";
     default:
       return kind;
   }
 }
 
-export function HubAttentionDashboard() {
+export function HubAttentionDashboard({ className }: { className?: string }) {
   const attentionQ = useAttentionDashboardQuery();
   const rows = attentionQ.data ?? [];
 
@@ -44,79 +44,70 @@ export function HubAttentionDashboard() {
   return (
     <HubSectionShell
       id="attention"
-      className="hub-section--mobile-reorder-attention"
-      title="Attention Dashboard"
-      subtitle="Why is attention moving?"
+      className={cn("hub-section--mobile-reorder-attention", className)}
+      title="Attention pulse"
+      subtitle="Which narratives are heating up or cooling off."
+      compact
     >
-      <div className="grid gap-[var(--hub-card-gap)] lg:grid-cols-2">
-        <div className="hub-card p-4">
-          <p className="mb-3 text-xs font-semibold uppercase tracking-[0.1em] text-[var(--hub-muted)]">
-            Top Narratives
-          </p>
-          {attentionQ.isLoading ? (
-            <div className="space-y-2">
-              {Array.from({ length: 8 }).map((_, i) => (
-                <div key={i} className="hub-skeleton h-8 w-full" />
+      <div className="hub-card p-4">
+        {attentionQ.isLoading ? (
+          <div className="space-y-2">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <div key={i} className="hub-skeleton h-8 w-full" />
+            ))}
+          </div>
+        ) : rows.length === 0 ? (
+          <p className="text-sm text-[var(--hub-muted)]">No narratives tracked yet.</p>
+        ) : (
+          <ul className="divide-y divide-[var(--hub-border)]">
+            {[...rows]
+              .sort((a, b) => b.score - a.score)
+              .slice(0, 8)
+              .map((r, i) => (
+                <li
+                  key={r.narrative}
+                  className="flex items-center justify-between gap-3 py-2.5 text-sm"
+                >
+                  <span className="flex min-w-0 items-center gap-2">
+                    <span className="w-5 font-mono text-xs text-[var(--hub-muted)]">{i + 1}</span>
+                    <span className="truncate font-medium text-[var(--hub-fg)]">{r.narrative}</span>
+                  </span>
+                  <span className="shrink-0 font-mono text-xs tabular-nums text-[var(--hub-muted)]">
+                    {Math.round(r.score)}{" "}
+                    <span
+                      className={cn(
+                        r.momentumPct >= 0
+                          ? "text-[var(--hub-success)]"
+                          : "text-[var(--hub-danger)]",
+                      )}
+                    >
+                      {fmtMomentum(r.momentumPct)}
+                    </span>
+                  </span>
+                </li>
               ))}
-            </div>
-          ) : rows.length === 0 ? (
-            <p className="text-sm text-[var(--hub-muted)]">No narratives tracked.</p>
-          ) : (
-            <ul className="divide-y divide-[var(--hub-border)]">
-              {[...rows]
-                .sort((a, b) => b.score - a.score)
-                .map((r, i) => (
-                  <li
-                    key={r.narrative}
-                    className="flex items-center justify-between gap-3 py-2.5 text-sm"
-                  >
-                    <span className="flex min-w-0 items-center gap-2">
-                      <span className="w-5 font-mono text-xs text-[var(--hub-muted)]">
-                        {i + 1}
-                      </span>
-                      <span className="truncate font-medium text-[var(--hub-fg)]">
-                        {r.narrative}
-                      </span>
-                    </span>
-                    <span className="shrink-0 font-mono text-xs tabular-nums text-[var(--hub-muted)]">
-                      {Math.round(r.score)}{" "}
-                      <span
-                        className={cn(
-                          r.momentumPct >= 0
-                            ? "text-[var(--hub-success)]"
-                            : "text-[var(--hub-danger)]",
-                        )}
-                      >
-                        {fmtMomentum(r.momentumPct)}
-                      </span>
-                    </span>
-                  </li>
-                ))}
-            </ul>
-          )}
-        </div>
+          </ul>
+        )}
 
-        <div className="hub-card p-4">
-          <p className="mb-3 text-xs font-semibold uppercase tracking-[0.1em] text-[var(--hub-muted)]">
-            Momentum Groups
-          </p>
-          {attentionQ.isLoading ? (
-            <div className="hub-skeleton h-48 w-full" />
-          ) : (
-            <div className="space-y-4">
-              {groups.map((g) => (
-                <div key={g.id}>
-                  <p className="text-xs font-medium text-[var(--hub-fg)]">{groupLabel(g.id)}</p>
-                  <p className="mt-1 text-sm text-[var(--hub-muted)]">
-                    {g.items.length === 0
-                      ? "No narratives"
-                      : g.items.map((r) => r.narrative).join(", ")}
-                  </p>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+        {!attentionQ.isLoading && rows.length > 0 ? (
+          <div className="mt-4 grid grid-cols-2 gap-3 border-t border-[var(--hub-border)] pt-4">
+            {groups.map((g) => (
+              <div key={g.id} className="rounded-lg bg-[var(--hub-primary-soft)] px-3 py-2">
+                <p className="text-[10px] font-semibold uppercase tracking-wider text-[var(--hub-primary-bright)]">
+                  {groupLabel(g.id)}
+                </p>
+                <p className="mt-1 text-xs leading-relaxed text-[var(--hub-muted)]">
+                  {g.items.length === 0
+                    ? "None"
+                    : g.items
+                        .slice(0, 3)
+                        .map((r) => r.narrative)
+                        .join(", ")}
+                </p>
+              </div>
+            ))}
+          </div>
+        ) : null}
       </div>
     </HubSectionShell>
   );

@@ -14,14 +14,12 @@ export function HubMetricTile({
   className?: string;
 }) {
   return (
-    <div className={cn("hub-card px-4 py-3", className)}>
-      <p className="text-[11px] font-medium uppercase tracking-[0.08em] text-[var(--hub-muted)]">
-        {label}
-      </p>
+    <div className={cn("hub-metric-tile", className)}>
+      <p className="hub-metric-tile-label">{label}</p>
       {loading ? (
-        <div className="hub-skeleton mt-2 h-7 w-20" />
+        <div className="hub-skeleton mt-2 h-7 w-16" />
       ) : (
-        <p className="hub-metric-value mt-1 text-xl">{value}</p>
+        <p className="hub-metric-value mt-1.5 text-lg sm:text-xl">{value}</p>
       )}
     </div>
   );

@@ -11,28 +11,28 @@ export function HubNarrativeWarCard({ battle }: { battle: NarrativeWarCard }) {
   const openTrade = useOpenTradeModal();
 
   return (
-    <article className="hub-card flex flex-col gap-4 p-5">
+    <article className="hub-card flex flex-col gap-4 p-4 sm:p-5">
       <div className="flex items-center justify-between gap-2">
-        <h3 className="text-base font-semibold text-[var(--hub-fg)]">{battle.label}</h3>
+        <h3 className="text-sm font-semibold text-[var(--hub-fg)] sm:text-base">{battle.label}</h3>
         <span className="font-mono text-xs text-[var(--hub-muted)]">
-          Vol {fmtUsdCompact(battle.totalVolume24hUsd)}
+          {fmtUsdCompact(battle.totalVolume24hUsd)}
         </span>
       </div>
 
       <div className="grid grid-cols-2 gap-3 text-center">
-        <div>
-          <p className="text-xs uppercase tracking-wider text-[var(--hub-muted)]">
+        <div className="rounded-lg bg-[var(--hub-primary-soft)] px-2 py-3">
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-[var(--hub-muted)]">
             {battle.narrativeA}
           </p>
-          <p className="mt-1 font-mono text-2xl font-semibold text-[var(--hub-success)]">
+          <p className="mt-1 font-mono text-xl font-bold text-[var(--hub-primary-bright)] sm:text-2xl">
             {battle.probAPct}%
           </p>
         </div>
-        <div>
-          <p className="text-xs uppercase tracking-wider text-[var(--hub-muted)]">
+        <div className="rounded-lg bg-[rgba(56,189,248,0.1)] px-2 py-3">
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-[var(--hub-muted)]">
             {battle.narrativeB}
           </p>
-          <p className="mt-1 font-mono text-2xl font-semibold text-[var(--hub-attention)]">
+          <p className="mt-1 font-mono text-xl font-bold text-[#7dd3fc] sm:text-2xl">
             {battle.probBPct}%
           </p>
         </div>
@@ -40,11 +40,11 @@ export function HubNarrativeWarCard({ battle }: { battle: NarrativeWarCard }) {
 
       <div className="flex h-2 overflow-hidden rounded-full bg-[var(--hub-border)]">
         <div
-          className="h-full bg-[var(--hub-success)] transition-[width] duration-500 ease-out motion-reduce:transition-none"
+          className="h-full bg-[var(--hub-primary)] transition-[width] duration-500 ease-out motion-reduce:transition-none"
           style={{ width: `${battle.probAPct}%` }}
         />
         <div
-          className="h-full bg-[var(--hub-attention)] transition-[width] duration-500 ease-out motion-reduce:transition-none"
+          className="h-full bg-[#38bdf8] transition-[width] duration-500 ease-out motion-reduce:transition-none"
           style={{ width: `${battle.probBPct}%` }}
         />
       </div>
@@ -71,9 +71,9 @@ export function HubNarrativeWarCard({ battle }: { battle: NarrativeWarCard }) {
           <>
             <Link
               href={ROUTES.market(battle.marketSlug)}
-              className="inline-flex flex-1 items-center justify-center rounded-lg border border-[var(--hub-border)] px-3 py-2 text-sm font-medium text-[var(--hub-fg)] transition hover:border-[var(--hub-muted)]"
+              className="hub-btn-secondary flex-1 py-2 text-sm"
             >
-              View Market
+              View
             </Link>
             <button
               type="button"
@@ -89,17 +89,14 @@ export function HubNarrativeWarCard({ battle }: { battle: NarrativeWarCard }) {
                   closesAt: new Date().toISOString(),
                 });
               }}
-              className="inline-flex flex-1 items-center justify-center rounded-lg bg-[var(--hub-success)] px-3 py-2 text-sm font-semibold text-[#090909] transition hover:opacity-90"
+              className="hub-btn-primary flex-1 py-2 text-sm"
             >
               Trade
             </button>
           </>
         ) : (
-          <Link
-            href={ROUTES.discover}
-            className="inline-flex w-full items-center justify-center rounded-lg border border-[var(--hub-border)] px-3 py-2 text-sm font-medium text-[var(--hub-fg)]"
-          >
-            Browse Markets
+          <Link href={ROUTES.discover} className="hub-btn-secondary w-full py-2 text-sm">
+            Browse markets
           </Link>
         )}
       </div>
