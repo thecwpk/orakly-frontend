@@ -1,8 +1,8 @@
 import { revalidateTag } from "next/cache";
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { API_ERROR_CODES } from "../../../_lib/errors";
-import { err, ok } from "../../../_lib/response";
+import { API_ERROR_CODES } from "../../../../_lib/errors";
+import { err, ok } from "../../../../_lib/response";
 import { resolveWalletSessionFromCookies } from "@/server/wallet-auth/resolve-wallet-session";
 import { voteOnMarketSuggestion } from "@/server/suggestions/vote-on-suggestion";
 
