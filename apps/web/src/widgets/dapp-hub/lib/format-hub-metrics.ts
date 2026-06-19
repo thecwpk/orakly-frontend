@@ -21,3 +21,10 @@ export function fmtCount(n: number): string {
   if (!Number.isFinite(n)) return "—";
   return n.toLocaleString();
 }
+
+/** Polymarket-style price in cents (0–100¢). */
+export function fmtCents(probability: number): string {
+  if (!Number.isFinite(probability)) return "—";
+  const cents = Math.round(Math.min(1, Math.max(0, probability)) * 100);
+  return `${cents}¢`;
+}

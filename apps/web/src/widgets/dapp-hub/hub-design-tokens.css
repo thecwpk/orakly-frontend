@@ -212,6 +212,101 @@
     color 0.15s ease;
 }
 
+.hub-category-chips {
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+  padding-bottom: 0.125rem;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.hub-category-chips::-webkit-scrollbar {
+  display: none;
+}
+
+.hub-category-chip {
+  display: inline-flex;
+  shrink: 0;
+  scroll-snap-align: start;
+  align-items: center;
+  border-radius: 9999px;
+  border: 1px solid var(--hub-border);
+  background: rgba(15, 30, 52, 0.65);
+  padding: 0.4375rem 0.875rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--hub-muted);
+  white-space: nowrap;
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease,
+    color 0.15s ease;
+}
+
+.hub-category-chip:hover {
+  border-color: var(--hub-border-strong);
+  color: var(--hub-fg);
+}
+
+.hub-category-chip--active {
+  border-color: var(--hub-primary-glow);
+  background: var(--hub-primary-soft);
+  color: var(--hub-primary-bright);
+}
+
+.hub-category-chip--muted {
+  color: var(--hub-muted);
+}
+
+.hub-market-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.875rem 1rem;
+  transition: background 0.15s ease;
+}
+
+.hub-market-row:hover {
+  background: var(--hub-primary-soft);
+}
+
+.hub-market-row-question {
+  display: block;
+}
+
+.hub-market-row-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.hub-market-row-btn {
+  min-width: 4.25rem;
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.625rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  font-family: ui-monospace, monospace;
+}
+
+@media (max-width: 480px) {
+  .hub-market-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.625rem;
+  }
+
+  .hub-market-row-actions {
+    width: 100%;
+  }
+
+  .hub-market-row-btn {
+    flex: 1;
+    min-width: 0;
+  }
+}
+
 .hub-btn-secondary:hover {
   border-color: var(--hub-primary-glow);
   background: var(--hub-primary-soft);
@@ -372,16 +467,12 @@
     order: 4;
   }
 
-  .hub-section--mobile-reorder-categories {
+  .hub-section--mobile-reorder-community {
     order: 5;
   }
 
-  .hub-section--mobile-reorder-community {
-    order: 6;
-  }
-
   .hub-section--mobile-reorder-portfolio {
-    order: 7;
+    order: 6;
   }
 }
 
