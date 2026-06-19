@@ -1,163 +1,133 @@
-"use client";
-
-import Link from "next/link";
-import { useOpenTradeModal } from "@/features/trading";
-import { useHubTrendingMarketsQuery } from "@/shared/api/hooks";
-import { ROUTES } from "@/shared/constants/routes";
-import { cn } from "@/lib/utils";
-import { fmtMomentum, fmtPct, fmtUsdCompact } from "../lib/format-hub-metrics";
-import { marketToTradeModal } from "../lib/open-hub-trade";
-import { HubSectionRetry } from "./hub-section-retry";
-import { HubSectionShell } from "./hub-section-shell";
-
-function TrendingMarketCard({
-  title,
-  slug,
-  probability,
-  volume24hUsd,
-  momentumPct,
-  onTrade,
-}: {
-  title: string;
-  slug: string;
-  probability: number;
-  volume24hUsd: number;
-  momentumPct: number | null | undefined;
-  onTrade: () => void;
-}) {
-  return (
-    <article className="hub-market-card">
-      <Link
-        href={ROUTES.market(slug)}
-        className="line-clamp-2 text-sm font-semibold leading-snug text-[var(--hub-fg)] hover:text-[var(--hub-primary-bright)]"
-      >
-        {title}
-      </Link>
-      <div className="flex items-center justify-between gap-3">
-        <div className="flex flex-col gap-0.5 text-xs text-[var(--hub-muted)]">
-          <span>
-            Vol <strong className="text-[var(--hub-fg)]">{fmtUsdCompact(volume24hUsd)}</strong>
-          </span>
-          {momentumPct != null ? (
-            <span
-              className={cn(
-                "font-mono tabular-nums",
-                momentumPct >= 0 ? "text-[var(--hub-success)]" : "text-[var(--hub-danger)]",
-              )}
-            >
-              {fmtMomentum(momentumPct)}
-            </span>
-          ) : null}
-        </div>
-        <span className="hub-prob-pill">{fmtPct(probability * 100)}</span>
-      </div>
-      <button type="button" onClick={onTrade} className="hub-btn-primary w-full py-2.5">
-        Trade
-      </button>
-    </article>
-  );
-}
-
-export function HubTrendingMarketsTable() {
-  const trendingQ = useHubTrendingMarketsQuery(12);
-  const openTrade = useOpenTradeModal();
-  const markets = trendingQ.data ?? [];
-
-  return (
-    <HubSectionShell
-      className="hub-section--mobile-reorder-trending hub-section-glass"
-      title="Trending markets"
-      subtitle="Most active markets right now — tap to trade or open details."
-      action={
-        <Link href={ROUTES.markets} className="hub-btn-secondary px-3 py-2 text-xs">
-          View all
-        </Link>
-      }
-    >
-      {trendingQ.isError ? (
-        <HubSectionRetry onRetry={() => void trendingQ.refetch()} />
-      ) : trendingQ.isLoading ? (
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="hub-skeleton h-36 rounded-[var(--hub-radius)]" />
-          ))}
-        </div>
-      ) : markets.length === 0 ? (
-        <p className="text-sm text-[var(--hub-muted)]">No trending markets yet.</p>
-      ) : (
-        <>
-          <div className="grid gap-3 md:hidden">
-            {markets.slice(0, 8).map((m) => (
-              <TrendingMarketCard
-                key={m.id}
-                title={m.title}
-                slug={m.slug}
-                probability={m.probability}
-                volume24hUsd={m.volume24hUsd}
-                momentumPct={m.momentumPct}
-                onTrade={() => openTrade(marketToTradeModal(m))}
-              />
-            ))}
-          </div>
-
-          <div className="hub-card hidden overflow-x-auto md:block">
-            <table className="w-full min-w-[640px] text-left text-sm">
-              <thead>
-                <tr className="border-b border-[var(--hub-border)] text-[11px] uppercase tracking-wider text-[var(--hub-muted)]">
-                  <th className="px-4 py-3 font-medium">Market</th>
-                  <th className="px-4 py-3 font-medium">Chance</th>
-                  <th className="px-4 py-3 font-medium">Volume</th>
-                  <th className="px-4 py-3 font-medium">Momentum</th>
-                  <th className="px-4 py-3 font-medium text-right">Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {markets.map((m) => (
-                  <tr
-                    key={m.id}
-                    className="border-b border-[var(--hub-border)] transition last:border-b-0 hover:bg-[var(--hub-primary-soft)]"
-                  >
-                    <td className="max-w-[320px] px-4 py-3">
-                      <Link
-                        href={ROUTES.market(m.slug)}
-                        className="line-clamp-2 font-medium text-[var(--hub-fg)] hover:text-[var(--hub-primary-bright)]"
-                      >
-                        {m.title}
-                      </Link>
-                    </td>
-                    <td className="px-4 py-3">
-                      <span className="hub-prob-pill text-xs">{fmtPct(m.probability * 100)}</span>
-                    </td>
-                    <td className="px-4 py-3 font-mono tabular-nums text-[var(--hub-muted)]">
-                      {fmtUsdCompact(m.volume24hUsd)}
-                    </td>
-                    <td
-                      className={cn(
-                        "px-4 py-3 font-mono text-xs tabular-nums",
-                        m.momentumPct != null && m.momentumPct >= 0
-                          ? "text-[var(--hub-success)]"
-                          : "text-[var(--hub-danger)]",
-                      )}
-                    >
-                      {m.momentumPct != null ? fmtMomentum(m.momentumPct) : "—"}
-                    </td>
-                    <td className="px-4 py-3 text-right">
-                      <button
-                        type="button"
-                        onClick={() => openTrade(marketToTradeModal(m))}
-                        className="hub-btn-primary px-4 py-1.5 text-xs"
-                      >
-                        Trade
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </>
-      )}
-    </HubSectionShell>
-  );
-}
-
+"use client";
+
+import Link from "next/link";
+import { useOpenTradeModal } from "@/features/trading";
+import { useHubTrendingMarketsQuery } from "@/shared/api/hooks";
+import { ROUTES } from "@/shared/constants/routes";
+import { cn } from "@/lib/utils";
+import { fmtMomentum, fmtPct, fmtUsdCompact } from "../lib/format-hub-metrics";
+import { marketToTradeModal } from "../lib/open-hub-trade";
+import { HubProbabilityBar } from "./hub-probability-bar";
+import { HubSectionRetry } from "./hub-section-retry";
+import { HubSectionShell } from "./hub-section-shell";
+
+function TrendingMarketCard({
+  title,
+  slug,
+  probability,
+  volume24hUsd,
+  momentumPct,
+  onTrade,
+}: {
+  title: string;
+  slug: string;
+  probability: number;
+  volume24hUsd: number;
+  momentumPct: number | null | undefined;
+  onTrade: () => void;
+}) {
+  const yesPct = probability * 100;
+  const noPct = 100 - yesPct;
+  const maxVol = 2_100_000;
+  const volWidth = `${Math.min(100, Math.max(12, (volume24hUsd / maxVol) * 100))}%`;
+
+  return (
+    <article className="hub-market-card">
+      <Link
+        href={ROUTES.market(slug)}
+        className="line-clamp-2 min-h-[2.5rem] text-sm font-semibold leading-snug text-[var(--hub-fg)] hover:text-[var(--hub-primary-bright)]"
+      >
+        {title}
+      </Link>
+
+      <HubProbabilityBar probability={probability} />
+
+      <div className="grid grid-cols-[1fr_auto] items-end gap-2">
+        <div>
+          <div className="mb-1 h-1 overflow-hidden rounded-full bg-[rgba(15,30,55,0.85)]">
+            <div
+              className="h-full rounded-full bg-[var(--hub-primary)]/70"
+              style={{ width: volWidth }}
+            />
+          </div>
+          <span className="font-mono text-[11px] tabular-nums text-[var(--hub-muted)]">
+            {fmtUsdCompact(volume24hUsd)}
+          </span>
+        </div>
+        {momentumPct != null ? (
+          <span
+            className={cn(
+              "rounded-md px-1.5 py-0.5 font-mono text-[11px] font-semibold tabular-nums",
+              momentumPct >= 0
+                ? "bg-[rgba(52,211,153,0.12)] text-[var(--hub-success)]"
+                : "bg-[rgba(248,113,113,0.12)] text-[var(--hub-danger)]",
+            )}
+          >
+            {fmtMomentum(momentumPct)}
+          </span>
+        ) : null}
+      </div>
+
+      <div className="grid grid-cols-2 gap-2">
+        <button
+          type="button"
+          onClick={onTrade}
+          className="hub-btn-yes rounded-lg py-2 text-xs font-bold"
+        >
+          Yes {fmtPct(yesPct)}
+        </button>
+        <button
+          type="button"
+          onClick={onTrade}
+          className="hub-btn-no rounded-lg py-2 text-xs font-bold"
+        >
+          No {fmtPct(noPct)}
+        </button>
+      </div>
+    </article>
+  );
+}
+
+export function HubTrendingMarketsTable() {
+  const trendingQ = useHubTrendingMarketsQuery(12);
+  const openTrade = useOpenTradeModal();
+  const markets = trendingQ.data ?? [];
+
+  return (
+    <HubSectionShell
+      className="hub-section--mobile-reorder-trending hub-section-glass !pt-3"
+      title="Trending"
+      action={
+        <Link href={ROUTES.markets} className="hub-btn-secondary px-3 py-1.5 text-xs">
+          All
+        </Link>
+      }
+    >
+      {trendingQ.isError ? (
+        <HubSectionRetry onRetry={() => void trendingQ.refetch()} />
+      ) : trendingQ.isLoading ? (
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="hub-skeleton h-44 rounded-[var(--hub-radius)]" />
+          ))}
+        </div>
+      ) : markets.length === 0 ? (
+        <p className="text-sm text-[var(--hub-muted)]">—</p>
+      ) : (
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+          {markets.map((m) => (
+            <TrendingMarketCard
+              key={m.id}
+              title={m.title}
+              slug={m.slug}
+              probability={m.probability}
+              volume24hUsd={m.volume24hUsd}
+              momentumPct={m.momentumPct}
+              onTrade={() => openTrade(marketToTradeModal(m))}
+            />
+          ))}
+        </div>
+      )}
+    </HubSectionShell>
+  );
+}

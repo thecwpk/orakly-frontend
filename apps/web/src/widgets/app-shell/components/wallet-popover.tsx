@@ -117,21 +117,21 @@ export function WalletPopover({ connectLabel = "Connect" }: { connectLabel?: str
               whileTap={connecting ? undefined : { scale: 0.99 }}
               className={cn(
                 "inline-flex h-8 shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-[3px] border px-3 font-mono text-[9.5px] font-semibold uppercase tracking-[0.07em] transition-colors",
-                "border-emerald-500/35 bg-emerald-500/[0.09] text-emerald-100",
+                "border-[#3b82f6]/40 bg-[#3b82f6]/12 text-[#dbeafe]",
                 "shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]",
-                "hover:border-emerald-400/45 hover:bg-emerald-500/[0.14] hover:text-white",
-                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/35",
+                "hover:border-[#60a5fa]/50 hover:bg-[#3b82f6]/18 hover:text-white",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3b82f6]/40",
                 "disabled:cursor-not-allowed disabled:opacity-60",
               )}
             >
               {connecting ? (
                 <>
-                  <Loader2 className="h-3.5 w-3.5 shrink-0 animate-spin text-emerald-200" />
+                  <Loader2 className="h-3.5 w-3.5 shrink-0 animate-spin text-blue-200" />
                   <span>Connecting</span>
                 </>
               ) : (
                 <>
-                  <Wallet className="h-3.5 w-3.5 shrink-0 text-emerald-300/95" strokeWidth={2} />
+                  <Wallet className="h-3.5 w-3.5 shrink-0 text-blue-300/95" strokeWidth={2} />
                   <span>{connectLabel}</span>
                 </>
               )}

@@ -122,8 +122,8 @@
   --app-topbar-row-h: 4.5rem;
   --app-topbar-ticker-h: 1.375rem;
   --app-topbar-h: calc(var(--app-topbar-row-h) + var(--app-topbar-ticker-h));
-  --app-chrome: rgba(8, 8, 11, 0.94);
-  --app-ticker-band: rgba(0, 0, 0, 0.5);
+  --app-chrome: rgba(12, 28, 52, 0.94);
+  --app-ticker-band: rgba(14, 32, 58, 0.72);
   --app-border-subtle: rgba(255, 255, 255, 0.065);
   --app-panel: rgba(255, 255, 255, 0.025);
   /**

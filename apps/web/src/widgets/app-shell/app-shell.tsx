@@ -30,7 +30,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       <div
         className={cn(
           "relative min-h-screen overflow-x-hidden text-foreground",
-          hubHome ? "bg-[#090909]" : "bg-app-canvas",
+          hubHome ? "hub-app-canvas" : "bg-app-canvas",
         )}
       >
         <div className="flex min-h-screen min-w-0 flex-col">

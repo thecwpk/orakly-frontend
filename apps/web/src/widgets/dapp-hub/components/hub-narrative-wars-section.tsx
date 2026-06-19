@@ -11,18 +11,17 @@ export function HubNarrativeWarsSection({ className }: { className?: string }) {
   return (
     <HubSectionShell
       className={cn("hub-section--mobile-reorder-wars hub-section-glass", className)}
-      title="Narrative matchups"
-      subtitle="Head-to-head attention battles between trending themes."
+      title="Matchups"
       compact
     >
       {warsQ.isLoading ? (
-        <div className="grid gap-[var(--hub-card-gap)]">
+        <div className="grid gap-[var(--hub-card-gap)] lg:grid-cols-3">
           {Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="hub-skeleton h-52 rounded-[var(--hub-radius)]" />
+            <div key={i} className="hub-skeleton h-48 rounded-[var(--hub-radius)]" />
           ))}
         </div>
       ) : (
-        <div className="grid gap-[var(--hub-card-gap)]">
+        <div className="grid gap-[var(--hub-card-gap)] lg:grid-cols-3">
           {(warsQ.data ?? []).map((battle) => (
             <HubNarrativeWarCard key={battle.id} battle={battle} />
           ))}

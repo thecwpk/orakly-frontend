@@ -26,8 +26,8 @@ export function MobileBottomNav() {
       aria-label="Primary mobile navigation"
       className={cn(
         "fixed inset-x-0 bottom-0 z-40 lg:hidden",
-        "rounded-t-2xl border border-[#1d1d1d] border-b-0 bg-[#090909]/98 backdrop-blur-md supports-[backdrop-filter]:backdrop-blur-xl",
-        "shadow-[0_-4px_24px_rgba(0,0,0,0.4)]",
+        "rounded-t-2xl border border-[rgba(96,165,250,0.16)] border-b-0 bg-[hsl(215_40%_11%/_0.98)] backdrop-blur-md supports-[backdrop-filter]:backdrop-blur-xl",
+        "shadow-[0_-4px_24px_rgba(15,40,80,0.45)]",
         "pb-[env(safe-area-inset-bottom)]",
       )}
     >
@@ -43,20 +43,20 @@ export function MobileBottomNav() {
                 className={cn(
                   "relative flex min-h-[52px] flex-col items-center justify-center gap-0.5 px-1 py-1.5 text-[10px] font-medium tracking-wide transition-colors",
                   "active:scale-[0.97] active:bg-white/[0.04]",
-                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#22c55e]/30",
-                  active ? "text-[#f5f5f5]" : "text-[#9ca3af] hover:text-[#f5f5f5]",
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3b82f6]/35",
+                  active ? "text-[#f0f6ff]" : "text-[#8ba3c7] hover:text-[#f0f6ff]",
                 )}
               >
                 <span
                   className={cn(
                     "relative inline-flex h-6 w-6 items-center justify-center rounded-md transition-colors",
-                    active ? "bg-[#22c55e]/12" : "bg-transparent",
+                    active ? "bg-[#3b82f6]/15" : "bg-transparent",
                   )}
                 >
                   <Icon
                     className={cn(
                       "h-[18px] w-[18px]",
-                      active ? "text-[#22c55e]" : "text-current",
+                      active ? "text-[#60a5fa]" : "text-current",
                     )}
                   />
                 </span>
@@ -64,7 +64,7 @@ export function MobileBottomNav() {
                 {active ? (
                   <motion.span
                     layoutId="mobile-active-indicator"
-                    className="absolute inset-x-6 top-0 h-0.5 rounded-full bg-[#22c55e]"
+                    className="absolute inset-x-6 top-0 h-0.5 rounded-full bg-[#3b82f6]"
                     transition={{
                       type: "spring",
                       stiffness: 420,

@@ -31,7 +31,7 @@ const TOP_NAV: TopNavItem[] = [
 function navLinkClass(active: boolean) {
   return cn(
     "shrink-0 text-[13px] font-medium transition",
-    active ? "text-[#f5f5f5]" : "text-[#9ca3af] hover:text-[#f5f5f5]",
+    active ? "text-[#f0f6ff]" : "text-[#8ba3c7] hover:text-[#f0f6ff]",
   );
 }
 
@@ -51,7 +51,7 @@ export function AppTopbar({ density = "default" }: { density?: AppTopbarDensity 
       className={cn(
         "relative sticky top-0 z-40 border-b backdrop-blur-sm supports-[backdrop-filter]:backdrop-blur-md",
         hub
-          ? "border-[#1d1d1d] bg-[#090909]/97"
+          ? "border-[rgba(96,165,250,0.18)] bg-[hsl(215_40%_11%/_0.97)]"
           : "border-app-subtle bg-app-chrome/97 chrome-edge-subtle",
       )}
     >

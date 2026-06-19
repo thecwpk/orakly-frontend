@@ -9,43 +9,45 @@ import { HubSectionShell } from "./hub-section-shell";
 
 export function HubCategoriesGrid() {
   const categoriesQ = useCategoryOverviewQuery();
+  const maxVol = Math.max(1, ...(categoriesQ.data ?? []).map((c) => c.totalVolumeUsd));
 
   return (
     <HubSectionShell
       className="hub-section--mobile-reorder-categories hub-section-glass"
-      title="Browse by category"
-      subtitle="Jump into a theme — crypto, sports, politics, and more."
+      title="Categories"
     >
       {categoriesQ.isLoading ? (
         <div className="hub-categories-scroll">
           {Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} className="hub-skeleton h-28 rounded-[var(--hub-radius)]" />
+            <div key={i} className="hub-skeleton h-24 rounded-[var(--hub-radius)]" />
           ))}
         </div>
       ) : categoriesQ.isError ? (
         <HubSectionRetry onRetry={() => void categoriesQ.refetch()} />
       ) : (
         <div className="hub-categories-scroll">
-          {(categoriesQ.data ?? []).map((cat) => (
-            <Link
-              key={cat.slug}
-              href={`${ROUTES.markets}?category=${encodeURIComponent(cat.slug)}`}
-              className="hub-card hub-card-interactive block p-4"
-            >
-              <p className="text-sm font-semibold text-[var(--hub-fg)]">{cat.name}</p>
-              <p className="mt-2 text-xs text-[var(--hub-muted)]">
-                {fmtCount(cat.marketCount)} markets · {fmtUsdCompact(cat.totalVolumeUsd)}
-              </p>
-              {cat.topNarrative ? (
-                <p className="mt-2 text-xs text-[var(--hub-muted)]">
-                  Hot:{" "}
-                  <span className="font-medium text-[var(--hub-primary-bright)]">
-                    {cat.topNarrative}
-                  </span>
+          {(categoriesQ.data ?? []).map((cat) => {
+            const volPct = Math.max(10, (cat.totalVolumeUsd / maxVol) * 100);
+            return (
+              <Link
+                key={cat.slug}
+                href={`${ROUTES.markets}?category=${encodeURIComponent(cat.slug)}`}
+                className="hub-card hub-card-interactive block p-3"
+              >
+                <p className="text-sm font-semibold text-[var(--hub-fg)]">{cat.name}</p>
+                <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-[rgba(15,30,55,0.85)]">
+                  <div
+                    className="h-full rounded-full bg-[var(--hub-primary)]"
+                    style={{ width: `${volPct}%` }}
+                  />
+                </div>
+                <p className="mt-2 flex items-center justify-between text-[11px] text-[var(--hub-muted)]">
+                  <span>{fmtCount(cat.marketCount)} mkts</span>
+                  <span className="font-mono tabular-nums">{fmtUsdCompact(cat.totalVolumeUsd)}</span>
                 </p>
-              ) : null}
-            </Link>
-          ))}
+              </Link>
+            );
+          })}
         </div>
       )}
     </HubSectionShell>
