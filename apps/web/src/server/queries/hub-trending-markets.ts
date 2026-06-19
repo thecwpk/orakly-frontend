@@ -4,6 +4,7 @@ import type { HubMarketEnriched } from "@/shared/contracts/hub-home";
 import { marketConvictionScore } from "@/widgets/dapp-hub/lib/conviction-score";
 import { prismaMarketToFeedDto } from "./market-feed-mapper";
 import { getAttentionDashboardRows } from "./attention-dashboard";
+import { buildNarrativeMarketWhere, marketMatchesNarrative } from "./hub-narrative-match";
 
 export type HubTrendingFilter = {
   categorySlug?: string | null;
@@ -24,9 +25,7 @@ export async function getHubTrendingMarkets(
       where: {
         status: MarketStatus.OPEN,
         ...(cat && cat !== "all" ? { category: { slug: cat } } : {}),
-        ...(narrative
-          ? { marketSuggestion: { narrative: { equals: narrative, mode: "insensitive" } } }
-          : {}),
+        ...(narrative ? buildNarrativeMarketWhere(narrative) : {}),
         ...(breaking
           ? {
               cryptoSignalId: { not: null },
@@ -49,7 +48,7 @@ export async function getHubTrendingMarkets(
         closesAt: true,
         status: true,
         createdAt: true,
-        category: { select: { name: true } },
+        category: { select: { name: true, slug: true } },
         marketSuggestion: { select: { narrative: true } },
       },
     }),
@@ -60,8 +59,17 @@ export async function getHubTrendingMarkets(
 
   return rows.map((m) => {
     const base = prismaMarketToFeedDto(m);
-    const narrative = m.marketSuggestion?.narrative ?? null;
-    const att = narrative ? attentionMap.get(narrative) : undefined;
+    const rowNarrative = m.marketSuggestion?.narrative ?? null;
+    const attNarrative =
+      rowNarrative ??
+      attentionRows.find((r) =>
+        marketMatchesNarrative(
+          { title: m.title, category: m.category, marketSuggestion: m.marketSuggestion },
+          r.narrative,
+        ),
+      )?.narrative ??
+      null;
+    const att = attNarrative ? attentionMap.get(attNarrative) : undefined;
     return {
       ...base,
       volume24hUsd: Number(m.volume24hUsd),

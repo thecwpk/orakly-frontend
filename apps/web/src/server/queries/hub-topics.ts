@@ -2,6 +2,7 @@ import { MarketStatus } from "@prisma/client";
 import { prisma } from "@orakly/database";
 import type { HubTopicChip } from "@/shared/contracts/hub-home";
 import { getAttentionDashboardRows } from "./attention-dashboard";
+import { marketMatchesNarrative, NARRATIVE_CATEGORY_SLUGS } from "./hub-narrative-match";
 
 const NARRATIVE_LABELS: Record<string, string> = {
   AI: "AI",
@@ -26,11 +27,12 @@ export async function getHubTopicChips(): Promise<HubTopicChip[]> {
   const [attentionRows, openMarkets, breakingCount] = await Promise.all([
     getAttentionDashboardRows(),
     prisma.market.findMany({
-      where: {
-        status: MarketStatus.OPEN,
-        marketSuggestion: { narrative: { not: null } },
+      where: { status: MarketStatus.OPEN },
+      select: {
+        title: true,
+        category: { select: { slug: true } },
+        marketSuggestion: { select: { narrative: true } },
       },
-      select: { marketSuggestion: { select: { narrative: true } } },
     }),
     prisma.market.count({
       where: {
@@ -42,10 +44,13 @@ export async function getHubTopicChips(): Promise<HubTopicChip[]> {
   ]);
 
   const marketCountByNarrative = new Map<string, number>();
-  for (const m of openMarkets) {
-    const n = m.marketSuggestion?.narrative;
-    if (!n) continue;
-    marketCountByNarrative.set(n, (marketCountByNarrative.get(n) ?? 0) + 1);
+  const narrativeKeys = new Set([
+    ...attentionRows.map((r) => r.narrative),
+    ...Object.keys(NARRATIVE_CATEGORY_SLUGS),
+  ]);
+  for (const n of narrativeKeys) {
+    const count = openMarkets.filter((m) => marketMatchesNarrative(m, n)).length;
+    if (count > 0) marketCountByNarrative.set(n, count);
   }
 
   const chips: HubTopicChip[] = [];
