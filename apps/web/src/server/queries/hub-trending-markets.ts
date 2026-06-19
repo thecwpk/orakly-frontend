@@ -5,20 +5,38 @@ import { marketConvictionScore } from "@/widgets/dapp-hub/lib/conviction-score";
 import { prismaMarketToFeedDto } from "./market-feed-mapper";
 import { getAttentionDashboardRows } from "./attention-dashboard";
 
+export type HubTrendingFilter = {
+  categorySlug?: string | null;
+  narrative?: string | null;
+  breaking?: boolean;
+};
+
 export async function getHubTrendingMarkets(
   take = 20,
-  categorySlug?: string | null,
+  filter: HubTrendingFilter = {},
 ): Promise<HubMarketEnriched[]> {
-  const cat = categorySlug?.trim().toLowerCase();
+  const cat = filter.categorySlug?.trim().toLowerCase();
+  const narrative = filter.narrative?.trim();
+  const breaking = filter.breaking === true;
+
   const [rows, attentionRows] = await Promise.all([
     prisma.market.findMany({
       where: {
         status: MarketStatus.OPEN,
-        ...(cat && cat !== "all"
-          ? { category: { slug: cat } }
+        ...(cat && cat !== "all" ? { category: { slug: cat } } : {}),
+        ...(narrative
+          ? { marketSuggestion: { narrative: { equals: narrative, mode: "insensitive" } } }
+          : {}),
+        ...(breaking
+          ? {
+              cryptoSignalId: { not: null },
+              signalLastSeenAt: { not: null },
+            }
           : {}),
       },
-      orderBy: [{ volume24hUsd: "desc" }, { volumeTotalUsd: "desc" }],
+      orderBy: breaking
+        ? [{ signalLastSeenAt: "desc" }, { externalMomentumScore: "desc" }, { volume24hUsd: "desc" }]
+        : [{ volume24hUsd: "desc" }, { volumeTotalUsd: "desc" }],
       take,
       select: {
         id: true,

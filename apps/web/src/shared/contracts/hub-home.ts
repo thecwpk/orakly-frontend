@@ -47,6 +47,18 @@ export type CategoryOverviewRow = {
   topNarrative: string | null;
 };
 
+export type HubTopicChipKind = "breaking" | "narrative";
+
+export type HubTopicChip = {
+  id: string;
+  kind: HubTopicChipKind;
+  label: string;
+  slug?: string;
+  score?: number;
+  trend?: AttentionTrend;
+  marketCount: number;
+};
+
 export type MarketSuggestionRow = {
   id: string;
   title: string;

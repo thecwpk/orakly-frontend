@@ -7,9 +7,11 @@ export async function GET(req: NextRequest) {
   const takeRaw = req.nextUrl.searchParams.get("take");
   const take = Math.min(50, Math.max(1, Number(takeRaw) || 20));
   const cat = req.nextUrl.searchParams.get("cat");
+  const narrative = req.nextUrl.searchParams.get("narrative");
+  const breaking = req.nextUrl.searchParams.get("breaking") === "1";
 
   try {
-    const data = await getHubTrendingMarkets(take, cat);
+    const data = await getHubTrendingMarkets(take, { categorySlug: cat, narrative, breaking });
     return NextResponse.json(ok(data), {
       headers: { "Cache-Control": "public, s-maxage=45, stale-while-revalidate=90" },
     });

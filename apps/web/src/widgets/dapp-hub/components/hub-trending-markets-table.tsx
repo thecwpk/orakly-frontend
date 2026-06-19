@@ -49,8 +49,12 @@ function TrendingMarketRow({
 
 export function HubTrendingMarketsTable() {
   const searchParams = useSearchParams();
-  const activeCat = searchParams?.get("cat");
-  const trendingQ = useHubTrendingMarketsQuery(20, activeCat);
+  const filter = {
+    cat: searchParams?.get("cat"),
+    narrative: searchParams?.get("narrative"),
+    breaking: searchParams?.get("breaking") === "1",
+  };
+  const trendingQ = useHubTrendingMarketsQuery(20, filter);
   const openTrade = useOpenTradeModal();
   const markets = trendingQ.data ?? [];
 

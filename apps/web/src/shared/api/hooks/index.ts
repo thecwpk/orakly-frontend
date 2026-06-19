@@ -11,6 +11,7 @@ export { useHomeStatsQuery } from "./useHomeStatsQuery";
 export { useNarrativeWarsQuery } from "./useNarrativeWarsQuery";
 export { useConvictionMarketsQuery } from "./useConvictionMarketsQuery";
 export { useHubTrendingMarketsQuery } from "./useHubTrendingMarketsQuery";
+export { useHubTopicsQuery } from "./useHubTopicsQuery";
 export { useCategoryOverviewQuery } from "./useCategoryOverviewQuery";
 export { useMarketSuggestionsQuery } from "./useMarketSuggestionsQuery";
 export { useVoteSuggestionMutation } from "./useVoteSuggestionMutation";

@@ -14,6 +14,12 @@
 
 import type { Query } from "@tanstack/react-query";
 
+export type HubTrendingQueryFilter = {
+  cat?: string | null;
+  narrative?: string | null;
+  breaking?: boolean;
+};
+
 export const queryRoot = ["orakly"] as const;
 
 /* ---------------------------------------------------------------- */
@@ -41,8 +47,16 @@ export const queryKeys = {
     stats: () => [...hubRoot(), "stats"] as const,
     narrativeWars: () => [...hubRoot(), "narrativeWars"] as const,
     conviction: (take: number) => [...hubRoot(), "conviction", take] as const,
-    trending: (take: number, cat?: string | null) =>
-      [...hubRoot(), "trending", take, cat ?? "all"] as const,
+    trending: (take: number, filter?: HubTrendingQueryFilter) =>
+      [
+        ...hubRoot(),
+        "trending",
+        take,
+        filter?.cat ?? "all",
+        filter?.narrative ?? "all",
+        filter?.breaking ? "breaking" : "all",
+      ] as const,
+    topics: () => [...hubRoot(), "topics"] as const,
     categories: () => [...hubRoot(), "categories"] as const,
     suggestions: (take: number) => [...hubRoot(), "suggestions", take] as const,
   },

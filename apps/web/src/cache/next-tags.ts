@@ -2,5 +2,7 @@
 export const cacheTags = {
   cryptoFeed: "crypto-feed",
   marketsFeed: "markets-feed",
+  attentionDashboard: "attention-dashboard",
+  hubTopics: "hub-topics",
   marketDetail: (slug: string) => `market:${slug}`,
 } as const;

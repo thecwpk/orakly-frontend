@@ -4,6 +4,7 @@ import type {
   CategoryOverviewRow,
   HomeStatsPayload,
   HubMarketEnriched,
+  HubTopicChip,
   MarketSuggestionRow,
   NarrativeWarCard,
 } from "@/shared/contracts/hub-home";
@@ -31,15 +32,28 @@ export async function fetchConvictionMarkets(take = 6): Promise<HubMarketEnriche
   return unwrapApiResult(res);
 }
 
+export type HubTrendingFetchFilter = {
+  cat?: string | null;
+  narrative?: string | null;
+  breaking?: boolean;
+};
+
 export async function fetchHubTrendingMarkets(
   take = 20,
-  cat?: string | null,
+  filter: HubTrendingFetchFilter = {},
 ): Promise<HubMarketEnriched[]> {
   const qs = new URLSearchParams({ take: String(take) });
-  if (cat && cat !== "all") qs.set("cat", cat);
+  if (filter.cat && filter.cat !== "all") qs.set("cat", filter.cat);
+  if (filter.narrative) qs.set("narrative", filter.narrative);
+  if (filter.breaking) qs.set("breaking", "1");
   const res = await apiClient.request<HubMarketEnriched[]>(
     `/api/v1/markets/trending-hub?${qs.toString()}`,
   );
+  return unwrapApiResult(res);
+}
+
+export async function fetchHubTopicChips(): Promise<HubTopicChip[]> {
+  const res = await apiClient.request<HubTopicChip[]>("/api/v1/hub/topics");
   return unwrapApiResult(res);
 }
 

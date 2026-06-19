@@ -15,9 +15,16 @@ export async function POST(req: Request) {
 
   revalidateTag(cacheTags.cryptoFeed);
   revalidateTag(cacheTags.marketsFeed);
+  revalidateTag(cacheTags.attentionDashboard);
+  revalidateTag(cacheTags.hubTopics);
 
   return NextResponse.json({
     ok: true,
-    tags: [cacheTags.cryptoFeed, cacheTags.marketsFeed],
+    tags: [
+      cacheTags.cryptoFeed,
+      cacheTags.marketsFeed,
+      cacheTags.attentionDashboard,
+      cacheTags.hubTopics,
+    ],
   });
 }
