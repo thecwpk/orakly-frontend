@@ -12,7 +12,7 @@ import "./hub-design-tokens.css";
 /** Trader hub — markets first, visuals over copy. */
 export function DappHubPage() {
   return (
-    <div className="hub-root -mx-[var(--app-page-gutter-x)] w-[calc(100%+2*var(--app-page-gutter-x))] max-w-none">
+    <div className="hub-root w-full min-w-0">
       <div className="hub-container hub-sections-stack pb-20 sm:pb-24">
         <HubTrendingMarketsTable />
         <HubTraderStrip />

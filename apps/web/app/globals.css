@@ -229,23 +229,23 @@
 }
 
 /** Hub home — markets ticker lives in `DappHubPage` (`.mb-ticker`), not under navbar. */
+/** Hub home — align main gutter with topbar (px-3 / px-4 / px-6). */
 .hub-shell-density {
   --app-topbar-row-h: 4.5rem;
   --app-topbar-ticker-h: 0px;
   --app-topbar-h: var(--app-topbar-row-h);
-  /** Hub: pull content in — less empty band vs default shell. */
-  --app-page-gutter-x: 0.625rem;
+  --app-page-gutter-x: 0.75rem;
 }
 
 @media (min-width: 640px) {
   .hub-shell-density {
-    --app-page-gutter-x: 0.75rem;
+    --app-page-gutter-x: 1rem;
   }
 }
 
 @media (min-width: 1024px) {
   .hub-shell-density {
-    --app-page-gutter-x: 0.875rem;
+    --app-page-gutter-x: 1.5rem;
   }
 }
 
