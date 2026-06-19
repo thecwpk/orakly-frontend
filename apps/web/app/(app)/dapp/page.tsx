@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { loadHubHomeBundle } from "@/server/queries/hub-home-bundle";
 import { DappHubPage } from "@/widgets/dapp-hub";
 import { HubHomeHydrator } from "@/widgets/dapp-hub/hub-home-hydrator";
@@ -16,7 +17,9 @@ export default async function DappHomePage() {
 
   return (
     <HubHomeHydrator data={initial}>
-      <DappHubPage />
+      <Suspense fallback={null}>
+        <DappHubPage />
+      </Suspense>
     </HubHomeHydrator>
   );
 }

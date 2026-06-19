@@ -41,7 +41,8 @@ export const queryKeys = {
     stats: () => [...hubRoot(), "stats"] as const,
     narrativeWars: () => [...hubRoot(), "narrativeWars"] as const,
     conviction: (take: number) => [...hubRoot(), "conviction", take] as const,
-    trending: (take: number) => [...hubRoot(), "trending", take] as const,
+    trending: (take: number, cat?: string | null) =>
+      [...hubRoot(), "trending", take, cat ?? "all"] as const,
     categories: () => [...hubRoot(), "categories"] as const,
     suggestions: (take: number) => [...hubRoot(), "suggestions", take] as const,
   },

@@ -5,10 +5,19 @@ import { marketConvictionScore } from "@/widgets/dapp-hub/lib/conviction-score";
 import { prismaMarketToFeedDto } from "./market-feed-mapper";
 import { getAttentionDashboardRows } from "./attention-dashboard";
 
-export async function getHubTrendingMarkets(take = 20): Promise<HubMarketEnriched[]> {
+export async function getHubTrendingMarkets(
+  take = 20,
+  categorySlug?: string | null,
+): Promise<HubMarketEnriched[]> {
+  const cat = categorySlug?.trim().toLowerCase();
   const [rows, attentionRows] = await Promise.all([
     prisma.market.findMany({
-      where: { status: MarketStatus.OPEN },
+      where: {
+        status: MarketStatus.OPEN,
+        ...(cat && cat !== "all"
+          ? { category: { slug: cat } }
+          : {}),
+      },
       orderBy: [{ volume24hUsd: "desc" }, { volumeTotalUsd: "desc" }],
       take,
       select: {

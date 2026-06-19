@@ -6,9 +6,10 @@ import { getHubTrendingMarkets } from "@/server/queries/hub-trending-markets";
 export async function GET(req: NextRequest) {
   const takeRaw = req.nextUrl.searchParams.get("take");
   const take = Math.min(50, Math.max(1, Number(takeRaw) || 20));
+  const cat = req.nextUrl.searchParams.get("cat");
 
   try {
-    const data = await getHubTrendingMarkets(take);
+    const data = await getHubTrendingMarkets(take, cat);
     return NextResponse.json(ok(data), {
       headers: { "Cache-Control": "public, s-maxage=45, stale-while-revalidate=90" },
     });

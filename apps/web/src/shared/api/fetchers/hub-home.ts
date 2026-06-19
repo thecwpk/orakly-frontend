@@ -31,9 +31,14 @@ export async function fetchConvictionMarkets(take = 6): Promise<HubMarketEnriche
   return unwrapApiResult(res);
 }
 
-export async function fetchHubTrendingMarkets(take = 20): Promise<HubMarketEnriched[]> {
+export async function fetchHubTrendingMarkets(
+  take = 20,
+  cat?: string | null,
+): Promise<HubMarketEnriched[]> {
+  const qs = new URLSearchParams({ take: String(take) });
+  if (cat && cat !== "all") qs.set("cat", cat);
   const res = await apiClient.request<HubMarketEnriched[]>(
-    `/api/v1/markets/trending-hub?take=${take}`,
+    `/api/v1/markets/trending-hub?${qs.toString()}`,
   );
   return unwrapApiResult(res);
 }

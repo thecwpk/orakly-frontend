@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useOpenTradeModal } from "@/features/trading";
 import { useHubTrendingMarketsQuery } from "@/shared/api/hooks";
 import { ROUTES } from "@/shared/constants/routes";
@@ -47,7 +48,9 @@ function TrendingMarketRow({
 }
 
 export function HubTrendingMarketsTable() {
-  const trendingQ = useHubTrendingMarketsQuery(20);
+  const searchParams = useSearchParams();
+  const activeCat = searchParams?.get("cat");
+  const trendingQ = useHubTrendingMarketsQuery(20, activeCat);
   const openTrade = useOpenTradeModal();
   const markets = trendingQ.data ?? [];
 
