@@ -253,14 +253,12 @@
  * Hub route canvas — not flat #000; layered cool radial + still reads as “dark venue”.
  */
 .hub-app-canvas {
-  background-color: hsl(var(--background));
+  background-color: #ffffff;
 }
 
 .dark .hub-app-canvas {
-  background-image:
-    radial-gradient(ellipse 125% 80% at 50% -18%, hsl(214 52% 28% / 0.55), transparent 58%),
-    radial-gradient(ellipse 55% 50% at 96% 8%, hsl(220 45% 24% / 0.28), transparent 52%),
-    radial-gradient(ellipse 50% 45% at 4% 20%, hsl(205 48% 22% / 0.22), transparent 48%);
+  background-color: #ffffff;
+  background-image: none;
 }
 
 /** `/discover` marketing directory — same cool radial canvas as hub (no flat black). */

@@ -1,26 +1,16 @@
 "use client";
 
-import { HubCategoryChipBar } from "./components/hub-category-chip-bar";
-import { HubCommunityIntelligence } from "./components/hub-community-intelligence";
-import { HubHighVolumeSection } from "./components/hub-high-volume-section";
-import { HubNarrativeWarsSection } from "./components/hub-narrative-wars-section";
-import { HubPortfolioShortcut } from "./components/hub-portfolio-shortcut";
-import { HubTraderStrip } from "./components/hub-trader-strip";
-import { HubTrendingMarketsTable } from "./components/hub-trending-markets-table";
+import { HubFeedChrome } from "./components/hub-feed-chrome";
+import { HubMarketFeedGrid } from "./components/hub-market-feed-grid";
 import "./hub-design-tokens.css";
 
-/** Trader hub — markets first, visuals over copy. */
+/** Trading hub — Polymarket-style pure market feed. */
 export function DappHubPage() {
   return (
     <div className="hub-root w-full min-w-0">
-      <HubCategoryChipBar />
-      <div className="hub-container hub-sections-stack pb-20 sm:pb-24">
-        <HubTrendingMarketsTable />
-        <HubTraderStrip />
-        <HubHighVolumeSection />
-        <HubNarrativeWarsSection />
-        <HubCommunityIntelligence />
-        <HubPortfolioShortcut />
+      <HubFeedChrome />
+      <div className="hub-container hub-feed-body pb-20 sm:pb-24">
+        <HubMarketFeedGrid />
       </div>
     </div>
   );

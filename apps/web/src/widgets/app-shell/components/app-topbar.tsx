@@ -28,10 +28,16 @@ const TOP_NAV: TopNavItem[] = [
   { href: ROUTES.portfolio, label: "Portfolio", kind: "portfolio" },
 ];
 
-function navLinkClass(active: boolean) {
+function navLinkClass(active: boolean, hub: boolean) {
   return cn(
     "shrink-0 text-[13px] font-medium transition",
-    active ? "text-[#f0f6ff]" : "text-[#8ba3c7] hover:text-[#f0f6ff]",
+    hub
+      ? active
+        ? "text-[var(--hub-fg)]"
+        : "text-[var(--hub-muted)] hover:text-[var(--hub-fg)]"
+      : active
+        ? "text-[#f0f6ff]"
+        : "text-[#8ba3c7] hover:text-[#f0f6ff]",
   );
 }
 
@@ -51,7 +57,7 @@ export function AppTopbar({ density = "default" }: { density?: AppTopbarDensity 
       className={cn(
         "relative sticky top-0 z-40 border-b backdrop-blur-sm supports-[backdrop-filter]:backdrop-blur-md",
         hub
-          ? "border-[rgba(96,165,250,0.18)] bg-[hsl(215_40%_11%/_0.97)]"
+          ? "border-[var(--hub-border)] bg-[var(--hub-bg)]/95"
           : "border-app-subtle bg-app-chrome/97 chrome-edge-subtle",
       )}
     >
@@ -69,13 +75,13 @@ export function AppTopbar({ density = "default" }: { density?: AppTopbarDensity 
             priority
             className="min-w-0"
           />
-          <nav className="hidden items-center gap-4 md:flex lg:gap-5">
+          <nav className={cn("items-center gap-4 lg:gap-5", hub ? "hidden" : "hidden md:flex")}>
             {TOP_NAV.map((item) => {
               let active = false;
               if (item.kind === "home") {
-                active = isHubHomeActive(pathname) && !isAttentionAnchorActive();
+                active = isHubHomeActive(pathname) && !isAttentionAnchorActive(pathname);
               } else if (item.kind === "attention") {
-                active = isAttentionAnchorActive();
+                active = isAttentionAnchorActive(pathname);
               } else if (item.kind === "markets") {
                 active =
                   pathname === ROUTES.discover ||
@@ -87,7 +93,7 @@ export function AppTopbar({ density = "default" }: { density?: AppTopbarDensity 
                 <PrefetchLink
                   key={item.href}
                   href={item.href}
-                  className={navLinkClass(active)}
+                  className={navLinkClass(active, hub)}
                 >
                   {item.label}
                 </PrefetchLink>
@@ -96,7 +102,7 @@ export function AppTopbar({ density = "default" }: { density?: AppTopbarDensity 
             {showAdminNav ? (
               <PrefetchLink
                 href={ROUTES.adminDashboard}
-                className={navLinkClass(pathname?.startsWith("/admin") ?? false)}
+                className={navLinkClass(pathname?.startsWith("/admin") ?? false, hub)}
               >
                 Admin
               </PrefetchLink>
@@ -104,9 +110,9 @@ export function AppTopbar({ density = "default" }: { density?: AppTopbarDensity 
           </nav>
         </div>
 
-        <div className="min-w-0 flex-1 px-1 sm:px-2">
+        <div className={cn("min-w-0 flex-1 px-1 sm:px-2", hub && "hidden md:block")}>
           <div className="mx-auto w-full min-w-0 max-w-xl lg:max-w-2xl">
-            <AppSearch />
+            <AppSearch variant={hub ? "hub-light" : "default"} />
           </div>
         </div>
 

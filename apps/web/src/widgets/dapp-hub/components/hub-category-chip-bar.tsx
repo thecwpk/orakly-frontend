@@ -24,8 +24,13 @@ function hubCategoryHref(slug: string): string {
   return `${ROUTES.dapp}?${qs.toString()}`;
 }
 
-/** Sticky topic chips — Polymarket-style; narrative engine + same-page `/dapp` filters. */
-export function HubCategoryChipBar() {
+type HubCategoryChipBarProps = {
+  /** When true, renders only the tab row (parent provides sticky chrome). */
+  embedded?: boolean;
+};
+
+/** Primary category tabs — Polymarket text style, same-page `/dapp` filters. */
+export function HubCategoryChipBar({ embedded = false }: HubCategoryChipBarProps) {
   const topicsQ = useHubTopicsQuery();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -37,58 +42,64 @@ export function HubCategoryChipBar() {
 
   const chips = topicsQ.data ?? [];
 
+  const tabs = (
+    <div className="hub-category-tabs" role="tablist" aria-label="Market topics">
+      <Link
+        href={ROUTES.dapp}
+        role="tab"
+        aria-selected={trendingActive}
+        className={cn("hub-category-tab", trendingActive && "hub-category-tab--active")}
+      >
+        Trending
+      </Link>
+      {topicsQ.isLoading
+        ? Array.from({ length: 5 }).map((_, i) => (
+            <div key={i} className="hub-skeleton h-5 w-16 shrink-0 rounded" />
+          ))
+        : chips.map((chip) => {
+            const active =
+              (chip.kind === "breaking" && activeBreaking) ||
+              (chip.kind === "narrative" && activeNarrative === chip.slug);
+            return (
+              <Link
+                key={chip.id}
+                href={hubTopicHref(chip)}
+                role="tab"
+                aria-selected={active}
+                className={cn("hub-category-tab", active && "hub-category-tab--active")}
+              >
+                {chip.label}
+                {chip.trend === "RISING" ? (
+                  <span className="ml-0.5 text-[10px] font-bold text-emerald-600" aria-hidden>
+                    ↑
+                  </span>
+                ) : null}
+              </Link>
+            );
+          })}
+      {activeCat ? (
+        <Link
+          href={hubCategoryHref(activeCat)}
+          role="tab"
+          aria-selected
+          className="hub-category-tab hub-category-tab--active"
+        >
+          {activeCat.replace(/-/g, " ")}
+        </Link>
+      ) : null}
+      <Link href={ROUTES.markets} className="hub-category-tab hub-category-tab--muted">
+        More
+      </Link>
+    </div>
+  );
+
+  if (embedded) {
+    return <div className="hub-container py-0">{tabs}</div>;
+  }
+
   return (
-    <div className="hub-category-bar sticky top-0 z-20 border-b border-[var(--hub-border)] bg-[rgba(10,22,40,0.92)] backdrop-blur-md">
-      <div className="hub-container py-2.5">
-        <div className="hub-category-chips" role="tablist" aria-label="Market topics">
-          <Link
-            href={ROUTES.dapp}
-            role="tab"
-            aria-selected={trendingActive}
-            className={cn("hub-category-chip", trendingActive && "hub-category-chip--active")}
-          >
-            Trending
-          </Link>
-          {topicsQ.isLoading
-            ? Array.from({ length: 6 }).map((_, i) => (
-                <div key={i} className="hub-skeleton h-8 w-20 shrink-0 rounded-full" />
-              ))
-            : chips.map((chip) => {
-                const active =
-                  (chip.kind === "breaking" && activeBreaking) ||
-                  (chip.kind === "narrative" && activeNarrative === chip.slug);
-                return (
-                  <Link
-                    key={chip.id}
-                    href={hubTopicHref(chip)}
-                    role="tab"
-                    aria-selected={active}
-                    className={cn("hub-category-chip", active && "hub-category-chip--active")}
-                  >
-                    {chip.label}
-                    {chip.trend === "RISING" ? (
-                      <span className="ml-1 text-[10px] text-emerald-400" aria-hidden>
-                        ↑
-                      </span>
-                    ) : null}
-                  </Link>
-                );
-              })}
-          {activeCat ? (
-            <Link
-              href={hubCategoryHref(activeCat)}
-              role="tab"
-              aria-selected
-              className="hub-category-chip hub-category-chip--active"
-            >
-              {activeCat.replace(/-/g, " ")}
-            </Link>
-          ) : null}
-          <Link href={ROUTES.markets} className="hub-category-chip hub-category-chip--muted">
-            All markets
-          </Link>
-        </div>
-      </div>
+    <div className="hub-feed-chrome">
+      <div className="hub-container py-2">{tabs}</div>
     </div>
   );
 }

@@ -10,8 +10,8 @@ export const ROUTES = {
   landing: "/landing",
   /** Trading hub home — attention terminal, narrative wars, opportunities. */
   dapp: "/dapp",
-  /** Attention dashboard anchor on hub home. */
-  attention: "/dapp#attention",
+  /** Attention dashboard — narrative momentum & matchups. */
+  attention: "/attention",
   /** Live markets directory (marketing shell). */
   discover: "/discover",
   /** Primary exploration surface — dense grid, filters, infinite scroll. */

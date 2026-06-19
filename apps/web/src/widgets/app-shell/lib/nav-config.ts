@@ -86,9 +86,13 @@ export function isHubHomeActive(pathname: string | null): boolean {
   return pathname === ROUTES.dapp || pathname === ROUTES.home;
 }
 
-export function isAttentionAnchorActive(): boolean {
+export function isAttentionAnchorActive(pathname?: string | null): boolean {
+  if (pathname) {
+    return pathname === ROUTES.attention || pathname.startsWith(`${ROUTES.attention}/`);
+  }
   if (typeof window === "undefined") return false;
-  return window.location.hash === "#attention" && isHubHomeActive(window.location.pathname);
+  const p = window.location.pathname;
+  return p === ROUTES.attention || p.startsWith(`${ROUTES.attention}/`);
 }
 
 export function resolvePrimaryNavActive(
@@ -104,8 +108,8 @@ export function resolvePrimaryNavActive(
   >,
   searchParams?: Pick<URLSearchParams, "get"> | null,
 ): boolean {
-  if (item.attentionAnchor) return isAttentionAnchorActive();
-  if (item.hubHome) return isHubHomeActive(pathname) && !isAttentionAnchorActive();
+  if (item.attentionAnchor) return isAttentionAnchorActive(pathname);
+  if (item.hubHome) return isHubHomeActive(pathname) && !isAttentionAnchorActive(pathname);
   if (item.trendingTape) return isTrendingTapeActive(pathname, searchParams);
   if (item.marketsBrowse) return isMarketsBrowseActive(pathname, searchParams);
   return isPathActive(pathname, item.href, item.matchSubtree);

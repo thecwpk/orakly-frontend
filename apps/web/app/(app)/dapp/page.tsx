@@ -8,8 +8,7 @@ export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Orakly — Crypto Attention Market",
-  description:
-    "Attention-first narrative exchange — live attention scores, narrative wars, and conviction markets.",
+  description: "Trade prediction markets — browse trending events and live odds.",
 };
 
 export default async function DappHomePage() {

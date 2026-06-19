@@ -21,7 +21,10 @@ export function AppShell({ children }: { children: ReactNode }) {
   const actorId = useAuthStore((s) => s.tradingUserId ?? undefined);
   const pathname = usePathname();
   const hubHome =
-    pathname === ROUTES.dapp || pathname?.startsWith(`${ROUTES.dapp}/`);
+    pathname === ROUTES.dapp ||
+    pathname?.startsWith(`${ROUTES.dapp}/`) ||
+    pathname === ROUTES.attention ||
+    pathname?.startsWith(`${ROUTES.attention}/`);
 
   return (
     <SocketProvider portfolioUserId={actorId ?? null}>
