@@ -1,5 +1,6 @@
 "use client";
 
+import { TrendingUp, Zap, type LucideIcon } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import type { HubTopicChip } from "@/shared/contracts/hub-home";
@@ -24,12 +25,20 @@ function hubCategoryHref(slug: string): string {
   return `${ROUTES.dapp}?${qs.toString()}`;
 }
 
+function chipIcon(chip: HubTopicChip): LucideIcon | null {
+  if (chip.kind === "breaking") return Zap;
+  return null;
+}
+
 type HubCategoryChipBarProps = {
-  /** When true, renders only the tab row (parent provides sticky chrome). */
   embedded?: boolean;
 };
 
-/** Primary category tabs — Polymarket text style, same-page `/dapp` filters. */
+function TabIcon({ Icon }: { Icon: LucideIcon }) {
+  return <Icon className="hub-category-tab-icon" aria-hidden />;
+}
+
+/** Primary category tabs — Polymarket text + icons. */
 export function HubCategoryChipBar({ embedded = false }: HubCategoryChipBarProps) {
   const topicsQ = useHubTopicsQuery();
   const pathname = usePathname();
@@ -50,6 +59,7 @@ export function HubCategoryChipBar({ embedded = false }: HubCategoryChipBarProps
         aria-selected={trendingActive}
         className={cn("hub-category-tab", trendingActive && "hub-category-tab--active")}
       >
+        <TabIcon Icon={TrendingUp} />
         Trending
       </Link>
       {topicsQ.isLoading
@@ -60,6 +70,7 @@ export function HubCategoryChipBar({ embedded = false }: HubCategoryChipBarProps
             const active =
               (chip.kind === "breaking" && activeBreaking) ||
               (chip.kind === "narrative" && activeNarrative === chip.slug);
+            const Icon = chipIcon(chip);
             return (
               <Link
                 key={chip.id}
@@ -68,6 +79,7 @@ export function HubCategoryChipBar({ embedded = false }: HubCategoryChipBarProps
                 aria-selected={active}
                 className={cn("hub-category-tab", active && "hub-category-tab--active")}
               >
+                {Icon ? <TabIcon Icon={Icon} /> : null}
                 {chip.label}
                 {chip.trend === "RISING" ? (
                   <span className="ml-0.5 text-[10px] font-bold text-emerald-600" aria-hidden>
@@ -94,12 +106,12 @@ export function HubCategoryChipBar({ embedded = false }: HubCategoryChipBarProps
   );
 
   if (embedded) {
-    return <div className="hub-container py-0">{tabs}</div>;
+    return <div className="hub-container hub-category-tabs-wrap">{tabs}</div>;
   }
 
   return (
     <div className="hub-feed-chrome">
-      <div className="hub-container py-2">{tabs}</div>
+      <div className="hub-container hub-category-tabs-wrap">{tabs}</div>
     </div>
   );
 }

@@ -30,6 +30,7 @@ export type BrandWordmarkLinkProps = {
  */
 export function BrandWordmarkLink({
   href = ROUTES.home,
+  tone = "theme",
   showTitle = false,
   variant = "default",
   className,
@@ -40,6 +41,7 @@ export function BrandWordmarkLink({
 }: BrandWordmarkLinkProps) {
   const [failed, setFailed] = useState(false);
   const nav = variant === "nav";
+  const onLight = tone === "onLight";
   const newTab = openInNewTab ? ({ target: "_blank", rel: "noopener noreferrer" } as const) : {};
 
   if (failed) {
@@ -51,7 +53,7 @@ export function BrandWordmarkLink({
         aria-label="Orakly Market home"
         {...newTab}
       >
-        <BrandTitleFallback nav={nav} />
+        <BrandTitleFallback nav={nav} onLight={onLight} />
       </Link>
     );
   }
@@ -72,9 +74,10 @@ export function BrandWordmarkLink({
         className={cn(
           nav &&
             "marketing-brand-mark relative flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-xl sm:size-11",
+          nav && onLight && "rounded-lg border border-[#e5e7eb] bg-[#f9fafb]",
         )}
       >
-        {nav ? (
+        {nav && !onLight ? (
           <span
             className="pointer-events-none absolute inset-0 rounded-xl bg-gradient-to-br from-sky-400/20 via-transparent to-violet-500/15 opacity-80"
             aria-hidden
@@ -89,7 +92,12 @@ export function BrandWordmarkLink({
           priority={priority}
           className={cn(
             nav
-              ? "relative z-[1] size-[1.65rem] object-contain object-center mix-blend-lighten sm:size-[1.85rem]"
+              ? cn(
+                  "relative z-[1] object-contain object-center",
+                  onLight
+                    ? "size-[1.65rem] sm:size-[1.85rem]"
+                    : "size-[1.65rem] mix-blend-lighten sm:size-[1.85rem]",
+                )
               : showTitle
                 ? "h-8 w-auto max-w-[88px] object-contain object-left sm:h-9 sm:max-w-[100px]"
                 : "h-7 w-auto max-w-[min(52vw,200px)] object-contain object-left sm:h-8 sm:max-w-[220px]",
@@ -98,19 +106,29 @@ export function BrandWordmarkLink({
           onError={() => setFailed(true)}
         />
       </span>
-      {showTitle ? <BrandTitle nav={nav} /> : null}
+      {showTitle ? <BrandTitle nav={nav} onLight={onLight} /> : null}
     </Link>
   );
 }
 
-function BrandTitle({ nav }: { nav: boolean }) {
+function BrandTitle({ nav, onLight }: { nav: boolean; onLight?: boolean }) {
   if (nav) {
     return (
       <span className="flex min-w-0 flex-col justify-center leading-[1.12]">
-        <span className="font-display text-[1.05rem] font-bold tracking-[-0.03em] text-white sm:text-lg">
+        <span
+          className={cn(
+            "font-display text-[1.05rem] font-bold tracking-[-0.03em] sm:text-lg",
+            onLight ? "text-[#111827]" : "text-white",
+          )}
+        >
           Orakly Market
         </span>
-        <span className="mt-1 hidden font-mono text-[10px] font-semibold uppercase tracking-[0.2em] text-white/75 sm:block sm:text-[11px]">
+        <span
+          className={cn(
+            "mt-1 hidden font-mono text-[10px] font-semibold uppercase tracking-[0.2em] sm:block sm:text-[11px]",
+            onLight ? "text-[#6b7280]" : "text-white/75",
+          )}
+        >
           On-chain predictions
         </span>
       </span>
@@ -131,10 +149,15 @@ function BrandTitle({ nav }: { nav: boolean }) {
   );
 }
 
-function BrandTitleFallback({ nav }: { nav: boolean }) {
+function BrandTitleFallback({ nav, onLight }: { nav: boolean; onLight?: boolean }) {
   if (nav) {
     return (
-      <span className="font-display text-base font-bold tracking-tight text-white sm:text-lg">
+      <span
+        className={cn(
+          "font-display text-base font-bold tracking-tight sm:text-lg",
+          onLight ? "text-[#111827]" : "text-white",
+        )}
+      >
         Orakly Market
       </span>
     );

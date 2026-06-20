@@ -72,6 +72,7 @@ export function AppTopbar({ density = "default" }: { density?: AppTopbarDensity 
             href={ROUTES.dapp}
             showTitle
             variant="nav"
+            tone={hub ? "onLight" : "onDark"}
             priority
             className="min-w-0"
           />
@@ -110,14 +111,21 @@ export function AppTopbar({ density = "default" }: { density?: AppTopbarDensity 
           </nav>
         </div>
 
-        <div className={cn("min-w-0 flex-1 px-1 sm:px-2", hub && "hidden md:block")}>
-          <div className="mx-auto w-full min-w-0 max-w-xl lg:max-w-2xl">
-            <AppSearch variant={hub ? "hub-light" : "default"} />
+        {hub ? (
+          <div className="flex-1" aria-hidden />
+        ) : (
+          <div className="min-w-0 flex-1 px-1 sm:px-2">
+            <div className="mx-auto w-full min-w-0 max-w-xl lg:max-w-2xl">
+              <AppSearch />
+            </div>
           </div>
-        </div>
+        )}
 
         <div className="flex shrink-0 items-center gap-2 sm:gap-3">
-          <WalletPopover connectLabel="Connect Wallet" />
+          <WalletPopover
+            connectLabel={hub ? "Sign up" : "Connect Wallet"}
+            variant={hub ? "hub" : "default"}
+          />
           {!hub ? (
             <>
               <NotificationBell />

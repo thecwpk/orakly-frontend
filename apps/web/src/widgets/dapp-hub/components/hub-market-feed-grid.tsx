@@ -6,13 +6,10 @@ import { useOpenTradeModal } from "@/features/trading";
 import { useHubTrendingMarketsQuery } from "@/shared/api/hooks";
 import { ROUTES } from "@/shared/constants/routes";
 import { fmtCents, fmtUsdCompact } from "../lib/format-hub-metrics";
+import { resolveHubMarketVisual } from "../lib/hub-market-visual";
 import { marketToTradeModal } from "../lib/open-hub-trade";
+import { HubFeedSectionHeader } from "./hub-feed-section-header";
 import { HubSectionRetry } from "./hub-section-retry";
-
-function marketInitial(title: string, category?: string | null): string {
-  const src = (category ?? title).trim();
-  return (src.charAt(0) || "?").toUpperCase();
-}
 
 function HubFeedCard({
   title,
@@ -29,32 +26,38 @@ function HubFeedCard({
   volume24hUsd: number;
   onTrade: () => void;
 }) {
+  const visual = resolveHubMarketVisual(category, title);
+  const ThumbIcon = visual.Icon;
   const yesCents = fmtCents(probability);
   const noCents = fmtCents(1 - probability);
 
   return (
     <article className="hub-feed-card">
-      <div className="hub-feed-card-head">
-        <span className="hub-feed-card-icon" aria-hidden>
-          {marketInitial(title, category)}
-        </span>
-        {category ? (
-          <span className="hub-feed-card-category">{category}</span>
-        ) : null}
+      <div
+        className="hub-feed-card-thumb"
+        style={{ backgroundColor: visual.bg }}
+        aria-hidden
+      >
+        <ThumbIcon className="hub-feed-card-thumb-icon" style={{ color: visual.iconColor }} />
       </div>
-      <Link href={ROUTES.market(slug)} className="hub-feed-card-title">
-        {title}
-      </Link>
-      <p className="hub-feed-card-vol">{fmtUsdCompact(volume24hUsd)} vol</p>
-      <div className="hub-feed-card-outcomes">
-        <button type="button" onClick={onTrade} className="hub-outcome-btn hub-outcome-btn--yes">
-          <span className="hub-outcome-label">Yes</span>
-          <span className="hub-outcome-price">{yesCents}</span>
-        </button>
-        <button type="button" onClick={onTrade} className="hub-outcome-btn hub-outcome-btn--no">
-          <span className="hub-outcome-label">No</span>
-          <span className="hub-outcome-price">{noCents}</span>
-        </button>
+      <div className="hub-feed-card-body">
+        <div className="hub-feed-card-meta">
+          {category ? <span className="hub-feed-card-category">{category}</span> : null}
+          <span className="hub-feed-card-vol">{fmtUsdCompact(volume24hUsd)} vol</span>
+        </div>
+        <Link href={ROUTES.market(slug)} className="hub-feed-card-title">
+          {title}
+        </Link>
+        <div className="hub-feed-card-outcomes">
+          <button type="button" onClick={onTrade} className="hub-outcome-btn hub-outcome-btn--yes">
+            <span className="hub-outcome-label">Yes</span>
+            <span className="hub-outcome-price">{yesCents}</span>
+          </button>
+          <button type="button" onClick={onTrade} className="hub-outcome-btn hub-outcome-btn--no">
+            <span className="hub-outcome-label">No</span>
+            <span className="hub-outcome-price">{noCents}</span>
+          </button>
+        </div>
       </div>
     </article>
   );
@@ -68,18 +71,19 @@ export function HubMarketFeedGrid() {
     narrative: searchParams?.get("narrative"),
     breaking: searchParams?.get("breaking") === "1",
   };
-  const trendingQ = useHubTrendingMarketsQuery(48, filter);
+  const trendingQ = useHubTrendingMarketsQuery(60, filter);
   const openTrade = useOpenTradeModal();
   const markets = trendingQ.data ?? [];
 
   return (
     <section className="hub-feed-section" aria-label="Markets">
+      <HubFeedSectionHeader marketCount={markets.length} />
       {trendingQ.isError ? (
         <HubSectionRetry onRetry={() => void trendingQ.refetch()} />
       ) : trendingQ.isLoading ? (
         <div className="hub-feed-grid">
           {Array.from({ length: 12 }).map((_, i) => (
-            <div key={i} className="hub-skeleton h-44 rounded-xl" />
+            <div key={i} className="hub-skeleton hub-feed-card-skeleton" />
           ))}
         </div>
       ) : markets.length === 0 ? (

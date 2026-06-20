@@ -1,12 +1,13 @@
 "use client";
 
+import { LayoutGrid } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { ROUTES } from "@/shared/constants/routes";
 import { cn } from "@/lib/utils";
 
 const SUBTOPICS = [
-  { id: "all", label: "All" },
+  { id: "all", label: "All", icon: LayoutGrid },
   { id: "breaking", label: "Breaking" },
   { id: "volume", label: "High volume" },
 ] as const;
@@ -46,6 +47,7 @@ export function HubSubtopicChips() {
     <div className="hub-subtopic-chips" role="tablist" aria-label="Feed filters">
       {SUBTOPICS.map((topic) => {
         const isActive = active === topic.id;
+        const Icon = "icon" in topic ? topic.icon : null;
         return (
           <Link
             key={topic.id}
@@ -54,6 +56,7 @@ export function HubSubtopicChips() {
             aria-selected={isActive}
             className={cn("hub-subtopic-chip", isActive && "hub-subtopic-chip--active")}
           >
+            {Icon ? <Icon className="h-3.5 w-3.5 shrink-0 opacity-70" aria-hidden /> : null}
             {topic.label}
           </Link>
         );

@@ -77,7 +77,13 @@ function CustodialBalance({ userId }: { userId: string | undefined }) {
   );
 }
 
-export function WalletPopover({ connectLabel = "Connect" }: { connectLabel?: string }) {
+export function WalletPopover({
+  connectLabel = "Connect",
+  variant = "default",
+}: {
+  connectLabel?: string;
+  variant?: "default" | "hub";
+}) {
   const actorId = useAuthStore((s) => s.tradingUserId ?? undefined);
   const [open, setOpen] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -108,6 +114,7 @@ export function WalletPopover({ connectLabel = "Connect" }: { connectLabel?: str
         }
 
         if (!connected) {
+          const hubStyle = variant === "hub";
           return (
             <motion.button
               type="button"
@@ -116,19 +123,27 @@ export function WalletPopover({ connectLabel = "Connect" }: { connectLabel?: str
               whileHover={connecting ? undefined : { scale: 1.01 }}
               whileTap={connecting ? undefined : { scale: 0.99 }}
               className={cn(
-                "inline-flex h-8 shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-[3px] border px-3 font-mono text-[9.5px] font-semibold uppercase tracking-[0.07em] transition-colors",
-                "border-[#3b82f6]/40 bg-[#3b82f6]/12 text-[#dbeafe]",
-                "shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]",
-                "hover:border-[#60a5fa]/50 hover:bg-[#3b82f6]/18 hover:text-white",
-                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3b82f6]/40",
+                "inline-flex h-9 shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-lg px-4 text-sm font-semibold transition-colors",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563eb]/35",
                 "disabled:cursor-not-allowed disabled:opacity-60",
+                hubStyle
+                  ? "border border-[#2563eb] bg-[#2563eb] text-white hover:bg-[#1d4ed8]"
+                  : cn(
+                      "h-8 rounded-[3px] border px-3 font-mono text-[9.5px] font-semibold uppercase tracking-[0.07em]",
+                      "border-[#3b82f6]/40 bg-[#3b82f6]/12 text-[#dbeafe]",
+                      "shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]",
+                      "hover:border-[#60a5fa]/50 hover:bg-[#3b82f6]/18 hover:text-white",
+                      "focus-visible:ring-[#3b82f6]/40",
+                    ),
               )}
             >
               {connecting ? (
                 <>
-                  <Loader2 className="h-3.5 w-3.5 shrink-0 animate-spin text-blue-200" />
+                  <Loader2 className="h-3.5 w-3.5 shrink-0 animate-spin" />
                   <span>Connecting</span>
                 </>
+              ) : hubStyle ? (
+                <span>{connectLabel}</span>
               ) : (
                 <>
                   <Wallet className="h-3.5 w-3.5 shrink-0 text-blue-300/95" strokeWidth={2} />
