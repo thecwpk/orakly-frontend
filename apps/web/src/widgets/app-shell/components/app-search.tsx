@@ -78,7 +78,7 @@ export function AppSearch({
       className={cn(
         "group relative flex h-10 w-full max-w-none items-center rounded-lg border transition",
         hubLight
-          ? "border-[var(--hub-border)] bg-[var(--hub-bg-subtle)] hover:border-gray-300"
+          ? "border-[var(--hub-border)] bg-[color-mix(in_srgb,var(--hub-card)_78%,var(--hub-bg-subtle))] hover:border-[var(--hub-border-strong)]"
           : "h-9 rounded-[10px] border-white/[0.07] bg-white/[0.03] shadow-[0_0_0_1px_rgba(255,255,255,0.03)_inset] hover:border-white/[0.1] hover:bg-white/[0.045]",
         !hubLight &&
           (focused

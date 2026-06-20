@@ -12,6 +12,7 @@ import { appMainPageInsetStyle } from "@/shared/constants/page-layout";
 import { AppTopbar } from "./components/app-topbar";
 import { MobileBottomNav } from "./components/mobile-bottom-nav";
 import { NavigationPendingProvider } from "./components/navigation-pending";
+import "@/widgets/dapp-hub/hub-design-tokens.css";
 
 /**
  * Trading shell — sticky top bar + dense horizontal nav (md+), mobile dock,

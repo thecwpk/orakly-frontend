@@ -30,7 +30,7 @@ export function HubProbabilityBar({
       ) : null}
       <div
         className={cn(
-          "flex overflow-hidden rounded-full bg-[rgba(15,30,55,0.9)] ring-1 ring-[var(--hub-border)]",
+          "flex overflow-hidden rounded-full bg-[var(--hub-track-bg)] ring-1 ring-[var(--hub-border)]",
           size === "sm" ? "h-1.5" : "h-2",
         )}
       >
@@ -38,7 +38,7 @@ export function HubProbabilityBar({
           className="h-full bg-gradient-to-r from-[var(--hub-primary)] to-[#38bdf8] transition-[width] duration-500"
           style={{ width: `${pct}%` }}
         />
-        <div className="h-full flex-1 bg-[rgba(248,113,113,0.35)]" style={{ width: `${noPct}%` }} />
+        <div className="h-full flex-1 bg-[color-mix(in_srgb,var(--hub-danger)_28%,transparent)]" style={{ width: `${noPct}%` }} />
       </div>
     </div>
   );

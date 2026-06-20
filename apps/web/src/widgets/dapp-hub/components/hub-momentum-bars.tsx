@@ -48,7 +48,7 @@ export function HubMomentumBars({
             <span className="truncate text-xs font-semibold text-[var(--hub-fg)]">
               {row.narrative}
             </span>
-            <div className="relative h-2 overflow-hidden rounded-full bg-[rgba(15,30,55,0.85)] ring-1 ring-[var(--hub-border)]">
+            <div className="relative h-2 overflow-hidden rounded-full bg-[var(--hub-track-bg)] ring-1 ring-[var(--hub-border)]">
               <div
                 className={cn(
                   "absolute top-0 h-full rounded-full transition-[width] duration-500",

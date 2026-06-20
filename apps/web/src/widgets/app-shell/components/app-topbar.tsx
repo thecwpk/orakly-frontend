@@ -33,7 +33,7 @@ function navLinkClass(active: boolean, hub: boolean) {
     "shrink-0 text-[13px] font-medium transition",
     hub
       ? active
-        ? "text-[var(--hub-fg)]"
+        ? "font-semibold text-[var(--hub-primary)]"
         : "text-[var(--hub-muted)] hover:text-[var(--hub-fg)]"
       : active
         ? "text-[#f0f6ff]"
@@ -57,7 +57,7 @@ export function AppTopbar({ density = "default" }: { density?: AppTopbarDensity 
       className={cn(
         "relative sticky top-0 z-40 border-b backdrop-blur-sm supports-[backdrop-filter]:backdrop-blur-md",
         hub
-          ? "border-[var(--hub-border)] bg-[var(--hub-bg)]/95"
+          ? "border-[var(--hub-border)] bg-[var(--hub-chrome)]/95"
           : "border-app-subtle bg-app-chrome/97 chrome-edge-subtle",
       )}
     >
@@ -76,7 +76,7 @@ export function AppTopbar({ density = "default" }: { density?: AppTopbarDensity 
             priority
             className="min-w-0"
           />
-          <nav className={cn("items-center gap-4 lg:gap-5", hub ? "hidden" : "hidden md:flex")}>
+          <nav className="hidden items-center gap-4 md:flex lg:gap-5">
             {TOP_NAV.map((item) => {
               let active = false;
               if (item.kind === "home") {
@@ -126,12 +126,8 @@ export function AppTopbar({ density = "default" }: { density?: AppTopbarDensity 
             connectLabel={hub ? "Sign up" : "Connect Wallet"}
             variant={hub ? "hub" : "default"}
           />
-          {!hub ? (
-            <>
-              <NotificationBell />
-              <UserMenu />
-            </>
-          ) : null}
+          <NotificationBell />
+          <UserMenu />
         </div>
       </div>
 

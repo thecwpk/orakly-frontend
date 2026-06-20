@@ -33,7 +33,7 @@ export function MobileBottomNav() {
         "fixed inset-x-0 bottom-0 z-40 lg:hidden",
         "rounded-t-2xl border border-b-0 pb-[env(safe-area-inset-bottom)]",
         hubLight
-          ? "border-[var(--hub-border)] bg-white/98 shadow-[0_-2px_16px_rgb(17_24_39_/_0.06)] backdrop-blur-md"
+          ? "border-[var(--hub-border)] bg-[var(--hub-chrome)] shadow-[0_-2px_20px_rgb(37_99_235_/_0.12)] backdrop-blur-md"
           : "border-[rgba(96,165,250,0.16)] bg-[hsl(215_40%_11%/_0.98)] shadow-[0_-4px_24px_rgba(15,40,80,0.45)] backdrop-blur-md supports-[backdrop-filter]:backdrop-blur-xl",
       )}
     >
@@ -48,7 +48,8 @@ export function MobileBottomNav() {
                 aria-current={active ? "page" : undefined}
                 className={cn(
                   "relative flex min-h-[52px] flex-col items-center justify-center gap-0.5 px-1 py-1.5 text-[10px] font-medium tracking-wide transition-colors",
-                  "active:scale-[0.97] active:bg-white/[0.04]",
+                  "active:scale-[0.97]",
+                  hubLight ? "active:bg-[var(--hub-primary-soft)]" : "active:bg-white/[0.04]",
                   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3b82f6]/35",
                   hubLight
                     ? active
@@ -90,7 +91,7 @@ export function MobileBottomNav() {
                     layoutId="mobile-active-indicator"
                     className={cn(
                       "absolute inset-x-6 top-0 h-0.5 rounded-full",
-                      hubLight ? "bg-[var(--hub-fg)]" : "bg-[#3b82f6]",
+                      hubLight ? "bg-[var(--hub-primary)]" : "bg-[#3b82f6]",
                     )}
                     transition={{
                       type: "spring",

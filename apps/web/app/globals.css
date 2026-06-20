@@ -250,15 +250,10 @@
 }
 
 /**
- * Hub route canvas — not flat #000; layered cool radial + still reads as “dark venue”.
+ * Hub route canvas — blue theme tokens + gradient (see hub-design-tokens.css).
  */
 .hub-app-canvas {
-  background-color: #ffffff;
-}
-
-.dark .hub-app-canvas {
-  background-color: #ffffff;
-  background-image: none;
+  color: var(--hub-fg, #0c1929);
 }
 
 /** `/discover` marketing directory — same cool radial canvas as hub (no flat black). */
