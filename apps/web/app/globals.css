@@ -253,7 +253,7 @@
  * Hub route canvas — blue theme tokens + gradient (see hub-design-tokens.css).
  */
 .hub-app-canvas {
-  color: var(--hub-fg, #0c1929);
+  color: var(--hub-fg, #e8f0ff);
 }
 
 /** `/discover` marketing directory — same cool radial canvas as hub (no flat black). */

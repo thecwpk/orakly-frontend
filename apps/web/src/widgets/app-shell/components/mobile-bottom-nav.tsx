@@ -33,7 +33,7 @@ export function MobileBottomNav() {
         "fixed inset-x-0 bottom-0 z-40 lg:hidden",
         "rounded-t-2xl border border-b-0 pb-[env(safe-area-inset-bottom)]",
         hubLight
-          ? "border-[var(--hub-border)] bg-[var(--hub-chrome)] shadow-[0_-2px_20px_rgb(37_99_235_/_0.12)] backdrop-blur-md"
+          ? "border-[var(--hub-border)] bg-[var(--hub-chrome)] shadow-[0_-2px_20px_rgb(0_0_0_/_0.35)] backdrop-blur-md"
           : "border-[rgba(96,165,250,0.16)] bg-[hsl(215_40%_11%/_0.98)] shadow-[0_-4px_24px_rgba(15,40,80,0.45)] backdrop-blur-md supports-[backdrop-filter]:backdrop-blur-xl",
       )}
     >

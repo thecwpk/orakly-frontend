@@ -72,7 +72,7 @@ export function AppTopbar({ density = "default" }: { density?: AppTopbarDensity 
             href={ROUTES.dapp}
             showTitle
             variant="nav"
-            tone={hub ? "onLight" : "onDark"}
+            tone="onDark"
             priority
             className="min-w-0"
           />
