@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { fetchDiscoveryNews } from "../fetchers/discovery-news";
+import { fetchDiscoveryNews, type DiscoveryNewsPayload } from "../fetchers/discovery-news";
 import { queryKeys } from "../query-keys";
 import { withTier } from "../cache-policy";
 
@@ -11,7 +11,7 @@ export function useDiscoveryNewsQuery(
 ) {
   const extraEnabled = options?.enabled ?? true;
   const key = q.trim().slice(0, 280) || "cryptocurrency markets";
-  return useQuery({
+  return useQuery<DiscoveryNewsPayload>({
     queryKey: queryKeys.discovery.news(key),
     queryFn: () => fetchDiscoveryNews(key),
     enabled: key.length > 0 && extraEnabled,

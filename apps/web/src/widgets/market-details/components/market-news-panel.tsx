@@ -3,6 +3,7 @@
 import type { Market } from "@orakly/types";
 import { ExternalLink, Loader2 } from "lucide-react";
 import { useMemo } from "react";
+import { buildSpotlightNewsLines } from "@/widgets/dapp-hub/lib/hub-spotlight-news";
 import { useDiscoveryNewsQuery } from "@/shared/api/hooks/use-discovery-news-query";
 import { cn } from "@/lib/utils";
 import { marketDetailPanelClass } from "./market-detail-section";
@@ -24,57 +25,86 @@ export function buildMarketNewsQuery(market: Market): string {
 export function MarketNewsPanel({ market, className }: { market: Market; className?: string }) {
   const q = useMemo(() => buildMarketNewsQuery(market), [market]);
   const { data: newsPayload, isLoading, isError } = useDiscoveryNewsQuery(q);
+  const fallbackLines = useMemo(() => buildSpotlightNewsLines(market.title), [market.title]);
+
+  const hasApiArticles = (newsPayload?.articles?.length ?? 0) > 0;
+
+  const articles =
+    newsPayload?.articles?.length ?
+      newsPayload.articles.slice(0, 6)
+    : fallbackLines.map((line) => ({
+        url: `#wire-${line.source}`,
+        title: line.headline,
+        source: line.source,
+        publishedAt: line.ago,
+      }));
 
   return (
     <section
       className={cn(marketDetailPanelClass, "flex min-h-0 flex-col p-3 sm:p-3.5", className)}
       aria-label="Related headlines"
     >
-      <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-zinc-600">
+      <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--md-muted)]">
         Context
       </p>
-      <h2 className="text-sm font-semibold text-zinc-100">Related wire</h2>
-      <p className="mt-0.5 text-[11px] text-zinc-600">
+      <h2 className="text-sm font-semibold text-[var(--md-fg)]">Related wire</h2>
+      <p className="mt-0.5 text-[11px] text-[var(--md-muted)]">
         Headlines matched to this market. Links open the publisher.
       </p>
 
-      {isLoading ? (
-        <div className="mt-4 flex items-center gap-2 text-zinc-500">
+      {isLoading && !hasApiArticles ? (
+        <div className="mt-4 flex items-center gap-2 text-[var(--md-muted)]">
           <Loader2 className="h-4 w-4 animate-spin" />
           <span className="text-xs">Loading headlines…</span>
         </div>
       ) : null}
-      {isError ? (
-        <p className="mt-3 text-xs text-rose-400">Headlines unavailable right now.</p>
+      {isError && !hasApiArticles ? (
+        <p className="mt-3 text-xs text-[var(--md-danger)]">Live headlines unavailable — showing desk wire.</p>
       ) : null}
-      {!isLoading && !isError && newsPayload?.articles?.length ? (
+
+      {articles.length ? (
         <ul className="mt-3 min-h-0 flex-1 space-y-2 overflow-y-auto overscroll-contain scrollbar-terminal max-h-none lg:max-h-[min(320px,50vh)]">
-          {newsPayload.articles.slice(0, 6).map((a) => (
-            <li key={a.url} className="border-b border-white/[0.06] pb-3 last:border-b-0 last:pb-0">
-              <a
-                href={a.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group flex gap-2 text-left"
-              >
-                <span className="mt-0.5 shrink-0 text-zinc-500 group-hover:text-cyan-300">
-                  <ExternalLink className="h-3.5 w-3.5" aria-hidden />
-                </span>
-                <span className="min-w-0">
-                  <span className="line-clamp-2 text-[12px] font-medium leading-snug text-zinc-200 group-hover:underline">
-                    {a.title}
+          {articles.map((a) => (
+            <li key={`${a.url}-${a.title}`} className="border-b border-[var(--md-border)] pb-3 last:border-b-0 last:pb-0">
+              {a.url.startsWith("#") ? (
+                <div className="flex gap-2 text-left">
+                  <span className="mt-0.5 h-5 w-5 shrink-0 rounded-sm bg-[color-mix(in_srgb,var(--md-bg-subtle)_80%,transparent)] ring-1 ring-[var(--md-border)]" />
+                  <span className="min-w-0">
+                    <span className="line-clamp-2 text-[12px] font-medium leading-snug text-[var(--md-fg)]">
+                      {a.title}
+                    </span>
+                    <span className="mt-1 flex flex-wrap gap-x-2 font-mono text-[9px] text-[var(--md-muted)]">
+                      {a.source ? <span>{a.source}</span> : null}
+                      {a.publishedAt ? <span>{a.publishedAt}</span> : null}
+                    </span>
                   </span>
-                  <span className="mt-1 flex flex-wrap gap-x-2 font-mono text-[9px] text-zinc-600">
-                    {a.source ? <span>{a.source}</span> : null}
-                    {a.publishedAt ? <span>{a.publishedAt}</span> : null}
+                </div>
+              ) : (
+                <a
+                  href={a.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group flex gap-2 text-left"
+                >
+                  <span className="mt-0.5 shrink-0 text-[var(--md-muted)] group-hover:text-[var(--md-primary)]">
+                    <ExternalLink className="h-3.5 w-3.5" aria-hidden />
                   </span>
-                </span>
-              </a>
+                  <span className="min-w-0">
+                    <span className="line-clamp-2 text-[12px] font-medium leading-snug text-[var(--md-fg)] group-hover:underline">
+                      {a.title}
+                    </span>
+                    <span className="mt-1 flex flex-wrap gap-x-2 font-mono text-[9px] text-[var(--md-muted)]">
+                      {a.source ? <span>{a.source}</span> : null}
+                      {a.publishedAt ? <span>{a.publishedAt}</span> : null}
+                    </span>
+                  </span>
+                </a>
+              )}
             </li>
           ))}
         </ul>
-      ) : !isLoading && !isError ? (
-        <p className="mt-3 text-xs text-zinc-500">No headlines returned for this topic.</p>
+      ) : !isLoading ? (
+        <p className="mt-3 text-xs text-[var(--md-muted)]">No headlines available for this topic.</p>
       ) : null}
     </section>
   );

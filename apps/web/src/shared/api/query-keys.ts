@@ -89,6 +89,8 @@ export const queryKeys = {
     detail: (marketId: string) => [...marketsRoot(), "detail", marketId] as const,
     odds: (marketId: string) =>
       [...marketsRoot(), "detail", marketId, "odds"] as const,
+    oddsHistory: (marketId: string, hours = 168) =>
+      [...marketsRoot(), "detail", marketId, "oddsHistory", hours] as const,
     probability: (marketId: string) =>
       [...marketsRoot(), "detail", marketId, "probability"] as const,
     trades: (marketId: string) =>

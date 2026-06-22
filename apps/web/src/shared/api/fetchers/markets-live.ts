@@ -40,6 +40,11 @@ export type MarketVolumeWindowDto = {
   rows: MarketVolumeWindowRowDto[];
 };
 
+export type MarketOddsHistoryPointDto = {
+  yes: number;
+  recordedAt: string;
+};
+
 export async function fetchMarketBySlug(slug: string): Promise<Market> {
   const enc = encodeURIComponent(slug);
   const res = await apiClient.request<Market>(`/api/v1/markets/by-slug/${enc}`);
@@ -59,6 +64,16 @@ export async function fetchMarketVolumeWindowBySlug(
 export async function fetchMarketOdds(marketId: string): Promise<MarketOddsDto> {
   const res = await apiClient.request<MarketOddsDto>(
     `/api/v1/markets/${marketId}/odds`,
+  );
+  return unwrapApiResult(res);
+}
+
+export async function fetchMarketOddsHistory(
+  marketId: string,
+  hours = 168,
+): Promise<MarketOddsHistoryPointDto[]> {
+  const res = await apiClient.request<MarketOddsHistoryPointDto[]>(
+    `/api/v1/markets/${marketId}/odds-history?hours=${hours}`,
   );
   return unwrapApiResult(res);
 }

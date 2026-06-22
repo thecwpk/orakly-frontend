@@ -31,6 +31,7 @@ export { useLedgerQuery } from "./useLedgerQuery";
 export { useTradesInfiniteQuery } from "./useTradesInfiniteQuery";
 export { useMarketBySlugQuery } from "./useMarketBySlugQuery";
 export { useMarketOddsQuery } from "./useMarketOddsQuery";
+export { useMarketOddsHistoryQuery } from "./useMarketOddsHistoryQuery";
 export { useMarketProbabilityQuery } from "./useMarketProbabilityQuery";
 export { useMarketTradesQuery } from "./useMarketTradesQuery";
 export { useMarketVolumeWindowQuery } from "./useMarketVolumeWindowQuery";

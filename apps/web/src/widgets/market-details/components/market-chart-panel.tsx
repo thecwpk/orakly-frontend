@@ -16,18 +16,19 @@ import {
 import { cn } from "@/lib/utils";
 import { marketDetailPanelClass } from "./market-detail-section";
 import {
-  buildImpliedHistory,
+  buildImpliedHistoryFromSnapshots,
   buildVolumeHistory,
+  impliedYDomain,
   type ImpliedPoint,
   type VolumePoint,
 } from "../lib/series";
+import { useMarketOddsHistoryQuery } from "@/shared/api/hooks";
 
 type Tab = "implied" | "volume";
 
-const CHART_MARGIN = { top: 2, right: 6, left: -18, bottom: 0 } as const;
-const IMP_DOMAIN: [number, number] = [0, 100];
-const TICK_STYLE = { fill: "#52525b", fontSize: 9 } as const;
-const GRID_STROKE = "rgba(255,255,255,0.06)";
+const CHART_MARGIN = { top: 8, right: 8, left: 2, bottom: 0 } as const;
+const TICK_STYLE = { fill: "var(--md-muted)", fontSize: 10 } as const;
+const GRID_STROKE = "rgba(255,255,255,0.12)";
 const TOOLTIP_IMPLIED_STYLE = {
   background: "rgba(10,10,12,0.94)",
   border: "1px solid rgba(255,255,255,0.08)",
@@ -86,6 +87,7 @@ function useChartBoxWidth() {
 
 function MarketChartPanelInner({
   slug,
+  marketId,
   volumeUsd,
   midYes,
   odds,
@@ -93,6 +95,7 @@ function MarketChartPanelInner({
   chartHeight = 220,
 }: {
   slug: string;
+  marketId: string | null;
   volumeUsd: number;
   midYes: number;
   odds: MarketOddsDto | undefined;
@@ -101,14 +104,15 @@ function MarketChartPanelInner({
 }) {
   const [tab, setTab] = useState<Tab>("implied");
   const { ref: boxRef, width: chartWidth } = useChartBoxWidth();
+  const oddsHistoryQ = useMarketOddsHistoryQuery(marketId ?? undefined);
 
   const impliedData = useMemo<ImpliedPoint[]>(() => {
     const y =
       odds?.yesPrice != null && Number.isFinite(Number.parseFloat(odds.yesPrice))
         ? Number.parseFloat(odds.yesPrice)
         : midYes;
-    return buildImpliedHistory(y);
-  }, [midYes, odds?.yesPrice]);
+    return buildImpliedHistoryFromSnapshots(slug, y, oddsHistoryQ.data ?? []);
+  }, [midYes, odds?.yesPrice, oddsHistoryQ.data, slug]);
 
   const impliedLive = useMemo(() => {
     if (!rt.odds?.yesPrice) return impliedData;
@@ -134,6 +138,11 @@ function MarketChartPanelInner({
     [impliedLive],
   );
 
+  const impliedDomain = useMemo(
+    () => impliedYDomain(impliedChartRows),
+    [impliedChartRows],
+  );
+
   const volumeChartRows = useMemo(
     () =>
       volData.map((p) => ({
@@ -143,7 +152,6 @@ function MarketChartPanelInner({
     [volData],
   );
 
-  const isHero = chartHeight >= 300;
   const canRenderChart = chartWidth >= 48;
 
   return (
@@ -196,12 +204,12 @@ function MarketChartPanelInner({
               <CartesianGrid strokeDasharray="3 6" stroke={GRID_STROKE} vertical={false} />
               <XAxis dataKey="label" tick={TICK_STYLE} axisLine={false} tickLine={false} />
               <YAxis
-                domain={IMP_DOMAIN}
+                domain={impliedDomain}
                 tickFormatter={formatYTickPct}
                 tick={TICK_STYLE}
                 axisLine={false}
                 tickLine={false}
-                width={32}
+                width={40}
                 allowDataOverflow
               />
               <Tooltip contentStyle={TOOLTIP_IMPLIED_STYLE} formatter={impliedTooltipFormatter} />

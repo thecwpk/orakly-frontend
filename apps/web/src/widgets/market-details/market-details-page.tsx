@@ -175,7 +175,11 @@ function MarketDetailsLoaded({ market }: { market: Market }) {
             />
             <MarketChartPanel
               slug={market.slug}
-              volumeUsd={market.volumeUsd}
+              marketId={tradeMarketId}
+              volumeUsd={Math.max(
+                market.volumeUsd,
+                Number.parseFloat(odds?.volume24hUsd ?? "0") || 0,
+              )}
               midYes={midYes}
               odds={odds}
               rt={rt}

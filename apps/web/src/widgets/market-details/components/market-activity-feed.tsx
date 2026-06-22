@@ -5,6 +5,7 @@ import { formatCompactUsd } from "@orakly/utils";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { memo, useMemo } from "react";
+import { useMarketTradesQuery } from "@/shared/api/hooks/useMarketTradesQuery";
 import { useLiveActivityFeed } from "@/websocket/hooks/useLiveActivityFeed";
 import type { MarketRealtimeSnapshot } from "@/websocket/store/market-realtime-store";
 
@@ -59,8 +60,25 @@ function MarketActivityFeedInner({
   fillColumn?: boolean;
 }) {
   const feed = useLiveActivityFeed();
+  const tradesQ = useMarketTradesQuery(tradeMarketId ?? undefined, Math.max(maxRows, 40));
 
   const rows = useMemo<Row[]>(() => {
+    const fromHttp =
+      tradeMarketId ?
+        (tradesQ.data ?? []).map(
+          (t): Row => ({
+            kind: "trade",
+            tradeId: t.id,
+            side: t.side ?? "BUY",
+            outcome: t.outcome,
+            price: t.price,
+            quantity: t.quantity,
+            notionalUsd: t.notionalUsd,
+            at: new Date(t.executedAt).getTime(),
+          }),
+        )
+      : [];
+
     const fromRt =
       tradeMarketId ?
         rt.tradesRecent.map(
@@ -82,7 +100,16 @@ function MarketActivityFeedInner({
         feed.filter((f) => f.marketId === tradeMarketId).map((f): Row => ({ kind: "feed", ...f }))
       : [];
 
-    const merged = [...fromRt, ...filteredFeed];
+    const seen = new Set<string>();
+    const merged: Row[] = [];
+    for (const row of [...fromRt, ...fromHttp, ...filteredFeed]) {
+      const key =
+        row.kind === "trade" ? `trade:${row.tradeId}` : `feed:${row.activityId}:${row.at}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      merged.push(row);
+    }
+
     merged.sort((a, b) => {
       const ta = a.kind === "trade" ? a.at : a.at;
       const tb = b.kind === "trade" ? b.at : b.at;
@@ -100,7 +127,7 @@ function MarketActivityFeedInner({
       );
     }
     return out.slice(0, maxRows);
-  }, [feed, filter, maxRows, rt.tradesRecent, tradeMarketId, whaleMinUsd]);
+  }, [feed, filter, maxRows, rt.tradesRecent, tradeMarketId, tradesQ.data, whaleMinUsd]);
 
   const isCompact = density === "compact";
   const stretchList = Boolean(fillColumn && !isCompact);
@@ -153,11 +180,13 @@ function MarketActivityFeedInner({
             )}
           >
             {tradeMarketId ?
-              filter === "whales" ?
+              tradesQ.isLoading && filter !== "whales" ?
+                "Loading recent trades…"
+              : filter === "whales" ?
                 "No whale prints in window."
               : filter === "trades-only" ?
-                "Waiting for live prints…"
-              : "Waiting for live prints…"
+                "No trades yet for this market."
+              : "No trades yet for this market."
             : "Trading activity appears when this market is connected to the live venue."}
           </li>
         : rows.map((row, i) =>
