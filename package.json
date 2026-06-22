@@ -9,7 +9,7 @@
     "verify:vercel": "npm run verify:vercel --workspace=web",
     "postinstall": "node ./scripts/sync-prisma-client.mjs",
     "dev": "turbo run dev",
-    "build": "turbo run build",
+    "build": "npm run db:generate && turbo run build",
     "lint": "turbo run lint",
     "check-types": "turbo run check-types",
     "format": "prettier --write \"**/*.{ts,tsx,md}\""
