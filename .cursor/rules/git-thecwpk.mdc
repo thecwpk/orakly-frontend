@@ -1,0 +1,22 @@
+---
+description: Always commit and push orakly-frontend as GitHub user thecwpk
+alwaysApply: true
+---
+
+# Git — thecwpk only
+
+This repository (`thecwpk/orakly-frontend`) must **always** use the **thecwpk** GitHub account.
+
+Before any `git push`, `gh pr create`, or similar:
+
+1. Run `gh auth switch --user thecwpk` and `gh auth setup-git` if needed.
+2. Verify with `gh api user --jq .login` → must return `thecwpk`.
+3. Do **not** push as `Ahsan34401`, `zeemal34401`, or any other account.
+
+Local repo identity (already configured):
+
+- `user.name` = `thecwpk`
+- `user.email` = `276262780+thecwpk@users.noreply.github.com`
+- Remote = `https://github.com/thecwpk/orakly-frontend.git`
+
+A `.githooks/pre-push` hook auto-switches to `thecwpk` before push.

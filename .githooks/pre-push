@@ -1,0 +1,23 @@
+#!/bin/sh
+# Ensure pushes from this repo use the thecwpk GitHub account.
+set -e
+
+if ! command -v gh >/dev/null 2>&1; then
+  echo "pre-push: GitHub CLI (gh) is required to push orakly-frontend as thecwpk." >&2
+  exit 1
+fi
+
+LOGIN="$(gh api user --jq .login 2>/dev/null || true)"
+if [ "$LOGIN" != "thecwpk" ]; then
+  echo "pre-push: switching GitHub CLI active account to thecwpk (was: ${LOGIN:-unknown})..."
+  gh auth switch --user thecwpk
+  gh auth setup-git
+  LOGIN="$(gh api user --jq .login 2>/dev/null || true)"
+fi
+
+if [ "$LOGIN" != "thecwpk" ]; then
+  echo "pre-push: active GitHub account must be thecwpk before pushing this repo." >&2
+  exit 1
+fi
+
+exit 0
