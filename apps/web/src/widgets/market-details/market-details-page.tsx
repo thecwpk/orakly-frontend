@@ -29,6 +29,7 @@ import { MarketTradingDesk } from "./components/market-trading-desk";
 import { MarketVolumeChart } from "./components/market-volume-chart";
 import { isUuid } from "./lib/is-uuid";
 import { mergeMidYes, mergeYesNoDisplay } from "./lib/merge-odds";
+import "./market-detail-tokens.css";
 import type { TradeModalMarket } from "@/features/trading/store/use-trade-modal-store";
 import type { MarketOddsDto } from "@/shared/api/fetchers/markets-live";
 import type { MarketRealtimeSnapshot } from "@/websocket/store/market-realtime-store";
@@ -51,6 +52,7 @@ function TradeDeskBlock({
   odds,
   rt,
   midYes,
+  embedded = false,
 }: {
   deskKey: string;
   marketId: string | null;
@@ -63,6 +65,7 @@ function TradeDeskBlock({
   odds: MarketOddsDto | undefined;
   rt: MarketRealtimeSnapshot;
   midYes: number;
+  embedded?: boolean;
 }) {
   return (
     <MarketTradingDesk
@@ -77,7 +80,7 @@ function TradeDeskBlock({
       odds={odds}
       rt={rt}
       midYes={midYes}
-      compact
+      embedded={embedded}
     />
   );
 }
@@ -155,67 +158,50 @@ function MarketDetailsLoaded({ market }: { market: Market }) {
   };
 
   return (
-    <main className="pb-[calc(var(--app-mobile-dock-h)+0.5rem)] pt-3 text-zinc-100 lg:pb-5 lg:pt-4">
-      <div className="mx-auto w-full max-w-[min(1440px,100%)] px-3 sm:px-4 lg:px-5">
+    <main className="market-detail-root pb-[calc(var(--app-mobile-dock-h)+0.5rem)] pt-3 lg:pb-6 lg:pt-4">
+      <div className="market-detail-container mx-auto w-full max-w-[min(1280px,100%)] px-3 sm:px-4 lg:px-5">
         <MarketDetailsHeader market={market} tradeMarketId={tradeMarketId} />
 
-        <div className="mt-3">
-          <MarketOverviewPanel
-            market={market}
-            midYes={midYes}
-            midNo={noMid}
-            yesLabel={yesLabel}
-            noLabel={noLabel}
-            odds={odds}
-            rt={rt}
-          />
-        </div>
+        <div className="market-detail-hero-grid mt-3 lg:mt-4">
+          <div className="market-detail-stack min-w-0">
+            <MarketOverviewPanel
+              market={market}
+              midYes={midYes}
+              midNo={noMid}
+              yesLabel={yesLabel}
+              noLabel={noLabel}
+              odds={odds}
+              rt={rt}
+            />
+            <MarketChartPanel
+              slug={market.slug}
+              volumeUsd={market.volumeUsd}
+              midYes={midYes}
+              odds={odds}
+              rt={rt}
+              chartHeight={280}
+            />
+            <MarketResolutionPanel market={market} />
+            {market.creatorDisplayName ? (
+              <p className="text-center text-[11px] text-[var(--md-muted)]">
+                Suggested by{" "}
+                <span className="text-[var(--md-fg)]">{market.creatorDisplayName}</span>
+              </p>
+            ) : null}
+          </div>
 
-        <div className="mt-3">
-          <MarketResolutionPanel market={market} />
-          {market.creatorDisplayName ? (
-            <p className="mt-2 text-center text-[11px] text-zinc-500">
-              Suggested by community member{" "}
-              <span className="text-zinc-300">{market.creatorDisplayName}</span>
-            </p>
-          ) : null}
-        </div>
-
-        <div className="mt-3 flex flex-col gap-4 lg:mt-4 lg:gap-5">
-          {/* §1 — chart left · trade desk right */}
-          <MarketDetailSplitRow
-            left={
-              <MarketDetailSection
-                title="Price"
-                hint="YES implied probability"
-                bodyClassName="min-h-0 flex-1"
-                className="h-full"
-              >
-                <MarketChartPanel
-                  slug={market.slug}
-                  volumeUsd={market.volumeUsd}
-                  midYes={midYes}
-                  odds={odds}
-                  rt={rt}
-                  chartHeight={220}
-                />
-              </MarketDetailSection>
-            }
-            right={
-              <div id="market-trade-panel" className="h-full">
-                <MarketDetailSection
-                  title="Trade"
-                  hint="Quote preview · modal confirms"
-                  className="h-full"
-                  bodyClassName="h-full"
-                >
-                  <TradeDeskBlock deskKey="desk-main" {...deskProps} />
-                </MarketDetailSection>
+          <aside id="market-trade-panel" className="market-detail-trade-aside">
+            <div className="market-detail-trade-shell market-detail-trade-sticky">
+              <div className="market-detail-trade-head">
+                <h2 className="market-detail-section-title">Trade</h2>
+                <p className="market-detail-section-hint">Quote preview · confirm in modal</p>
               </div>
-            }
-          />
+              <TradeDeskBlock deskKey="desk-main" embedded {...deskProps} />
+            </div>
+          </aside>
+        </div>
 
-          {/* §2 — 24h volume left · order book right */}
+        <div className="mt-4 flex flex-col gap-4 lg:mt-5 lg:gap-5">
           <MarketDetailSplitRow
             left={
               <MarketVolumeChart slug={market.slug} rt={rt} className="h-full min-h-[280px]" />
@@ -228,7 +214,7 @@ function MarketDetailsLoaded({ market }: { market: Market }) {
                   className="h-full min-h-[280px]"
                 />
               ) : (
-                <div className="flex h-full min-h-[280px] items-center justify-center rounded-lg border border-white/[0.06] text-[12px] text-zinc-500">
+                <div className="market-detail-panel flex h-full min-h-[280px] items-center justify-center text-[12px] text-[var(--md-muted)]">
                   Trades unavailable for this market
                 </div>
               )

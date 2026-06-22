@@ -38,20 +38,20 @@ function OutcomeCard({
   const isYes = side === "YES";
   const href = `${ROUTES.market(slug)}?side=${side}`;
   const shell = cn(
-    "flex min-w-0 flex-1 items-center justify-between gap-2 rounded-lg border px-3 py-2.5 ring-1 transition",
+    "flex min-w-0 flex-1 items-center justify-between gap-2 rounded-lg border px-3 py-2.5 transition",
     isYes
-      ? "border-cyan-500/22 bg-cyan-500/[0.06] ring-cyan-500/18"
-      : "border-violet-500/22 bg-violet-500/[0.06] ring-violet-500/18",
+      ? "border-[var(--md-success)]/30 bg-[var(--md-success-bg)]"
+      : "border-[var(--md-danger)]/30 bg-[var(--md-danger-bg)]",
     disabled && "pointer-events-none opacity-60",
   );
 
   const inner = (
     <>
       <div className="min-w-0">
-        <p className="text-[10px] font-semibold uppercase tracking-wide text-zinc-500">
+        <p className="text-[10px] font-semibold uppercase tracking-wide text-[var(--md-muted)]">
           {side}
         </p>
-        <p className="text-[10px] text-zinc-600">
+        <p className="text-[10px] text-[var(--md-muted)]">
           {isYes ? "Event happens" : "Event does not"}
         </p>
       </div>
@@ -59,12 +59,12 @@ function OutcomeCard({
         <p
           className={cn(
             "font-mono text-2xl font-bold tabular-nums leading-none",
-            isYes ? "text-cyan-200" : "text-violet-200",
+            isYes ? "text-[var(--md-success)]" : "text-[var(--md-danger)]",
           )}
         >
           {cents}¢
         </p>
-        <p className="mt-0.5 font-mono text-[10px] text-zinc-500">{label}</p>
+        <p className="mt-0.5 font-mono text-[10px] text-[var(--md-muted)]">{label}</p>
       </div>
     </>
   );
@@ -110,9 +110,9 @@ function MarketOverviewPanelInner({
       aria-label="Market overview"
     >
       <div className="flex items-start justify-between gap-2">
-        <p className="text-[12px] leading-snug text-zinc-400">
-          <span className="font-semibold text-cyan-200/90">YES</span> = happens ·{" "}
-          <span className="font-semibold text-violet-200/90">NO</span> = does not, before
+        <p className="text-[12px] leading-snug text-[var(--md-muted)]">
+          <span className="font-semibold text-[var(--md-success)]">Yes</span> = happens ·{" "}
+          <span className="font-semibold text-[var(--md-danger)]">No</span> = does not, before
           close.
         </p>
         <span
@@ -148,14 +148,14 @@ function MarketOverviewPanelInner({
         {metricCells.map((c) => (
           <div
             key={c.label}
-            className="rounded-md bg-black/22 px-2 py-1.5 ring-1 ring-white/[0.05]"
+            className="rounded-md bg-[color-mix(in_srgb,var(--md-bg-subtle)_70%,transparent)] px-2 py-1.5 ring-1 ring-[var(--md-border)]"
           >
-            <dt className="text-[9px] font-semibold uppercase tracking-wide text-zinc-600">
+            <dt className="text-[9px] font-semibold uppercase tracking-wide text-[var(--md-muted)]">
               {c.label}
             </dt>
             <dd
               className={cn(
-                "mt-0.5 text-[12px] font-medium text-zinc-100",
+                "mt-0.5 text-[12px] font-medium text-[var(--md-fg)]",
                 c.mono && "font-mono tabular-nums",
               )}
             >
@@ -163,11 +163,11 @@ function MarketOverviewPanelInner({
             </dd>
           </div>
         ))}
-        <div className="rounded-md bg-black/22 px-2 py-1.5 ring-1 ring-white/[0.05]">
-          <dt className="text-[9px] font-semibold uppercase tracking-wide text-zinc-600">
+        <div className="rounded-md bg-[color-mix(in_srgb,var(--md-bg-subtle)_70%,transparent)] px-2 py-1.5 ring-1 ring-[var(--md-border)]">
+          <dt className="text-[9px] font-semibold uppercase tracking-wide text-[var(--md-muted)]">
             Closes
           </dt>
-          <dd className="mt-0.5 text-[11px] font-medium leading-snug text-zinc-100">
+          <dd className="mt-0.5 text-[11px] font-medium leading-snug text-[var(--md-fg)]">
             {closesLabel}
           </dd>
         </div>

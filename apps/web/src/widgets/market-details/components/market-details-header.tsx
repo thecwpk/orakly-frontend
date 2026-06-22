@@ -139,19 +139,19 @@ function MarketDetailsHeaderInner({
   const isOpen = market.status === "OPEN";
 
   return (
-    <header className="space-y-1.5 border-b border-white/[0.06] pb-2.5">
+    <header className="space-y-2 border-b border-[var(--md-border)] pb-3">
       <div className="flex flex-wrap items-center gap-1.5 gap-y-2">
         <PrefetchLink
-          href={ROUTES.discover}
-          className="inline-flex h-8 shrink-0 items-center gap-1 rounded-md bg-white/[0.04] px-2 text-[11px] font-medium text-zinc-300 ring-1 ring-white/[0.08] transition hover:bg-white/[0.08] hover:text-white"
+          href={ROUTES.dapp}
+          className="inline-flex h-8 shrink-0 items-center gap-1 rounded-md border border-[var(--md-border)] bg-[color-mix(in_srgb,var(--md-card)_80%,transparent)] px-2 text-[11px] font-medium text-[var(--md-muted)] transition hover:border-[var(--md-border-strong)] hover:text-[var(--md-fg)]"
         >
           <ArrowLeft className="h-3 w-3" />
-          <span className="hidden sm:inline">Discover</span>
+          <span className="hidden sm:inline">Markets</span>
         </PrefetchLink>
-        <ChevronRight className="h-3 w-3 text-zinc-700" aria-hidden />
+        <ChevronRight className="h-3 w-3 text-[var(--md-muted)]" aria-hidden />
         <PrefetchLink
           href={`${ROUTES.markets}?cat=${encodeURIComponent(market.category.toLowerCase())}`}
-          className="rounded-md bg-white/[0.04] px-2 py-1 text-[10px] font-semibold uppercase tracking-wide text-zinc-300 ring-1 ring-white/[0.06] transition hover:bg-white/[0.08] hover:text-white"
+          className="rounded-md border border-[var(--md-border)] bg-[color-mix(in_srgb,var(--md-card)_80%,transparent)] px-2 py-1 text-[10px] font-semibold uppercase tracking-wide text-[var(--md-muted)] transition hover:text-[var(--md-fg)]"
         >
           {market.category}
         </PrefetchLink>
@@ -203,7 +203,7 @@ function MarketDetailsHeaderInner({
       </div>
 
       <div className="flex items-start gap-3">
-        <h1 className="min-w-0 flex-1 text-balance text-base font-semibold leading-snug tracking-tight text-white sm:text-lg">
+        <h1 className="min-w-0 flex-1 text-balance text-lg font-semibold leading-snug tracking-tight text-[var(--md-fg)] sm:text-xl">
           {market.title}
         </h1>
       </div>

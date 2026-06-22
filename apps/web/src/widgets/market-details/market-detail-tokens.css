@@ -1,0 +1,99 @@
+/**
+ * Market detail / trade page — aligned with hub navy theme.
+ */
+.market-detail-root {
+  --md-bg: #0c1529;
+  --md-bg-subtle: #121f38;
+  --md-card: #1a2d4d;
+  --md-border: rgba(96, 165, 250, 0.16);
+  --md-border-strong: rgba(96, 165, 250, 0.3);
+  --md-fg: #e8f0ff;
+  --md-muted: #8ba3c7;
+  --md-primary: #3b82f6;
+  --md-primary-bright: #60a5fa;
+  --md-success: #34d399;
+  --md-success-bg: rgba(52, 211, 153, 0.14);
+  --md-danger: #fb7185;
+  --md-danger-bg: rgba(251, 113, 133, 0.14);
+  --md-radius: 0.75rem;
+  color: var(--md-fg);
+}
+
+.market-detail-container {
+  width: 100%;
+}
+
+.market-detail-hero-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.875rem;
+  align-items: start;
+}
+
+@media (min-width: 1024px) {
+  .market-detail-hero-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(300px, 380px);
+    gap: 1rem;
+  }
+}
+
+.market-detail-trade-aside {
+  min-width: 0;
+}
+
+.market-detail-trade-shell {
+  overflow: hidden;
+  border-radius: var(--md-radius);
+  border: 1px solid var(--md-border);
+  background: var(--md-card);
+  box-shadow: 0 8px 28px rgb(0 0 0 / 0.28);
+}
+
+@media (min-width: 1024px) {
+  .market-detail-trade-sticky {
+    position: sticky;
+    top: calc(var(--app-topbar-row-h) + 0.75rem);
+  }
+}
+
+.market-detail-trade-head {
+  border-bottom: 1px solid var(--md-border);
+  padding: 0.75rem 1rem;
+}
+
+.market-detail-section-title {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--md-muted);
+}
+
+.market-detail-section-hint {
+  margin-top: 0.125rem;
+  font-size: 0.6875rem;
+  color: color-mix(in srgb, var(--md-muted) 85%, transparent);
+}
+
+.market-detail-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+}
+
+@media (min-width: 1024px) {
+  .market-detail-stack {
+    gap: 1rem;
+  }
+}
+
+.market-detail-panel {
+  border-radius: var(--md-radius);
+  border: 1px solid var(--md-border);
+  background: var(--md-card);
+  box-shadow: 0 4px 18px rgb(0 0 0 / 0.2);
+}
+
+.market-detail-panel-muted {
+  background: color-mix(in srgb, var(--md-card) 88%, var(--md-bg-subtle));
+}

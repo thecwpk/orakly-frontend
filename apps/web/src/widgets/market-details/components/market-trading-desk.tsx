@@ -86,6 +86,7 @@ function MarketTradingDeskInner({
   rt,
   midYes,
   compact = false,
+  embedded = false,
 }: {
   marketId: string | null;
   userId: string | undefined;
@@ -105,6 +106,8 @@ function MarketTradingDeskInner({
   midYes: number;
   /** Tighter panel — stats live in overview; used on market detail page. */
   compact?: boolean;
+  /** Skip outer panel chrome when parent already provides a surface. */
+  embedded?: boolean;
 }) {
   const [outcome, setOutcome] = useState<"YES" | "NO">(initialOutcome);
   const [direction, setDirection] = useState<"BUY" | "SELL">("BUY");
@@ -151,13 +154,13 @@ function MarketTradingDeskInner({
   return (
     <div
       className={cn(
-        marketDetailPanelClass,
+        !embedded && marketDetailPanelClass,
         "flex flex-col",
-        compact ? "gap-1.5 p-2" : "gap-2 p-2.5 sm:gap-2.5 sm:p-3",
+        embedded ? "gap-2 p-3 sm:p-4" : compact ? "gap-1.5 p-2" : "gap-2.5 p-3 sm:gap-3 sm:p-4",
       )}
     >
       <div className="flex items-center justify-between gap-2">
-        <p className="font-mono text-[11px] font-semibold tabular-nums text-zinc-200">
+        <p className="font-mono text-[12px] font-semibold tabular-nums text-[var(--md-fg,#e8f0ff)]">
           Mid {(midYes * 100).toFixed(1)}¢
         </p>
         <ConnectionPill className="shrink-0" />
@@ -175,34 +178,34 @@ function MarketTradingDeskInner({
         </div>
       : null}
 
-      <div className="grid grid-cols-2 gap-1 sm:gap-1.5">
+      <div className="grid grid-cols-2 gap-1.5 sm:gap-2">
         <button
           type="button"
           onClick={() => setOutcome("YES")}
           className={cn(
-            "rounded-md px-2 py-[7px] text-center text-[11px] font-semibold transition ring-1 sm:py-2 sm:text-[12px]",
-            outcome === "YES" ?
-              "bg-cyan-500/15 text-cyan-100 ring-cyan-400/35"
-            : "bg-[hsl(228_28%_15%/0.45)] text-zinc-500 ring-white/[0.08] hover:bg-[hsl(228_28%_18%/0.5)] hover:text-zinc-300",
+            "rounded-lg px-2 py-2.5 text-center text-[12px] font-semibold transition sm:py-3 sm:text-[13px]",
+            outcome === "YES"
+              ? "bg-[var(--md-success-bg)] text-[var(--md-success)] ring-1 ring-[var(--md-success)]/35"
+              : "bg-[color-mix(in_srgb,var(--md-bg-subtle)_70%,transparent)] text-[var(--md-muted)] ring-1 ring-[var(--md-border)] hover:text-[var(--md-fg)]",
           )}
         >
-          YES <span className="ml-1 font-mono text-[10px] opacity-80">{yesDisplay}</span>
+          Yes <span className="ml-1 font-mono text-[11px] opacity-90">{yesDisplay}</span>
         </button>
         <button
           type="button"
           onClick={() => setOutcome("NO")}
           className={cn(
-            "rounded-md px-2 py-[7px] text-center text-[11px] font-semibold transition ring-1 sm:py-2 sm:text-[12px]",
-            outcome === "NO" ?
-              "bg-violet-500/15 text-violet-100 ring-violet-400/35"
-            : "bg-[hsl(228_28%_15%/0.45)] text-zinc-500 ring-white/[0.08] hover:bg-[hsl(228_28%_18%/0.5)] hover:text-zinc-300",
+            "rounded-lg px-2 py-2.5 text-center text-[12px] font-semibold transition sm:py-3 sm:text-[13px]",
+            outcome === "NO"
+              ? "bg-[var(--md-danger-bg)] text-[var(--md-danger)] ring-1 ring-[var(--md-danger)]/35"
+              : "bg-[color-mix(in_srgb,var(--md-bg-subtle)_70%,transparent)] text-[var(--md-muted)] ring-1 ring-[var(--md-border)] hover:text-[var(--md-fg)]",
           )}
         >
-          NO <span className="ml-1 font-mono text-[10px] opacity-80">{noDisplay}</span>
+          No <span className="ml-1 font-mono text-[11px] opacity-90">{noDisplay}</span>
         </button>
       </div>
 
-      <div className="flex gap-1 rounded-md bg-[hsl(228_28%_13%/0.55)] p-0.5 ring-1 ring-white/[0.08]">
+      <div className="flex gap-1 rounded-lg bg-[color-mix(in_srgb,var(--md-bg-subtle)_65%,transparent)] p-0.5 ring-1 ring-[var(--md-border)]">
         {(["BUY", "SELL"] as const).map((d) => (
           <button
             key={d}
@@ -223,37 +226,37 @@ function MarketTradingDeskInner({
       </div>
 
       <div>
-        <label className="text-[10px] font-semibold uppercase tracking-[0.12em] text-zinc-500">
+        <label className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--md-muted)]">
           Size (contracts)
         </label>
         <input
           value={qty}
           onChange={(e) => setQty(e.target.value)}
           inputMode="decimal"
-          className="mt-1 w-full rounded-md border border-white/[0.1] bg-[hsl(228_28%_10%/0.75)] px-2.5 py-1.5 font-mono text-[13px] text-white outline-none ring-0 placeholder:text-zinc-600 focus:border-cyan-500/40"
+          className="mt-1 w-full rounded-lg border border-[var(--md-border)] bg-[color-mix(in_srgb,var(--md-bg-subtle)_80%,transparent)] px-3 py-2 font-mono text-[14px] text-[var(--md-fg)] outline-none placeholder:text-[var(--md-muted)] focus:border-[var(--md-primary)] focus:ring-2 focus:ring-[var(--md-primary)]/20"
           placeholder="25"
         />
       </div>
 
-      <div className="space-y-1 rounded-md bg-[hsl(228_28%_12%/0.55)] px-2 py-1.5 font-mono text-[10px] text-zinc-400 ring-1 ring-white/[0.06]">
+      <div className="space-y-1.5 rounded-lg bg-[color-mix(in_srgb,var(--md-bg-subtle)_55%,transparent)] px-3 py-2.5 font-mono text-[11px] text-[var(--md-muted)] ring-1 ring-[var(--md-border)]">
         <div className="flex justify-between gap-2">
-          <span className="shrink-0 text-zinc-500">Exec</span>
+          <span className="shrink-0 text-[var(--md-muted)]">Exec</span>
           <motion.span
             key={`${quote.dataUpdatedAt}-${quote.data?.execPrice ?? ""}`}
             initial={{ opacity: 0.55 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.14 }}
             className={cn(
-              "min-w-0 text-right font-medium tabular-nums text-cyan-200/90",
-              quote.isFetching && "text-cyan-300/70",
+              "min-w-0 text-right font-medium tabular-nums text-[var(--md-primary-bright)]",
+              quote.isFetching && "opacity-70",
             )}
           >
             {quote.isFetching ? "…" : formatExecPxLine(quote.data?.execPrice)}
           </motion.span>
         </div>
         <div className="flex justify-between gap-2">
-          <span className="text-zinc-500">Notional</span>
-          <span className="min-w-0 text-right tabular-nums text-zinc-200">
+          <span className="text-[var(--md-muted)]">Notional</span>
+          <span className="min-w-0 text-right tabular-nums text-[var(--md-fg)]">
             {quote.isFetching ? "…" : formatNotionalLine(quote.data?.notionalUsd)}
           </span>
         </div>
@@ -312,7 +315,7 @@ function MarketTradingDeskInner({
       {!tradingSignedIn ? (
         <Link
           href={ROUTES.wallet}
-          className="flex min-h-[44px] touch-manipulation items-center justify-center gap-2 rounded-lg bg-cyan-600/90 py-2 text-[12px] font-bold text-white ring-1 ring-cyan-400/35 transition hover:bg-cyan-600 sm:min-h-0 sm:py-2.5 sm:text-[13px]"
+          className="flex min-h-[48px] touch-manipulation items-center justify-center gap-2 rounded-lg bg-[var(--md-primary)] py-2.5 text-[13px] font-bold text-white shadow-[0_4px_14px_rgb(59_130_246_/_0.35)] transition hover:brightness-105 sm:min-h-0"
         >
           Log in to trade
           <ChevronRight className="h-4 w-4 opacity-80" />
@@ -322,7 +325,7 @@ function MarketTradingDeskInner({
           type="button"
           disabled={!canOpenTradeModal}
           onClick={openModal}
-          className="flex min-h-[44px] touch-manipulation items-center justify-center gap-2 rounded-lg bg-cyan-600/90 py-2 text-[12px] font-bold text-white ring-1 ring-cyan-400/35 transition active:scale-[0.98] enabled:hover:bg-cyan-600 disabled:cursor-not-allowed disabled:opacity-40 sm:min-h-0 sm:py-2.5 sm:text-[13px]"
+          className="flex min-h-[48px] touch-manipulation items-center justify-center gap-2 rounded-lg bg-[var(--md-primary)] py-2.5 text-[13px] font-bold text-white shadow-[0_4px_14px_rgb(59_130_246_/_0.35)] transition active:scale-[0.98] enabled:hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-40 sm:min-h-0"
         >
           <Zap className="h-4 w-4" />
           Trade {outcome}

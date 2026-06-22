@@ -27,6 +27,14 @@ export function AppShell({ children }: { children: ReactNode }) {
     pathname === ROUTES.attention ||
     pathname?.startsWith(`${ROUTES.attention}/`);
 
+  const marketDetail =
+    pathname?.startsWith("/markets/") &&
+    pathname !== ROUTES.markets &&
+    !pathname.startsWith("/markets/create") &&
+    !pathname.startsWith("/markets/breaking");
+
+  const hubCanvas = hubHome || marketDetail;
+
   return (
     <SocketProvider portfolioUserId={actorId ?? null}>
       <WebsocketBridge />
@@ -34,11 +42,11 @@ export function AppShell({ children }: { children: ReactNode }) {
       <div
         className={cn(
           "relative min-h-screen overflow-x-hidden text-foreground",
-          hubHome ? "hub-app-canvas" : "bg-app-canvas",
+          hubCanvas ? "hub-app-canvas" : "bg-app-canvas",
         )}
       >
         <div className="flex min-h-screen min-w-0 flex-col">
-          <AppTopbar density={hubHome ? "hub" : "default"} />
+          <AppTopbar density={hubCanvas ? "hub" : "default"} />
 
           <main
             id="app-content"
