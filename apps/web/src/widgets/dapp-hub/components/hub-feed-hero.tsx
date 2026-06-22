@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useState } from "react";
 import {
-  useHomeStatsQuery,
   useHubMarketsPreviewQuery,
   useHubTrendingMarketsQuery,
 } from "@/shared/api/hooks";
@@ -12,7 +11,6 @@ import {
   buildHeroTrendRail,
   resolveHeroActiveMarket,
 } from "../lib/hub-hero-markets";
-import { fmtCount, fmtUsdCompact } from "../lib/format-hub-metrics";
 import { HubFeaturedTradingCard } from "./hub-featured-trading-card";
 import { HubHeroTrendsRail } from "./hub-hero-trends-rail";
 import { HubSpotlightCarouselNav } from "./hub-spotlight-desk";
@@ -21,7 +19,6 @@ import { HubSpotlightCarouselNav } from "./hub-spotlight-desk";
 export function HubFeedHero() {
   const trendingQ = useHubTrendingMarketsQuery(12);
   const previewQ = useHubMarketsPreviewQuery();
-  const statsQ = useHomeStatsQuery();
 
   const trendRail = useMemo(
     () =>
@@ -67,38 +64,10 @@ export function HubFeedHero() {
   }, [activeId, spotlight, trendRail]);
 
   const loading = trendingQ.isLoading && !trendRail.length;
-  const stats = statsQ.data;
 
   return (
     <section className="hub-feed-hero" aria-label="Trending spotlight">
       <div className="hub-container">
-        <div className="hub-feed-hero-stats">
-          <div className="hub-feed-hero-stat">
-            <span className="hub-feed-hero-stat-val">
-              {stats ? fmtCount(stats.liveMarkets) : "—"}
-            </span>
-            <span className="hub-feed-hero-stat-label">Live markets</span>
-          </div>
-          <div className="hub-feed-hero-stat">
-            <span className="hub-feed-hero-stat-val">
-              {stats ? fmtUsdCompact(stats.volume24hUsd) : "—"}
-            </span>
-            <span className="hub-feed-hero-stat-label">24h volume</span>
-          </div>
-          <div className="hub-feed-hero-stat">
-            <span className="hub-feed-hero-stat-val">
-              {stats ? fmtCount(stats.activeNarratives) : "—"}
-            </span>
-            <span className="hub-feed-hero-stat-label">Narratives</span>
-          </div>
-          <div className="hub-feed-hero-stat">
-            <span className="hub-feed-hero-stat-val">
-              {stats ? fmtCount(stats.attentionUpdates24h) : "—"}
-            </span>
-            <span className="hub-feed-hero-stat-label">Updates today</span>
-          </div>
-        </div>
-
         <div className="hub-feed-hero-grid">
           <HubHeroTrendsRail
             markets={trendRail}

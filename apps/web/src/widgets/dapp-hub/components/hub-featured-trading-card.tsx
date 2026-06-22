@@ -17,6 +17,7 @@ import { useMarketTradesQuery } from "@/shared/api/hooks";
 import { HubChartTapeOverlay } from "./hub-chart-tape-overlay";
 import { HubSpotlightTradingChart } from "./hub-spotlight-trading-chart";
 import { buildSpotlightNewsLines } from "../lib/hub-spotlight-news";
+import { buildFeaturedSparkSeries } from "../lib/hub-sparkline-series";
 
 const UUID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -180,14 +181,17 @@ export function HubFeaturedTradingCard({
       : `${ROUTES.market(market.slug)}?side=${side}`;
 
   const history = useProbabilityHistory(market.id);
-  const sparkData = history.length > 1 ? history : [probability, probability];
+  const sparkData = useMemo(
+    () => buildFeaturedSparkSeries(market.id, probability, history),
+    [market.id, probability, history],
+  );
 
   const deltaPct = useMemo(() => {
-    if (history.length < 2) return null;
-    const first = history[0]!;
-    const last = history[history.length - 1]!;
+    if (sparkData.length < 2) return null;
+    const first = sparkData[0]!;
+    const last = sparkData[sparkData.length - 1]!;
     return Math.round((last - first) * 100);
-  }, [history]);
+  }, [sparkData]);
 
   const newsLines = useMemo(() => buildSpotlightNewsLines(market.title), [market.title]);
 
@@ -201,7 +205,7 @@ export function HubFeaturedTradingCard({
       className={cn(
         "flex min-w-0 max-w-full flex-col overflow-hidden rounded-xl border border-border bg-card shadow-sm",
         queueMerged &&
-          "h-full min-h-0 flex-1 rounded-none border-0 border-b border-border/80 bg-transparent shadow-none ring-0",
+          "rounded-none border-0 border-b border-border/80 bg-transparent shadow-none ring-0",
       )}
     >
       {/*
@@ -211,7 +215,6 @@ export function HubFeaturedTradingCard({
       <div
         className={cn(
           "hub-featured-card__body box-border min-w-0 px-4 py-4 sm:px-5 sm:py-4 lg:px-5 lg:py-4",
-          queueMerged && "flex min-h-0 flex-1 flex-col",
         )}
       >
         {/* Row 1 — title rail (icons top-right) */}
@@ -248,8 +251,7 @@ export function HubFeaturedTradingCard({
         {/* Row 2 — desk + chart (reference ~45 / ~55) */}
         <div
           className={cn(
-            "grid min-h-0 min-w-0 grid-cols-1 gap-5 lg:grid-cols-[minmax(0,43%)_minmax(0,57%)] lg:items-stretch lg:gap-5",
-            queueMerged && "min-h-0 flex-1 lg:min-h-[240px]",
+            "grid min-w-0 grid-cols-1 gap-5 lg:grid-cols-[minmax(0,43%)_minmax(0,57%)] lg:items-stretch lg:gap-5 lg:min-h-[240px]",
           )}
         >
           <div role="region" aria-label="Market summary" className="box-border flex min-h-0 min-w-0 flex-col">
@@ -313,25 +315,27 @@ export function HubFeaturedTradingCard({
             </section>
 
             <section className="min-w-0" aria-label="Related context">
-              <ul className="flex flex-col gap-y-1.5">
+              <ul className="hub-featured-news flex flex-col gap-y-1.5">
                 {newsLines.map((row, idx) => (
                   <li key={`${row.source}-${idx}`}>
                     <PrefetchLink
                       href={ROUTES.market(market.slug)}
-                      className="group flex gap-2 rounded-md py-1.5 pl-0.5 pr-1 transition-colors hover:bg-muted/40"
+                      className="group flex gap-2 rounded-md py-1.5 pl-0.5 pr-1 transition-colors hover:bg-[color-mix(in_srgb,var(--hub-bg-subtle)_70%,transparent)]"
                     >
                       <div
-                        className="mt-0.5 h-5 w-5 shrink-0 rounded-sm bg-muted/60 ring-1 ring-border"
+                        className="mt-0.5 h-5 w-5 shrink-0 rounded-sm bg-[color-mix(in_srgb,var(--hub-bg-subtle)_75%,transparent)] ring-1 ring-[var(--hub-border)]"
                         aria-hidden
                       />
                       <div className="min-w-0 flex-1">
                         <div className="flex min-w-0 items-baseline justify-between gap-2">
-                          <p className="truncate font-mono text-[9px] font-medium uppercase tracking-wide text-muted-foreground">
+                          <p className="truncate font-mono text-[9px] font-medium uppercase tracking-wide text-[var(--hub-muted)]">
                             {row.source}
                           </p>
-                          <p className="shrink-0 font-mono text-[9px] tabular-nums text-muted-foreground/90">{row.ago}</p>
+                          <p className="shrink-0 font-mono text-[9px] tabular-nums text-[var(--hub-muted)]">
+                            {row.ago}
+                          </p>
                         </div>
-                        <p className="mt-0.5 line-clamp-2 text-[11.5px] font-medium leading-snug text-foreground/95 group-hover:text-foreground">
+                        <p className="hub-featured-news-headline mt-0.5 line-clamp-2 text-[11.5px] font-medium leading-snug text-white">
                           {row.headline}
                         </p>
                       </div>
@@ -345,8 +349,7 @@ export function HubFeaturedTradingCard({
           <div
             ref={chartRef}
             className={cn(
-              "relative flex min-h-[200px] min-w-0 flex-1 flex-col justify-center bg-transparent lg:min-h-0 lg:items-end",
-              queueMerged && "min-h-[220px] lg:min-h-0",
+              "relative flex min-h-[200px] min-w-0 flex-col justify-center bg-transparent sm:min-h-[220px] lg:min-h-[200px] lg:items-end",
             )}
             role="region"
             aria-label="Probability chart"
@@ -366,29 +369,33 @@ export function HubFeaturedTradingCard({
         </div>
       </div>
 
-      <footer className="border-t border-border bg-gradient-to-b from-card via-card/90 to-muted/15 px-4 py-3 sm:px-5 sm:py-3.5 lg:px-5">
+      <footer className="hub-featured-card__footer border-t border-[var(--hub-border)] px-4 py-3 sm:px-5 sm:py-3.5 lg:px-5">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
           <div className="flex flex-wrap items-center gap-3">
             <div className="flex flex-col gap-0.5">
-              <span className="text-[9px] font-medium uppercase tracking-[0.14em] text-muted-foreground">Volume</span>
-              <span className="rounded-lg border border-border bg-muted/35 px-2.5 py-1 font-mono text-[12px] font-semibold tabular-nums tracking-tight text-foreground ring-1 ring-border/50">
+              <span className="text-[9px] font-medium uppercase tracking-[0.14em] text-[var(--hub-muted)]">
+                Volume
+              </span>
+              <span className="hub-featured-footer-volume rounded-lg border border-[var(--hub-border)] bg-[color-mix(in_srgb,var(--hub-bg-subtle)_80%,transparent)] px-2.5 py-1 font-mono text-[12px] font-semibold tabular-nums tracking-tight text-[var(--hub-fg)]">
                 {fmtUsdShort(market.volumeUsd)}
               </span>
             </div>
           </div>
           <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-2 sm:justify-end">
-            <span className="font-mono text-[11px] tabular-nums text-muted-foreground">
-              Ends <span className="text-foreground">{fmtEndsLong(market.closesAt)}</span>
+            <span className="font-mono text-[11px] tabular-nums text-[var(--hub-muted)]">
+              Ends <span className="font-semibold text-white">{fmtEndsLong(market.closesAt)}</span>
             </span>
-            <span className="hidden h-4 w-px bg-border sm:block" aria-hidden />
+            <span className="hidden h-4 w-px bg-[var(--hub-border)] sm:block" aria-hidden />
             <PrefetchLink
               href={ROUTES.market(market.slug)}
-              className="inline-flex items-center gap-1.5 rounded-md border border-border bg-muted/25 px-2.5 py-1.5 font-mono text-[10px] font-semibold uppercase tracking-[0.12em] text-foreground/90 transition hover:border-yes/35 hover:bg-yes/8 hover:text-foreground"
+              className="hub-featured-footer-cta inline-flex items-center gap-1.5 rounded-lg border border-[color-mix(in_srgb,var(--hub-primary)_45%,var(--hub-border))] bg-[color-mix(in_srgb,var(--hub-primary)_12%,transparent)] px-3 py-1.5 font-mono text-[10px] font-semibold uppercase tracking-[0.12em] text-white transition hover:border-[var(--hub-primary)] hover:bg-[color-mix(in_srgb,var(--hub-primary)_22%,transparent)]"
             >
               Full book
-              <ArrowUpRight className="h-3.5 w-3.5 opacity-80" aria-hidden />
+              <ArrowUpRight className="h-3.5 w-3.5 opacity-90" aria-hidden />
             </PrefetchLink>
-            <span className="font-mono text-[9px] uppercase tracking-[0.16em] text-muted-foreground">Orakly</span>
+            <span className="font-mono text-[9px] font-semibold uppercase tracking-[0.16em] text-[var(--hub-muted)]">
+              Orakly
+            </span>
           </div>
         </div>
       </footer>

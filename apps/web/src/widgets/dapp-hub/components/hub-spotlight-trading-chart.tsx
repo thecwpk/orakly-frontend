@@ -189,8 +189,8 @@ export function HubSpotlightTradingChart({
         <title>{ariaLabel}</title>
         <defs>
           <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor={STROKE} stopOpacity="0.22" />
-            <stop offset="55%" stopColor={STROKE} stopOpacity="0.06" />
+            <stop offset="0%" stopColor={STROKE} stopOpacity="0.32" />
+            <stop offset="55%" stopColor={STROKE} stopOpacity="0.1" />
             <stop offset="100%" stopColor={STROKE} stopOpacity="0" />
           </linearGradient>
         </defs>
@@ -202,7 +202,7 @@ export function HubSpotlightTradingChart({
               x2={padL + innerW}
               y1={y}
               y2={y}
-              stroke="rgba(255,255,255,0.07)"
+              stroke="rgba(255,255,255,0.14)"
               strokeWidth={1}
               strokeDasharray="3 7"
               vectorEffect="non-scaling-stroke"
@@ -228,7 +228,7 @@ export function HubSpotlightTradingChart({
             d={pathD}
             fill="none"
             stroke={STROKE}
-            strokeWidth={2.35}
+            strokeWidth={2.75}
             strokeLinecap="round"
             strokeLinejoin="round"
           />

@@ -29,12 +29,13 @@ export function HubSpotlightCarouselNav({
   return (
     <div
       className={cn(
+        "hub-spotlight-queue",
         mergedUnderFeatured
-          ? "border-t border-border/80 bg-gradient-to-b from-muted/25 via-card/40 to-muted/20 px-4 py-4 sm:px-5 sm:py-[1.15rem]"
-          : "rounded-xl border border-border bg-gradient-to-b from-card via-card/95 to-muted/25 px-4 py-3.5 shadow-md ring-1 ring-border/40 sm:px-5 sm:py-4",
+          ? "border-t border-[var(--hub-border)] px-4 py-4 sm:px-5 sm:py-[1.15rem]"
+          : "rounded-xl border border-[var(--hub-border)] px-4 py-3.5 shadow-md sm:px-5 sm:py-4",
       )}
     >
-      <p className="mb-3 font-mono text-[9.5px] font-medium uppercase tracking-[0.14em] text-muted-foreground sm:mb-3.5">
+      <p className="mb-3 font-mono text-[9.5px] font-medium uppercase tracking-[0.14em] text-[var(--hub-muted)] sm:mb-3.5">
         Spotlight queue
       </p>
       <div className="flex flex-col gap-4 sm:flex-row sm:items-stretch sm:justify-between sm:gap-5">
@@ -50,8 +51,8 @@ export function HubSpotlightCarouselNav({
               className={cn(
                 "h-2 shrink-0 rounded-full transition-all duration-300",
                 i === index
-                  ? "w-10 bg-primary shadow-[0_0_14px_color-mix(in_srgb,var(--primary)_22%,transparent)]"
-                  : "w-2 bg-muted-foreground/35 ring-1 ring-border hover:bg-muted-foreground/55",
+                  ? "w-10 bg-[var(--hub-primary)] shadow-[0_0_14px_color-mix(in_srgb,var(--hub-primary)_35%,transparent)]"
+                  : "w-2 bg-[color-mix(in_srgb,var(--hub-muted)_40%,transparent)] ring-1 ring-[var(--hub-border)] hover:bg-[color-mix(in_srgb,var(--hub-muted)_65%,transparent)]",
               )}
             />
           ))}
@@ -60,18 +61,18 @@ export function HubSpotlightCarouselNav({
           <button
             type="button"
             onClick={() => onChange((index - 1 + n) % n)}
-            className="inline-flex max-w-full min-h-[42px] min-w-0 flex-1 items-center gap-2 rounded-lg border border-border bg-muted/20 px-3 py-2.5 text-left font-mono text-[10.5px] font-medium leading-snug text-muted-foreground transition hover:border-border hover:bg-muted/40 hover:text-foreground sm:max-w-[min(100%,300px)] sm:flex-initial sm:py-3"
+            className="inline-flex max-w-full min-h-[42px] min-w-0 flex-1 items-center gap-2 rounded-lg border border-[var(--hub-border)] bg-[color-mix(in_srgb,var(--hub-bg-subtle)_70%,transparent)] px-3 py-2.5 text-left font-mono text-[10.5px] font-medium leading-snug text-[var(--hub-fg)] transition hover:border-[color-mix(in_srgb,var(--hub-primary)_35%,var(--hub-border))] hover:bg-[color-mix(in_srgb,var(--hub-primary)_10%,transparent)] sm:max-w-[min(100%,300px)] sm:flex-initial sm:py-3"
           >
-            <ChevronLeft className="h-3.5 w-3.5 shrink-0 text-muted-foreground/80" aria-hidden />
+            <ChevronLeft className="h-3.5 w-3.5 shrink-0 text-[var(--hub-muted)]" aria-hidden />
             <span className="min-w-0 truncate">{truncTitle(prevM.title, 42)}</span>
           </button>
           <button
             type="button"
             onClick={() => onChange((index + 1) % n)}
-            className="inline-flex max-w-full min-h-[42px] min-w-0 flex-1 items-center justify-end gap-2 rounded-lg border border-border bg-muted/20 px-3 py-2.5 text-right font-mono text-[10.5px] font-medium leading-snug text-muted-foreground transition hover:border-border hover:bg-muted/40 hover:text-foreground sm:max-w-[min(100%,300px)] sm:flex-initial sm:py-3"
+            className="inline-flex max-w-full min-h-[42px] min-w-0 flex-1 items-center justify-end gap-2 rounded-lg border border-[var(--hub-border)] bg-[color-mix(in_srgb,var(--hub-bg-subtle)_70%,transparent)] px-3 py-2.5 text-right font-mono text-[10.5px] font-medium leading-snug text-[var(--hub-fg)] transition hover:border-[color-mix(in_srgb,var(--hub-primary)_35%,var(--hub-border))] hover:bg-[color-mix(in_srgb,var(--hub-primary)_10%,transparent)] sm:max-w-[min(100%,300px)] sm:flex-initial sm:py-3"
           >
             <span className="min-w-0 truncate">{truncTitle(nextM.title, 42)}</span>
-            <ChevronRight className="h-3.5 w-3.5 shrink-0 text-muted-foreground/80" aria-hidden />
+            <ChevronRight className="h-3.5 w-3.5 shrink-0 text-[var(--hub-muted)]" aria-hidden />
           </button>
         </div>
       </div>
