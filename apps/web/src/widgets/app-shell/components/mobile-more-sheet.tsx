@@ -1,7 +1,17 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { Plus, Trophy, Wallet, type LucideIcon } from "lucide-react";
+import {
+  Activity,
+  Briefcase,
+  LayoutGrid,
+  Plus,
+  Settings,
+  Star,
+  Trophy,
+  Wallet,
+  type LucideIcon,
+} from "lucide-react";
 import Link from "next/link";
 import { useEffect } from "react";
 import { ROUTES } from "@/shared/constants/routes";
@@ -15,13 +25,11 @@ function SheetRow({
   onNavigate,
   icon: Icon,
   label,
-  description,
 }: {
   href: string;
   onNavigate: () => void;
   icon: LucideIcon;
   label: string;
-  description?: string;
 }) {
   return (
     <Link
@@ -32,12 +40,7 @@ function SheetRow({
       <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white/[0.05] text-cyan-300 ring-1 ring-white/[0.08]">
         <Icon className="h-4 w-4" aria-hidden />
       </span>
-      <span className="min-w-0">
-        <span className="block text-[13px] font-semibold text-white">{label}</span>
-        {description ? (
-          <span className="mt-0.5 block text-[11px] text-zinc-500">{description}</span>
-        ) : null}
-      </span>
+      <span className="min-w-0 text-[13px] font-semibold text-white">{label}</span>
     </Link>
   );
 }
@@ -101,29 +104,56 @@ export function MobileMoreSheet() {
             <div className="mx-auto mt-2 h-1 w-10 shrink-0 rounded-full bg-white/15" aria-hidden />
             <div className="max-h-[min(68vh,480px)] space-y-3 overflow-y-auto p-4 pb-5">
               <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-zinc-500">
-                Trading utilities
+                Trading
               </p>
               <div className="space-y-2">
+                <SheetRow
+                  href={ROUTES.marketsBrowse}
+                  onNavigate={close}
+                  icon={LayoutGrid}
+                  label="Markets"
+                />
+                <SheetRow
+                  href={ROUTES.watchlist}
+                  onNavigate={close}
+                  icon={Star}
+                  label="Watchlist"
+                />
+                <SheetRow
+                  href={ROUTES.portfolio}
+                  onNavigate={close}
+                  icon={Briefcase}
+                  label="Portfolio"
+                />
+                <SheetRow
+                  href={ROUTES.activity}
+                  onNavigate={close}
+                  icon={Activity}
+                  label="Activity"
+                />
                 <SheetRow
                   href={ROUTES.wallet}
                   onNavigate={close}
                   icon={Wallet}
                   label="Wallet"
-                  description="Balances, approvals, session"
                 />
                 <SheetRow
                   href={ROUTES.marketCreate}
                   onNavigate={close}
                   icon={Plus}
                   label="Create market"
-                  description="Launch a new venue"
                 />
                 <SheetRow
                   href={ROUTES.leaderboard}
                   onNavigate={close}
                   icon={Trophy}
                   label="Leaderboard"
-                  description="Rankings & recognition"
+                />
+                <SheetRow
+                  href={ROUTES.settings}
+                  onNavigate={close}
+                  icon={Settings}
+                  label="Settings"
                 />
               </div>
 

@@ -3,7 +3,7 @@
 import { formatCompactUsd } from "@orakly/utils";
 import { ChevronRight, Zap } from "lucide-react";
 import { motion } from "framer-motion";
-import { memo, useCallback, useState } from "react";
+import { memo, useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { toast } from "sonner";
 import type { TradeModalMarket } from "@/features/trading/store/use-trade-modal-store";
@@ -112,6 +112,10 @@ function MarketTradingDeskInner({
   const [outcome, setOutcome] = useState<"YES" | "NO">(initialOutcome);
   const [direction, setDirection] = useState<"BUY" | "SELL">("BUY");
   const [qty, setQty] = useState("25");
+
+  useEffect(() => {
+    setOutcome(initialOutcome);
+  }, [initialOutcome]);
 
   const portfolio = usePortfolioQuery(userId);
   const quote = useMarketQuoteDebouncedQuery(marketId ?? undefined, {

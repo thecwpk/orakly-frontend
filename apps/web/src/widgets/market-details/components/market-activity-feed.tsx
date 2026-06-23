@@ -1,7 +1,6 @@
 "use client";
 
 import type { FeedActivityPayload } from "@orakly/realtime-protocol";
-import { formatCompactUsd } from "@orakly/utils";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { memo, useMemo } from "react";
@@ -132,13 +131,7 @@ function MarketActivityFeedInner({
   const isCompact = density === "compact";
   const stretchList = Boolean(fillColumn && !isCompact);
   const title = heading?.title ?? "Activity";
-  const subtitle =
-    heading?.subtitle ??
-    (filter === "whales"
-      ? `Prints ≥ ${formatCompactUsd(whaleMinUsd)}`
-      : filter === "trades-only"
-        ? "Recent trades"
-        : "Trades & feed");
+  const subtitle = heading?.subtitle;
 
   return (
     <div
@@ -155,9 +148,11 @@ function MarketActivityFeedInner({
         <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-zinc-600">
           {title}
         </p>
-        <p className={cn("font-medium text-white", isCompact ? "text-[12px]" : "text-sm")}>
-          {subtitle}
-        </p>
+        {subtitle ? (
+          <p className={cn("font-medium text-white", isCompact ? "text-[12px]" : "text-sm")}>
+            {subtitle}
+          </p>
+        ) : null}
       </div>
       <ul
         className={cn(
@@ -181,13 +176,11 @@ function MarketActivityFeedInner({
           >
             {tradeMarketId ?
               tradesQ.isLoading && filter !== "whales" ?
-                "Loading recent trades…"
+                "Loading…"
               : filter === "whales" ?
-                "No whale prints in window."
-              : filter === "trades-only" ?
-                "No trades yet for this market."
-              : "No trades yet for this market."
-            : "Trading activity appears when this market is connected to the live venue."}
+                "No large prints."
+              : "No trades yet."
+            : "Unavailable."}
           </li>
         : rows.map((row, i) =>
             row.kind === "trade" ?

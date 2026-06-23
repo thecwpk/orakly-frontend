@@ -36,13 +36,8 @@ function NoSessionPanel() {
     <EmptyState
       icon={Briefcase}
       tone="accent"
-      title="Portfolio locked"
-      description={
-        <>
-          Wallet session required. Demos:{" "}
-          <span className="font-mono text-zinc-300">NEXT_PUBLIC_TRADING_USER_ID</span>.
-        </>
-      }
+      title="Sign in to view positions"
+      description="Connect your wallet to see equity, open positions, and trade history."
       primaryAction={
         <PrefetchLink
           href={ROUTES.wallet}
@@ -53,7 +48,7 @@ function NoSessionPanel() {
       }
       secondaryAction={
         <PrefetchLink
-          href={ROUTES.discover}
+          href={ROUTES.markets}
           className="inline-flex items-center gap-r16 rounded-[3px] bg-white/[0.05] px-r24 py-r16 font-mono text-[11px] font-semibold text-zinc-200 transition hover:bg-white/[0.08] active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/15"
         >
           <ArrowLeft className="h-3.5 w-3.5" /> Markets
@@ -128,11 +123,11 @@ const PortfolioDashboardInner = memo(function PortfolioDashboardInner({
   }
 
   return (
-    <main className="text-zinc-100">
+    <main className="text-[var(--hub-fg,#e8f0ff)]">
       <Container width="2xl" className="pb-s48 pt-s40 lg:pb-s64 lg:pt-s56">
         <PageHeader
           title="Portfolio"
-          description="Venue-linked marks · exposure vs equity · fills stream below"
+          description="Equity, exposure, and fills for your session"
           meta={
             <span className="inline-flex items-center gap-r8 rounded-[3px] bg-emerald-500/[0.07] px-r8 py-r4 font-mono text-[9px] font-semibold uppercase tracking-wide text-emerald-400/95 ring-1 ring-emerald-500/18">
               <RadioTower className="h-2 w-2 shrink-0" />
@@ -141,7 +136,7 @@ const PortfolioDashboardInner = memo(function PortfolioDashboardInner({
           }
           actions={
             <PrefetchLink
-              href={ROUTES.discover}
+              href={ROUTES.markets}
               className="inline-flex items-center gap-r16 rounded-[3px] border border-white/[0.08] bg-white/[0.03] px-r16 py-r8 font-mono text-[9.5px] font-medium uppercase tracking-[0.06em] text-zinc-400 transition hover:border-white/[0.12] hover:bg-white/[0.05] hover:text-zinc-200 active:scale-[0.98]"
             >
               <ArrowLeft className="h-3.5 w-3.5 opacity-80" />

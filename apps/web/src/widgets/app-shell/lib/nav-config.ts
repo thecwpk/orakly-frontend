@@ -68,17 +68,18 @@ export function isMarketsExplorerNavActive(pathname: string | null): boolean {
   return pathname.startsWith("/markets/");
 }
 
-/** Full Markets browse — directory + detail pages + marketing `/discover`. */
+/** Full Markets browse — directory + detail pages. */
 export function isMarketsBrowseActive(
   pathname: string | null,
   searchParams: Pick<URLSearchParams, "get"> | null | undefined,
 ): boolean {
   if (!pathname) return false;
   if (pathname === ROUTES.dapp || pathname.startsWith(`${ROUTES.dapp}/`)) return false;
-  if (pathname === ROUTES.discover || pathname.startsWith(`${ROUTES.discover}/`)) return true;
+  if (pathname === ROUTES.attention || pathname.startsWith(`${ROUTES.attention}/`)) return false;
   if (pathname.startsWith("/markets/") && pathname !== "/markets") return true;
-  if (pathname !== "/markets") return false;
-  return !trendingQueryOn(searchParams);
+  if (pathname === "/markets") return !trendingQueryOn(searchParams);
+  if (pathname === ROUTES.discover || pathname.startsWith(`${ROUTES.discover}/`)) return true;
+  return false;
 }
 
 export function isHubHomeActive(pathname: string | null): boolean {
@@ -142,7 +143,7 @@ export const NAV_GROUPS: readonly NavGroup[] = [
         shortcut: "g h",
       },
       {
-        href: ROUTES.discover,
+        href: ROUTES.marketsBrowse,
         label: "Markets",
         icon: LayoutGrid,
         marketsBrowse: true,
@@ -174,7 +175,7 @@ export const MOBILE_DOCK_ITEMS: readonly NavItem[] = [
     hubHome: true,
   },
   {
-    href: ROUTES.discover,
+    href: ROUTES.marketsBrowse,
     label: "Markets",
     icon: LayoutGrid,
     marketsBrowse: true,

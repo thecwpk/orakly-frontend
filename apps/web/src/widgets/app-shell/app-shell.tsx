@@ -21,19 +21,9 @@ import "@/widgets/dapp-hub/hub-design-tokens.css";
 export function AppShell({ children }: { children: ReactNode }) {
   const actorId = useAuthStore((s) => s.tradingUserId ?? undefined);
   const pathname = usePathname();
-  const hubHome =
-    pathname === ROUTES.dapp ||
-    pathname?.startsWith(`${ROUTES.dapp}/`) ||
-    pathname === ROUTES.attention ||
-    pathname?.startsWith(`${ROUTES.attention}/`);
-
-  const marketDetail =
-    pathname?.startsWith("/markets/") &&
-    pathname !== ROUTES.markets &&
-    !pathname.startsWith("/markets/create") &&
-    !pathname.startsWith("/markets/breaking");
-
-  const hubCanvas = hubHome || marketDetail;
+  /** Hub navy canvas for all trading routes; marketing `/discover` keeps legacy canvas. */
+  const hubCanvas =
+    pathname !== ROUTES.discover && !pathname?.startsWith(`${ROUTES.discover}/`);
 
   return (
     <SocketProvider portfolioUserId={actorId ?? null}>
@@ -46,7 +36,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         )}
       >
         <div className="flex min-h-screen min-w-0 flex-col">
-          <AppTopbar density={hubCanvas ? "hub" : "default"} />
+          <AppTopbar density="hub" />
 
           <main
             id="app-content"

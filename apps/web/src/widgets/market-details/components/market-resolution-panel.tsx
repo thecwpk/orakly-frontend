@@ -21,9 +21,7 @@ function pickResolutionSource(market: Market): { label: string; url?: string } {
 }
 
 function MarketResolutionPanelInner({ market }: { market: Market }) {
-  const rules =
-    market.description?.trim() ||
-    `YES if the stated event occurs before close. NO if it does not. Market: ${market.title}`;
+  const rules = market.description?.trim() || market.title;
 
   const source = pickResolutionSource(market);
   const status = market.resolutionStatus ?? (market.status === "RESOLVED" ? "RESOLVED" : "OPEN");

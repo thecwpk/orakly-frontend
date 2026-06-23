@@ -44,13 +44,7 @@ export function MarketNewsPanel({ market, className }: { market: Market; classNa
       className={cn(marketDetailPanelClass, "flex min-h-0 flex-col p-3 sm:p-3.5", className)}
       aria-label="Related headlines"
     >
-      <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--md-muted)]">
-        Context
-      </p>
       <h2 className="text-sm font-semibold text-[var(--md-fg)]">Related wire</h2>
-      <p className="mt-0.5 text-[11px] text-[var(--md-muted)]">
-        Headlines matched to this market. Links open the publisher.
-      </p>
 
       {isLoading && !hasApiArticles ? (
         <div className="mt-4 flex items-center gap-2 text-[var(--md-muted)]">
@@ -59,7 +53,7 @@ export function MarketNewsPanel({ market, className }: { market: Market; classNa
         </div>
       ) : null}
       {isError && !hasApiArticles ? (
-        <p className="mt-3 text-xs text-[var(--md-danger)]">Live headlines unavailable — showing desk wire.</p>
+        <p className="mt-3 text-xs text-[var(--md-danger)]">Headlines unavailable.</p>
       ) : null}
 
       {articles.length ? (
@@ -104,7 +98,7 @@ export function MarketNewsPanel({ market, className }: { market: Market; classNa
           ))}
         </ul>
       ) : !isLoading ? (
-        <p className="mt-3 text-xs text-[var(--md-muted)]">No headlines available for this topic.</p>
+        <p className="mt-3 text-xs text-[var(--md-muted)]">No headlines.</p>
       ) : null}
     </section>
   );

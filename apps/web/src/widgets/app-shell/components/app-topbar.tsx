@@ -23,7 +23,7 @@ type TopNavItem = {
 
 const TOP_NAV: TopNavItem[] = [
   { href: ROUTES.dapp, label: "Home", kind: "home" },
-  { href: ROUTES.discover, label: "Markets", kind: "markets" },
+  { href: ROUTES.marketsBrowse, label: "Markets", kind: "markets" },
   { href: ROUTES.attention, label: "Attention", kind: "attention" },
   { href: ROUTES.portfolio, label: "Portfolio", kind: "portfolio" },
 ];
@@ -85,8 +85,10 @@ export function AppTopbar({ density = "default" }: { density?: AppTopbarDensity 
                 active = isAttentionAnchorActive(pathname);
               } else if (item.kind === "markets") {
                 active =
-                  pathname === ROUTES.discover ||
-                  pathname?.startsWith("/markets") === true;
+                  pathname === "/markets" ||
+                  (pathname?.startsWith("/markets/") === true &&
+                    pathname !== "/markets/create" &&
+                    !pathname.startsWith("/markets/breaking"));
               } else if (item.kind === "portfolio") {
                 active = pathname === ROUTES.portfolio;
               }

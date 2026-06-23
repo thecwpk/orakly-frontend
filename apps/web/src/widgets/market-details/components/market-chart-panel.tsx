@@ -158,7 +158,7 @@ function MarketChartPanelInner({
     <div className={cn(marketDetailPanelClass, "overflow-hidden")}>
       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[var(--md-border)] px-3 py-2">
         <p className="truncate text-[11px] text-[var(--md-muted)]">
-          {tab === "implied" ? "YES probability (API)" : "24h volume (API)"}
+          {tab === "implied" ? "YES probability" : "24h volume"}
         </p>
         <div className="flex rounded-md bg-black/35 p-0.5 ring-1 ring-white/10">
           {(

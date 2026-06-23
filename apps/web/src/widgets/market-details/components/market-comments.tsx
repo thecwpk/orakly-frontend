@@ -65,10 +65,7 @@ function MarketCommentsInner({ slug, className }: { slug: string; className?: st
   return (
     <div className={cn(marketDetailPanelClass, "flex min-h-0 flex-col overflow-hidden", className)}>
       <div className="shrink-0 border-b border-white/[0.06] px-3 py-2.5">
-        <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-zinc-600">
-          Comments
-        </p>
-        <p className="text-sm font-semibold text-zinc-100">Session notes · local only</p>
+        <p className="text-sm font-semibold text-zinc-100">Comments</p>
       </div>
       <div className="space-y-1.5 p-2.5">
         <textarea

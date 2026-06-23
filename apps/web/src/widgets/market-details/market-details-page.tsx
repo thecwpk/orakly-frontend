@@ -1,8 +1,9 @@
 "use client";
 
 import type { Market } from "@orakly/types";
-import { useSearchParams } from "next/navigation";
-import { useMemo } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useMemo } from "react";
+import { ROUTES } from "@/shared/constants/routes";
 import {
   useMarketBySlugQuery,
   useMarketOddsQuery,
@@ -87,6 +88,7 @@ function TradeDeskBlock({
 
 /** Hooks + layout only mount after slug resolves to a DB market (avoids render-loop from `notFound()`). */
 function MarketDetailsLoaded({ market }: { market: Market }) {
+  const router = useRouter();
   const actorId = useAuthStore((s) => s.tradingUserId ?? undefined);
   const searchParams = useSearchParams();
   const { data: markets = [] } = useMarketsFeedQuery();
@@ -118,6 +120,18 @@ function MarketDetailsLoaded({ market }: { market: Market }) {
 
   const sideParam = (searchParams?.get("side") ?? "").toUpperCase();
   const initialOutcome: "YES" | "NO" = sideParam === "NO" ? "NO" : "YES";
+
+  const handleSelectSide = useCallback(
+    (side: "YES" | "NO") => {
+      router.replace(`${ROUTES.market(market.slug)}?side=${side}`, { scroll: false });
+      requestAnimationFrame(() => {
+        document
+          .getElementById("market-trade-panel")
+          ?.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+    },
+    [market.slug, router],
+  );
 
   const tradeDisabled =
     market.status !== "OPEN"
@@ -172,6 +186,8 @@ function MarketDetailsLoaded({ market }: { market: Market }) {
               noLabel={noLabel}
               odds={odds}
               rt={rt}
+              selectedSide={initialOutcome}
+              onSelectSide={handleSelectSide}
             />
             <MarketChartPanel
               slug={market.slug}
@@ -198,7 +214,6 @@ function MarketDetailsLoaded({ market }: { market: Market }) {
             <div className="market-detail-trade-shell market-detail-trade-sticky">
               <div className="market-detail-trade-head">
                 <h2 className="market-detail-section-title">Trade</h2>
-                <p className="market-detail-section-hint">Quote preview · confirm in modal</p>
               </div>
               <TradeDeskBlock deskKey="desk-main" embedded {...deskProps} />
             </div>
@@ -227,7 +242,7 @@ function MarketDetailsLoaded({ market }: { market: Market }) {
 
           {/* §3 — related markets full width */}
           {hasRelatedMarkets ? (
-            <MarketDetailSection title="Related markets" hint="Same category · open pools">
+            <MarketDetailSection title="Related markets">
               <MarketRelated
                 currentSlug={market.slug}
                 category={market.category}
@@ -246,7 +261,7 @@ function MarketDetailsLoaded({ market }: { market: Market }) {
                 filter="trades-only"
                 maxRows={28}
                 fillColumn
-                heading={{ title: "Activity", subtitle: "Trades & feed" }}
+                heading={{ title: "Activity" }}
                 className="h-full min-h-[280px]"
               />
             }
@@ -264,7 +279,7 @@ function MarketDetailsLoaded({ market }: { market: Market }) {
                 filter="whales"
                 maxRows={24}
                 fillColumn
-                heading={{ title: "Large prints", subtitle: "Whale-sized fills" }}
+                heading={{ title: "Large prints" }}
                 className="h-full min-h-[240px]"
               />
             }

@@ -15,13 +15,7 @@ export function MobileBottomNav() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const hubLight =
-    pathname === ROUTES.dapp ||
-    pathname?.startsWith(`${ROUTES.dapp}/`) ||
-    pathname === ROUTES.attention ||
-    (pathname?.startsWith("/markets/") &&
-      pathname !== ROUTES.markets &&
-      !pathname.startsWith("/markets/create") &&
-      !pathname.startsWith("/markets/breaking"));
+    pathname !== ROUTES.discover && !pathname?.startsWith(`${ROUTES.discover}/`);
   const [, bump] = useState(0);
 
   useEffect(() => {

@@ -4,8 +4,6 @@ import type { Market } from "@orakly/types";
 import { memo, useMemo } from "react";
 import type { MarketOddsDto } from "@/shared/api/fetchers/markets-live";
 import type { MarketRealtimeSnapshot } from "@/websocket/store/market-realtime-store";
-import { ROUTES } from "@/shared/constants/routes";
-import { PrefetchLink } from "@/shared/ui";
 import { cn } from "@/lib/utils";
 import { buildMarketDetailStatCells } from "./market-stats-strip";
 import { marketDetailPanelClass } from "./market-detail-section";
@@ -26,33 +24,61 @@ function OutcomeCard({
   side,
   cents,
   label,
-  slug,
+  selected,
   disabled,
+  onSelect,
 }: {
   side: "YES" | "NO";
   cents: number;
   label: string;
-  slug: string;
+  selected: boolean;
   disabled: boolean;
+  onSelect: (side: "YES" | "NO") => void;
 }) {
   const isYes = side === "YES";
-  const href = `${ROUTES.market(slug)}?side=${side}`;
   const shell = cn(
-    "flex min-w-0 flex-1 items-center justify-between gap-2 rounded-lg border px-3 py-2.5 transition",
+    "flex min-w-0 flex-1 items-center justify-between gap-2 rounded-lg border px-3 py-2.5 text-left transition",
     isYes
       ? "border-[var(--md-success)]/30 bg-[var(--md-success-bg)]"
       : "border-[var(--md-danger)]/30 bg-[var(--md-danger-bg)]",
+    selected &&
+      (isYes
+        ? "ring-2 ring-[var(--md-success)]/45"
+        : "ring-2 ring-[var(--md-danger)]/45"),
     disabled && "pointer-events-none opacity-60",
+    !disabled && "cursor-pointer hover:bg-white/[0.03]",
   );
 
-  const inner = (
+  if (disabled) {
+    return (
+      <div className={shell}>
+        <OutcomeCardBody side={side} cents={cents} label={label} />
+      </div>
+    );
+  }
+
+  return (
+    <button type="button" className={shell} onClick={() => onSelect(side)} aria-pressed={selected}>
+      <OutcomeCardBody side={side} cents={cents} label={label} />
+    </button>
+  );
+}
+
+function OutcomeCardBody({
+  side,
+  cents,
+  label,
+}: {
+  side: "YES" | "NO";
+  cents: number;
+  label: string;
+}) {
+  const isYes = side === "YES";
+  return (
     <>
       <div className="min-w-0">
         <p className="text-[10px] font-semibold uppercase tracking-wide text-[var(--md-muted)]">
           {side}
-        </p>
-        <p className="text-[10px] text-[var(--md-muted)]">
-          {isYes ? "Event happens" : "Event does not"}
         </p>
       </div>
       <div className="text-right">
@@ -68,13 +94,6 @@ function OutcomeCard({
       </div>
     </>
   );
-
-  if (disabled) return <div className={shell}>{inner}</div>;
-  return (
-    <PrefetchLink href={href} className={cn(shell, "hover:bg-white/[0.03]")}>
-      {inner}
-    </PrefetchLink>
-  );
 }
 
 function MarketOverviewPanelInner({
@@ -85,6 +104,8 @@ function MarketOverviewPanelInner({
   noLabel,
   odds,
   rt,
+  selectedSide,
+  onSelectSide,
 }: {
   market: Market;
   midYes: number;
@@ -93,6 +114,8 @@ function MarketOverviewPanelInner({
   noLabel: string;
   odds: MarketOddsDto | undefined;
   rt: MarketRealtimeSnapshot;
+  selectedSide: "YES" | "NO";
+  onSelectSide: (side: "YES" | "NO") => void;
 }) {
   const yesCents = Math.round(midYes * 1000) / 10;
   const noCents = Math.round(midNo * 1000) / 10;
@@ -109,38 +132,22 @@ function MarketOverviewPanelInner({
       className={cn(marketDetailPanelClass, "p-3 sm:p-3.5")}
       aria-label="Market overview"
     >
-      <div className="flex items-start justify-between gap-2">
-        <p className="text-[12px] leading-snug text-[var(--md-muted)]">
-          <span className="font-semibold text-[var(--md-success)]">Yes</span> = happens ·{" "}
-          <span className="font-semibold text-[var(--md-danger)]">No</span> = does not, before
-          close.
-        </p>
-        <span
-          className={cn(
-            "shrink-0 rounded px-2 py-0.5 text-[10px] font-semibold ring-1",
-            isOpen
-              ? "bg-emerald-500/10 text-emerald-300 ring-emerald-500/22"
-              : "bg-zinc-500/12 text-zinc-400 ring-white/8",
-          )}
-        >
-          {market.status}
-        </span>
-      </div>
-
-      <div className="mt-2.5 flex gap-2">
+      <div className="flex gap-2">
         <OutcomeCard
           side="YES"
           cents={yesCents}
           label={yesLabel}
-          slug={market.slug}
+          selected={selectedSide === "YES"}
           disabled={!isOpen}
+          onSelect={onSelectSide}
         />
         <OutcomeCard
           side="NO"
           cents={noCents}
           label={noLabel}
-          slug={market.slug}
+          selected={selectedSide === "NO"}
           disabled={!isOpen}
+          onSelect={onSelectSide}
         />
       </div>
 
