@@ -23,7 +23,7 @@ type TopNavItem = {
 
 const TOP_NAV: TopNavItem[] = [
   { href: ROUTES.dapp, label: "Home", kind: "home" },
-  { href: ROUTES.marketsBrowse, label: "Markets", kind: "markets" },
+  { href: ROUTES.marketsBrowse, label: "Market", kind: "markets" },
   { href: ROUTES.attention, label: "Attention", kind: "attention" },
   { href: ROUTES.portfolio, label: "Portfolio", kind: "portfolio" },
 ];

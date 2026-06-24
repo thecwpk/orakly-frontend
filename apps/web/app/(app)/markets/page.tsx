@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import dynamic from "next/dynamic";
 import { Suspense } from "react";
-import { ensureDiscoveryTrendingSearchParam } from "@/server/navigation/ensure-discovery-trending-param";
 import { Container, Section } from "@/shared/ui";
 import { MarketsListSkeleton } from "@/widgets/markets-explorer";
 
@@ -22,18 +21,12 @@ const MarketsExplorerPage = dynamic(
 );
 
 export const metadata: Metadata = {
-  title: "Markets — Orakly",
+  title: "Market — Orakly",
   description:
-    "Search, filter and sort every prediction market on Orakly — by category, sort, trending status, or watchlist.",
+    "Browse, search, and filter prediction markets on Orakly.",
 };
 
-export default async function MarketsPage({
-  searchParams,
-}: {
-  searchParams: Promise<Record<string, string | string[] | undefined>>;
-}) {
-  const sp = await searchParams;
-  ensureDiscoveryTrendingSearchParam("/markets", sp);
+export default async function MarketsPage() {
   return (
     <Suspense
       fallback={

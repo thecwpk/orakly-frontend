@@ -153,7 +153,7 @@ export const NAV_GROUPS: readonly NavGroup[] = [
       },
       {
         href: ROUTES.marketsBrowse,
-        label: "Markets",
+        label: "Market",
         icon: LayoutGrid,
         marketsBrowse: true,
         shortcut: "g m",
@@ -185,7 +185,7 @@ export const MOBILE_DOCK_ITEMS: readonly NavItem[] = [
   },
   {
     href: ROUTES.marketsBrowse,
-    label: "Markets",
+    label: "Market",
     icon: LayoutGrid,
     marketsBrowse: true,
   },

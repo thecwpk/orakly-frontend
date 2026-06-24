@@ -2,37 +2,17 @@
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef } from "react";
-import {
-  MARKETS_SORT_OPTIONS,
-  useMarketsFilterStore,
-  type MarketsSort,
-} from "@/features/markets/store/use-markets-filter-store";
-import type { MarketsExplorerFeedPreset } from "@/shared/constants/routes";
-
-const VALID_SORTS = new Set<MarketsSort>(
-  MARKETS_SORT_OPTIONS.map((s) => s.id),
-);
-
-const VALID_EXPLORER_FEEDS = new Set<MarketsExplorerFeedPreset>(["cross_hot"]);
+import { useMarketsFilterStore } from "@/features/markets/store/use-markets-filter-store";
 
 function isDiscoveryFeedPath(pathname: string | null): boolean {
   return pathname === "/markets";
 }
 
-function parseUsdFloor(raw: string | null): number {
-  if (raw == null || raw === "") return 0;
-  const n = Number(raw);
-  if (!Number.isFinite(n) || n < 0) return 0;
-  return Math.min(Math.round(n), 10_000_000_000);
-}
-
 /**
- * Two-way URL ↔ filter-store sync on `/markets`.
+ * One-way filter-store → URL sync on `/markets`.
  *
- * Params: `q`, `cat`, `sort`, `live`, `minLiq`, `minVol`, `feed`.
- *
- * Note: legacy `trending=0|1` is ignored for filtering — it was conflated with
- * the live-tape toggle and hid markets when the websocket was idle.
+ * Filters apply only from in-page controls (category rail, search, toggles).
+ * Incoming query params (`cat`, `live`, legacy `trending`, etc.) are stripped on load.
  */
 export function useUrlFiltersSync() {
   const router = useRouter();
@@ -40,63 +20,41 @@ export function useUrlFiltersSync() {
   const params = useSearchParams();
 
   const search = useMarketsFilterStore((s) => s.searchTerm);
-  const setSearch = useMarketsFilterStore((s) => s.setSearchTerm);
   const category = useMarketsFilterStore((s) => s.category);
-  const setCategory = useMarketsFilterStore((s) => s.setCategory);
   const sort = useMarketsFilterStore((s) => s.sort);
-  const setSort = useMarketsFilterStore((s) => s.setSort);
   const trending = useMarketsFilterStore((s) => s.trendingOnly);
-  const setTrending = useMarketsFilterStore((s) => s.setTrendingOnly);
   const minLiquidityUsd = useMarketsFilterStore((s) => s.minLiquidityUsd);
-  const setMinLiquidityUsd = useMarketsFilterStore((s) => s.setMinLiquidityUsd);
   const minVolumeUsd = useMarketsFilterStore((s) => s.minVolumeUsd);
-  const setMinVolumeUsd = useMarketsFilterStore((s) => s.setMinVolumeUsd);
   const explorerFeed = useMarketsFilterStore((s) => s.explorerFeed);
-  const setExplorerFeed = useMarketsFilterStore((s) => s.setExplorerFeed);
 
-  const hydratedRef = useRef(false);
+  const strippedRef = useRef(false);
 
+  // Strip bookmarked / nav filter params — user must apply filters on the page.
   useEffect(() => {
-    const q = params?.get("q") ?? "";
-    const cat = params?.get("cat") ?? params?.get("category") ?? "all";
-    const s = params?.get("sort");
-    const live = params?.get("live");
-    const ml = parseUsdFloor(params?.get("minLiq"));
-    const mv = parseUsdFloor(params?.get("minVol"));
-    const fd = params?.get("feed");
-
-    if (q !== search) setSearch(q);
-    if (cat !== category) setCategory(cat);
-    if (s && VALID_SORTS.has(s as MarketsSort) && s !== sort) {
-      setSort(s as MarketsSort);
+    if (!isDiscoveryFeedPath(pathname)) return;
+    if (strippedRef.current) return;
+    const current = (params?.toString() ?? "").trim();
+    if (!current) {
+      strippedRef.current = true;
+      return;
     }
-    const nextLive = live === "1" || live === "true";
-    if (nextLive !== trending) setTrending(nextLive);
-    if (isDiscoveryFeedPath(pathname)) {
-      if (ml !== minLiquidityUsd) setMinLiquidityUsd(ml);
-      if (mv !== minVolumeUsd) setMinVolumeUsd(mv);
-      const nextFeed =
-        fd && VALID_EXPLORER_FEEDS.has(fd as MarketsExplorerFeedPreset) ? (fd as MarketsExplorerFeedPreset) : null;
-      if (nextFeed !== explorerFeed) setExplorerFeed(nextFeed);
-    }
-
-    hydratedRef.current = true;
+    strippedRef.current = true;
+    router.replace(pathname, { scroll: false });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [params, pathname]);
+  }, [pathname, params]);
 
   useEffect(() => {
-    if (!hydratedRef.current) return;
-    const discoveryFeed = isDiscoveryFeedPath(pathname);
+    if (!isDiscoveryFeedPath(pathname)) return;
+    if (!strippedRef.current) return;
+
     const next = new URLSearchParams();
     if (search.trim()) next.set("q", search.trim());
     if (category && category !== "all") next.set("cat", category);
     if (sort && sort !== "volume24h") next.set("sort", sort);
     if (trending) next.set("live", "1");
-    if (discoveryFeed) {
-      if (minLiquidityUsd > 0) next.set("minLiq", String(minLiquidityUsd));
-      if (minVolumeUsd > 0) next.set("minVol", String(minVolumeUsd));
-      if (explorerFeed) next.set("feed", explorerFeed);
-    }
+    if (minLiquidityUsd > 0) next.set("minLiq", String(minLiquidityUsd));
+    if (minVolumeUsd > 0) next.set("minVol", String(minVolumeUsd));
+    if (explorerFeed) next.set("feed", explorerFeed);
 
     const nextStr = next.toString();
     const currentStr = (params?.toString() ?? "").trim();

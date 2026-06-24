@@ -31,7 +31,7 @@ export function HubCategoriesGrid() {
             return (
               <Link
                 key={cat.slug}
-                href={`${ROUTES.markets}?cat=${encodeURIComponent(cat.slug)}`}
+                href={ROUTES.marketsBrowse}
                 className="hub-card hub-card-interactive block p-3"
               >
                 <p className="text-sm font-semibold text-[var(--hub-fg)]">{cat.name}</p>

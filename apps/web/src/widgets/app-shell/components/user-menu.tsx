@@ -46,8 +46,8 @@ const categoryRow =
 const sectionLabel =
   "px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-zinc-500";
 
-function marketsCategoryHref(slug: string) {
-  return `${ROUTES.markets}?cat=${encodeURIComponent(slug)}`;
+function marketsCategoryHref(_slug: string) {
+  return ROUTES.marketsBrowse;
 }
 
 /**

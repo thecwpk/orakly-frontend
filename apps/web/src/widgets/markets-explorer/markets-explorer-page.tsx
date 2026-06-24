@@ -215,7 +215,7 @@ export function MarketsExplorerPage() {
           <div className="min-w-0">
             <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
               <h1 className="text-balance text-lg font-semibold tracking-tight text-[var(--hub-fg)] sm:text-xl">
-                Markets
+                Market
               </h1>
               {updatedAtLabel ? (
                 <span className="font-mono text-[10px] text-[var(--hub-muted)]">

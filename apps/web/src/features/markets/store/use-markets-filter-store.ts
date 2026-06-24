@@ -97,18 +97,19 @@ export const useMarketsFilterStore = create<MarketsFilterStore>()(
     }),
     {
       name: "orakly:markets-filter",
-      version: 5,
-      // Don't persist the search term — that comes from the URL on each visit.
-      // Liquidity/volume floors are URL-synced only (`?minLiq=` / `?minVol=`) for shareable links.
+      version: 6,
+      // Only persist view + sort — category/search/floors apply per visit via UI.
       partialize: (s) => ({
-        category: s.category,
         sort: s.sort,
         viewMode: s.viewMode,
       }),
       migrate: (persisted, version) => {
-        if (version < 5 && persisted && typeof persisted === "object") {
+        if (persisted && typeof persisted === "object") {
           const rest = { ...(persisted as Record<string, unknown>) };
           delete rest.trendingOnly;
+          if (version < 6) {
+            delete rest.category;
+          }
           return rest;
         }
         return persisted;
