@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import { MOBILE_DOCK_ITEMS, resolvePrimaryNavActive } from "../lib/nav-config";
 import { ROUTES } from "@/shared/constants/routes";
 import { cn } from "@/lib/utils";
+import { useAuthStore } from "@/state/stores/auth.store";
 
 /**
  * Mobile bottom dock — Home, Markets, Attention, Portfolio, Profile.
@@ -14,6 +15,7 @@ import { cn } from "@/lib/utils";
 export function MobileBottomNav() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const tradingUserId = useAuthStore((s) => s.tradingUserId);
   const hubLight =
     pathname !== ROUTES.discover && !pathname?.startsWith(`${ROUTES.discover}/`);
   const [, bump] = useState(0);
@@ -38,11 +40,13 @@ export function MobileBottomNav() {
       <ul className="grid grid-cols-5">
         {MOBILE_DOCK_ITEMS.map((item) => {
           const Icon = item.icon;
+          const href =
+            item.href === ROUTES.profile && !tradingUserId ? ROUTES.wallet : item.href;
           const active = resolvePrimaryNavActive(pathname, item, searchParams);
           return (
             <li key={`${item.label}-${item.href}`} className="contents">
               <PrefetchLink
-                href={item.href}
+                href={href}
                 aria-current={active ? "page" : undefined}
                 className={cn(
                   "relative flex min-h-[52px] flex-col items-center justify-center gap-0.5 px-1 py-1.5 text-[10px] font-medium tracking-wide transition-colors",

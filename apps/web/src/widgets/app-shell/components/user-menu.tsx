@@ -30,6 +30,7 @@ import {
 import { MARKET_CATEGORIES } from "@/features/markets/lib/categories";
 import { ROUTES } from "@/shared/constants/routes";
 import { useIsAuthenticated } from "@/state/selectors/auth.selectors";
+import { useAuthStore } from "@/state/stores/auth.store";
 import { useShowAdminNavLink } from "@/widgets/admin-dashboard/hooks/use-admin-nav-session";
 import { cn } from "@/lib/utils";
 
@@ -56,6 +57,7 @@ export function UserMenu() {
   const { address, status } = useAccount();
   const connected = status === "connected" && Boolean(address);
   const tradingReady = useIsAuthenticated();
+  const tradingUserId = useAuthStore((s) => s.tradingUserId);
   const showAdminNav = useShowAdminNavLink();
 
   return (
@@ -125,7 +127,7 @@ export function UserMenu() {
 
         <DropdownMenuLabel className={sectionLabel}>Account</DropdownMenuLabel>
         <DropdownMenuItem asChild className={menuItem}>
-          <PrefetchLink href={ROUTES.profile}>
+          <PrefetchLink href={tradingUserId ? ROUTES.profile : ROUTES.wallet}>
             <UserIcon className="mr-2 size-4 text-zinc-500" aria-hidden />
             Profile
           </PrefetchLink>

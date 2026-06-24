@@ -36,6 +36,8 @@ export function useProfileData(address?: string) {
   });
 
   const profile = useMemo((): TraderProfile | null => {
+    if (isMine && !actorId) return null;
+
     const lb = leaderboardQ.data ?? [];
     const row =
       address
@@ -132,8 +134,10 @@ export function useProfileData(address?: string) {
   return {
     profile,
     isLoading:
-      leaderboardQ.isLoading ||
-      (isMine && (portfolioQ.isLoading || tradesQ.isLoading)),
+      isMine && !actorId
+        ? false
+        : leaderboardQ.isLoading ||
+          (isMine && (portfolioQ.isLoading || tradesQ.isLoading)),
     isError: portfolioQ.isError || leaderboardQ.isError,
   };
 }

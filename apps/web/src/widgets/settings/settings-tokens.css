@@ -1,0 +1,18 @@
+/**
+ * Settings — hub-aligned surfaces (readable on navy canvas).
+ */
+.settings-root {
+  color: var(--hub-fg, #e8f0ff);
+}
+
+.settings-nav-panel {
+  border: 1px solid var(--hub-border, rgba(96, 165, 250, 0.16));
+  background: var(--hub-card, #1a2d4d);
+  box-shadow: 0 8px 28px rgb(0 0 0 / 0.28);
+}
+
+.settings-content-panel {
+  border: 1px solid var(--hub-border, rgba(96, 165, 250, 0.16));
+  background: var(--hub-card, #1a2d4d);
+  box-shadow: 0 8px 28px rgb(0 0 0 / 0.28);
+}

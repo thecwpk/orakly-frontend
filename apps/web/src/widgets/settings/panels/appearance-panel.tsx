@@ -7,6 +7,9 @@ import {
   SettingsPanel,
   SettingsRow,
   SettingsToggle,
+  settingsChoiceActiveClass,
+  settingsChoiceInactiveClass,
+  settingsInsetClass,
 } from "../components/settings-panel";
 
 type Theme = "dark" | "system" | "light";
@@ -30,7 +33,7 @@ export function AppearanceSettingsPanel() {
       description="Theme, density, and motion preferences."
     >
       <SettingsRow label="Theme" hint="Dark is the default for trading sessions.">
-        <div className="grid grid-cols-3 gap-1.5 rounded-xl bg-black/25 p-1 ring-1 ring-white/[0.06]">
+        <div className={cn("grid grid-cols-3 gap-1.5 p-1", settingsInsetClass)}>
           {themes.map((t) => {
             const active = theme === t.id;
             const Icon = t.icon;
@@ -41,9 +44,7 @@ export function AppearanceSettingsPanel() {
                 onClick={() => setTheme(t.id)}
                 className={cn(
                   "flex items-center justify-center gap-1.5 rounded-lg px-2.5 py-2 text-[12px] font-medium transition",
-                  active
-                    ? "bg-white/[0.08] text-white ring-1 ring-cyan-400/30"
-                    : "text-zinc-400 hover:text-zinc-200",
+                  active ? settingsChoiceActiveClass : settingsChoiceInactiveClass,
                 )}
               >
                 <Icon className="h-3.5 w-3.5" />
@@ -58,7 +59,7 @@ export function AppearanceSettingsPanel() {
         label="Density"
         hint="Compact = trading desk packed; Comfortable = larger touch targets."
       >
-        <div className="grid grid-cols-2 gap-1.5 rounded-xl bg-black/25 p-1 ring-1 ring-white/[0.06]">
+        <div className={cn("grid grid-cols-2 gap-1.5 p-1", settingsInsetClass)}>
           {(["compact", "comfortable"] as Density[]).map((d) => (
             <button
               key={d}
@@ -66,9 +67,7 @@ export function AppearanceSettingsPanel() {
               onClick={() => setDensity(d)}
               className={cn(
                 "rounded-lg px-2.5 py-2 text-[12px] font-medium capitalize transition",
-                density === d
-                  ? "bg-white/[0.08] text-white ring-1 ring-cyan-400/30"
-                  : "text-zinc-400 hover:text-zinc-200",
+                density === d ? settingsChoiceActiveClass : settingsChoiceInactiveClass,
               )}
             >
               {d}
@@ -81,8 +80,8 @@ export function AppearanceSettingsPanel() {
         label="Neon accents"
         hint="Subtle glow around active surfaces and CTAs."
       >
-        <div className="flex items-center justify-between gap-3 rounded-xl bg-black/25 px-3 py-2.5 ring-1 ring-white/[0.06]">
-          <span className="text-[12px] text-zinc-300">Enabled</span>
+        <div className={cn("flex items-center justify-between gap-3 px-3 py-2.5", settingsInsetClass)}>
+          <span className="text-[12px] text-[var(--hub-fg)]">Enabled</span>
           <SettingsToggle
             checked={neonAccents}
             onChange={setNeonAccents}
@@ -95,8 +94,8 @@ export function AppearanceSettingsPanel() {
         label="Reduce motion"
         hint="Disables non-essential animations site-wide. Respects OS preference by default."
       >
-        <div className="flex items-center justify-between gap-3 rounded-xl bg-black/25 px-3 py-2.5 ring-1 ring-white/[0.06]">
-          <span className="text-[12px] text-zinc-300">Override OS</span>
+        <div className={cn("flex items-center justify-between gap-3 px-3 py-2.5", settingsInsetClass)}>
+          <span className="text-[12px] text-[var(--hub-fg)]">Override OS</span>
           <SettingsToggle
             checked={reduceMotion}
             onChange={setReduceMotion}

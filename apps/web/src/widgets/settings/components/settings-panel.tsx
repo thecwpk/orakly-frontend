@@ -2,7 +2,23 @@
 
 import { motion } from "framer-motion";
 import type { ReactNode } from "react";
+import { cn } from "@/lib/utils";
 import { useHydrationSafeReducedMotion } from "@/lib/use-hydration-safe-reduced-motion";
+
+export const settingsInsetClass =
+  "rounded-lg border border-[var(--hub-border)] bg-[var(--hub-bg-subtle)]";
+
+export const settingsChoiceActiveClass =
+  "bg-[var(--hub-primary-soft)] text-[var(--hub-fg)] ring-1 ring-[var(--hub-border-strong)]";
+
+export const settingsChoiceInactiveClass =
+  "text-[var(--hub-muted)] hover:text-[var(--hub-fg)]";
+
+export const settingsInputClass = cn(
+  "w-full rounded-lg border border-[var(--hub-border)] bg-[var(--hub-bg-subtle)] px-3 py-2.5 text-sm text-[var(--hub-fg)]",
+  "placeholder:text-[var(--hub-muted)] outline-none transition",
+  "focus:border-[var(--hub-primary)]/50 focus:ring-2 focus:ring-[var(--hub-primary)]/20",
+);
 
 export function SettingsPanel({
   title,
@@ -19,13 +35,13 @@ export function SettingsPanel({
       initial={reduceMotion ? false : { opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.25 }}
-      className="glass-panel-strong rounded-2xl p-5 sm:p-6"
+      className="settings-content-panel rounded-2xl p-5 sm:p-6"
     >
-      <header className="border-b border-white/[0.06] pb-4">
-        <h2 className="text-[15px] font-semibold tracking-tight text-white">
+      <header className="border-b border-[var(--hub-border)] pb-4">
+        <h2 className="text-[15px] font-semibold tracking-tight text-[var(--hub-fg)]">
           {title}
         </h2>
-        <p className="mt-1 text-[12.5px] leading-relaxed text-zinc-500">
+        <p className="mt-1 text-[12.5px] leading-relaxed text-[var(--hub-muted)]">
           {description}
         </p>
       </header>
@@ -44,13 +60,11 @@ export function SettingsRow({
   children: ReactNode;
 }) {
   return (
-    <div className="flex flex-col gap-2 border-b border-white/[0.04] pb-5 last:border-0 last:pb-0 sm:flex-row sm:items-start sm:justify-between sm:gap-6">
+    <div className="flex flex-col gap-2 border-b border-[var(--hub-border)] pb-5 last:border-0 last:pb-0 sm:flex-row sm:items-start sm:justify-between sm:gap-6">
       <div className="min-w-0 sm:max-w-xs">
-        <p className="text-[12.5px] font-medium text-white">{label}</p>
+        <p className="text-[12.5px] font-medium text-[var(--hub-fg)]">{label}</p>
         {hint ? (
-          <p className="mt-1 text-[11.5px] leading-relaxed text-zinc-500">
-            {hint}
-          </p>
+          <p className="mt-1 text-[11.5px] leading-relaxed text-[var(--hub-muted)]">{hint}</p>
         ) : null}
       </div>
       <div className="min-w-0 flex-1 sm:max-w-sm">{children}</div>
@@ -74,7 +88,12 @@ export function SettingsToggle({
       aria-checked={checked}
       aria-label={label}
       onClick={() => onChange(!checked)}
-      className="relative h-6 w-10 shrink-0 rounded-full bg-white/[0.08] ring-1 ring-white/10 transition aria-checked:bg-cyan-500/60 aria-checked:ring-cyan-400/40"
+      className={cn(
+        "relative h-6 w-10 shrink-0 rounded-full ring-1 transition",
+        checked
+          ? "bg-[var(--hub-primary)]/70 ring-[var(--hub-primary)]/40"
+          : "bg-[var(--hub-bg-subtle)] ring-[var(--hub-border)]",
+      )}
     >
       <span
         className="absolute top-0.5 left-0.5 inline-block h-5 w-5 rounded-full bg-white shadow transition-transform"
