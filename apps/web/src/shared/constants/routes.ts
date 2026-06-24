@@ -20,10 +20,10 @@ export const ROUTES = {
   marketCreate: "/markets/create",
   /** @deprecated Use `marketsTrending` — `/trending` redirects there. */
   trending: "/trending",
-  /** Trending tape on the full markets directory. */
-  marketsTrending: "/markets?trending=1",
-  /** Full directory — trending filter off (“Markets” in primary nav). */
-  marketsBrowse: "/markets?trending=0",
+  /** Live tape sort — pins recent fills to the top (`/markets?live=1`). */
+  marketsTrending: "/markets?live=1",
+  /** Full directory — primary Markets nav target. */
+  marketsBrowse: "/markets",
   /**
    * Polymarket-style “Breaking” hub — OPEN markets with fresh live signals (`filter=breaking` on API).
    * Implemented as dedicated route so it is not rewritten by `/markets` canonical `trending` redirect.
@@ -70,7 +70,6 @@ export type MarketsExplorerFeedPreset = "cross_hot";
  */
 export function marketsExplorerFeedUrl(preset: MarketsExplorerFeedPreset): string {
   const q = new URLSearchParams();
-  q.set("trending", "0");
   q.set("feed", preset);
   return `${ROUTES.markets}?${q.toString()}`;
 }

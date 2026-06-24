@@ -55,10 +55,10 @@ export function MarketsExplorerDiscoveryStrip({
 
   const feedTone =
     connectionStatus === "connected"
-      ? "text-emerald-300"
+      ? "text-[var(--hub-success)]"
       : connectionStatus === "connecting" || connectionStatus === "error"
         ? "text-amber-300"
-        : "text-zinc-500";
+        : "text-[var(--hub-muted)]";
 
   const { skewPct, vol } = useMemo(() => tapeSkewVol(lensMarkets), [lensMarkets]);
 
@@ -70,24 +70,24 @@ export function MarketsExplorerDiscoveryStrip({
       )}
       aria-label="Discovery status and lens sentiment"
     >
-      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[10px] font-medium uppercase tracking-[0.12em] text-zinc-500">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[10px] font-medium uppercase tracking-[0.12em] text-[var(--hub-muted)]">
         <span className="inline-flex items-center gap-1">
-          <Database className="h-3 w-3 text-zinc-600" aria-hidden />
+          <Database className="h-3 w-3 opacity-70" aria-hidden />
           <span className="font-mono tabular-nums text-[var(--hub-fg)]">
             {isLoading ? "—" : totalLoaded}
           </span>
-          <span className="normal-case tracking-normal text-zinc-600">loaded</span>
+          <span className="normal-case tracking-normal opacity-80">loaded</span>
         </span>
 
-        <span className="hidden h-3 w-px bg-white/[0.08] sm:block" aria-hidden />
+        <span className="hidden h-3 w-px bg-[var(--hub-border)] sm:block" aria-hidden />
 
         <span className="inline-flex items-center gap-1">
-          <Zap className="h-3 w-3 text-cyan-500/80" aria-hidden />
-          <span className="font-mono tabular-nums text-zinc-400">{liveCount}</span>
-          <span className="normal-case tracking-normal text-zinc-600">live</span>
+          <Zap className="h-3 w-3 text-[var(--hub-primary-bright)]" aria-hidden />
+          <span className="font-mono tabular-nums text-[var(--hub-fg)]">{liveCount}</span>
+          <span className="normal-case tracking-normal opacity-80">live</span>
         </span>
 
-        <span className="hidden h-3 w-px bg-white/[0.08] md:block" aria-hidden />
+        <span className="hidden h-3 w-px bg-[var(--hub-border)] md:block" aria-hidden />
 
         <span className={cn("inline-flex items-center gap-1", feedTone)}>
           <Activity className="h-3 w-3" aria-hidden />
@@ -95,11 +95,11 @@ export function MarketsExplorerDiscoveryStrip({
         </span>
 
         <span className="ml-auto inline-flex items-center gap-1 normal-case tracking-normal">
-          <span className="text-zinc-600">HTTP</span>
+          <span className="opacity-70">HTTP</span>
           <span
             className={cn(
-              "font-mono text-[10px] tabular-nums text-zinc-400",
-              isFetching && "text-cyan-300",
+              "font-mono text-[10px] tabular-nums text-[var(--hub-muted)]",
+              isFetching && "text-[var(--hub-primary-bright)]",
             )}
           >
             {updatedLabel ? `Δ ${updatedLabel}` : "—"}
@@ -108,21 +108,21 @@ export function MarketsExplorerDiscoveryStrip({
       </div>
 
       <div className="flex flex-wrap items-center gap-2">
-        <span className="shrink-0 text-[9px] font-semibold uppercase tracking-[0.14em] text-zinc-600">
+        <span className="shrink-0 text-[9px] font-semibold uppercase tracking-[0.14em] text-[var(--hub-muted)]">
           Lens skew
         </span>
-        <div className="flex h-1.5 min-w-[120px] flex-1 overflow-hidden rounded-full bg-white/[0.06]">
+        <div className="flex h-1.5 min-w-[120px] flex-1 overflow-hidden rounded-full bg-[var(--hub-track-bg)]">
           <div
-            className="h-full shrink-0 rounded-l-full bg-gradient-to-r from-cyan-500/85 to-emerald-400/70"
+            className="h-full shrink-0 rounded-l-full bg-gradient-to-r from-[var(--hub-primary)] to-[var(--hub-success)]"
             style={{ width: `${skewPct}%` }}
           />
-          <div className="h-full min-w-0 flex-1 rounded-r-full bg-gradient-to-l from-rose-500/75 to-amber-500/45" />
+          <div className="h-full min-w-0 flex-1 rounded-r-full bg-gradient-to-l from-[var(--hub-danger)] to-amber-500/60" />
         </div>
-        <span className="font-mono text-[10px] tabular-nums text-zinc-400">
-          <span className="text-cyan-300/95">{skewPct}%</span>
-          <span className="text-zinc-600"> · </span>
-          <span className="text-zinc-500">{formatCompactUsd(vol)}</span>
-          <span className="text-zinc-700"> vol</span>
+        <span className="font-mono text-[10px] tabular-nums text-[var(--hub-muted)]">
+          <span className="text-[var(--hub-primary-bright)]">{skewPct}%</span>
+          <span className="opacity-50"> · </span>
+          <span>{formatCompactUsd(vol)}</span>
+          <span className="opacity-50"> vol</span>
         </span>
       </div>
     </div>

@@ -29,7 +29,10 @@ function parseUsdFloor(raw: string | null): number {
 /**
  * Two-way URL ↔ filter-store sync on `/markets`.
  *
- * Params: `q`, `cat`, `sort`, `trending`, `minLiq`, `minVol`, `feed`.
+ * Params: `q`, `cat`, `sort`, `live`, `minLiq`, `minVol`, `feed`.
+ *
+ * Note: legacy `trending=0|1` is ignored for filtering — it was conflated with
+ * the live-tape toggle and hid markets when the websocket was idle.
  */
 export function useUrlFiltersSync() {
   const router = useRouter();
@@ -57,7 +60,7 @@ export function useUrlFiltersSync() {
     const q = params?.get("q") ?? "";
     const cat = params?.get("cat") ?? params?.get("category") ?? "all";
     const s = params?.get("sort");
-    const t = params?.get("trending");
+    const live = params?.get("live");
     const ml = parseUsdFloor(params?.get("minLiq"));
     const mv = parseUsdFloor(params?.get("minVol"));
     const fd = params?.get("feed");
@@ -67,10 +70,8 @@ export function useUrlFiltersSync() {
     if (s && VALID_SORTS.has(s as MarketsSort) && s !== sort) {
       setSort(s as MarketsSort);
     }
-    if (t !== null) {
-      const next = t === "1" || t === "true";
-      if (next !== trending) setTrending(next);
-    }
+    const nextLive = live === "1" || live === "true";
+    if (nextLive !== trending) setTrending(nextLive);
     if (isDiscoveryFeedPath(pathname)) {
       if (ml !== minLiquidityUsd) setMinLiquidityUsd(ml);
       if (mv !== minVolumeUsd) setMinVolumeUsd(mv);
@@ -90,11 +91,7 @@ export function useUrlFiltersSync() {
     if (search.trim()) next.set("q", search.trim());
     if (category && category !== "all") next.set("cat", category);
     if (sort && sort !== "volume24h") next.set("sort", sort);
-    if (discoveryFeed) {
-      next.set("trending", trending ? "1" : "0");
-    } else if (trending) {
-      next.set("trending", "1");
-    }
+    if (trending) next.set("live", "1");
     if (discoveryFeed) {
       if (minLiquidityUsd > 0) next.set("minLiq", String(minLiquidityUsd));
       if (minVolumeUsd > 0) next.set("minVol", String(minVolumeUsd));

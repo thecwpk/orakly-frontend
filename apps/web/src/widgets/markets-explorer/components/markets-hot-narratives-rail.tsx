@@ -13,25 +13,16 @@ function fmtVol(n: number): string {
   return `$${Math.round(n)}`;
 }
 
-/** Highest-volume venues — quick jumps without leaving the explorer chrome. */
 export function MarketsHotNarrativesRail({ markets }: { markets: Market[] }) {
   if (!markets.length) return null;
 
   return (
-    <section
-      className={cn(
-        "rounded-lg border border-white/[0.06] bg-[#07070d]/80 px-2 py-2 ring-1 ring-white/[0.05]",
-        "backdrop-blur-sm supports-[backdrop-filter]:bg-[#07070d]/65",
-      )}
-    >
+    <section className="rounded-lg border border-[var(--hub-border)] bg-[var(--hub-bg-subtle)] px-2 py-2">
       <div className="mb-1 flex items-center justify-between gap-2 px-0.5">
-        <div className="flex items-center gap-1.5 min-w-0">
-          <Flame className="h-3 w-3 shrink-0 text-orange-400/95" aria-hidden />
-          <span className="truncate text-[10px] font-semibold uppercase tracking-[0.16em] text-zinc-500">
+        <div className="flex min-w-0 items-center gap-1.5">
+          <Flame className="h-3 w-3 shrink-0 text-[var(--hub-primary-bright)]" aria-hidden />
+          <span className="truncate text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--hub-muted)]">
             Hot narratives
-          </span>
-          <span className="hidden shrink-0 font-mono text-[9px] text-zinc-600 sm:inline">
-            · vol leaders
           </span>
         </div>
       </div>
@@ -42,13 +33,13 @@ export function MarketsHotNarrativesRail({ markets }: { markets: Market[] }) {
             href={ROUTES.market(m.slug)}
             prefetch
             className={cn(
-              "snap-start shrink-0 max-w-[min(260px,72vw)] rounded-md bg-white/[0.035] py-1 pl-2 pr-2",
-              "ring-1 ring-white/[0.06] transition hover:bg-white/[0.06] hover:ring-cyan-400/20",
+              "max-w-[min(260px,72vw)] shrink-0 snap-start rounded-md bg-[var(--hub-card)] py-1 pl-2 pr-2",
+              "ring-1 ring-[var(--hub-border)] transition hover:bg-[var(--hub-card-hover)] hover:ring-[var(--hub-border-strong)]",
             )}
           >
-            <p className="truncate text-[11px] font-medium leading-tight text-zinc-200">{m.title}</p>
-            <div className="mt-0.5 flex items-center gap-2 font-mono text-[9px] tabular-nums text-zinc-500">
-              <span className="text-cyan-400/90">{Math.round(m.probability * 100)}¢</span>
+            <p className="truncate text-[11px] font-medium leading-tight text-[var(--hub-fg)]">{m.title}</p>
+            <div className="mt-0.5 flex items-center gap-2 font-mono text-[9px] tabular-nums text-[var(--hub-muted)]">
+              <span className="text-[var(--hub-primary-bright)]">{Math.round(m.probability * 100)}¢</span>
               <span>{fmtVol(m.volumeUsd ?? 0)}</span>
             </div>
           </Link>

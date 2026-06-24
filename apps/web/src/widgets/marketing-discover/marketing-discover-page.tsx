@@ -102,8 +102,6 @@ export function MarketingDiscoverPage() {
       filterMarkets(laneMarkets, {
         searchTerm: search,
         category,
-        trendingOnly: false,
-        liveSet: new Set(),
         minLiquidityUsd: 0,
         minVolumeUsd: 0,
       }),

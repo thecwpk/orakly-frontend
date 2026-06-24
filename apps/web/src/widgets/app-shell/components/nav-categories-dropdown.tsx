@@ -42,7 +42,7 @@ export function NavCategoriesDropdown({ className }: { className?: string }) {
         {MARKET_CATEGORIES.map((cat) => (
           <DropdownMenuItem key={cat.slug} asChild>
             <PrefetchLink
-              href={`${ROUTES.markets}?cat=${encodeURIComponent(cat.slug)}&trending=0`}
+              href={`${ROUTES.markets}?cat=${encodeURIComponent(cat.slug)}`}
               className="flex cursor-pointer items-start gap-2 py-1.5"
             >
               <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-[3px] bg-white/[0.05] ring-1 ring-white/[0.06]">
@@ -57,7 +57,7 @@ export function NavCategoriesDropdown({ className }: { className?: string }) {
         ))}
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
-          <PrefetchLink href={`${ROUTES.markets}?trending=0`} className="cursor-pointer font-mono text-[10px] uppercase tracking-wide text-zinc-400">
+          <PrefetchLink href={ROUTES.marketsBrowse} className="cursor-pointer font-mono text-[10px] uppercase tracking-wide text-zinc-400">
             Full explorer
           </PrefetchLink>
         </DropdownMenuItem>

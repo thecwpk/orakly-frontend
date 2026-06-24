@@ -65,27 +65,25 @@ function MarketsListRowImpl({ market, rank, isLive }: MarketsListRowProps) {
           className={cn(
             "grid items-center gap-2 px-2 py-2 text-[12px] transition-colors duration-150",
             "[grid-template-columns:34px_minmax(0,1fr)_minmax(0,11rem)_5.5rem_5rem_4.5rem_2.25rem_5rem]",
-            "border-b border-white/[0.04]",
-            "hover:bg-white/[0.03]",
+            "border-b border-[var(--hub-border)]",
+            "hover:bg-[var(--hub-primary-soft)]/30",
           )}
         >
-          {/* rank */}
-          <span className="font-mono text-[11px] tabular-nums text-zinc-600">
+          <span className="font-mono text-[11px] tabular-nums text-[var(--hub-muted)]">
             #{rank}
           </span>
 
-          {/* title + category */}
           <div className="flex min-w-0 items-center gap-2">
             <div className="min-w-0">
-              <p className="truncate font-medium text-zinc-100">
+              <p className="truncate font-medium text-[var(--hub-fg)]">
                 {market.title}
               </p>
-              <div className="mt-0.5 flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-zinc-500">
-                <span className="rounded-md bg-white/[0.04] px-1.5 py-0.5 text-zinc-400 ring-1 ring-white/[0.06]">
+              <div className="mt-0.5 flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-[var(--hub-muted)]">
+                <span className="rounded-md bg-[var(--hub-track-bg)] px-1.5 py-0.5 ring-1 ring-[var(--hub-border)]">
                   {market.category}
                 </span>
                 {isLive ? (
-                  <span className="inline-flex items-center gap-1 rounded-md bg-emerald-500/12 px-1.5 py-0.5 text-emerald-300 ring-1 ring-emerald-400/30">
+                  <span className="inline-flex items-center gap-1 rounded-md bg-[var(--hub-success-bg)] px-1.5 py-0.5 text-[var(--hub-success)] ring-1 ring-[var(--hub-border)]">
                     <span className="relative flex h-1.5 w-1.5">
                       <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400/60" />
                       <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-400" />
@@ -93,12 +91,12 @@ function MarketsListRowImpl({ market, rank, isLive }: MarketsListRowProps) {
                     Live
                   </span>
                 ) : market.status === "OPEN" ? (
-                  <span className="inline-flex items-center gap-1 text-zinc-600">
+                  <span className="inline-flex items-center gap-1 text-[var(--hub-muted)]">
                     <Radio className="h-2.5 w-2.5" />
                     Open
                   </span>
                 ) : (
-                  <span className="text-zinc-600">{market.status}</span>
+                  <span className="text-[var(--hub-muted)]">{market.status}</span>
                 )}
               </div>
             </div>
@@ -106,18 +104,18 @@ function MarketsListRowImpl({ market, rank, isLive }: MarketsListRowProps) {
 
           {/* probability + bar */}
           <div className="min-w-0">
-            <div className="flex items-baseline justify-between gap-2 text-[10px] uppercase tracking-wider text-zinc-500">
+            <div className="flex items-baseline justify-between gap-2 text-[10px] uppercase tracking-wider text-[var(--hub-muted)]">
               <span>YES</span>
-              <span className="font-mono text-[13px] font-bold tabular-nums text-cyan-300">
+              <span className="font-mono text-[13px] font-bold tabular-nums text-[var(--hub-primary-bright)]">
                 {pct}%
               </span>
             </div>
-            <div className="mt-0.5 h-0.5 overflow-hidden rounded-full bg-white/[0.06]">
+            <div className="mt-0.5 h-0.5 overflow-hidden rounded-full bg-[var(--hub-track-bg)]">
               <motion.div
                 initial={{ width: 0 }}
                 animate={{ width: `${pct}%` }}
                 transition={{ type: "spring", stiffness: 220, damping: 26 }}
-                className="h-full rounded-full bg-cyan-500/85"
+                className="h-full rounded-full bg-[var(--hub-primary)]"
               />
             </div>
           </div>
@@ -134,20 +132,20 @@ function MarketsListRowImpl({ market, rank, isLive }: MarketsListRowProps) {
 
           {/* volume */}
           <div className="text-right">
-            <p className="text-[9.5px] uppercase tracking-wider text-zinc-600">
+            <p className="text-[9.5px] uppercase tracking-wider text-[var(--hub-muted)]">
               Vol
             </p>
-            <p className="font-mono text-[12px] font-semibold tabular-nums text-zinc-200">
+            <p className="font-mono text-[12px] font-semibold tabular-nums text-[var(--hub-fg)]">
               {formatCompactUsd(market.volumeUsd ?? 0)}
             </p>
           </div>
 
           {/* liquidity */}
           <div className="hidden text-right md:block">
-            <p className="text-[9.5px] uppercase tracking-wider text-zinc-600">
+            <p className="text-[9.5px] uppercase tracking-wider text-[var(--hub-muted)]">
               Liq
             </p>
-            <p className="font-mono text-[12px] font-semibold tabular-nums text-zinc-300">
+            <p className="font-mono text-[12px] font-semibold tabular-nums text-[var(--hub-fg)]/90">
               {formatCompactUsd(market.liquidityUsd ?? 0)}
             </p>
           </div>
@@ -159,11 +157,11 @@ function MarketsListRowImpl({ market, rank, isLive }: MarketsListRowProps) {
 
           {/* closes + cta */}
           <div className="flex items-center justify-end gap-2">
-            <span className="hidden items-center gap-1 text-[11px] text-zinc-500 md:inline-flex">
+            <span className="hidden items-center gap-1 text-[11px] text-[var(--hub-muted)] md:inline-flex">
               <Clock className="h-3 w-3" />
               {timeUntilClose(market.closesAt)}
             </span>
-            <span className="inline-flex items-center gap-1 rounded-md bg-white/[0.04] px-2 py-1 text-[11px] font-medium text-zinc-200 ring-1 ring-white/[0.06] transition group-hover:bg-cyan-500/15 group-hover:text-cyan-200 group-hover:ring-cyan-400/30">
+            <span className="inline-flex items-center gap-1 rounded-md bg-[var(--hub-primary-soft)] px-2 py-1 text-[11px] font-medium text-[var(--hub-fg)] ring-1 ring-[var(--hub-border)] transition group-hover:bg-[var(--hub-primary)]/25 group-hover:ring-[var(--hub-border-strong)]">
               Trade
               <ArrowUpRight className="h-3 w-3" />
             </span>

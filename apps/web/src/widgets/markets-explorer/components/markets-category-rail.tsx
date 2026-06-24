@@ -10,9 +10,7 @@ import { cn } from "@/lib/utils";
 type Counts = Readonly<Record<string, number>>;
 
 type Props = {
-  /** Map of categorySlug -> match count given current search/trending filters. */
   counts: Counts;
-  /** Total count for the "All" chip. */
   total: number;
   isLoading?: boolean;
 };
@@ -56,7 +54,6 @@ export function MarketsCategoryRail({ counts, total, isLoading }: Props) {
 
   return (
     <div className="relative">
-      {/* fade left */}
       <div
         aria-hidden
         className={cn(
@@ -64,7 +61,6 @@ export function MarketsCategoryRail({ counts, total, isLoading }: Props) {
           edges.left ? "opacity-100" : "opacity-0",
         )}
       />
-      {/* fade right */}
       <div
         aria-hidden
         className={cn(
@@ -73,13 +69,12 @@ export function MarketsCategoryRail({ counts, total, isLoading }: Props) {
         )}
       />
 
-      {/* arrow controls */}
       {edges.left ? (
         <button
           type="button"
           aria-label="Scroll categories left"
           onClick={() => scrollBy(-220)}
-          className="absolute left-1 top-1/2 z-20 hidden -translate-y-1/2 items-center justify-center rounded-full bg-black/60 p-1 text-zinc-300 ring-1 ring-white/10 backdrop-blur transition hover:bg-black/80 hover:text-white sm:inline-flex"
+          className="absolute left-1 top-1/2 z-20 hidden -translate-y-1/2 items-center justify-center rounded-full bg-[var(--hub-card)] p-1 text-[var(--hub-muted)] ring-1 ring-[var(--hub-border)] backdrop-blur transition hover:text-[var(--hub-fg)] sm:inline-flex"
         >
           <ChevronLeft className="h-3.5 w-3.5" />
         </button>
@@ -89,7 +84,7 @@ export function MarketsCategoryRail({ counts, total, isLoading }: Props) {
           type="button"
           aria-label="Scroll categories right"
           onClick={() => scrollBy(220)}
-          className="absolute right-1 top-1/2 z-20 hidden -translate-y-1/2 items-center justify-center rounded-full bg-black/60 p-1 text-zinc-300 ring-1 ring-white/10 backdrop-blur transition hover:bg-black/80 hover:text-white sm:inline-flex"
+          className="absolute right-1 top-1/2 z-20 hidden -translate-y-1/2 items-center justify-center rounded-full bg-[var(--hub-card)] p-1 text-[var(--hub-muted)] ring-1 ring-[var(--hub-border)] backdrop-blur transition hover:text-[var(--hub-fg)] sm:inline-flex"
         >
           <ChevronRight className="h-3.5 w-3.5" />
         </button>
@@ -118,14 +113,14 @@ export function MarketsCategoryRail({ counts, total, isLoading }: Props) {
               className={cn(
                 "relative inline-flex shrink-0 items-center gap-1 whitespace-nowrap rounded-md px-2 py-1 text-[11px] font-medium transition",
                 isActive
-                  ? "text-white"
-                  : "text-zinc-400 hover:bg-white/[0.04] hover:text-zinc-100",
+                  ? "text-[var(--hub-fg)]"
+                  : "text-[var(--hub-muted)] hover:bg-[var(--hub-primary-soft)]/50 hover:text-[var(--hub-fg)]",
               )}
             >
               {isActive ? (
                 <motion.span
                   layoutId="markets-category-pill"
-                  className="absolute inset-0 rounded-lg bg-white/[0.08] ring-1 ring-cyan-400/30"
+                  className="absolute inset-0 rounded-lg bg-[var(--hub-primary-soft)] ring-1 ring-[var(--hub-border-strong)]"
                   transition={{ type: "spring", stiffness: 420, damping: 32 }}
                 />
               ) : null}
@@ -133,7 +128,7 @@ export function MarketsCategoryRail({ counts, total, isLoading }: Props) {
                 <Icon
                   className={cn(
                     "h-3.5 w-3.5",
-                    isActive ? "text-cyan-300" : "text-zinc-500",
+                    isActive ? "text-[var(--hub-primary-bright)]" : "text-[var(--hub-muted)]",
                   )}
                 />
                 {cat.name}
@@ -141,8 +136,8 @@ export function MarketsCategoryRail({ counts, total, isLoading }: Props) {
                   className={cn(
                     "rounded-md px-1.5 py-px font-mono text-[10px] font-semibold tabular-nums leading-none",
                     isActive
-                      ? "bg-cyan-500/15 text-cyan-200 ring-1 ring-cyan-400/25"
-                      : "bg-white/[0.05] text-zinc-400 ring-1 ring-white/[0.06]",
+                      ? "bg-[var(--hub-primary)]/20 text-[var(--hub-primary-bright)] ring-1 ring-[var(--hub-border)]"
+                      : "bg-[var(--hub-track-bg)] text-[var(--hub-muted)] ring-1 ring-[var(--hub-border)]",
                   )}
                 >
                   {count}

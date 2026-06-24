@@ -27,17 +27,17 @@ function SidebarPanel({
   return (
     <div
       className={cn(
-        "surface-terminal overflow-hidden rounded-lg border border-white/[0.06] shadow-none ring-1 ring-white/[0.04]",
+        "overflow-hidden rounded-lg border border-[var(--hub-border)] bg-[var(--hub-bg-subtle)]",
         className,
       )}
     >
-      <div className="flex items-center gap-1.5 border-b border-white/[0.06] px-2 py-1">
-        <Icon className="h-3 w-3 shrink-0 text-zinc-500" aria-hidden />
-        <span className="truncate text-[9px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
+      <div className="flex items-center gap-1.5 border-b border-[var(--hub-border)] px-2 py-1.5">
+        <Icon className="h-3 w-3 shrink-0 text-[var(--hub-muted)]" aria-hidden />
+        <span className="truncate text-[9px] font-semibold uppercase tracking-[0.14em] text-[var(--hub-muted)]">
           {title}
         </span>
       </div>
-      <div className="scrollbar-terminal max-h-[min(38vh,260px)] overflow-y-auto px-1.5 py-1.5">
+      <div className="max-h-[min(38vh,260px)] overflow-y-auto px-1.5 py-1.5">
         {children}
       </div>
     </div>
@@ -84,7 +84,7 @@ export function MarketsExplorerSidebar({
     >
       <SidebarPanel title="Live activity" icon={Activity}>
         {recentTrades.length === 0 ? (
-          <p className="px-1 py-2 text-center text-[10px] text-zinc-600">
+          <p className="px-1 py-2 text-center text-[10px] text-[var(--hub-muted)]">
             Waiting for fills…
           </p>
         ) : (
@@ -95,25 +95,25 @@ export function MarketsExplorerSidebar({
               const yes = t.outcome === "YES";
               return (
                 <li key={t.id}>
-                  <div className="rounded-md px-1 py-0.5 hover:bg-white/[0.04]">
+                  <div className="rounded-md px-1 py-0.5 hover:bg-[var(--hub-primary-soft)]/40">
                     <div className="flex items-start gap-1">
                       <span
                         className={cn(
                           "mt-0.5 h-1.5 w-1.5 shrink-0 rounded-full",
-                          yes ? "bg-cyan-400/90" : "bg-rose-400/90",
+                          yes ? "bg-[var(--hub-primary-bright)]" : "bg-[var(--hub-danger)]",
                         )}
                         aria-hidden
                       />
                       <div className="min-w-0 flex-1">
-                        <p className="text-[10px] font-medium leading-snug text-zinc-200">
-                          <span className={cn(yes ? "text-cyan-300/95" : "text-rose-300/95")}>
+                        <p className="text-[10px] font-medium leading-snug text-[var(--hub-fg)]">
+                          <span className={yes ? "text-[var(--hub-primary-bright)]" : "text-[var(--hub-danger)]"}>
                             {t.side === "SELL" ? "Sell " : "Buy "}
                             {t.outcome}
                           </span>
-                          <span className="text-zinc-600"> · </span>
-                          <span className="text-zinc-400">{short}</span>
+                          <span className="text-[var(--hub-muted)]"> · </span>
+                          <span className="text-[var(--hub-muted)]">{short}</span>
                         </p>
-                        <p className="mt-0.5 font-mono text-[9px] tabular-nums text-zinc-600">
+                        <p className="mt-0.5 font-mono text-[9px] tabular-nums text-[var(--hub-muted)]">
                           {formatCompactUsd(t.notionalUsd)}
                         </p>
                       </div>
@@ -128,7 +128,7 @@ export function MarketsExplorerSidebar({
 
       <SidebarPanel title="Top movers" icon={TrendingUp}>
         {movers.length === 0 ? (
-          <p className="px-1 py-2 text-center text-[10px] text-zinc-600">
+          <p className="px-1 py-2 text-center text-[10px] text-[var(--hub-muted)]">
             No markets in view.
           </p>
         ) : (
@@ -140,15 +140,15 @@ export function MarketsExplorerSidebar({
                   <Link
                     href={ROUTES.market(m.slug)}
                     prefetch
-                    className="flex items-center gap-2 rounded-md px-1 py-1 transition hover:bg-white/[0.05]"
+                    className="flex items-center gap-2 rounded-md px-1 py-1 transition hover:bg-[var(--hub-primary-soft)]/40"
                   >
-                    <span className="min-w-0 flex-1 truncate text-[10.5px] font-medium leading-tight text-zinc-200">
+                    <span className="min-w-0 flex-1 truncate text-[10.5px] font-medium leading-tight text-[var(--hub-fg)]">
                       {m.title}
                     </span>
-                    <span className="shrink-0 font-mono text-[10px] tabular-nums text-cyan-300/90">
+                    <span className="shrink-0 font-mono text-[10px] tabular-nums text-[var(--hub-primary-bright)]">
                       {p}¢
                     </span>
-                    <span className="shrink-0 font-mono text-[9px] tabular-nums text-zinc-500">
+                    <span className="shrink-0 font-mono text-[9px] tabular-nums text-[var(--hub-muted)]">
                       {formatCompactUsd(m.volumeUsd ?? 0)}
                     </span>
                   </Link>
@@ -161,7 +161,7 @@ export function MarketsExplorerSidebar({
 
       <SidebarPanel title="Trending narratives" icon={Flame}>
         {narrativeHot.length === 0 ? (
-          <p className="px-1 py-2 text-center text-[10px] text-zinc-600">
+          <p className="px-1 py-2 text-center text-[10px] text-[var(--hub-muted)]">
             No volume leaders yet.
           </p>
         ) : (
@@ -171,13 +171,13 @@ export function MarketsExplorerSidebar({
                 <Link
                   href={ROUTES.market(m.slug)}
                   prefetch
-                  className="block rounded-md px-1 py-1 transition hover:bg-white/[0.05]"
+                  className="block rounded-md px-1 py-1 transition hover:bg-[var(--hub-primary-soft)]/40"
                 >
-                  <p className="line-clamp-2 text-[10px] font-medium leading-snug text-zinc-300">
+                  <p className="line-clamp-2 text-[10px] font-medium leading-snug text-[var(--hub-fg)]">
                     {m.title}
                   </p>
-                  <div className="mt-0.5 flex items-center gap-2 font-mono text-[9px] tabular-nums text-zinc-600">
-                    <span className="text-cyan-400/85">
+                  <div className="mt-0.5 flex items-center gap-2 font-mono text-[9px] tabular-nums text-[var(--hub-muted)]">
+                    <span className="text-[var(--hub-primary-bright)]">
                       {Math.round((m.probability ?? 0.5) * 100)}¢
                     </span>
                     <span>{formatCompactUsd(m.volumeUsd ?? 0)}</span>

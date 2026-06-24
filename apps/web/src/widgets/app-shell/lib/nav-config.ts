@@ -43,20 +43,29 @@ export type NavGroup = {
   items: NavItem[];
 };
 
-export function trendingQueryOn(
+export function liveTapeQueryOn(
   searchParams: Pick<URLSearchParams, "get"> | null | undefined,
 ): boolean {
+  const live = searchParams?.get("live");
+  if (live === "1" || live === "true") return true;
   const t = searchParams?.get("trending");
   return t === "1" || t === "true";
 }
 
-/** Trending tape on the directory explorer (`/markets?trending=1`). */
+/** @deprecated Use `liveTapeQueryOn` — legacy `trending` param. */
+export function trendingQueryOn(
+  searchParams: Pick<URLSearchParams, "get"> | null | undefined,
+): boolean {
+  return liveTapeQueryOn(searchParams);
+}
+
+/** Live-first sort on the directory explorer (`/markets?live=1`). */
 export function isTrendingTapeActive(
   pathname: string | null,
   searchParams: Pick<URLSearchParams, "get"> | null | undefined,
 ): boolean {
   if (!pathname) return false;
-  if (!trendingQueryOn(searchParams)) return false;
+  if (!liveTapeQueryOn(searchParams)) return false;
   return pathname === "/markets";
 }
 
@@ -77,7 +86,7 @@ export function isMarketsBrowseActive(
   if (pathname === ROUTES.dapp || pathname.startsWith(`${ROUTES.dapp}/`)) return false;
   if (pathname === ROUTES.attention || pathname.startsWith(`${ROUTES.attention}/`)) return false;
   if (pathname.startsWith("/markets/") && pathname !== "/markets") return true;
-  if (pathname === "/markets") return !trendingQueryOn(searchParams);
+  if (pathname === "/markets") return !liveTapeQueryOn(searchParams);
   if (pathname === ROUTES.discover || pathname.startsWith(`${ROUTES.discover}/`)) return true;
   return false;
 }

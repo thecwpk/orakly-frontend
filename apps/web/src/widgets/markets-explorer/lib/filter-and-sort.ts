@@ -4,9 +4,6 @@ import type { MarketsSort } from "@/features/markets/store/use-markets-filter-st
 export type FilterArgs = {
   searchTerm: string;
   category: string;
-  trendingOnly: boolean;
-  /** Set of marketIds currently considered "live" (recent activity). */
-  liveSet: ReadonlySet<string>;
   /** `0` disables the floor. */
   minLiquidityUsd: number;
   /** `0` disables the floor. */
@@ -36,14 +33,7 @@ function categoryMatches(m: Market, cat: string): boolean {
 
 export function filterMarkets(
   markets: ReadonlyArray<Market>,
-  {
-    searchTerm,
-    category,
-    trendingOnly,
-    liveSet,
-    minLiquidityUsd,
-    minVolumeUsd,
-  }: FilterArgs,
+  { searchTerm, category, minLiquidityUsd, minVolumeUsd }: FilterArgs,
 ): Market[] {
   const q = searchTerm.trim().toLowerCase();
   return markets.filter((m) => {
@@ -52,18 +42,26 @@ export function filterMarkets(
       const hay = `${m.title} ${m.category}`.toLowerCase();
       if (!hay.includes(q)) return false;
     }
-    if (trendingOnly && liveSet.size > 0 && !liveSet.has(m.id)) return false;
     if (minLiquidityUsd > 0 && (m.liquidityUsd ?? 0) < minLiquidityUsd) {
       return false;
     }
-    if (minVolumeUsd > 0 && (m.volumeUsd ?? 0) < minVolumeUsd) return false;
+    if (minVolumeUsd > 0 && (m.volumeUsd ?? 0) < minVolumeUsd) {
+      return false;
+    }
     return true;
   });
 }
 
+export type SortOptions = {
+  /** Pin markets with recent tape activity above the active sort. */
+  preferLive?: boolean;
+  liveSet?: ReadonlySet<string>;
+};
+
 export function sortMarkets(
   markets: ReadonlyArray<Market>,
   sort: MarketsSort,
+  opts?: SortOptions,
 ): Market[] {
   const copy = [...markets];
   switch (sort) {
@@ -87,11 +85,19 @@ export function sortMarkets(
       );
       break;
     case "newest":
-      // Mock: stable hash by id (newest at top); when a real createdAt exists, swap it.
       copy.reverse();
       break;
     default:
       break;
+  }
+  if (opts?.preferLive && opts.liveSet && opts.liveSet.size > 0) {
+    const live: Market[] = [];
+    const rest: Market[] = [];
+    for (const m of copy) {
+      if (opts.liveSet.has(m.id)) live.push(m);
+      else rest.push(m);
+    }
+    return [...live, ...rest];
   }
   return copy;
 }

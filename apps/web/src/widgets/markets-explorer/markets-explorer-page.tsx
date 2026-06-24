@@ -49,7 +49,8 @@ export function MarketsExplorerPage() {
   });
 
   const activeFeed = explorerFeed === "cross_hot" ? crossHotQ : directoryQ;
-  const { data, isLoading, isFetching, isError, refetch, dataUpdatedAt } = activeFeed;
+  const { data, isPending, isFetching, isError, refetch, dataUpdatedAt } = activeFeed;
+  const feedLoading = isPending && !data;
 
   const search = useMarketsFilterStore((s) => s.searchTerm);
   const category = useMarketsFilterStore((s) => s.category);
@@ -77,12 +78,10 @@ export function MarketsExplorerPage() {
     () =>
       ({
         searchTerm: search,
-        trendingOnly,
-        liveSet,
         minLiquidityUsd,
         minVolumeUsd,
       }) as const,
-    [search, trendingOnly, liveSet, minLiquidityUsd, minVolumeUsd],
+    [search, minLiquidityUsd, minVolumeUsd],
   );
 
   // ── Per-category counts respect search + trending toggle so the rail
@@ -112,8 +111,11 @@ export function MarketsExplorerPage() {
       ...filterBase,
       category,
     });
-    return sortMarkets(filtered, sort);
-  }, [all, filterBase, category, sort]);
+    return sortMarkets(filtered, sort, {
+      preferLive: trendingOnly,
+      liveSet,
+    });
+  }, [all, filterBase, category, sort, trendingOnly, liveSet]);
 
   const featuredIds = useMemo(
     () => new Set(ranked.slice(0, 2).map((m) => m.id)),
@@ -133,7 +135,7 @@ export function MarketsExplorerPage() {
   const { sentinelRef } = useInfiniteScroll<HTMLDivElement>({
     hasMore,
     onLoadMore: loadMore,
-    disabled: isLoading,
+    disabled: feedLoading,
   });
 
   const visibleIdsKey = useMemo(
@@ -178,9 +180,7 @@ export function MarketsExplorerPage() {
     [ranked, liveSet],
   );
 
-  const empty = !isLoading && !isError && ranked.length === 0;
-  const trendingFilteredEmpty =
-    empty && trendingOnly && all.length > 0 && liveSet.size === 0;
+  const empty = !feedLoading && !isError && ranked.length === 0;
   const showingCount = visible.length;
   const totalCount = ranked.length;
 
@@ -254,14 +254,14 @@ export function MarketsExplorerPage() {
         </header>
 
         {explorerFeed === "cross_hot" ?
-          <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-cyan-500/20 bg-cyan-500/[0.07] px-4 py-3 text-[12px] text-cyan-50/95">
+          <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-[var(--hub-border-strong)] bg-[var(--hub-primary-soft)] px-4 py-3 text-[12px] text-[var(--hub-fg)]">
             <span>
-              Showing <strong className="font-semibold text-white">cross-hot</strong> — crypto-linked momentum from the
+              Showing <strong className="font-semibold">cross-hot</strong> — crypto-linked momentum from the
               server-ranked feed. Category and search still refine this slice.
             </span>
             <button
               type="button"
-              className="shrink-0 rounded-md bg-white/[0.08] px-3 py-1.5 text-[11px] font-semibold text-white ring-1 ring-white/15 transition hover:bg-white/[0.14]"
+              className="shrink-0 rounded-md bg-[var(--hub-card)] px-3 py-1.5 text-[11px] font-semibold ring-1 ring-[var(--hub-border)] transition hover:bg-[var(--hub-card-hover)]"
               onClick={() => setExplorerFeed(null)}
             >
               Full directory
@@ -287,16 +287,16 @@ export function MarketsExplorerPage() {
                   totalCount={totalCount}
                   visibleCount={showingCount}
                   liveCount={liveCount}
-                  isLoading={isLoading}
+                  isLoading={feedLoading}
                 />
-                <MarketsCategoryRail counts={counts} total={totalForAll} isLoading={isLoading} />
+                <MarketsCategoryRail counts={counts} total={totalForAll} isLoading={feedLoading} />
                 <MarketsExplorerDiscoveryStrip
                   lensMarkets={ranked}
                   totalLoaded={all.length}
                   liveCount={rankedLiveCount}
                   updatedLabel={updatedAtLabel}
                   isFetching={isFetching}
-                  isLoading={isLoading}
+                  isLoading={feedLoading}
                 />
               </Stack>
             </div>
@@ -304,7 +304,7 @@ export function MarketsExplorerPage() {
             {/* ──────────────────────────────── content */}
             {isError ? (
               <ErrorPanel onRetry={() => void refetch()} />
-            ) : isLoading ? (
+            ) : feedLoading ? (
               viewMode === "grid" ? (
                 <TrendingMarketGridSkeleton count={18} compact />
               ) : (
@@ -313,7 +313,6 @@ export function MarketsExplorerPage() {
             ) : empty ? (
               <EmptyState
                 onClear={reset}
-                trendingTapeIdle={trendingFilteredEmpty}
                 hasFilters={
                   search.length > 0 ||
                   category !== "all" ||
@@ -374,14 +373,14 @@ export function MarketsExplorerPage() {
             )}
 
             {/* sentinel + load more affordance */}
-            {!isError && !isLoading && !empty ? (
+            {!isError && !feedLoading && !empty ? (
               <div className="flex flex-col items-center gap-r8 pb-r8 pt-r8">
                 {hasMore ? (
                   <>
                     <button
                       type="button"
                       onClick={() => loadMore()}
-                      className="inline-flex items-center gap-1.5 rounded-lg bg-white/[0.04] px-3 py-1.5 text-[12px] font-medium text-zinc-300 ring-1 ring-white/[0.08] transition hover:bg-white/[0.08] hover:text-white"
+                      className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--hub-bg-subtle)] px-3 py-1.5 text-[12px] font-medium text-[var(--hub-fg)] ring-1 ring-[var(--hub-border)] transition hover:bg-[var(--hub-primary-soft)]"
                     >
                       <Loader2 className="h-3.5 w-3.5 opacity-70" />
                       Load more · {totalCount - showingCount} remaining
@@ -390,9 +389,9 @@ export function MarketsExplorerPage() {
                     <div ref={sentinelRef} aria-hidden className="h-1 w-full" />
                   </>
                 ) : (
-                  <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-zinc-600">
+                  <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-[var(--hub-muted)]">
                     — End of list ·{" "}
-                    <span className="text-zinc-400">{totalCount}</span> markets —
+                    <span className="text-[var(--hub-fg)]">{totalCount}</span> markets —
                   </p>
                 )}
               </div>
@@ -415,11 +414,10 @@ export function MarketsExplorerPage() {
 
 function ListContainer({ children }: { children: React.ReactNode }) {
   return (
-    <div className="surface-terminal overflow-hidden rounded-lg">
-      <div className="scrollbar-terminal overflow-x-auto">
+    <div className="overflow-hidden rounded-lg border border-[var(--hub-border)] bg-[var(--hub-bg-subtle)]">
+      <div className="overflow-x-auto">
         <div className="min-w-[880px]">
-          {/* dense table header */}
-          <div className="grid items-center gap-r8 border-b border-white/[0.06] px-r8 py-r16 text-[9px] font-semibold uppercase tracking-[0.16em] text-zinc-600 [grid-template-columns:34px_minmax(0,1fr)_minmax(0,11rem)_5.5rem_5rem_4.5rem_2.25rem_5rem]">
+          <div className="grid items-center gap-r8 border-b border-[var(--hub-border)] px-r8 py-r16 text-[9px] font-semibold uppercase tracking-[0.16em] text-[var(--hub-muted)] [grid-template-columns:34px_minmax(0,1fr)_minmax(0,11rem)_5.5rem_5rem_4.5rem_2.25rem_5rem]">
             <span>#</span>
             <span>Market</span>
             <span>Probability</span>
@@ -462,37 +460,31 @@ function ErrorPanel({ onRetry }: { onRetry: () => void }) {
 
 function EmptyState({
   hasFilters,
-  trendingTapeIdle,
   onClear,
 }: {
   hasFilters: boolean;
-  trendingTapeIdle?: boolean;
   onClear: () => void;
 }) {
   return (
     <div className="flex flex-col items-center gap-r16 rounded-lg border border-[var(--hub-border)] bg-[var(--hub-bg-subtle)] px-r16 py-s56 text-center">
       <p className="text-[12px] font-medium text-[var(--hub-fg)]">
-        {trendingTapeIdle
-          ? "Live tape is idle — no recent fills to rank."
-          : "No markets match filters."}
+        No markets match filters.
       </p>
       <p className="max-w-md text-[11px] leading-snug text-[var(--hub-muted)]">
-        {trendingTapeIdle
-          ? "Turn off Trending only to browse the full directory, or wait for live activity."
-          : "Clear search, category, trending toggle, or liquidity/volume floors."}
+        Clear search, category, live-first toggle, or liquidity/volume floors.
       </p>
       {hasFilters ? (
         <button
           type="button"
           onClick={onClear}
-          className="rounded-md bg-white/[0.06] px-3 py-1.5 text-[12px] font-medium text-zinc-200 ring-1 ring-white/[0.08] transition hover:bg-white/[0.1]"
+          className="rounded-md bg-[var(--hub-primary-soft)] px-3 py-1.5 text-[12px] font-medium text-[var(--hub-fg)] ring-1 ring-[var(--hub-border)] transition hover:bg-[var(--hub-primary)]/25"
         >
           Reset filters
         </button>
       ) : (
         <Link
           href={ROUTES.marketCreate}
-          className="inline-flex items-center gap-1.5 rounded-md bg-cyan-400/15 px-3 py-1.5 text-[12px] font-semibold text-cyan-200 ring-1 ring-cyan-400/30 transition hover:bg-cyan-400/25"
+          className="inline-flex items-center gap-1.5 rounded-md bg-[var(--hub-primary-soft)] px-3 py-1.5 text-[12px] font-semibold text-[var(--hub-primary-bright)] ring-1 ring-[var(--hub-border-strong)] transition hover:bg-[var(--hub-primary)]/25"
         >
           <Plus className="h-3.5 w-3.5" />
           Create the first market
