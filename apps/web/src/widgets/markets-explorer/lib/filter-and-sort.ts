@@ -52,7 +52,7 @@ export function filterMarkets(
       const hay = `${m.title} ${m.category}`.toLowerCase();
       if (!hay.includes(q)) return false;
     }
-    if (trendingOnly && !liveSet.has(m.id)) return false;
+    if (trendingOnly && liveSet.size > 0 && !liveSet.has(m.id)) return false;
     if (minLiquidityUsd > 0 && (m.liquidityUsd ?? 0) < minLiquidityUsd) {
       return false;
     }

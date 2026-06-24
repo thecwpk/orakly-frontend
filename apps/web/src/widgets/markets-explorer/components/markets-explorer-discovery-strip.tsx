@@ -30,6 +30,7 @@ type Props = {
   liveCount: number;
   updatedLabel: string | null;
   isFetching: boolean;
+  isLoading?: boolean;
 };
 
 /**
@@ -41,6 +42,7 @@ export function MarketsExplorerDiscoveryStrip({
   liveCount,
   updatedLabel,
   isFetching,
+  isLoading,
 }: Props) {
   const { connectionStatus } = useSocketRegistry();
 
@@ -63,7 +65,7 @@ export function MarketsExplorerDiscoveryStrip({
   return (
     <div
       className={cn(
-        "flex flex-col gap-1 border-t border-white/[0.06] bg-black/25 px-2 py-1.5",
+        "flex flex-col gap-1 border-t border-[var(--hub-border)] bg-[var(--hub-bg-subtle)]/80 px-2 py-1.5",
         "supports-[backdrop-filter]:backdrop-blur-sm",
       )}
       aria-label="Discovery status and lens sentiment"
@@ -71,7 +73,9 @@ export function MarketsExplorerDiscoveryStrip({
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[10px] font-medium uppercase tracking-[0.12em] text-zinc-500">
         <span className="inline-flex items-center gap-1">
           <Database className="h-3 w-3 text-zinc-600" aria-hidden />
-          <span className="font-mono tabular-nums text-zinc-300">{totalLoaded}</span>
+          <span className="font-mono tabular-nums text-[var(--hub-fg)]">
+            {isLoading ? "—" : totalLoaded}
+          </span>
           <span className="normal-case tracking-normal text-zinc-600">loaded</span>
         </span>
 

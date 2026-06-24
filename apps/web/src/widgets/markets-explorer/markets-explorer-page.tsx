@@ -3,7 +3,7 @@
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { Activity, Loader2, Plus, RefreshCw } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { MARKET_CATEGORIES } from "@/features/markets/lib/categories";
 import { useMarketsFilterStore } from "@/features/markets/store/use-markets-filter-store";
@@ -146,8 +146,13 @@ export function MarketsExplorerPage() {
     [visibleIdsKey],
   );
 
-  // Scroll to top when filters change so users land on freshly-ranked top picks.
+  // Scroll to top when filters change — skip the first hydration pass from URL/store.
+  const skipScrollRef = useRef(true);
   useEffect(() => {
+    if (skipScrollRef.current) {
+      skipScrollRef.current = false;
+      return;
+    }
     if (typeof window !== "undefined") {
       window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
     }
@@ -174,6 +179,8 @@ export function MarketsExplorerPage() {
   );
 
   const empty = !isLoading && !isError && ranked.length === 0;
+  const trendingFilteredEmpty =
+    empty && trendingOnly && all.length > 0 && liveSet.size === 0;
   const showingCount = visible.length;
   const totalCount = ranked.length;
 
@@ -204,18 +211,18 @@ export function MarketsExplorerPage() {
     <Section spacing="tight" width="2xl">
       <Stack gap="lg">
         {/* ──────────────────────────────── header */}
-        <header className="flex flex-col gap-r16 border-b border-app-subtle pb-r16 lg:flex-row lg:items-center lg:justify-between">
+        <header className="flex flex-col gap-r16 border-b border-[var(--hub-border)] pb-r16 lg:flex-row lg:items-center lg:justify-between">
           <div className="min-w-0">
             <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-              <h1 className="text-balance text-lg font-semibold tracking-tight text-white sm:text-xl">
+              <h1 className="text-balance text-lg font-semibold tracking-tight text-[var(--hub-fg)] sm:text-xl">
                 Markets
               </h1>
               {updatedAtLabel ? (
-                <span className="font-mono text-[10px] text-zinc-500">
+                <span className="font-mono text-[10px] text-[var(--hub-muted)]">
                   feed · updated {updatedAtLabel}
                 </span>
               ) : (
-                <span className="font-mono text-[10px] text-zinc-600">live explorer</span>
+                <span className="font-mono text-[10px] text-[var(--hub-muted)]/80">live explorer</span>
               )}
             </div>
           </div>
@@ -227,8 +234,8 @@ export function MarketsExplorerPage() {
               disabled={isFetching}
               aria-label="Refresh markets"
               className={cn(
-                "inline-flex h-8 w-8 items-center justify-center rounded-md bg-white/[0.04] text-zinc-300 ring-1 ring-white/[0.08] transition",
-                "hover:bg-white/[0.08] hover:text-white",
+                "inline-flex h-8 w-8 items-center justify-center rounded-md bg-[var(--hub-bg-subtle)] text-[var(--hub-muted)] ring-1 ring-[var(--hub-border)] transition",
+                "hover:bg-[var(--hub-primary-soft)] hover:text-[var(--hub-fg)]",
                 "disabled:cursor-not-allowed disabled:opacity-60",
               )}
             >
@@ -238,7 +245,7 @@ export function MarketsExplorerPage() {
             </button>
             <Link
               href={ROUTES.marketCreate}
-              className="inline-flex h-9 items-center gap-1 rounded-lg bg-white/[0.05] px-3 text-[11.5px] font-semibold text-zinc-200 ring-1 ring-white/[0.1] transition hover:bg-white/[0.09]"
+              className="inline-flex h-9 items-center gap-1 rounded-lg bg-[var(--hub-primary-soft)] px-3 text-[11.5px] font-semibold text-[var(--hub-fg)] ring-1 ring-[var(--hub-border-strong)] transition hover:bg-[var(--hub-primary)]/25"
             >
               <Plus className="h-3.5 w-3.5" />
               Create market
@@ -272,7 +279,7 @@ export function MarketsExplorerPage() {
             <div
               style={appStickyToolbarBleedStyle}
               className={cn(
-                "sticky top-[var(--app-topbar-h)] z-30 border-b border-app-subtle bg-app-chrome backdrop-blur-md supports-[backdrop-filter]:backdrop-blur-xl",
+                "sticky top-[var(--app-topbar-h)] z-30 border-b border-[var(--hub-border)] bg-[var(--hub-chrome)]/95 backdrop-blur-md supports-[backdrop-filter]:backdrop-blur-xl",
               )}
             >
               <Stack gap="xs" className="py-r16">
@@ -280,14 +287,16 @@ export function MarketsExplorerPage() {
                   totalCount={totalCount}
                   visibleCount={showingCount}
                   liveCount={liveCount}
+                  isLoading={isLoading}
                 />
-                <MarketsCategoryRail counts={counts} total={totalForAll} />
+                <MarketsCategoryRail counts={counts} total={totalForAll} isLoading={isLoading} />
                 <MarketsExplorerDiscoveryStrip
                   lensMarkets={ranked}
                   totalLoaded={all.length}
                   liveCount={rankedLiveCount}
                   updatedLabel={updatedAtLabel}
                   isFetching={isFetching}
+                  isLoading={isLoading}
                 />
               </Stack>
             </div>
@@ -304,6 +313,7 @@ export function MarketsExplorerPage() {
             ) : empty ? (
               <EmptyState
                 onClear={reset}
+                trendingTapeIdle={trendingFilteredEmpty}
                 hasFilters={
                   search.length > 0 ||
                   category !== "all" ||
@@ -452,18 +462,24 @@ function ErrorPanel({ onRetry }: { onRetry: () => void }) {
 
 function EmptyState({
   hasFilters,
+  trendingTapeIdle,
   onClear,
 }: {
   hasFilters: boolean;
+  trendingTapeIdle?: boolean;
   onClear: () => void;
 }) {
   return (
-    <div className="flex flex-col items-center gap-r16 rounded-lg bg-white/[0.02] px-r16 py-s56 text-center ring-1 ring-white/[0.05]">
-      <p className="text-[12px] font-medium text-zinc-200">
-        No markets match filters.
+    <div className="flex flex-col items-center gap-r16 rounded-lg border border-[var(--hub-border)] bg-[var(--hub-bg-subtle)] px-r16 py-s56 text-center">
+      <p className="text-[12px] font-medium text-[var(--hub-fg)]">
+        {trendingTapeIdle
+          ? "Live tape is idle — no recent fills to rank."
+          : "No markets match filters."}
       </p>
-      <p className="max-w-md text-[11px] leading-snug text-zinc-500">
-        Clear search, category, trending toggle, or liquidity/volume floors.
+      <p className="max-w-md text-[11px] leading-snug text-[var(--hub-muted)]">
+        {trendingTapeIdle
+          ? "Turn off Trending only to browse the full directory, or wait for live activity."
+          : "Clear search, category, trending toggle, or liquidity/volume floors."}
       </p>
       {hasFilters ? (
         <button

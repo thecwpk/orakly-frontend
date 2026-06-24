@@ -97,15 +97,22 @@ export const useMarketsFilterStore = create<MarketsFilterStore>()(
     }),
     {
       name: "orakly:markets-filter",
-      version: 4,
+      version: 5,
       // Don't persist the search term — that comes from the URL on each visit.
       // Liquidity/volume floors are URL-synced only (`?minLiq=` / `?minVol=`) for shareable links.
       partialize: (s) => ({
         category: s.category,
         sort: s.sort,
-        trendingOnly: s.trendingOnly,
         viewMode: s.viewMode,
       }),
+      migrate: (persisted, version) => {
+        if (version < 5 && persisted && typeof persisted === "object") {
+          const rest = { ...(persisted as Record<string, unknown>) };
+          delete rest.trendingOnly;
+          return rest;
+        }
+        return persisted;
+      },
     },
   ),
 );

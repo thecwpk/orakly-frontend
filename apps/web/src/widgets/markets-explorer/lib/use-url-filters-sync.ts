@@ -55,7 +55,7 @@ export function useUrlFiltersSync() {
 
   useEffect(() => {
     const q = params?.get("q") ?? "";
-    const cat = params?.get("cat") ?? "all";
+    const cat = params?.get("cat") ?? params?.get("category") ?? "all";
     const s = params?.get("sort");
     const t = params?.get("trending");
     const ml = parseUsdFloor(params?.get("minLiq"));

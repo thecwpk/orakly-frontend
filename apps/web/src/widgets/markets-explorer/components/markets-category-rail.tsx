@@ -14,11 +14,12 @@ type Props = {
   counts: Counts;
   /** Total count for the "All" chip. */
   total: number;
+  isLoading?: boolean;
 };
 
 const ALL = { slug: "all", name: "All", icon: Sparkles } as const;
 
-export function MarketsCategoryRail({ counts, total }: Props) {
+export function MarketsCategoryRail({ counts, total, isLoading }: Props) {
   const active = useMarketsFilterStore((s) => s.category);
   const setCategory = useMarketsFilterStore((s) => s.setCategory);
 
@@ -59,7 +60,7 @@ export function MarketsCategoryRail({ counts, total }: Props) {
       <div
         aria-hidden
         className={cn(
-          "pointer-events-none absolute left-0 top-0 z-10 h-full w-10 bg-gradient-to-r from-[#06060a] to-transparent transition-opacity",
+          "pointer-events-none absolute left-0 top-0 z-10 h-full w-10 bg-gradient-to-r from-[var(--hub-chrome)] to-transparent transition-opacity",
           edges.left ? "opacity-100" : "opacity-0",
         )}
       />
@@ -67,7 +68,7 @@ export function MarketsCategoryRail({ counts, total }: Props) {
       <div
         aria-hidden
         className={cn(
-          "pointer-events-none absolute right-0 top-0 z-10 h-full w-10 bg-gradient-to-l from-[#06060a] to-transparent transition-opacity",
+          "pointer-events-none absolute right-0 top-0 z-10 h-full w-10 bg-gradient-to-l from-[var(--hub-chrome)] to-transparent transition-opacity",
           edges.right ? "opacity-100" : "opacity-0",
         )}
       />
@@ -99,14 +100,14 @@ export function MarketsCategoryRail({ counts, total }: Props) {
         role="tablist"
         aria-label="Filter markets by category"
         className={cn(
-          "flex items-center gap-1 overflow-x-auto rounded-lg bg-black/25 p-1 ring-1 ring-white/[0.06]",
+          "flex items-center gap-1 overflow-x-auto rounded-lg bg-[var(--hub-bg-subtle)] p-1 ring-1 ring-[var(--hub-border)]",
           "[scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden",
         )}
       >
         {[ALL, ...MARKET_CATEGORIES].map((cat) => {
           const isActive = active === cat.slug;
           const Icon = cat.icon;
-          const count = cat.slug === "all" ? total : (counts[cat.slug] ?? 0);
+          const count = isLoading ? "—" : cat.slug === "all" ? total : (counts[cat.slug] ?? 0);
           return (
             <button
               key={cat.slug}

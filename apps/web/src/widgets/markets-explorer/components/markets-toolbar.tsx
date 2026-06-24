@@ -33,6 +33,7 @@ type Props = {
   visibleCount: number;
   /** Number of markets currently flagged as "live". */
   liveCount?: number;
+  isLoading?: boolean;
 };
 
 /** Debounce a Zustand store write so typing doesn't thrash filter recompute. */
@@ -231,17 +232,25 @@ function ResultPill({
   visibleCount,
   totalCount,
   liveCount,
+  isLoading,
 }: {
   visibleCount: number;
   totalCount: number;
   liveCount?: number;
+  isLoading?: boolean;
 }) {
   return (
-    <div className="hidden items-center gap-2 text-[11px] text-zinc-500 sm:flex">
+    <div className="hidden items-center gap-2 text-[11px] text-[var(--hub-muted)] sm:flex">
       <span className="font-mono tabular-nums">
-        <span className="font-semibold text-zinc-300">{visibleCount}</span>
-        <span className="text-zinc-600">/</span>
-        <span>{totalCount}</span>
+        {isLoading ? (
+          <span className="text-[var(--hub-muted)]">Loading…</span>
+        ) : (
+          <>
+            <span className="font-semibold text-[var(--hub-fg)]">{visibleCount}</span>
+            <span className="text-[var(--hub-muted)]/60">/</span>
+            <span>{totalCount}</span>
+          </>
+        )}
       </span>
       <span className="text-zinc-700">·</span>
       <span>markets</span>
@@ -262,6 +271,7 @@ export function MarketsToolbar({
   totalCount,
   visibleCount,
   liveCount,
+  isLoading,
 }: Props) {
   const search = useMarketsFilterStore((s) => s.searchTerm);
   const setSearch = useMarketsFilterStore((s) => s.setSearchTerm);
@@ -365,6 +375,7 @@ export function MarketsToolbar({
           visibleCount={visibleCount}
           totalCount={totalCount}
           liveCount={liveCount}
+          isLoading={isLoading}
         />
       </div>
     </div>
