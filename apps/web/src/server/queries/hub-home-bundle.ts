@@ -24,17 +24,41 @@ export type HubHomeBundle = {
   suggestions: MarketSuggestionRow[];
 };
 
-/** Server-side bundle for /dapp — avoids empty client shell when API cache was stale. */
+export const EMPTY_HUB_HOME_BUNDLE: HubHomeBundle = {
+  stats: {
+    activeNarratives: 0,
+    liveMarkets: 0,
+    volume24hUsd: 0,
+    attentionUpdates24h: 0,
+  },
+  attention: [],
+  narrativeWars: [],
+  conviction: [],
+  trending: [],
+  categories: [],
+  suggestions: [],
+};
+
+async function settle<T>(label: string, fn: () => Promise<T>, fallback: T): Promise<T> {
+  try {
+    return await fn();
+  } catch (err) {
+    console.error(`[hub-home-bundle] ${label} failed`, err);
+    return fallback;
+  }
+}
+
+/** Server-side bundle for /dapp — tolerates partial DB outages (e.g. Neon quota). */
 export async function loadHubHomeBundle(): Promise<HubHomeBundle> {
   const [stats, attention, narrativeWars, conviction, trending, categories, suggestions] =
     await Promise.all([
-      getHomeStats(),
-      getAttentionDashboardRows(),
-      getNarrativeWars(),
-      getConvictionMarkets(6),
-      getHubTrendingMarkets(20),
-      getCategoriesOverview(),
-      getPublicMarketSuggestions(5),
+      settle("stats", () => getHomeStats(), EMPTY_HUB_HOME_BUNDLE.stats),
+      settle("attention", () => getAttentionDashboardRows(), []),
+      settle("narrativeWars", () => getNarrativeWars(), []),
+      settle("conviction", () => getConvictionMarkets(6), []),
+      settle("trending", () => getHubTrendingMarkets(20), []),
+      settle("categories", () => getCategoriesOverview(), []),
+      settle("suggestions", () => getPublicMarketSuggestions(5), []),
     ]);
 
   return {
