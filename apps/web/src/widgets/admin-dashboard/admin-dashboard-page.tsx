@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import {
   AdminApiError,
   adminLogout,
+  adminMeQueryKey,
   type AdminMe,
 } from "./lib/admin-api";
 import {
@@ -30,11 +31,15 @@ import { AdminModerationTab } from "./tabs/moderation-tab";
 import { AdminAnalyticsTab } from "./tabs/analytics-tab";
 import { AdminUsersTab } from "./tabs/users-tab";
 import { AdminCategoriesTab } from "./tabs/categories-tab";
+import { useAdminWalletBootstrap } from "./hooks/use-admin-wallet-bootstrap";
+import { ROUTES } from "@/shared/constants/routes";
 
 export function AdminDashboardPage() {
   const router = useRouter();
   const meQ = useAdminMeQuery(true);
   const qc = useQueryClient();
+  const { state: bootstrapState, walletOperator, bootstrap } =
+    useAdminWalletBootstrap(ROUTES.adminDashboard);
 
   // Bootstrap-style redirect when the cookie is missing/expired.
   useEffect(() => {
@@ -43,9 +48,25 @@ export function AdminDashboardPage() {
       meQ.error instanceof AdminApiError &&
       meQ.error.status === 401
     ) {
-      router.replace("/admin/login");
+      if (bootstrapState === "booting") return;
+      if (walletOperator) {
+        void bootstrap().then((ok) => {
+          if (ok) void qc.invalidateQueries({ queryKey: adminMeQueryKey });
+          else router.replace(ROUTES.adminLogin);
+        });
+        return;
+      }
+      router.replace(ROUTES.adminLogin);
     }
-  }, [meQ.isError, meQ.error, router]);
+  }, [
+    bootstrap,
+    bootstrapState,
+    meQ.error,
+    meQ.isError,
+    qc,
+    router,
+    walletOperator,
+  ]);
 
   const me: AdminMe | undefined = meQ.data;
   const permissions = useMemo(() => me?.permissions ?? [], [me?.permissions]);
@@ -73,15 +94,15 @@ export function AdminDashboardPage() {
     onSuccess: () => {
       toast.success("Signed out");
       qc.removeQueries({ queryKey: ["admin"] });
-      router.replace("/admin/login");
+      router.replace(ROUTES.adminLogin);
     },
     onError: () => toast.error("Sign-out failed"),
   });
 
-  if (meQ.isLoading) {
+  if (meQ.isLoading || bootstrapState === "booting") {
     return (
-      <div className="flex min-h-[60vh] items-center justify-center text-zinc-500">
-        <Loader2 className="h-8 w-8 animate-spin" />
+      <div className="hub-container flex min-h-[50vh] items-center justify-center text-[var(--hub-muted)]">
+        <Loader2 className="h-8 w-8 animate-spin text-[var(--hub-primary-bright)]" />
       </div>
     );
   }
@@ -119,7 +140,7 @@ export function AdminDashboardPage() {
     <>
       <AdminTopbar active={activeTab} onOpenDrawer={() => setDrawerOpen(true)} />
 
-      <div className="mx-auto flex min-h-screen max-w-[1600px] gap-r24 px-r16 py-r24 sm:px-r20 lg:gap-r24 lg:px-s40 lg:py-s48">
+      <div className="hub-container flex min-h-[50vh] max-w-[1600px] gap-6 px-3 py-6 sm:px-4 lg:gap-8 lg:px-6 lg:py-8">
         {/* Desktop sidebar */}
         <div className="hidden shrink-0 lg:block">
           <AdminSidebar

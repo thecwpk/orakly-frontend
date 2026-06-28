@@ -67,6 +67,13 @@ export async function adminLogout() {
   return adminApi<{ signedOut: boolean }>("/session", { method: "DELETE" });
 }
 
+/** Operator session from an existing signed-in ADMIN / MODERATOR wallet. */
+export async function adminBootstrapFromWallet() {
+  return adminApi<{ bootstrapped: boolean }>("/session/from-wallet", {
+    method: "POST",
+  });
+}
+
 export type AdminMe = {
   userId: string;
   adminId: string;

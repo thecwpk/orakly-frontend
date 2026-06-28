@@ -1,21 +1,30 @@
 "use client";
 
+import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { motion } from "framer-motion";
-import { KeyRound, Loader2 } from "lucide-react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { KeyRound, Loader2, Shield } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
+import { ROUTES } from "@/shared/constants/routes";
+import { PrefetchLink } from "@/shared/ui";
 import { AdminApiError, adminLogin } from "./lib/admin-api";
+import { useAdminWalletBootstrap } from "./hooks/use-admin-wallet-bootstrap";
 
 function safeAdminNextPath(raw: string | null): string {
-  if (!raw || !raw.startsWith("/admin")) return "/admin/dashboard";
-  if (raw.startsWith("/admin/login")) return "/admin/dashboard";
+  if (!raw || !raw.startsWith("/admin")) return ROUTES.adminDashboard;
+  if (raw.startsWith(ROUTES.adminLogin)) return ROUTES.adminDashboard;
   return raw;
 }
 
 export function AdminLoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const nextPath = safeAdminNextPath(searchParams.get("next"));
+
+  const { state: bootstrapState, walletOperator, bootstrap } =
+    useAdminWalletBootstrap(nextPath);
+
   const [token, setToken] = useState("");
   const [actorUserId, setActorUserId] = useState("");
   const [busy, setBusy] = useState(false);
@@ -25,8 +34,7 @@ export function AdminLoginPage() {
     try {
       await adminLogin(token.trim(), actorUserId.trim());
       toast.success("Session established");
-      const next = new URLSearchParams(window.location.search).get("next");
-      router.replace(safeAdminNextPath(next));
+      router.replace(nextPath);
     } catch (e) {
       toast.error(e instanceof AdminApiError ? e.message : "Login failed");
     } finally {
@@ -34,68 +42,103 @@ export function AdminLoginPage() {
     }
   };
 
+  if (bootstrapState === "booting" || bootstrapState === "ready") {
+    return (
+      <div className="hub-container flex min-h-[50vh] flex-col items-center justify-center gap-3 py-16 text-center">
+        <Loader2 className="h-9 w-9 animate-spin text-[var(--hub-primary-bright)]" />
+        <p className="text-sm text-[var(--hub-muted)]">Opening operator console…</p>
+      </div>
+    );
+  }
+
   return (
-    <div className="mx-auto flex min-h-[70vh] max-w-md flex-col justify-center px-4 py-16">
+    <div className="hub-container flex min-h-[50vh] max-w-lg flex-col justify-center px-4 py-12 sm:mx-auto">
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
-        className="glass-panel-strong neon-edge-violet rounded-2xl p-6 ring-1 ring-white/6"
+        className="rounded-2xl border border-[var(--hub-border)] bg-[var(--hub-card)]/80 p-6 shadow-[0_24px_48px_-20px_rgba(0,0,0,0.55)] ring-1 ring-[var(--hub-border)] backdrop-blur-sm sm:p-8"
       >
         <div className="flex items-center gap-3">
-          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-violet-500/15 ring-1 ring-violet-400/30">
-            <KeyRound className="h-5 w-5 text-violet-300" />
+          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[var(--hub-primary-soft)] ring-1 ring-[var(--hub-border-strong)]">
+            <Shield className="h-5 w-5 text-[var(--hub-primary-bright)]" />
           </div>
           <div>
-            <h1 className="text-lg font-semibold text-white">Operator sign-in</h1>
-            <p className="text-[13px] text-zinc-500">Bootstrap token + staff user UUID.</p>
+            <h1 className="text-lg font-semibold text-[var(--hub-fg)]">Operator access</h1>
+            <p className="text-[13px] text-[var(--hub-muted)]">
+              {walletOperator
+                ? "Wallet recognized — retry sign-in below."
+                : "Connect an admin wallet or use a bootstrap token."}
+            </p>
           </div>
         </div>
 
-        <label className="mt-6 block text-[11px] font-semibold uppercase tracking-wide text-zinc-500">
-          Admin API token (header)
-        </label>
-        <input
-          type="password"
-          autoComplete="off"
-          className="mt-1 w-full rounded-xl border border-white/8 bg-black/35 px-3 py-2.5 font-mono text-[13px] text-white outline-none focus:border-violet-500/40"
-          placeholder="ADMIN_API_TOKEN"
-          value={token}
-          onChange={(e) => setToken(e.target.value)}
-        />
+        {!walletOperator ? (
+          <div className="mt-6 rounded-xl border border-[var(--hub-border)] bg-[var(--hub-bg-subtle)]/60 p-4">
+            <p className="text-[13px] text-[var(--hub-muted)]">
+              Sign in with your operator wallet on BNB Testnet — the Admin tab unlocks
+              after connect + signature.
+            </p>
+            <div className="mt-4 flex justify-center">
+              <ConnectButton />
+            </div>
+          </div>
+        ) : (
+          <button
+            type="button"
+            onClick={() => void bootstrap().then((ok) => ok && router.replace(nextPath))}
+            className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--hub-primary)] py-3 text-sm font-semibold text-white transition hover:brightness-110 disabled:opacity-50"
+          >
+            Continue with connected wallet
+          </button>
+        )}
 
-        <label className="mt-4 block text-[11px] font-semibold uppercase tracking-wide text-zinc-500">
-          Actor user id (UUID)
-        </label>
-        <input
-          className="mt-1 w-full rounded-xl border border-white/8 bg-black/35 px-3 py-2.5 font-mono text-[13px] text-white outline-none focus:border-violet-500/40"
-          placeholder="User.id with role ADMIN or MODERATOR"
-          value={actorUserId}
-          onChange={(e) => setActorUserId(e.target.value)}
-        />
+        <details className="mt-6 rounded-xl border border-[var(--hub-border)] bg-black/20 px-4 py-3">
+          <summary className="cursor-pointer text-[12px] font-semibold uppercase tracking-wide text-[var(--hub-muted)]">
+            Bootstrap token (dev)
+          </summary>
+          <div className="mt-4 space-y-3">
+            <label className="block text-[11px] font-semibold uppercase tracking-wide text-[var(--hub-muted)]">
+              Admin API token
+            </label>
+            <input
+              type="password"
+              autoComplete="off"
+              className="w-full rounded-xl border border-[var(--hub-border)] bg-[var(--hub-bg-subtle)] px-3 py-2.5 font-mono text-[13px] text-[var(--hub-fg)] outline-none focus:border-[var(--hub-primary)]/50"
+              placeholder="ADMIN_API_TOKEN"
+              value={token}
+              onChange={(e) => setToken(e.target.value)}
+            />
+            <label className="block text-[11px] font-semibold uppercase tracking-wide text-[var(--hub-muted)]">
+              Actor user id (UUID)
+            </label>
+            <input
+              className="w-full rounded-xl border border-[var(--hub-border)] bg-[var(--hub-bg-subtle)] px-3 py-2.5 font-mono text-[13px] text-[var(--hub-fg)] outline-none focus:border-[var(--hub-primary)]/50"
+              placeholder="User.id with role ADMIN or MODERATOR"
+              value={actorUserId}
+              onChange={(e) => setActorUserId(e.target.value)}
+            />
+            <button
+              type="button"
+              disabled={busy || !token.trim() || !actorUserId.trim()}
+              onClick={() => void submit()}
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[var(--hub-primary)] to-cyan-600 py-2.5 text-sm font-semibold text-white disabled:opacity-40"
+            >
+              {busy ?
+                <Loader2 className="h-4 w-4 animate-spin" />
+              : (
+                <KeyRound className="h-4 w-4" />
+              )}
+              Continue with token
+            </button>
+          </div>
+        </details>
 
-        <button
-          type="button"
-          disabled={busy || !token.trim() || !actorUserId.trim()}
-          onClick={() => void submit()}
-          className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-violet-600/90 to-cyan-600/85 py-3 text-sm font-semibold text-white disabled:opacity-40"
+        <PrefetchLink
+          href={ROUTES.dapp}
+          className="mt-6 block text-center text-[13px] text-[var(--hub-muted)] underline-offset-4 hover:text-[var(--hub-fg)] hover:underline"
         >
-          {busy ?
-            <Loader2 className="h-4 w-4 animate-spin" />
-          : null}
-          Continue
-        </button>
-
-        <p className="mt-4 text-center text-[12px] text-zinc-600">
-          Sets an HttpOnly session cookie (HS256). Rotate <span className="font-mono">ADMIN_API_TOKEN</span>{" "}
-          regularly.
-        </p>
-
-        <Link
-          href="/"
-          className="mt-6 block text-center text-[13px] text-zinc-500 underline-offset-4 hover:text-zinc-300 hover:underline"
-        >
-          Back to site
-        </Link>
+          Back to Home
+        </PrefetchLink>
       </motion.div>
     </div>
   );
