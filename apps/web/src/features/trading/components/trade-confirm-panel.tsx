@@ -14,6 +14,7 @@ import {
 } from "../lib/trade-math";
 import type { TradeModalMarket } from "../store/use-trade-modal-store";
 import type { TradeDraft } from "./trade-compose-panel";
+import { useWalletSignIn } from "@/features/wallet/hooks/use-wallet-sign-in";
 import { cn } from "@/lib/utils";
 
 function Row({
@@ -67,6 +68,7 @@ function TradeConfirmPanelInner({
   onBack: () => void;
   onConfirm: () => void;
 }) {
+  const { retrySignIn, isSigning, userRejected } = useWalletSignIn();
   const payout = summarizePayout(quote);
   const isYes = draft.outcome === "YES";
   const isBuy = draft.direction === "BUY";
@@ -264,7 +266,6 @@ function TradeConfirmPanelInner({
               account,
               authenticationStatus,
               openConnectModal,
-              openAccountModal,
             }) => {
               if (!mounted) {
                 return (
@@ -275,17 +276,19 @@ function TradeConfirmPanelInner({
               }
               const connected = Boolean(account);
               const auth = authenticationStatus ?? "unauthenticated";
-              const busy = auth === "loading";
+              const busy = auth === "loading" || isSigning;
 
               const onAuthClick = () => {
                 if (!connected) openConnectModal();
-                else if (auth !== "authenticated") openAccountModal();
+                else if (auth !== "authenticated") void retrySignIn();
                 else openConnectModal();
               };
 
               const label =
                 !connected ? "Connect wallet to trade"
-                : auth !== "authenticated" ? "Sign in to trade"
+                : auth !== "authenticated" ?
+                  userRejected ? "Approve sign-in to trade"
+                : "Signing in…"
                 : "Connect wallet to trade";
 
               return (

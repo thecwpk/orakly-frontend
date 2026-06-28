@@ -3,6 +3,7 @@ import { cookies } from "next/headers";
 import { err, ok } from "../../../_lib/response";
 import { revokeWalletSessionsByJti } from "@/server/wallet-auth/session-service";
 import { resolveWalletSessionFromCookies } from "@/server/wallet-auth/resolve-wallet-session";
+import { clearAdminSessionCookie } from "@/server/admin/admin-session";
 import {
   tryVerifyWalletSessionToken,
   WALLET_SESSION_COOKIE,
@@ -22,6 +23,7 @@ export async function GET() {
       address: session.address,
       chainId: session.chainId,
       userId: session.userId,
+      role: session.role,
     }),
   );
 }
@@ -34,6 +36,7 @@ export async function DELETE() {
 
   const res = NextResponse.json(ok({ signedOut: true }));
   res.cookies.delete(WALLET_SESSION_COOKIE);
+  clearAdminSessionCookie(res);
 
   if (claims?.jti) {
     await revokeWalletSessionsByJti(claims.jti);

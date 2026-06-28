@@ -8,16 +8,20 @@ import type { AuthenticationStatus } from "@rainbow-me/rainbowkit";
 import { useQueryClient } from "@tanstack/react-query";
 import { useMemo, type ReactNode } from "react";
 import { useAccount } from "wagmi";
+import { getAccount } from "wagmi/actions";
+import { wagmiConfig } from "@/providers/web3/wagmi-config";
 import { tbnbChain } from "../config/chains";
 import { buildWalletAuthMessage } from "../lib/auth-message";
+import { WalletAutoSignIn } from "../components/wallet-auto-sign-in";
 import {
   useWalletSessionQuery,
   walletSessionQueryKey,
 } from "../hooks/use-wallet-session-query";
+import { adminMeQueryKey } from "@/widgets/admin-dashboard/lib/admin-api";
 
 export function WalletAuthBridge({ children }: { children: ReactNode }) {
   const queryClient = useQueryClient();
-  const { address, chainId } = useAccount();
+  const { address } = useAccount();
   const { data: session, isPending } = useWalletSessionQuery();
 
   const status: AuthenticationStatus =
@@ -31,14 +35,15 @@ export function WalletAuthBridge({ children }: { children: ReactNode }) {
     () =>
       createAuthenticationAdapter({
         getNonce: async () => {
-          if (!address) {
+          const addr = getAccount(wagmiConfig).address;
+          if (!addr) {
             throw new Error("Connect a wallet before signing in");
           }
           const res = await fetch("/api/v1/wallet/auth/nonce", {
             method: "POST",
             credentials: "include",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ address }),
+            body: JSON.stringify({ address: addr }),
           });
           const j = (await res.json()) as {
             ok?: boolean;
@@ -61,7 +66,9 @@ export function WalletAuthBridge({ children }: { children: ReactNode }) {
           });
         },
         verify: async ({ message, signature }) => {
-          if (!address) return false;
+          const account = getAccount(wagmiConfig);
+          const addr = account.address;
+          if (!addr) return false;
           const res = await fetch("/api/v1/wallet/auth/verify", {
             method: "POST",
             credentials: "include",
@@ -69,8 +76,8 @@ export function WalletAuthBridge({ children }: { children: ReactNode }) {
             body: JSON.stringify({
               message,
               signature,
-              address,
-              chainId: chainId ?? session?.chainId ?? tbnbChain.id,
+              address: addr,
+              chainId: account.chainId ?? tbnbChain.id,
             }),
           });
           const j = (await res.json().catch(() => null)) as {
@@ -78,6 +85,7 @@ export function WalletAuthBridge({ children }: { children: ReactNode }) {
           } | null;
           if (!res.ok || !j?.ok) return false;
           await queryClient.invalidateQueries({ queryKey: walletSessionQueryKey });
+          await queryClient.invalidateQueries({ queryKey: adminMeQueryKey });
           return true;
         },
         signOut: async () => {
@@ -86,13 +94,15 @@ export function WalletAuthBridge({ children }: { children: ReactNode }) {
             credentials: "include",
           });
           await queryClient.invalidateQueries({ queryKey: walletSessionQueryKey });
+          await queryClient.invalidateQueries({ queryKey: adminMeQueryKey });
         },
       }),
-    [address, chainId, queryClient, session?.chainId],
+    [queryClient],
   );
 
   return (
     <RainbowKitAuthenticationProvider adapter={adapter} status={status}>
+      <WalletAutoSignIn />
       {children}
     </RainbowKitAuthenticationProvider>
   );

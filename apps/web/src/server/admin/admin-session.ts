@@ -5,7 +5,11 @@ import { prisma } from "@orakly/database";
 import { UserRole } from "@prisma/client";
 import { ADMIN_SESSION_COOKIE } from "./admin-session-constants";
 
+import { ensureStaffAdminRecord } from "@/server/admin/staff-provision";
+
 export { ADMIN_SESSION_COOKIE } from "./admin-session-constants";
+
+const ADMIN_SESSION_MAX_AGE_SEC = 60 * 60 * 8;
 
 export type AdminPermission =
   | "markets.write"
@@ -122,6 +126,54 @@ function permissionSet(role: UserRole, admin: {
     return p;
   }
   return p;
+}
+
+export function attachAdminSessionCookie(
+  res: { cookies: { set: (name: string, value: string, options: Record<string, unknown>) => void } },
+  token: string,
+  maxAgeSec = ADMIN_SESSION_MAX_AGE_SEC,
+): void {
+  res.cookies.set(ADMIN_SESSION_COOKIE, token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
+    path: "/",
+    maxAge: maxAgeSec,
+  });
+}
+
+/** Mint operator JWT cookie when the linked user is ADMIN or MODERATOR. */
+export async function tryAttachAdminSessionForUser(
+  res: { cookies: { set: (name: string, value: string, options: Record<string, unknown>) => void } },
+  userId: string | null | undefined,
+): Promise<boolean> {
+  if (!userId) return false;
+
+  const user = await prisma.user.findUnique({ where: { id: userId } });
+  if (!user || (user.role !== UserRole.ADMIN && user.role !== UserRole.MODERATOR)) {
+    return false;
+  }
+
+  const admin = await ensureStaffAdminRecord(user.id);
+  const token = signAdminSessionToken({
+    sub: user.id,
+    aid: admin.id,
+    role: user.role,
+  });
+  attachAdminSessionCookie(res, token);
+  return true;
+}
+
+export function clearAdminSessionCookie(
+  res: { cookies: { set: (name: string, value: string, options: Record<string, unknown>) => void } },
+): void {
+  res.cookies.set(ADMIN_SESSION_COOKIE, "", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
+    path: "/",
+    maxAge: 0,
+  });
 }
 
 export async function resolveAdminActor(req: NextRequest): Promise<AdminActorContext> {

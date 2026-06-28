@@ -1,13 +1,17 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+import { useAccount } from "wagmi";
 import type { Address } from "viem";
+import type { UserRole } from "@/state/stores/auth.store";
 
 export type WalletSessionPayload = {
   address: Address;
   chainId: number;
   /** Present after SIWE — custodial trading actor id. */
   userId?: string | null;
+  /** Platform role — ADMIN wallets unlock operator nav + panel. */
+  role?: UserRole | string | null;
 };
 
 async function fetchWalletSession(): Promise<WalletSessionPayload | null> {
@@ -25,15 +29,22 @@ async function fetchWalletSession(): Promise<WalletSessionPayload | null> {
     address: body.data.address,
     chainId: body.data.chainId,
     userId: body.data.userId ?? null,
+    role: body.data.role ?? "USER",
   };
 }
 
 export const walletSessionQueryKey = ["wallet-session"] as const;
 
 export function useWalletSessionQuery() {
+  const { isConnected } = useAccount();
+
   return useQuery({
     queryKey: walletSessionQueryKey,
     queryFn: fetchWalletSession,
-    staleTime: 30_000,
+    enabled: isConnected,
+    staleTime: 15_000,
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
+    refetchOnReconnect: true,
   });
 }

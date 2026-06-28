@@ -125,7 +125,7 @@ export function AppTopbar({ density = "default" }: { density?: AppTopbarDensity 
 
         <div className="flex shrink-0 items-center gap-2 sm:gap-3">
           <WalletPopover
-            connectLabel={hub ? "Sign up" : "Connect Wallet"}
+            connectLabel={hub ? "Connect" : "Connect Wallet"}
             variant={hub ? "hub" : "default"}
           />
           <NotificationBell />

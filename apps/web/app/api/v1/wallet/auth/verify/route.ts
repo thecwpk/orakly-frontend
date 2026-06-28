@@ -2,6 +2,7 @@ import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { err, ok } from "../../../_lib/response";
+import { tryAttachAdminSessionForUser } from "@/server/admin/admin-session";
 import {
   completeWalletAuthentication,
   WALLET_AUTH_SESSION_MAX_AGE_SEC,
@@ -30,7 +31,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { claims, token } = await completeWalletAuthentication({
+    const { claims, token, userId } = await completeWalletAuthentication({
       message: parsed.data.message,
       signature: parsed.data.signature as `0x${string}`,
       address: parsed.data.address,
@@ -41,6 +42,7 @@ export async function POST(req: NextRequest) {
       ok({
         address: claims.address,
         chainId: claims.chainId,
+        userId,
       }),
     );
 
@@ -51,6 +53,8 @@ export async function POST(req: NextRequest) {
       path: "/",
       maxAge: WALLET_AUTH_SESSION_MAX_AGE_SEC,
     });
+
+    await tryAttachAdminSessionForUser(res, userId);
 
     return res;
   } catch (e) {

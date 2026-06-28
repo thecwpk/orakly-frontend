@@ -10,6 +10,8 @@ import {
 export type ResolvedWalletSession = WalletSessionClaims & {
   /** Platform user linked to this wallet session (custodial trading actor). */
   userId: string | null;
+  /** Operator role from linked User row (ADMIN / MODERATOR / USER). */
+  role: string;
 };
 
 /**
@@ -40,6 +42,7 @@ export async function resolveWalletSessionFromCookies(): Promise<ResolvedWalletS
   if (row.walletAddress.toLowerCase() !== jwtAddr) return null;
 
   let userId = row.userId;
+  let role = "USER";
   if (!userId) {
     const linked = await prisma.user.findFirst({
       where: {
@@ -48,9 +51,16 @@ export async function resolveWalletSessionFromCookies(): Promise<ResolvedWalletS
           mode: "insensitive",
         },
       },
-      select: { id: true },
+      select: { id: true, role: true },
     });
     userId = linked?.id ?? null;
+    role = linked?.role ?? "USER";
+  } else {
+    const linked = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { role: true },
+    });
+    role = linked?.role ?? "USER";
   }
 
   return {
@@ -58,5 +68,6 @@ export async function resolveWalletSessionFromCookies(): Promise<ResolvedWalletS
     chainId: jwtClaims.chainId,
     jti: jwtClaims.jti,
     userId,
+    role,
   };
 }

@@ -242,8 +242,8 @@ export function PremiumPolymarketConnect({
                             </span>
                           : null}
                           {authenticationStatus === "unauthenticated" ?
-                            <span className="mt-1 block text-[10px] font-medium text-amber-200/90">
-                              Sign message to authenticate
+                            <span className="mt-1 block text-[10px] font-medium text-cyan-200/80">
+                              Signing in…
                             </span>
                           : null}
                         </span>

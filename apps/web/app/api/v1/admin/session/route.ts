@@ -5,6 +5,7 @@ import {
   ADMIN_SESSION_COOKIE,
   requireBootstrapApiToken,
   signAdminSessionToken,
+  attachAdminSessionCookie,
 } from "@/server/admin/admin-session";
 import { ensureStaffAdminRecord } from "@/server/admin/staff-provision";
 import { prisma } from "@orakly/database";
@@ -54,13 +55,7 @@ export async function POST(req: NextRequest) {
     });
 
     const res = NextResponse.json(ok({ expiresInSec: 60 * 60 * 8 }));
-    res.cookies.set(ADMIN_SESSION_COOKIE, token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      path: "/",
-      maxAge: 60 * 60 * 8,
-    });
+    attachAdminSessionCookie(res, token);
     return res;
   } catch (e) {
     return adminJsonError(e);

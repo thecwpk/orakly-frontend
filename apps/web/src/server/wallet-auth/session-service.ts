@@ -27,7 +27,7 @@ export type WalletVerifyBody = {
 
 export async function completeWalletAuthentication(
   body: WalletVerifyBody,
-): Promise<{ claims: WalletSessionClaims; token: string }> {
+): Promise<{ claims: WalletSessionClaims; token: string; userId: string | null }> {
   const messageNonce = readNonceFromMessage(body.message);
   if (!messageNonce) {
     throw new WalletAuthHttpError("NONCE", "Message missing nonce", 400);
@@ -64,6 +64,7 @@ export async function completeWalletAuthentication(
 
   const jti = crypto.randomUUID();
   const expiresAt = new Date(Date.now() + WALLET_AUTH_SESSION_TTL_MS);
+  let resolvedUserId: string | null = null;
 
   await prisma.$transaction(async (tx) => {
     const nonceRow = await tx.walletAuthNonce.findFirst({
@@ -102,7 +103,7 @@ export async function completeWalletAuthentication(
       update: {},
       select: { id: true },
     });
-    const resolvedUserId = resolvedUser.id;
+    resolvedUserId = resolvedUser.id;
 
     await tx.walletAuthSession.create({
       data: {
@@ -122,7 +123,7 @@ export async function completeWalletAuthentication(
 
   const token = signWalletSessionToken(claims, WALLET_AUTH_SESSION_MAX_AGE_SEC);
 
-  return { claims, token };
+  return { claims, token, userId: resolvedUserId };
 }
 
 export async function revokeWalletSessionsByJti(jti: string): Promise<void> {

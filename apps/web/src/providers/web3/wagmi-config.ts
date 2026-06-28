@@ -1,30 +1,28 @@
 import { getDefaultConfig } from "@rainbow-me/rainbowkit";
 import {
   injectedWallet,
-  metaMaskWallet,
   rabbyWallet,
   walletConnectWallet,
 } from "@rainbow-me/rainbowkit/wallets";
 import type { Config } from "wagmi";
 import { cookieStorage, createStorage } from "wagmi";
+import { chainPublicEnv } from "@/lib/chain-public-env";
 import { testBnbChain } from "./chains";
 
 const walletConnectProjectId =
-  process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID?.trim() ?? "";
+  chainPublicEnv.walletConnectProjectId ||
+  "5e858fceaadb5773ae641adf69411b00";
 
 /**
- * Wagmi config for Next.js App Router:
- * - **`ssr: true`** — safe SSR + aligned client hydration.
- * - **`cookieStorage`** — wagmi state persistence; reconnect runs only after explicit user opt-in
- *   (see `WalletReconnectGate` + `reconnectOnMount={false}` on `WagmiProvider`).
- * - Single chain: **test BNB** testnet (97).
+ * Wagmi + RainbowKit for Next.js App Router (BSC testnet / chain 97).
  *
- * WalletConnect / Reown **`projectId`** — create at https://cloud.reown.com (formerly cloud.walletconnect.com).
- * Add each dev origin (e.g. `http://localhost:3000`) to the project **Allowlist** or the console shows “Origin … not found on Allowlist”.
+ * Use **injectedWallet** for MetaMask — not `metaMaskWallet` alongside it.
+ * Both hook `window.ethereum` and together they can throw a client-side crash
+ * when the user picks MetaMask in the connect modal.
  */
 export const wagmiConfig: Config = getDefaultConfig({
   appName: "Orakly Market",
-  projectId: walletConnectProjectId || "00000000000000000000000000000000",
+  projectId: walletConnectProjectId,
   chains: [testBnbChain],
   ssr: true,
   storage: createStorage({
@@ -33,7 +31,7 @@ export const wagmiConfig: Config = getDefaultConfig({
   wallets: [
     {
       groupName: "Recommended",
-      wallets: [metaMaskWallet, rabbyWallet, walletConnectWallet, injectedWallet],
+      wallets: [injectedWallet, rabbyWallet, walletConnectWallet],
     },
   ],
 });

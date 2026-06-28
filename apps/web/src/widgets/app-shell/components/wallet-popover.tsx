@@ -154,7 +154,16 @@ export function WalletPopover({
           );
         }
 
-        const addr = account?.address ?? address!;
+        const addr = account?.address ?? address;
+        if (!addr) {
+          return (
+            <div
+              role="status"
+              aria-label="Loading wallet"
+              className="hidden h-9 min-w-[7.5rem] animate-pulse rounded-[10px] border border-white/[0.06] bg-white/[0.04] sm:block"
+            />
+          );
+        }
         const display = `${addr.slice(0, 6)}...${addr.slice(-4)}`;
         const pendingTx = account?.hasPendingTransactions ?? false;
 
