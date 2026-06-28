@@ -20,10 +20,10 @@ const TONE: Record<string, { ring: string; bg: string; text: string; dot: string
     dot: "bg-rose-400",
   },
   CLOSED: {
-    ring: "ring-violet-400/30",
-    bg: "bg-violet-500/10",
-    text: "text-violet-200",
-    dot: "bg-violet-400",
+    ring: "ring-[var(--hub-border-strong)]",
+    bg: "bg-[var(--hub-primary-soft)]",
+    text: "text-[var(--hub-primary-bright)]",
+    dot: "bg-[var(--hub-primary)]",
   },
   RESOLVED: {
     ring: "ring-cyan-400/30",
@@ -34,7 +34,7 @@ const TONE: Record<string, { ring: string; bg: string; text: string; dot: string
   CANCELED: {
     ring: "ring-zinc-400/30",
     bg: "bg-zinc-500/10",
-    text: "text-zinc-300",
+    text: "text-[var(--hub-muted)]",
     dot: "bg-zinc-400",
   },
 };
@@ -42,7 +42,7 @@ const TONE: Record<string, { ring: string; bg: string; text: string; dot: string
 const FALLBACK = {
   ring: "ring-zinc-400/30",
   bg: "bg-zinc-500/10",
-  text: "text-zinc-300",
+  text: "text-[var(--hub-muted)]",
   dot: "bg-zinc-400",
 } as const;
 

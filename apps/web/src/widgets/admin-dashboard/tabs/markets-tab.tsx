@@ -132,7 +132,7 @@ export function AdminMarketsTab({
             type="button"
             onClick={reload}
             disabled={marketsQ.isFetching}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-white/[0.04] px-2.5 py-1.5 text-[12px] font-medium text-zinc-200 ring-1 ring-white/[0.08] transition hover:bg-white/[0.08] disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--hub-bg-subtle)] px-2.5 py-1.5 text-[12px] font-medium text-[var(--hub-fg)] ring-1 ring-[var(--hub-border)] transition hover:bg-[var(--hub-card-hover)] disabled:opacity-50"
           >
             <RefreshCw
               className={cn("h-3.5 w-3.5", marketsQ.isFetching && "animate-spin")}
@@ -143,7 +143,7 @@ export function AdminMarketsTab({
             <button
               type="button"
               onClick={() => setShowCreate(true)}
-              className="inline-flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-violet-500 to-cyan-500 px-3 py-1.5 text-[12px] font-bold text-white shadow-[0_8px_30px_-8px_rgba(167,139,250,0.6)] ring-1 ring-violet-400/40 transition hover:brightness-110"
+              className="inline-flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-[var(--hub-primary)] to-cyan-600 px-3 py-1.5 text-[12px] font-bold text-white shadow-[0_8px_30px_-8px_rgba(167,139,250,0.6)] ring-1 ring-[var(--hub-border-strong)] transition hover:brightness-110"
             >
               <Plus className="h-3.5 w-3.5" />
               New market
@@ -154,25 +154,25 @@ export function AdminMarketsTab({
     >
       <div className="flex flex-wrap items-center gap-2">
         <div className="relative flex-1 min-w-[220px]">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-zinc-500" />
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[var(--hub-muted)]" />
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search title, slug, id, or category…"
-            className="w-full rounded-xl border border-white/[0.08] bg-black/30 py-2 pl-8 pr-7 text-[12.5px] text-white outline-none focus:border-violet-500/50"
+            className="w-full rounded-xl border border-[var(--hub-border)] bg-[var(--hub-bg-subtle)] py-2 pl-8 pr-7 text-[12.5px] text-white outline-none focus:border-[var(--hub-primary)]/50"
           />
           {query ? (
             <button
               type="button"
               aria-label="Clear search"
               onClick={() => setQuery("")}
-              className="absolute right-2 top-1/2 inline-flex h-5 w-5 -translate-y-1/2 items-center justify-center rounded-md bg-white/[0.04] text-zinc-400 ring-1 ring-white/[0.08] hover:bg-white/[0.08]"
+              className="absolute right-2 top-1/2 inline-flex h-5 w-5 -translate-y-1/2 items-center justify-center rounded-md bg-[var(--hub-bg-subtle)] text-[var(--hub-muted)] ring-1 ring-[var(--hub-border)] hover:bg-[var(--hub-card-hover)]"
             >
               <X className="h-3 w-3" />
             </button>
           ) : null}
         </div>
-        <div className="flex items-center gap-1 rounded-xl bg-black/30 p-1 ring-1 ring-white/[0.06]">
+        <div className="flex items-center gap-1 rounded-xl bg-[var(--hub-bg-subtle)] p-1 ring-1 ring-[var(--hub-border)]">
           {STATUS_FILTERS.map((k) => (
             <button
               key={k}
@@ -181,19 +181,19 @@ export function AdminMarketsTab({
               className={cn(
                 "relative inline-flex items-center gap-1 rounded-lg px-2 py-1 text-[10.5px] font-bold uppercase tracking-wider transition",
                 filter === k
-                  ? "bg-white/[0.08] text-white"
-                  : "text-zinc-400 hover:text-zinc-200",
+                  ? "bg-[var(--hub-card-hover)] text-white"
+                  : "text-[var(--hub-muted)] hover:text-[var(--hub-fg)]",
               )}
             >
               {filter === k ? (
                 <motion.span
                   layoutId="markets-filter-active"
-                  className="absolute inset-0 -z-0 rounded-lg ring-1 ring-violet-400/30"
+                  className="absolute inset-0 -z-0 rounded-lg ring-1 ring-[var(--hub-border-strong)]"
                   transition={{ type: "spring", stiffness: 460, damping: 32 }}
                 />
               ) : null}
               <span className="relative z-10">{k}</span>
-              <span className="relative z-10 rounded-md bg-white/[0.04] px-1 py-0.5 font-mono text-[9.5px] text-zinc-300">
+              <span className="relative z-10 rounded-md bg-[var(--hub-bg-subtle)] px-1 py-0.5 font-mono text-[9.5px] text-[var(--hub-muted)]">
                 {counts[k]}
               </span>
             </button>
@@ -204,7 +204,7 @@ export function AdminMarketsTab({
       <Section
         title={`${filtered.length} market${filtered.length === 1 ? "" : "s"}`}
         action={
-          <span className="inline-flex items-center gap-1.5 text-[10.5px] text-zinc-500">
+          <span className="inline-flex items-center gap-1.5 text-[10.5px] text-[var(--hub-muted)]">
             <Filter className="h-3 w-3" />
             {filter} · {query ? `“${query}”` : "all"}
           </span>
@@ -216,7 +216,7 @@ export function AdminMarketsTab({
               {Array.from({ length: 6 }).map((_, i) => (
                 <div
                   key={i}
-                  className="skeleton-shimmer h-12 rounded-lg ring-1 ring-white/[0.04]"
+                  className="skeleton-shimmer h-12 rounded-lg ring-1 ring-[var(--hub-border)]"
                 />
               ))}
             </div>
@@ -239,7 +239,7 @@ export function AdminMarketsTab({
                   <button
                     type="button"
                     onClick={() => setShowCreate(true)}
-                    className="inline-flex items-center gap-1.5 rounded-lg bg-violet-500/15 px-3 py-1.5 text-[12px] font-bold text-violet-200 ring-1 ring-violet-400/30 transition hover:bg-violet-500/25"
+                    className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--hub-primary-soft)] px-3 py-1.5 text-[12px] font-bold text-[var(--hub-primary-bright)] ring-1 ring-[var(--hub-border-strong)] transition hover:bg-violet-500/25"
                   >
                     <Plus className="h-3.5 w-3.5" />
                     Create market
@@ -249,7 +249,7 @@ export function AdminMarketsTab({
             />
           ) : (
             <table className="w-full min-w-[820px] border-collapse text-left text-[12.5px]">
-              <thead className="bg-[#0a0a12]/85 text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500 backdrop-blur">
+              <thead className="bg-[var(--hub-bg-subtle)]/95 text-[10px] font-bold uppercase tracking-[0.15em] text-[var(--hub-muted)] backdrop-blur">
                 <tr>
                   <th scope="col" className="px-3 py-2.5">Market</th>
                   <th scope="col" className="px-3 py-2.5">Status</th>
@@ -259,7 +259,7 @@ export function AdminMarketsTab({
               </thead>
               <motion.tbody
                 layout
-                className="divide-y divide-white/[0.04] text-zinc-300"
+                className="divide-y divide-[var(--hub-border)] text-[var(--hub-muted)]"
               >
                 <AnimatePresence initial={false}>
                   {filtered.map((m) => (
@@ -371,29 +371,29 @@ function MarketRow({
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.18 }}
-      className="hover:bg-white/[0.02]"
+      className="hover:bg-[var(--hub-card-hover)]"
     >
       <td className="max-w-[260px] px-3 py-2">
-        <p className="line-clamp-2 font-medium text-zinc-100">{market.title}</p>
+        <p className="line-clamp-2 font-medium text-[var(--hub-fg)]">{market.title}</p>
         <div className="mt-0.5 flex items-center gap-1.5">
           <Link
             href={`/markets/${market.slug}`}
             target="_blank"
             rel="noreferrer"
-            className="inline-flex items-center gap-1 truncate font-mono text-[10.5px] text-zinc-500 hover:text-violet-300"
+            className="inline-flex items-center gap-1 truncate font-mono text-[10.5px] text-[var(--hub-muted)] hover:text-[var(--hub-primary-bright)]"
           >
             {market.slug}
             <ExternalLink className="h-2.5 w-2.5" />
           </Link>
-          <span className="text-zinc-700">·</span>
-          <span className="font-mono text-[10px] text-zinc-600">{shortId(market.id)}</span>
+          <span className="text-[var(--hub-border)]">·</span>
+          <span className="font-mono text-[10px] text-[var(--hub-muted)]">{shortId(market.id)}</span>
         </div>
       </td>
       <td className="px-3 py-2">
         <StatusPill status={market.status} />
       </td>
-      <td className="px-3 py-2 text-zinc-400">
-        {market.category?.name ?? <span className="text-zinc-600">—</span>}
+      <td className="px-3 py-2 text-[var(--hub-muted)]">
+        {market.category?.name ?? <span className="text-[var(--hub-muted)]">—</span>}
       </td>
       <td className="px-3 py-2">
         <div className="flex flex-wrap items-center justify-end gap-1">
@@ -463,7 +463,7 @@ function ActionButton({
     emerald: "bg-emerald-500/12 text-emerald-200 ring-emerald-400/25 hover:bg-emerald-500/20",
     amber: "bg-amber-500/12 text-amber-200 ring-amber-400/25 hover:bg-amber-500/20",
     rose: "bg-rose-500/12 text-rose-200 ring-rose-400/25 hover:bg-rose-500/20",
-    violet: "bg-violet-500/12 text-violet-200 ring-violet-400/25 hover:bg-violet-500/20",
+    violet: "bg-[var(--hub-primary-soft)] text-[var(--hub-primary-bright)] ring-[var(--hub-border)] hover:bg-violet-500/20",
   } as const;
   return (
     <button

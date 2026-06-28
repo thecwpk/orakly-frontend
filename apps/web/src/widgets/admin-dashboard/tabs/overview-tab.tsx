@@ -34,14 +34,15 @@ import {
 import { Section, TabShell } from "../components/tab-shell";
 import { StatCard } from "../components/stat-card";
 import { EmptyState } from "../components/empty-state";
+import { adminUi } from "../lib/admin-ui-classes";
 
 const STATUS_TONE: Record<string, { ring: string; bg: string; text: string }> = {
   OPEN: { ring: "ring-emerald-400/30", bg: "bg-emerald-500/10", text: "text-emerald-200" },
   DRAFT: { ring: "ring-amber-400/30", bg: "bg-amber-500/10", text: "text-amber-200" },
   PAUSED: { ring: "ring-rose-400/30", bg: "bg-rose-500/10", text: "text-rose-200" },
-  CLOSED: { ring: "ring-violet-400/30", bg: "bg-violet-500/10", text: "text-violet-200" },
+  CLOSED: { ring: "ring-[var(--hub-border-strong)]", bg: "bg-[var(--hub-primary-soft)]", text: "text-[var(--hub-primary-bright)]" },
   RESOLVED: { ring: "ring-cyan-400/30", bg: "bg-cyan-500/10", text: "text-cyan-200" },
-  CANCELED: { ring: "ring-zinc-400/30", bg: "bg-zinc-500/10", text: "text-zinc-300" },
+  CANCELED: { ring: "ring-zinc-400/30", bg: "bg-zinc-500/10", text: "text-[var(--hub-muted)]" },
 };
 
 const FALLBACK_TONE = STATUS_TONE.OPEN!;
@@ -88,7 +89,7 @@ export function AdminOverviewTab({
           type="button"
           onClick={refresh}
           disabled={overviewQ.isFetching || revenueQ.isFetching}
-          className="inline-flex items-center gap-1.5 rounded-lg bg-white/[0.04] px-2.5 py-1.5 text-[12px] font-medium text-zinc-200 ring-1 ring-white/[0.08] transition hover:bg-white/[0.08] disabled:opacity-50"
+          className={adminUi.btnGhost}
         >
           <RefreshCw
             className={cn(
@@ -115,7 +116,7 @@ export function AdminOverviewTab({
           {Array.from({ length: 8 }).map((_, i) => (
             <div
               key={i}
-              className="skeleton-shimmer h-[100px] rounded-2xl ring-1 ring-white/[0.04]"
+              className={cn(adminUi.skeleton, "h-[100px] rounded-2xl")}
             />
           ))}
         </div>
@@ -216,25 +217,25 @@ export function AdminOverviewTab({
                   >
                     <defs>
                       <linearGradient id="feeFillOverview" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor="rgb(167,139,250)" stopOpacity={0.45} />
-                        <stop offset="100%" stopColor="rgb(167,139,250)" stopOpacity={0} />
+                        <stop offset="0%" stopColor="rgb(59,130,246)" stopOpacity={0.45} />
+                        <stop offset="100%" stopColor="rgb(59,130,246)" stopOpacity={0} />
                       </linearGradient>
                     </defs>
                     <CartesianGrid
                       strokeDasharray="3 6"
-                      stroke="rgba(255,255,255,0.06)"
+                      stroke="color-mix(in srgb, var(--hub-border) 80%, transparent)"
                       vertical={false}
                     />
                     <XAxis
                       dataKey="day"
-                      tick={{ fill: "#71717a", fontSize: 10 }}
+                      tick={{ fill: "var(--hub-muted)", fontSize: 10 }}
                       axisLine={false}
                       tickLine={false}
                       tickFormatter={(d) => String(d).slice(5)}
                       minTickGap={24}
                     />
                     <YAxis
-                      tick={{ fill: "#52525b", fontSize: 10 }}
+                      tick={{ fill: "var(--hub-muted)", fontSize: 10 }}
                       axisLine={false}
                       tickLine={false}
                       width={48}
@@ -242,10 +243,11 @@ export function AdminOverviewTab({
                     />
                     <Tooltip
                       contentStyle={{
-                        background: "rgba(10,10,14,0.96)",
-                        border: "1px solid rgba(255,255,255,0.08)",
-                        borderRadius: "10px",
+                        background: "var(--hub-card)",
+                        border: "1px solid var(--hub-border)",
+                        borderRadius: "var(--hub-radius)",
                         fontSize: "12px",
+                        color: "var(--hub-fg)",
                       }}
                       formatter={(value) => [
                         compactUsd(Number(value ?? 0)),
@@ -255,11 +257,11 @@ export function AdminOverviewTab({
                     <Area
                       type="monotone"
                       dataKey="fees"
-                      stroke="rgb(167,139,250)"
+                      stroke="rgb(59,130,246)"
                       strokeWidth={1.6}
                       fill="url(#feeFillOverview)"
                       dot={false}
-                      activeDot={{ r: 3, fill: "rgb(167,139,250)" }}
+                      activeDot={{ r: 3, fill: "rgb(59,130,246)" }}
                       isAnimationActive={chartData.length < 90}
                     />
                   </AreaChart>
@@ -273,7 +275,7 @@ export function AdminOverviewTab({
             >
               <ul className="space-y-2 px-4 py-3 sm:px-5">
                 {Object.entries(overviewQ.data.marketsByStatus).length === 0 ? (
-                  <li className="text-[12px] text-zinc-500">No markets yet.</li>
+                  <li className="text-[12px] text-[var(--hub-muted)]">No markets yet.</li>
                 ) : (
                   Object.entries(overviewQ.data.marketsByStatus).map(([status, count]) => {
                     const tone = STATUS_TONE[status] ?? FALLBACK_TONE;
@@ -302,14 +304,14 @@ export function AdminOverviewTab({
                             />
                             {status}
                           </span>
-                          <span className="font-mono tabular-nums text-zinc-200">
+                          <span className="font-mono tabular-nums text-[var(--hub-fg)]">
                             {count.toLocaleString()}{" "}
-                            <span className="text-zinc-500">
+                            <span className="text-[var(--hub-muted)]">
                               ({pct.toFixed(0)}%)
                             </span>
                           </span>
                         </div>
-                        <div className="h-1 overflow-hidden rounded-full bg-white/[0.04]">
+                        <div className="h-1 overflow-hidden rounded-full bg-[var(--hub-track-bg)]">
                           <motion.div
                             initial={{ width: 0 }}
                             animate={{ width: `${pct}%` }}
@@ -335,14 +337,14 @@ export function AdminOverviewTab({
           >
             <div className="flex flex-wrap gap-1.5 px-4 py-3 sm:px-5">
               {grantedPermissions.length === 0 ? (
-                <p className="text-[12px] text-zinc-500">
+                <p className="text-[12px] text-[var(--hub-muted)]">
                   No admin permissions are granted to this account.
                 </p>
               ) : (
                 grantedPermissions.map((label) => (
                   <span
                     key={label}
-                    className="inline-flex items-center gap-1 rounded-md bg-white/[0.04] px-2 py-0.5 text-[10.5px] font-bold uppercase tracking-wider text-zinc-300 ring-1 ring-white/[0.08]"
+                    className="inline-flex items-center gap-1 rounded-md border border-[var(--hub-border)] bg-[var(--hub-bg-subtle)] px-2 py-0.5 text-[10.5px] font-bold uppercase tracking-wider text-[var(--hub-muted)]"
                   >
                     <CheckCircle2 className="h-2.5 w-2.5 text-emerald-300" />
                     {label}
@@ -355,7 +357,7 @@ export function AdminOverviewTab({
       ) : null}
 
       {overviewQ.isFetching && overviewQ.data ? (
-        <div className="flex items-center gap-2 text-[10.5px] text-zinc-500">
+        <div className="flex items-center gap-2 text-[10.5px] text-[var(--hub-muted)]">
           <Loader2 className="h-3 w-3 animate-spin" />
           Refreshing…
         </div>

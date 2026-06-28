@@ -102,7 +102,7 @@ export function AdminAnalyticsTab() {
       description="Daily fee revenue, cumulative platform take, and 7-day trading volume profile."
       actions={
         <>
-          <div className="flex items-center gap-1 rounded-xl bg-black/30 p-1 ring-1 ring-white/[0.06]">
+          <div className="flex items-center gap-1 rounded-xl bg-[var(--hub-bg-subtle)] p-1 ring-1 ring-[var(--hub-border)]">
             {RANGE_OPTIONS.map((r) => (
               <button
                 key={r.id}
@@ -111,14 +111,14 @@ export function AdminAnalyticsTab() {
                 className={cn(
                   "relative inline-flex items-center rounded-lg px-2 py-1 text-[10.5px] font-bold uppercase tracking-wider transition",
                   days === r.id
-                    ? "bg-white/[0.08] text-white"
-                    : "text-zinc-400 hover:text-zinc-200",
+                    ? "bg-[var(--hub-card-hover)] text-white"
+                    : "text-[var(--hub-muted)] hover:text-[var(--hub-fg)]",
                 )}
               >
                 {days === r.id ? (
                   <motion.span
                     layoutId="analytics-range-active"
-                    className="absolute inset-0 -z-0 rounded-lg ring-1 ring-violet-400/30"
+                    className="absolute inset-0 -z-0 rounded-lg ring-1 ring-[var(--hub-border-strong)]"
                     transition={{ type: "spring", stiffness: 460, damping: 32 }}
                   />
                 ) : null}
@@ -130,7 +130,7 @@ export function AdminAnalyticsTab() {
             type="button"
             onClick={refresh}
             disabled={overviewQ.isFetching || revenueQ.isFetching}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-white/[0.04] px-2.5 py-1.5 text-[12px] font-medium text-zinc-200 ring-1 ring-white/[0.08] transition hover:bg-white/[0.08] disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--hub-bg-subtle)] px-2.5 py-1.5 text-[12px] font-medium text-[var(--hub-fg)] ring-1 ring-[var(--hub-border)] transition hover:bg-[var(--hub-card-hover)] disabled:opacity-50"
           >
             <RefreshCw
               className={cn(
@@ -202,7 +202,7 @@ export function AdminAnalyticsTab() {
         description={`Last ${days} days · daily bars + cumulative line`}
       >
         {revenueQ.isLoading ? (
-          <div className="skeleton-shimmer m-3 h-[280px] rounded-xl ring-1 ring-white/[0.04]" />
+          <div className="skeleton-shimmer m-3 h-[280px] rounded-xl ring-1 ring-[var(--hub-border)]" />
         ) : series.length === 0 ? (
           <EmptyState
             icon={Calendar}
@@ -370,7 +370,7 @@ export function AdminAnalyticsTab() {
           title="Operations summary"
           description="Snapshot of platform throughput"
         >
-          <ul className="divide-y divide-white/[0.04] px-4 py-1 sm:px-5">
+          <ul className="divide-y divide-[var(--hub-border)] px-4 py-1 sm:px-5">
             {[
               {
                 label: "Trades · 24h",
@@ -403,10 +403,10 @@ export function AdminAnalyticsTab() {
                 className="flex items-center justify-between gap-3 py-2"
               >
                 <div className="min-w-0">
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-[var(--hub-muted)]">
                     {row.label}
                   </p>
-                  <p className="text-[10.5px] text-zinc-500">{row.hint}</p>
+                  <p className="text-[10.5px] text-[var(--hub-muted)]">{row.hint}</p>
                 </div>
                 <p className="font-mono text-[14px] font-semibold tabular-nums text-white">
                   {row.value}

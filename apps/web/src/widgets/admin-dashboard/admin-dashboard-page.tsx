@@ -33,6 +33,8 @@ import { AdminUsersTab } from "./tabs/users-tab";
 import { AdminCategoriesTab } from "./tabs/categories-tab";
 import { useAdminWalletBootstrap } from "./hooks/use-admin-wallet-bootstrap";
 import { ROUTES } from "@/shared/constants/routes";
+import { adminUi } from "./lib/admin-ui-classes";
+import "@/widgets/admin-dashboard/admin-hub-scope.css";
 
 export function AdminDashboardPage() {
   const router = useRouter();
@@ -118,15 +120,15 @@ export function AdminDashboardPage() {
         <span className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-rose-500/15 text-rose-200 ring-1 ring-rose-400/30">
           <ShieldAlert className="h-5 w-5" />
         </span>
-        <h1 className="text-lg font-semibold text-white">No operator scope</h1>
-        <p className="max-w-sm text-[12.5px] text-zinc-500">
+        <h1 className="text-lg font-semibold text-[var(--hub-fg)]">No operator scope</h1>
+        <p className="max-w-sm text-[12.5px] text-[var(--hub-muted)]">
           Your account is registered as <span className="font-mono">{me.role}</span>{" "}
           but no admin permissions are granted. Ask a platform admin to enable scopes.
         </p>
         <button
           type="button"
           onClick={() => signOut.mutate()}
-          className="inline-flex items-center gap-1.5 rounded-lg bg-white/[0.04] px-3 py-1.5 text-[12.5px] font-semibold text-zinc-200 ring-1 ring-white/[0.08] transition hover:bg-white/[0.08]"
+          className={adminUi.btnGhost}
         >
           Sign out
         </button>
@@ -168,7 +170,7 @@ export function AdminDashboardPage() {
           />
         </AdminSidebarDrawer>
 
-        <main className="min-w-0 flex-1">
+        <main className="hub-root hub-admin min-w-0 flex-1">
           <motion.div
             key={activeTab.id}
             initial={{ opacity: 0, y: 6 }}

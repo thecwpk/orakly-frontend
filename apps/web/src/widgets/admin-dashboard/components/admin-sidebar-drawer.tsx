@@ -40,7 +40,7 @@ export function AdminSidebarDrawer({
           {children}
           <DialogPrimitive.Close
             aria-label="Close menu"
-            className="absolute right-2 top-2 inline-flex h-8 w-8 items-center justify-center rounded-md bg-white/[0.04] text-zinc-300 ring-1 ring-white/[0.08] transition hover:bg-white/[0.08]"
+            className="absolute right-2 top-2 inline-flex h-8 w-8 items-center justify-center rounded-md bg-[var(--hub-bg-subtle)] text-[var(--hub-muted)] ring-1 ring-[var(--hub-border)] transition hover:bg-[var(--hub-card-hover)]"
           >
             <X className="h-3.5 w-3.5" />
           </DialogPrimitive.Close>

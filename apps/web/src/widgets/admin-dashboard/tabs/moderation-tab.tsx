@@ -89,7 +89,7 @@ export function AdminModerationTab({ canModerate }: { canModerate: boolean }) {
           type="button"
           onClick={refresh}
           disabled={draftQ.isFetching || pausedQ.isFetching}
-          className="inline-flex items-center gap-1.5 rounded-lg bg-white/[0.04] px-2.5 py-1.5 text-[12px] font-medium text-zinc-200 ring-1 ring-white/[0.08] transition hover:bg-white/[0.08] disabled:opacity-50"
+          className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--hub-bg-subtle)] px-2.5 py-1.5 text-[12px] font-medium text-[var(--hub-fg)] ring-1 ring-[var(--hub-border)] transition hover:bg-[var(--hub-card-hover)] disabled:opacity-50"
         >
           <Eye className="h-3.5 w-3.5" />
           Refresh queue
@@ -141,7 +141,7 @@ export function AdminModerationTab({ canModerate }: { canModerate: boolean }) {
             {Array.from({ length: 4 }).map((_, i) => (
               <div
                 key={i}
-                className="skeleton-shimmer h-16 rounded-lg ring-1 ring-white/[0.04]"
+                className="skeleton-shimmer h-16 rounded-lg ring-1 ring-[var(--hub-border)]"
               />
             ))}
           </div>
@@ -158,7 +158,7 @@ export function AdminModerationTab({ canModerate }: { canModerate: boolean }) {
             description="Nothing requires moderation right now."
           />
         ) : (
-          <ul className="divide-y divide-white/[0.04]">
+          <ul className="divide-y divide-[var(--hub-border)]">
             <AnimatePresence initial={false}>
               {queue.map((m) => (
                 <ModerationCard
@@ -224,7 +224,7 @@ function ModeChip({
   icon: typeof Flame;
 }) {
   const T = {
-    violet: "ring-violet-400/30 bg-violet-500/10 text-violet-200",
+    violet: "ring-[var(--hub-border-strong)] bg-violet-500/10 text-[var(--hub-primary-bright)]",
     rose: "ring-rose-400/30 bg-rose-500/10 text-rose-200",
     amber: "ring-amber-400/30 bg-amber-500/10 text-amber-200",
   } as const;
@@ -233,20 +233,20 @@ function ModeChip({
       type="button"
       onClick={onClick}
       className={cn(
-        "relative flex items-center gap-2.5 overflow-hidden rounded-2xl bg-black/30 px-4 py-3 text-left ring-1 transition hover:bg-white/[0.04]",
-        active ? T[tone] : "ring-white/[0.06]",
+        "relative flex items-center gap-2.5 overflow-hidden rounded-2xl bg-[var(--hub-bg-subtle)] px-4 py-3 text-left ring-1 transition hover:bg-[var(--hub-bg-subtle)]",
+        active ? T[tone] : "ring-[var(--hub-border)]",
       )}
     >
       <span
         className={cn(
           "inline-flex h-9 w-9 items-center justify-center rounded-md ring-1",
-          active ? T[tone] : "bg-white/[0.04] text-zinc-400 ring-white/[0.06]",
+          active ? T[tone] : "bg-[var(--hub-bg-subtle)] text-[var(--hub-muted)] ring-[var(--hub-border)]",
         )}
       >
         <Icon className="h-4 w-4" />
       </span>
       <span className="min-w-0 flex-1">
-        <span className="block text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500">
+        <span className="block text-[10px] font-bold uppercase tracking-[0.18em] text-[var(--hub-muted)]">
           {hint}
         </span>
         <span className="block text-[13.5px] font-semibold text-white">{label}</span>
@@ -258,7 +258,7 @@ function ModeChip({
         <motion.span
           layoutId="moderation-mode-active"
           aria-hidden
-          className="absolute inset-x-3 bottom-1 h-0.5 rounded-full bg-gradient-to-r from-violet-300 to-cyan-300"
+          className="absolute inset-x-3 bottom-1 h-0.5 rounded-full bg-[var(--hub-primary-bright)]"
         />
       ) : null}
     </button>
@@ -287,12 +287,12 @@ function ModerationCard({
         <div className="flex items-center gap-2">
           <StatusPill status={market.status} />
           {market.category ? (
-            <span className="rounded-md bg-white/[0.04] px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-zinc-400 ring-1 ring-white/[0.08]">
+            <span className="rounded-md bg-[var(--hub-bg-subtle)] px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[var(--hub-muted)] ring-1 ring-[var(--hub-border)]">
               {market.category.name}
             </span>
           ) : null}
         </div>
-        <p className="mt-1 line-clamp-2 text-[13px] font-medium text-zinc-100">
+        <p className="mt-1 line-clamp-2 text-[13px] font-medium text-[var(--hub-fg)]">
           {market.title}
         </p>
         <div className="mt-0.5 flex items-center gap-1.5">
@@ -300,13 +300,13 @@ function ModerationCard({
             href={`/markets/${market.slug}`}
             target="_blank"
             rel="noreferrer"
-            className="inline-flex items-center gap-1 truncate font-mono text-[10.5px] text-zinc-500 hover:text-violet-300"
+            className="inline-flex items-center gap-1 truncate font-mono text-[10.5px] text-[var(--hub-muted)] hover:text-[var(--hub-primary-bright)]"
           >
             {market.slug}
             <ExternalLink className="h-2.5 w-2.5" />
           </Link>
-          <span className="text-zinc-700">·</span>
-          <span className="font-mono text-[10px] text-zinc-600">
+          <span className="text-[var(--hub-border)]">·</span>
+          <span className="font-mono text-[10px] text-[var(--hub-muted)]">
             {shortId(market.id)}
           </span>
         </div>

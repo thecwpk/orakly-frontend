@@ -36,9 +36,9 @@ type RoleTarget = { id: string; label: string; nextRole: string } | null;
 
 const ROLE_TONE: Record<string, { ring: string; bg: string; text: string }> = {
   ADMIN: {
-    ring: "ring-violet-400/30",
-    bg: "bg-violet-500/12",
-    text: "text-violet-200",
+    ring: "ring-[var(--hub-border-strong)]",
+    bg: "bg-[var(--hub-primary-soft)]",
+    text: "text-[var(--hub-primary-bright)]",
   },
   MODERATOR: {
     ring: "ring-cyan-400/30",
@@ -48,7 +48,7 @@ const ROLE_TONE: Record<string, { ring: string; bg: string; text: string }> = {
   USER: {
     ring: "ring-zinc-500/25",
     bg: "bg-zinc-500/10",
-    text: "text-zinc-300",
+    text: "text-[var(--hub-muted)]",
   },
 };
 
@@ -126,7 +126,7 @@ export function AdminUsersTab() {
           type="button"
           onClick={() => void usersQ.refetch()}
           disabled={usersQ.isFetching}
-          className="inline-flex items-center gap-1.5 rounded-lg bg-white/[0.04] px-2.5 py-1.5 text-[12px] font-medium text-zinc-200 ring-1 ring-white/[0.08] transition hover:bg-white/[0.08] disabled:opacity-50"
+          className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--hub-bg-subtle)] px-2.5 py-1.5 text-[12px] font-medium text-[var(--hub-fg)] ring-1 ring-[var(--hub-border)] transition hover:bg-[var(--hub-card-hover)] disabled:opacity-50"
         >
           <RefreshCw className={cn("h-3.5 w-3.5", usersQ.isFetching && "animate-spin")} />
           Refresh
@@ -135,25 +135,25 @@ export function AdminUsersTab() {
     >
       <div className="flex flex-wrap items-center gap-2">
         <div className="relative flex-1 min-w-[220px]">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-zinc-500" />
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[var(--hub-muted)]" />
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search email, name, or id…"
-            className="w-full rounded-xl border border-white/[0.08] bg-black/30 py-2 pl-8 pr-7 text-[12.5px] text-white outline-none focus:border-violet-500/50"
+            className="w-full rounded-xl border border-[var(--hub-border)] bg-[var(--hub-bg-subtle)] py-2 pl-8 pr-7 text-[12.5px] text-white outline-none focus:border-[var(--hub-primary)]/50"
           />
           {query ? (
             <button
               type="button"
               aria-label="Clear search"
               onClick={() => setQuery("")}
-              className="absolute right-2 top-1/2 inline-flex h-5 w-5 -translate-y-1/2 items-center justify-center rounded-md bg-white/[0.04] text-zinc-400 ring-1 ring-white/[0.08] hover:bg-white/[0.08]"
+              className="absolute right-2 top-1/2 inline-flex h-5 w-5 -translate-y-1/2 items-center justify-center rounded-md bg-[var(--hub-bg-subtle)] text-[var(--hub-muted)] ring-1 ring-[var(--hub-border)] hover:bg-[var(--hub-card-hover)]"
             >
               <X className="h-3 w-3" />
             </button>
           ) : null}
         </div>
-        <div className="flex items-center gap-1 rounded-xl bg-black/30 p-1 ring-1 ring-white/[0.06]">
+        <div className="flex items-center gap-1 rounded-xl bg-[var(--hub-bg-subtle)] p-1 ring-1 ring-[var(--hub-border)]">
           {ROLE_FILTERS.map((k) => (
             <button
               key={k}
@@ -162,19 +162,19 @@ export function AdminUsersTab() {
               className={cn(
                 "relative inline-flex items-center gap-1 rounded-lg px-2 py-1 text-[10.5px] font-bold uppercase tracking-wider transition",
                 role === k
-                  ? "bg-white/[0.08] text-white"
-                  : "text-zinc-400 hover:text-zinc-200",
+                  ? "bg-[var(--hub-card-hover)] text-white"
+                  : "text-[var(--hub-muted)] hover:text-[var(--hub-fg)]",
               )}
             >
               {role === k ? (
                 <motion.span
                   layoutId="users-role-active"
-                  className="absolute inset-0 -z-0 rounded-lg ring-1 ring-violet-400/30"
+                  className="absolute inset-0 -z-0 rounded-lg ring-1 ring-[var(--hub-border-strong)]"
                   transition={{ type: "spring", stiffness: 460, damping: 32 }}
                 />
               ) : null}
               <span className="relative z-10">{k}</span>
-              <span className="relative z-10 rounded-md bg-white/[0.04] px-1 py-0.5 font-mono text-[9.5px] text-zinc-300">
+              <span className="relative z-10 rounded-md bg-[var(--hub-bg-subtle)] px-1 py-0.5 font-mono text-[9.5px] text-[var(--hub-muted)]">
                 {counts[k]}
               </span>
             </button>
@@ -185,7 +185,7 @@ export function AdminUsersTab() {
           onChange={(e) =>
             setShowSuspended(e.target.value as "all" | "active" | "suspended")
           }
-          className="rounded-xl border border-white/[0.08] bg-black/30 px-2.5 py-1.5 text-[11px] font-bold uppercase tracking-wider text-zinc-200 outline-none focus:border-violet-500/50"
+          className="rounded-xl border border-[var(--hub-border)] bg-[var(--hub-bg-subtle)] px-2.5 py-1.5 text-[11px] font-bold uppercase tracking-wider text-[var(--hub-fg)] outline-none focus:border-[var(--hub-primary)]/50"
         >
           <option value="all">Any status</option>
           <option value="active">Active only</option>
@@ -200,7 +200,7 @@ export function AdminUsersTab() {
               {Array.from({ length: 6 }).map((_, i) => (
                 <div
                   key={i}
-                  className="skeleton-shimmer h-12 rounded-lg ring-1 ring-white/[0.04]"
+                  className="skeleton-shimmer h-12 rounded-lg ring-1 ring-[var(--hub-border)]"
                 />
               ))}
             </div>
@@ -217,7 +217,7 @@ export function AdminUsersTab() {
             />
           ) : (
             <table className="w-full min-w-[760px] border-collapse text-left text-[12.5px]">
-              <thead className="bg-[#0a0a12]/85 text-[10px] font-bold uppercase tracking-[0.15em] text-zinc-500 backdrop-blur">
+              <thead className="bg-[var(--hub-bg-subtle)]/95 text-[10px] font-bold uppercase tracking-[0.15em] text-[var(--hub-muted)] backdrop-blur">
                 <tr>
                   <th scope="col" className="px-3 py-2.5">User</th>
                   <th scope="col" className="px-3 py-2.5">Role</th>
@@ -226,7 +226,7 @@ export function AdminUsersTab() {
                   <th scope="col" className="px-3 py-2.5 text-right">Actions</th>
                 </tr>
               </thead>
-              <motion.tbody layout className="divide-y divide-white/[0.04] text-zinc-300">
+              <motion.tbody layout className="divide-y divide-[var(--hub-border)] text-[var(--hub-muted)]">
                 <AnimatePresence initial={false}>
                   {filtered.map((u) => (
                     <UserRow
@@ -256,7 +256,7 @@ export function AdminUsersTab() {
       </Section>
 
       {usersQ.data?.nextCursor ? (
-        <p className="text-center text-[10.5px] text-zinc-500">
+        <p className="text-center text-[10.5px] text-[var(--hub-muted)]">
           Showing the most recent {usersQ.data.users.length} accounts. Refine search
           to find older users.
         </p>
@@ -356,11 +356,11 @@ function UserRow({
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.18 }}
-      className="hover:bg-white/[0.02]"
+      className="hover:bg-[var(--hub-card-hover)]"
     >
       <td className="max-w-[260px] px-3 py-2">
-        <p className="truncate text-zinc-100">{userLabel(user)}</p>
-        <p className="truncate font-mono text-[10.5px] text-zinc-600">
+        <p className="truncate text-[var(--hub-fg)]">{userLabel(user)}</p>
+        <p className="truncate font-mono text-[10.5px] text-[var(--hub-muted)]">
           {shortId(user.id)}
         </p>
       </td>
@@ -377,7 +377,7 @@ function UserRow({
           {user.role}
         </span>
       </td>
-      <td className="px-3 py-2 font-mono text-[11px] text-zinc-400">
+      <td className="px-3 py-2 font-mono text-[11px] text-[var(--hub-muted)]">
         {user.wallet ? compactUsd(available) : "—"}
       </td>
       <td className="px-3 py-2">
@@ -440,7 +440,7 @@ function ActionPill({
     amber: "bg-amber-500/12 text-amber-200 ring-amber-400/25 hover:bg-amber-500/20",
     rose: "bg-rose-500/12 text-rose-200 ring-rose-400/25 hover:bg-rose-500/20",
     cyan: "bg-cyan-500/12 text-cyan-200 ring-cyan-400/25 hover:bg-cyan-500/20",
-    violet: "bg-violet-500/12 text-violet-200 ring-violet-400/25 hover:bg-violet-500/20",
+    violet: "bg-[var(--hub-primary-soft)] text-[var(--hub-primary-bright)] ring-[var(--hub-border)] hover:bg-violet-500/20",
   } as const;
   return (
     <button

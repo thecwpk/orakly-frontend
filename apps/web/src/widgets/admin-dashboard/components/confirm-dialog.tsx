@@ -69,7 +69,7 @@ export function ConfirmDialog({
           aria-describedby={undefined}
           className={cn(
             "fixed left-1/2 top-1/2 z-50 w-[calc(100%-2rem)] max-w-md -translate-x-1/2 -translate-y-1/2",
-            "rounded-2xl bg-[#0a0a12] text-zinc-100 ring-1 shadow-[0_20px_80px_-20px_rgba(0,0,0,0.6)]",
+            "rounded-2xl bg-[var(--hub-card)] text-[var(--hub-fg)] ring-1 shadow-[0_20px_80px_-20px_rgba(0,0,0,0.6)]",
             t.ring,
             "data-[state=open]:animate-in data-[state=closed]:animate-out",
             "data-[state=open]:fade-in-0 data-[state=closed]:fade-out-0",
@@ -87,28 +87,28 @@ export function ConfirmDialog({
               <AlertTriangle className={cn("h-4 w-4", t.icon)} />
             </span>
             <div className="min-w-0 flex-1">
-              <DialogPrimitive.Title className="text-[15px] font-semibold tracking-tight text-white">
+              <DialogPrimitive.Title className="text-[15px] font-semibold tracking-tight text-[var(--hub-fg)]">
                 {title}
               </DialogPrimitive.Title>
             </div>
             <DialogPrimitive.Close
               aria-label="Close"
-              className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-white/[0.04] text-zinc-300 ring-1 ring-white/[0.08] transition hover:bg-white/[0.08] hover:text-white"
+              className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-[var(--hub-bg-subtle)] text-[var(--hub-muted)] ring-1 ring-[var(--hub-border)] transition hover:bg-[var(--hub-card-hover)] hover:text-white"
             >
               <X className="h-3.5 w-3.5" />
             </DialogPrimitive.Close>
           </header>
 
-          <div className="px-5 pb-4 text-[12.5px] leading-relaxed text-zinc-400">
+          <div className="px-5 pb-4 text-[12.5px] leading-relaxed text-[var(--hub-muted)]">
             {description}
           </div>
 
-          <footer className="grid grid-cols-[1fr_2fr] gap-2 border-t border-white/[0.06] p-3">
+          <footer className="grid grid-cols-[1fr_2fr] gap-2 border-t border-[var(--hub-border)] p-3">
             <button
               type="button"
               onClick={() => onOpenChange(false)}
               disabled={busy}
-              className="h-10 rounded-xl bg-white/[0.04] text-[13px] font-semibold text-zinc-300 ring-1 ring-white/[0.08] transition hover:bg-white/[0.08] hover:text-white disabled:opacity-50"
+              className="h-10 rounded-xl bg-[var(--hub-bg-subtle)] text-[13px] font-semibold text-[var(--hub-muted)] ring-1 ring-[var(--hub-border)] transition hover:bg-[var(--hub-card-hover)] hover:text-white disabled:opacity-50"
             >
               {cancelLabel}
             </button>

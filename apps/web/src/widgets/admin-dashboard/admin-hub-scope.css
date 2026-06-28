@@ -1,0 +1,33 @@
+/**
+ * Operator console — inherit hub canvas tokens for charts, tables, and legacy utility leftovers.
+ */
+.hub-admin {
+  color: var(--hub-fg);
+}
+
+.hub-admin .recharts-cartesian-grid line {
+  stroke: color-mix(in srgb, var(--hub-border) 65%, transparent);
+}
+
+.hub-admin .recharts-text {
+  fill: var(--hub-muted);
+  font-size: 10px;
+}
+
+.hub-admin .recharts-tooltip-wrapper .recharts-default-tooltip {
+  border: 1px solid var(--hub-border) !important;
+  border-radius: var(--hub-radius) !important;
+  background: var(--hub-card) !important;
+  color: var(--hub-fg) !important;
+  box-shadow: 0 12px 32px rgb(0 0 0 / 0.35);
+}
+
+.hub-admin .skeleton-shimmer {
+  border-radius: var(--hub-radius);
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--hub-bg-subtle) 88%, var(--hub-card)) 0%,
+    color-mix(in srgb, var(--hub-card-hover) 70%, var(--hub-card)) 50%,
+    color-mix(in srgb, var(--hub-bg-subtle) 88%, var(--hub-card)) 100%
+  );
+}

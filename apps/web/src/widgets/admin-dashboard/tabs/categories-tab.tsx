@@ -100,7 +100,7 @@ export function AdminCategoriesTab({ canManage }: { canManage: boolean }) {
           type="button"
           onClick={() => void categoriesQ.refetch()}
           disabled={categoriesQ.isFetching}
-          className="inline-flex items-center gap-1.5 rounded-lg bg-white/[0.04] px-2.5 py-1.5 text-[12px] font-medium text-zinc-200 ring-1 ring-white/[0.08] transition hover:bg-white/[0.08] disabled:opacity-50"
+          className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--hub-bg-subtle)] px-2.5 py-1.5 text-[12px] font-medium text-[var(--hub-fg)] ring-1 ring-[var(--hub-border)] transition hover:bg-[var(--hub-card-hover)] disabled:opacity-50"
         >
           <RefreshCw
             className={cn("h-3.5 w-3.5", categoriesQ.isFetching && "animate-spin")}
@@ -116,7 +116,7 @@ export function AdminCategoriesTab({ canManage }: { canManage: boolean }) {
               value={name}
               onChange={(e) => onNameChange(e.target.value)}
               placeholder="Name (e.g. Politics)"
-              className="rounded-xl border border-white/[0.08] bg-black/30 px-3 py-2.5 text-[13px] text-white outline-none focus:border-violet-500/50"
+              className="rounded-xl border border-[var(--hub-border)] bg-[var(--hub-bg-subtle)] px-3 py-2.5 text-[13px] text-white outline-none focus:border-[var(--hub-primary)]/50"
             />
             <div className="relative">
               <input
@@ -124,12 +124,12 @@ export function AdminCategoriesTab({ canManage }: { canManage: boolean }) {
                 onChange={(e) => setSlug(e.target.value)}
                 disabled={autoSlug}
                 placeholder="slug"
-                className="w-full rounded-xl border border-white/[0.08] bg-black/30 px-3 py-2.5 pr-16 font-mono text-[13px] text-white outline-none focus:border-violet-500/50 disabled:opacity-60"
+                className="w-full rounded-xl border border-[var(--hub-border)] bg-[var(--hub-bg-subtle)] px-3 py-2.5 pr-16 font-mono text-[13px] text-white outline-none focus:border-[var(--hub-primary)]/50 disabled:opacity-60"
               />
               <button
                 type="button"
                 onClick={() => setAutoSlug((s) => !s)}
-                className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md bg-white/[0.04] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-violet-300 ring-1 ring-white/[0.08] hover:bg-white/[0.08]"
+                className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md bg-[var(--hub-bg-subtle)] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[var(--hub-primary-bright)] ring-1 ring-[var(--hub-border)] hover:bg-[var(--hub-card-hover)]"
               >
                 {autoSlug ? "Auto" : "Manual"}
               </button>
@@ -139,7 +139,7 @@ export function AdminCategoriesTab({ canManage }: { canManage: boolean }) {
               whileTap={{ scale: 0.99 }}
               disabled={!canSubmit}
               onClick={() => create.mutate()}
-              className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-violet-500 to-cyan-500 px-3 py-2.5 text-[12.5px] font-bold text-white shadow-[0_8px_30px_-8px_rgba(167,139,250,0.6)] ring-1 ring-violet-400/40 transition hover:brightness-110 disabled:opacity-40"
+              className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-[var(--hub-primary)] to-cyan-600 px-3 py-2.5 text-[12.5px] font-bold text-white shadow-[0_8px_30px_-8px_rgba(167,139,250,0.6)] ring-1 ring-[var(--hub-border-strong)] transition hover:brightness-110 disabled:opacity-40"
             >
               <Plus className="h-3.5 w-3.5" />
               Add
@@ -157,19 +157,19 @@ export function AdminCategoriesTab({ canManage }: { canManage: boolean }) {
       )}
 
       <div className="relative max-w-md">
-        <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-zinc-500" />
+        <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[var(--hub-muted)]" />
         <input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search categories…"
-          className="w-full rounded-xl border border-white/[0.08] bg-black/30 py-2 pl-8 pr-7 text-[12.5px] text-white outline-none focus:border-violet-500/50"
+          className="w-full rounded-xl border border-[var(--hub-border)] bg-[var(--hub-bg-subtle)] py-2 pl-8 pr-7 text-[12.5px] text-white outline-none focus:border-[var(--hub-primary)]/50"
         />
         {query ? (
           <button
             type="button"
             aria-label="Clear search"
             onClick={() => setQuery("")}
-            className="absolute right-2 top-1/2 inline-flex h-5 w-5 -translate-y-1/2 items-center justify-center rounded-md bg-white/[0.04] text-zinc-400 ring-1 ring-white/[0.08] hover:bg-white/[0.08]"
+            className="absolute right-2 top-1/2 inline-flex h-5 w-5 -translate-y-1/2 items-center justify-center rounded-md bg-[var(--hub-bg-subtle)] text-[var(--hub-muted)] ring-1 ring-[var(--hub-border)] hover:bg-[var(--hub-card-hover)]"
           >
             <X className="h-3 w-3" />
           </button>
@@ -182,7 +182,7 @@ export function AdminCategoriesTab({ canManage }: { canManage: boolean }) {
             {Array.from({ length: 4 }).map((_, i) => (
               <div
                 key={i}
-                className="skeleton-shimmer h-12 rounded-lg ring-1 ring-white/[0.04]"
+                className="skeleton-shimmer h-12 rounded-lg ring-1 ring-[var(--hub-border)]"
               />
             ))}
           </div>
@@ -201,7 +201,7 @@ export function AdminCategoriesTab({ canManage }: { canManage: boolean }) {
             }
           />
         ) : (
-          <ul className="divide-y divide-white/[0.04]">
+          <ul className="divide-y divide-[var(--hub-border)]">
             <AnimatePresence initial={false}>
               {filtered.map((c) => (
                 <motion.li
@@ -211,18 +211,18 @@ export function AdminCategoriesTab({ canManage }: { canManage: boolean }) {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0 }}
                   transition={{ duration: 0.18 }}
-                  className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 hover:bg-white/[0.02]"
+                  className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 hover:bg-[var(--hub-card-hover)]"
                 >
                   <div className="min-w-0">
-                    <p className="truncate text-[13px] font-medium text-zinc-100">
+                    <p className="truncate text-[13px] font-medium text-[var(--hub-fg)]">
                       {c.name}
                     </p>
-                    <p className="truncate font-mono text-[10.5px] text-zinc-500">
+                    <p className="truncate font-mono text-[10.5px] text-[var(--hub-muted)]">
                       {c.slug}
                     </p>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="rounded-md bg-white/[0.04] px-1.5 py-0.5 text-[10.5px] font-bold uppercase tracking-wider text-zinc-300 ring-1 ring-white/[0.08]">
+                    <span className="rounded-md bg-[var(--hub-bg-subtle)] px-1.5 py-0.5 text-[10.5px] font-bold uppercase tracking-wider text-[var(--hub-muted)] ring-1 ring-[var(--hub-border)]">
                       {c._count.markets} markets
                     </span>
                     {canManage ? (

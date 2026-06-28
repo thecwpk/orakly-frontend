@@ -129,7 +129,7 @@ export function CreateMarketDialog({
           aria-describedby={undefined}
           className={cn(
             "fixed left-1/2 top-1/2 z-50 w-[calc(100%-2rem)] max-w-xl -translate-x-1/2 -translate-y-1/2",
-            "max-h-[88vh] overflow-y-auto rounded-2xl bg-[#0a0a12] text-zinc-100 ring-1 ring-violet-400/20",
+            "max-h-[88vh] overflow-y-auto rounded-2xl bg-[var(--hub-card)] text-[var(--hub-fg)] ring-1 ring-violet-400/20",
             "shadow-[0_20px_80px_-20px_rgba(0,0,0,0.6)]",
             "data-[state=open]:animate-in data-[state=closed]:animate-out",
             "data-[state=open]:fade-in-0 data-[state=closed]:fade-out-0",
@@ -137,16 +137,16 @@ export function CreateMarketDialog({
             "outline-none",
           )}
         >
-          <header className="flex items-start justify-between gap-3 border-b border-white/[0.06] px-5 py-4">
+          <header className="flex items-start justify-between gap-3 border-b border-[var(--hub-border)] px-5 py-4">
             <div className="flex items-center gap-3">
-              <span className="inline-flex h-9 w-9 items-center justify-center rounded-md bg-violet-500/15 text-violet-300 ring-1 ring-violet-400/30">
+              <span className="inline-flex h-9 w-9 items-center justify-center rounded-md bg-[var(--hub-primary-soft)] text-[var(--hub-primary-bright)] ring-1 ring-[var(--hub-border-strong)]">
                 <Sparkles className="h-4 w-4" />
               </span>
               <div>
                 <DialogPrimitive.Title className="text-[15px] font-semibold tracking-tight text-white">
                   Create market
                 </DialogPrimitive.Title>
-                <p className="text-[11.5px] text-zinc-500">
+                <p className="text-[11.5px] text-[var(--hub-muted)]">
                   Markets open in <span className="font-mono">DRAFT</span>. Resolution emits
                   payouts and audit trail entries.
                 </p>
@@ -154,7 +154,7 @@ export function CreateMarketDialog({
             </div>
             <DialogPrimitive.Close
               aria-label="Close"
-              className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-white/[0.04] text-zinc-300 ring-1 ring-white/[0.08] transition hover:bg-white/[0.08] hover:text-white"
+              className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-[var(--hub-bg-subtle)] text-[var(--hub-muted)] ring-1 ring-[var(--hub-border)] transition hover:bg-[var(--hub-card-hover)] hover:text-white"
             >
               <X className="h-3.5 w-3.5" />
             </DialogPrimitive.Close>
@@ -166,7 +166,7 @@ export function CreateMarketDialog({
                 value={state.title}
                 onChange={(e) => onTitleChange(e.target.value)}
                 placeholder="Will BTC close > $100k by year-end?"
-                className="w-full rounded-xl border border-white/[0.08] bg-black/30 px-3 py-2.5 text-[13px] text-white outline-none focus:border-violet-500/50"
+                className="w-full rounded-xl border border-[var(--hub-border)] bg-[var(--hub-bg-subtle)] px-3 py-2.5 text-[13px] text-white outline-none focus:border-[var(--hub-primary)]/50"
               />
             </Field>
 
@@ -178,7 +178,7 @@ export function CreateMarketDialog({
                 <button
                   type="button"
                   onClick={() => setAutoSlug((s) => !s)}
-                  className="text-[10.5px] font-semibold text-violet-300 hover:underline"
+                  className="text-[10.5px] font-semibold text-[var(--hub-primary-bright)] hover:underline"
                 >
                   {autoSlug ? "Manual" : "Auto"}
                 </button>
@@ -189,7 +189,7 @@ export function CreateMarketDialog({
                 disabled={autoSlug}
                 onChange={(e) => setState((s) => ({ ...s, slug: e.target.value }))}
                 placeholder="btc-100k-eoy"
-                className="w-full rounded-xl border border-white/[0.08] bg-black/30 px-3 py-2.5 font-mono text-[13px] text-white outline-none focus:border-violet-500/50 disabled:opacity-60"
+                className="w-full rounded-xl border border-[var(--hub-border)] bg-[var(--hub-bg-subtle)] px-3 py-2.5 font-mono text-[13px] text-white outline-none focus:border-[var(--hub-primary)]/50 disabled:opacity-60"
               />
             </Field>
 
@@ -199,7 +199,7 @@ export function CreateMarketDialog({
                 value={state.description}
                 onChange={(e) => setState((s) => ({ ...s, description: e.target.value }))}
                 placeholder="Resolves YES if Coinbase BTC-USD daily close ≥ $100,000 on 2026-12-31…"
-                className="w-full rounded-xl border border-white/[0.08] bg-black/30 px-3 py-2 text-[13px] text-white outline-none focus:border-violet-500/50"
+                className="w-full rounded-xl border border-[var(--hub-border)] bg-[var(--hub-bg-subtle)] px-3 py-2 text-[13px] text-white outline-none focus:border-[var(--hub-primary)]/50"
               />
             </Field>
 
@@ -209,7 +209,7 @@ export function CreateMarketDialog({
                   type="datetime-local"
                   value={state.closesAt}
                   onChange={(e) => setState((s) => ({ ...s, closesAt: e.target.value }))}
-                  className="w-full rounded-xl border border-white/[0.08] bg-black/30 px-3 py-2.5 text-[13px] text-white outline-none focus:border-violet-500/50"
+                  className="w-full rounded-xl border border-[var(--hub-border)] bg-[var(--hub-bg-subtle)] px-3 py-2.5 text-[13px] text-white outline-none focus:border-[var(--hub-primary)]/50"
                 />
               </Field>
               <Field
@@ -229,7 +229,7 @@ export function CreateMarketDialog({
                       takerFeeBps: Number.parseInt(e.target.value || "0", 10),
                     }))
                   }
-                  className="w-full rounded-xl border border-white/[0.08] bg-black/30 px-3 py-2.5 font-mono text-[13px] text-white outline-none focus:border-violet-500/50"
+                  className="w-full rounded-xl border border-[var(--hub-border)] bg-[var(--hub-bg-subtle)] px-3 py-2.5 font-mono text-[13px] text-white outline-none focus:border-[var(--hub-primary)]/50"
                 />
               </Field>
             </div>
@@ -238,7 +238,7 @@ export function CreateMarketDialog({
               <select
                 value={state.categoryId}
                 onChange={(e) => setState((s) => ({ ...s, categoryId: e.target.value }))}
-                className="w-full rounded-xl border border-white/[0.08] bg-black/30 px-3 py-2.5 text-[13px] text-white outline-none focus:border-violet-500/50"
+                className="w-full rounded-xl border border-[var(--hub-border)] bg-[var(--hub-bg-subtle)] px-3 py-2.5 text-[13px] text-white outline-none focus:border-[var(--hub-primary)]/50"
               >
                 <option value="">— uncategorized —</option>
                 {categories.map((c) => (
@@ -250,15 +250,15 @@ export function CreateMarketDialog({
             </Field>
           </div>
 
-          <footer className="flex items-center justify-between gap-2 border-t border-white/[0.06] px-5 py-3">
-            <p className="hidden text-[10.5px] text-zinc-500 sm:block">
+          <footer className="flex items-center justify-between gap-2 border-t border-[var(--hub-border)] px-5 py-3">
+            <p className="hidden text-[10.5px] text-[var(--hub-muted)] sm:block">
               Status defaults to <span className="font-mono">DRAFT</span> · audit logged
             </p>
             <div className="flex items-center gap-2">
               <button
                 type="button"
                 onClick={() => onOpenChange(false)}
-                className="rounded-xl bg-white/[0.04] px-3 py-2 text-[12.5px] font-semibold text-zinc-300 ring-1 ring-white/[0.08] transition hover:bg-white/[0.08]"
+                className="rounded-xl bg-[var(--hub-bg-subtle)] px-3 py-2 text-[12.5px] font-semibold text-[var(--hub-muted)] ring-1 ring-[var(--hub-border)] transition hover:bg-[var(--hub-card-hover)]"
               >
                 Cancel
               </button>
@@ -267,7 +267,7 @@ export function CreateMarketDialog({
                 whileTap={{ scale: 0.99 }}
                 disabled={!canSubmit}
                 onClick={submit}
-                className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-violet-500 to-cyan-500 px-3.5 py-2 text-[12.5px] font-bold text-white shadow-[0_8px_30px_-8px_rgba(167,139,250,0.6)] ring-1 ring-violet-400/40 transition hover:brightness-110 disabled:opacity-40"
+                className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-[var(--hub-primary)] to-cyan-600 px-3.5 py-2 text-[12.5px] font-bold text-white shadow-[0_8px_30px_-8px_rgba(167,139,250,0.6)] ring-1 ring-[var(--hub-border-strong)] transition hover:brightness-110 disabled:opacity-40"
               >
                 {mutation.isPending ? (
                   <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -300,14 +300,14 @@ function Field({
   return (
     <label className="block">
       <div className="mb-1 flex items-center justify-between">
-        <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-500">
+        <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-[var(--hub-muted)]">
           {label}
         </span>
         {right}
       </div>
       {children}
       <div className="mt-1 flex items-center justify-between">
-        {hint ? <p className="text-[10.5px] text-zinc-500">{hint}</p> : <span />}
+        {hint ? <p className="text-[10.5px] text-[var(--hub-muted)]">{hint}</p> : <span />}
         {error ? (
           <p className="text-[10.5px] font-semibold text-rose-300">{error}</p>
         ) : null}
