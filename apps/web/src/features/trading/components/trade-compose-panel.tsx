@@ -263,6 +263,9 @@ function TradeComposePanelInner({
     inputRef.current?.select();
   }, []);
 
+  const quoteReady = Boolean(quoteQuery.data) && !quoteQuery.isFetching;
+  const quoteFailed = quoteQuery.isError && !quoteQuery.data;
+
   // ── Validation
   const composeEnabled =
     Boolean(market.tradeMarketId) && market.status === "OPEN";
@@ -277,6 +280,8 @@ function TradeComposePanelInner({
     ? "Market is not yet wired for trading on this network."
     : market.status !== "OPEN"
       ? `This market is ${market.status.toLowerCase()} — trading disabled.`
+      : quoteFailed
+        ? "Could not load a live quote — check your connection and retry."
       : exceedsBalance
         ? "Amount exceeds available balance."
         : lowAmount
@@ -296,7 +301,9 @@ function TradeComposePanelInner({
   };
 
   const onContinueClick = () => {
-    if (blockingError || !composeEnabled) return;
+    if (blockingError || !composeEnabled || !quoteReady || enriched.isProvisional) {
+      return;
+    }
     onContinue({
       draft: {
         outcome,
@@ -462,10 +469,10 @@ function TradeComposePanelInner({
       <div className="space-y-1.5 rounded-xl bg-black/30 px-3.5 py-3 ring-1 ring-white/[0.06]">
         <div className="mb-1 flex items-center justify-between text-[10.5px] font-semibold uppercase tracking-wider text-zinc-500">
           <span>Transaction preview</span>
-          {quoteQuery.isFetching ? (
+          {quoteQuery.isFetching || enriched.isProvisional ? (
             <span className="inline-flex items-center gap-1 text-[10px] text-zinc-500">
               <Loader2 className="h-2.5 w-2.5 animate-spin" />
-              quoting
+              {quoteQuery.isFetching ? "quoting" : "estimating"}
             </span>
           ) : null}
         </div>
@@ -552,7 +559,7 @@ function TradeComposePanelInner({
         <button
           type="button"
           onClick={onContinueClick}
-          disabled={!!blockingError}
+          disabled={!!blockingError || !quoteReady || enriched.isProvisional}
           className={cn(
             "relative h-12 overflow-hidden rounded-xl text-[13px] font-bold ring-1 transition active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/40",
             "disabled:cursor-not-allowed disabled:opacity-40",

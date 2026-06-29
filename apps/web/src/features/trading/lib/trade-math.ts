@@ -23,9 +23,43 @@ export type EnrichedQuote = {
   /** Implied YES probability after the fill. */
   impliedYesAfter: number;
   takerFeeBps: number;
+  /** True when derived from mid price — not yet confirmed by the quote API. */
+  isProvisional?: boolean;
 };
 
-/** Requires backend quote API — no client-side pricing fallback. */
+const DEFAULT_TAKER_FEE_BPS = 25;
+
+/** Mid-price estimate while the debounced quote request is in flight. */
+export function buildProvisionalQuote(fallback: {
+  midYes: number;
+  quantity: number;
+  direction: "BUY" | "SELL";
+  outcome: "YES" | "NO";
+  takerFeeBps?: number;
+}): EnrichedQuote {
+  const feeBps = fallback.takerFeeBps ?? DEFAULT_TAKER_FEE_BPS;
+  const px =
+    fallback.outcome === "YES" ? fallback.midYes : 1 - fallback.midYes;
+  const qty = Math.max(0, fallback.quantity);
+  const notional = px * qty;
+  const fee = notional * (feeBps / 10_000);
+  const totalDebit = notional + fee;
+  const netCredit = Math.max(0, notional - fee);
+
+  return {
+    quantity: qty,
+    execPrice: px,
+    notionalUsd: notional,
+    feeUsd: fee,
+    totalDebitUsd: totalDebit,
+    netCreditUsd: netCredit,
+    impliedYesAfter: fallback.midYes,
+    takerFeeBps: feeBps,
+    isProvisional: true,
+  };
+}
+
+/** Uses backend quote when present; otherwise a mid-price preview (no throw). */
 export function enrichQuote(
   q: MarketQuoteDto | undefined,
   fallback: {
@@ -36,7 +70,7 @@ export function enrichQuote(
   },
 ): EnrichedQuote {
   if (!q) {
-    throw new Error("Quote unavailable — waiting for backend pricing");
+    return buildProvisionalQuote(fallback);
   }
 
   const px = parseFloatSafe(q.execPrice);
@@ -47,7 +81,7 @@ export function enrichQuote(
   const after = parseFloatSafe(q.impliedYesAfter);
 
   if (px == null || notional == null || fee == null || after == null) {
-    throw new Error("Incomplete quote from backend");
+    return buildProvisionalQuote(fallback);
   }
 
   return {
@@ -59,6 +93,7 @@ export function enrichQuote(
     netCreditUsd: netCredit ?? Math.max(0, notional - fee),
     impliedYesAfter: after,
     takerFeeBps: q.takerFeeBps,
+    isProvisional: false,
   };
 }
 

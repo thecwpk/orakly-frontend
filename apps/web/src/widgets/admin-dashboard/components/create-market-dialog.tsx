@@ -66,6 +66,8 @@ function isFutureDate(local: string): boolean {
 
 const adminInputClass = cn(
   "admin-field-input w-full rounded-xl px-3 py-2.5 text-[13px] outline-none",
+  "border border-[var(--hub-border-strong)] bg-[var(--hub-bg-subtle)] text-[var(--hub-fg)]",
+  "placeholder:text-[var(--hub-muted)]",
   "focus:border-[var(--hub-primary)]/55 focus:ring-2 focus:ring-[var(--hub-primary)]/20",
 );
 
@@ -206,7 +208,7 @@ export function CreateMarketDialog({
         <DialogPrimitive.Content
           aria-describedby="create-market-dialog-desc"
           className={cn(
-            "fixed left-1/2 top-1/2 z-50 w-[calc(100%-2rem)] max-w-2xl -translate-x-1/2 -translate-y-1/2",
+            "admin-create-market-dialog fixed left-1/2 top-1/2 z-50 w-[calc(100%-2rem)] max-w-2xl -translate-x-1/2 -translate-y-1/2",
             "max-h-[90vh] overflow-y-auto rounded-2xl bg-[var(--hub-card)] text-[var(--hub-fg)]",
             "ring-1 ring-[var(--hub-border-strong)] shadow-[0_24px_80px_-24px_rgba(0,0,0,0.75)]",
             "data-[state=open]:animate-in data-[state=closed]:animate-out",
@@ -226,7 +228,7 @@ export function CreateMarketDialog({
                 </DialogPrimitive.Title>
                 <p
                   id="create-market-dialog-desc"
-                  className="mt-0.5 text-[12px] leading-relaxed text-[var(--hub-fg)]/75"
+                  className="mt-0.5 text-[12px] leading-relaxed text-[var(--hub-muted)]"
                 >
                   Drafts stay private until you publish. Narrative + liquidity seed
                   control where traders discover the market.
@@ -235,7 +237,7 @@ export function CreateMarketDialog({
             </div>
             <DialogPrimitive.Close
               aria-label="Close"
-              className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-[var(--hub-bg-subtle)] text-[var(--hub-fg)]/70 ring-1 ring-[var(--hub-border)] transition hover:bg-[var(--hub-card-hover)] hover:text-[var(--hub-fg)]"
+              className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-[var(--hub-bg-subtle)] text-[var(--hub-muted)] ring-1 ring-[var(--hub-border)] transition hover:bg-[var(--hub-card-hover)] hover:text-[var(--hub-fg)]"
             >
               <X className="h-3.5 w-3.5" />
             </DialogPrimitive.Close>
@@ -254,7 +256,7 @@ export function CreateMarketDialog({
                       "rounded-lg px-3 py-1.5 text-[12px] font-medium ring-1 transition",
                       activeTemplateId === tpl.id
                         ? "bg-[var(--hub-primary-soft)] text-[var(--hub-primary-bright)] ring-[var(--hub-border-strong)]"
-                        : "bg-[var(--hub-card)] text-[var(--hub-fg)]/90 ring-[var(--hub-border)] hover:bg-[var(--hub-card-hover)]",
+                        : "bg-[var(--hub-card)] text-[var(--hub-fg)] ring-[var(--hub-border)] hover:bg-[var(--hub-card-hover)]",
                     )}
                   >
                     {tpl.label}
@@ -286,13 +288,13 @@ export function CreateMarketDialog({
               </select>
               {selectedNarrative ? (
                 <div className="mt-2 rounded-lg border border-[var(--hub-border)] bg-[var(--hub-card)] px-3 py-2">
-                  <p className="text-[12px] leading-relaxed text-[var(--hub-fg)]/85">
+                  <p className="text-[12px] leading-relaxed text-[var(--hub-fg)]">
                     <BookOpen className="mr-1.5 inline h-3.5 w-3.5 text-[var(--hub-primary-bright)]" />
                     {selectedNarrative.description}
                   </p>
                   <p className="admin-field-hint mt-1.5">
                     Example question:{" "}
-                    <span className="text-[var(--hub-fg)]/80">{selectedNarrative.exampleTitle}</span>
+                    <span className="text-[var(--hub-fg)]">{selectedNarrative.exampleTitle}</span>
                   </p>
                 </div>
               ) : null}
@@ -359,7 +361,7 @@ export function CreateMarketDialog({
               >
                 <div className="flex flex-wrap items-center gap-2">
                   <div className="relative min-w-[140px] flex-1">
-                    <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[12px] text-[var(--hub-fg)]/55">
+                    <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[12px] text-[var(--hub-muted)]">
                       $
                     </span>
                     <input
@@ -386,7 +388,7 @@ export function CreateMarketDialog({
                           "rounded-lg px-2.5 py-1.5 text-[11px] font-medium ring-1 transition",
                           state.liquidityUsd === v
                             ? "bg-[var(--hub-primary-soft)] text-[var(--hub-primary-bright)] ring-[var(--hub-border-strong)]"
-                            : "bg-[var(--hub-bg-subtle)] text-[var(--hub-fg)]/85 ring-[var(--hub-border)] hover:bg-[var(--hub-card-hover)]",
+                            : "bg-[var(--hub-bg-subtle)] text-[var(--hub-fg)] ring-[var(--hub-border)] hover:bg-[var(--hub-card-hover)]",
                         )}
                       >
                         {formatCompactUsd(v)}
@@ -423,7 +425,7 @@ export function CreateMarketDialog({
                   </div>
                   <div className="grid grid-cols-2 gap-2">
                     <div className="rounded-lg border border-[var(--hub-border)] bg-[var(--hub-bg-subtle)] px-3 py-2">
-                      <p className="text-[10px] font-semibold uppercase tracking-wide text-[var(--hub-fg)]/60">
+                      <p className="text-[10px] font-semibold uppercase tracking-wide text-[var(--hub-muted)]">
                         YES
                       </p>
                       <p className="mt-0.5 font-mono text-[18px] font-semibold text-emerald-300">
@@ -431,7 +433,7 @@ export function CreateMarketDialog({
                       </p>
                     </div>
                     <div className="rounded-lg border border-[var(--hub-border)] bg-[var(--hub-bg-subtle)] px-3 py-2">
-                      <p className="text-[10px] font-semibold uppercase tracking-wide text-[var(--hub-fg)]/60">
+                      <p className="text-[10px] font-semibold uppercase tracking-wide text-[var(--hub-muted)]">
                         NO
                       </p>
                       <p className="mt-0.5 font-mono text-[18px] font-semibold text-rose-300">
@@ -500,11 +502,11 @@ export function CreateMarketDialog({
                 }
                 className="mt-0.5 h-4 w-4 rounded border-[var(--hub-border)] accent-[var(--hub-primary)]"
               />
-              <span className="text-[12.5px] leading-relaxed text-[var(--hub-fg)]/85">
+              <span className="text-[12.5px] leading-relaxed text-[var(--hub-fg)]">
                 <span className="font-semibold text-[var(--hub-fg)]">
                   Publish immediately (OPEN)
                 </span>
-                <span className="mt-0.5 block text-[var(--hub-fg)]/65">
+                <span className="mt-0.5 block text-[var(--hub-muted)]">
                   When checked, traders can buy/sell right away. Uncheck to save as a private
                   draft.
                 </span>
@@ -513,14 +515,14 @@ export function CreateMarketDialog({
           </div>
 
           <footer className="flex flex-col gap-2 border-t border-[var(--hub-border)] px-5 py-3 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-[11px] leading-relaxed text-[var(--hub-fg)]/65">
+            <p className="text-[11px] leading-relaxed text-[var(--hub-muted)]">
               {state.publishOpen ?
                 <>
-                  Saves as <span className="font-mono text-[var(--hub-fg)]/85">OPEN</span> ·
+                  Saves as <span className="font-mono text-[var(--hub-fg)]">OPEN</span> ·
                   tradable immediately
                 </>
               : <>
-                  Saves as <span className="font-mono text-[var(--hub-fg)]/85">DRAFT</span> ·
+                  Saves as <span className="font-mono text-[var(--hub-fg)]">DRAFT</span> ·
                   publish from the markets table when ready
                 </>
               }
@@ -529,7 +531,7 @@ export function CreateMarketDialog({
               <button
                 type="button"
                 onClick={() => onOpenChange(false)}
-                className="rounded-xl bg-[var(--hub-bg-subtle)] px-3 py-2 text-[12.5px] font-semibold text-[var(--hub-fg)]/80 ring-1 ring-[var(--hub-border)] transition hover:bg-[var(--hub-card-hover)]"
+                className="rounded-xl bg-[var(--hub-bg-subtle)] px-3 py-2 text-[12.5px] font-semibold text-[var(--hub-fg)] ring-1 ring-[var(--hub-border)] transition hover:bg-[var(--hub-card-hover)]"
               >
                 Cancel
               </button>
