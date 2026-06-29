@@ -16,6 +16,7 @@ import {
   getTreasuryAddress,
   getUmaOracleAddress,
   isChainEnvConfigured,
+  chainEnvConfigErrorMessage,
 } from "../lib/chain-contract-env";
 import { formatChainTradeError } from "../lib/format-trade-error";
 import { parseMarketCreatedAddress } from "../lib/parse-market-created";
@@ -54,9 +55,7 @@ export function useDeployOnChainMarket() {
         throw new Error("Switch MetaMask to BNB Smart Chain Testnet (chain 97).");
       }
       if (!isChainEnvConfigured()) {
-        throw new Error(
-          "On-chain env missing — set factory, collateral, treasury, and UMA oracle addresses.",
-        );
+        throw new Error(chainEnvConfigErrorMessage() || "On-chain env missing.");
       }
 
       const factory = getFactoryAddress()!;

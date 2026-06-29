@@ -32,6 +32,8 @@ export {
   isChainEnvConfigured,
   bscTestnetTxUrl,
   collateralDecimals,
+  chainEnvConfigErrorMessage,
+  getMissingChainEnvKeys,
 } from "./lib/chain-contract-env";
 export { narrativeToChainCategory } from "./lib/narrative-to-chain-category";
 export { ChainTradeOutcomeButtons } from "./components/chain-trade-outcome-buttons";

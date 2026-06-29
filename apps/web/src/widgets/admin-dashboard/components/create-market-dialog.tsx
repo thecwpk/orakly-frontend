@@ -9,7 +9,7 @@ import { toast } from "sonner";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAccount, useChainId } from "wagmi";
 import { useDeployOnChainMarket } from "@/features/chain-trading/hooks/use-deploy-on-chain-market";
-import { isChainEnvConfigured } from "@/features/chain-trading/lib/chain-contract-env";
+import { isChainEnvConfigured, chainEnvConfigErrorMessage } from "@/features/chain-trading/lib/chain-contract-env";
 import { narrativeToChainCategory } from "@/features/chain-trading/lib/narrative-to-chain-category";
 import { testBnbChain } from "@/providers/web3/chains";
 import { cn } from "@/lib/utils";
@@ -225,7 +225,7 @@ export function CreateMarketDialog({
       return;
     }
     if (!isChainEnvConfigured()) {
-      toast.error("On-chain env missing — configure factory, collateral, treasury, and UMA oracle.");
+      toast.error(chainEnvConfigErrorMessage() || "On-chain env missing.");
       return;
     }
 

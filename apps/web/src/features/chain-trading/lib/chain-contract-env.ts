@@ -35,10 +35,21 @@ export function collateralDecimals(): number {
 }
 
 export function isChainEnvConfigured(): boolean {
-  return Boolean(
-    getFactoryAddress() &&
-      getCollateralAddress() &&
-      getTreasuryAddress() &&
-      getUmaOracleAddress(),
-  );
+  return getMissingChainEnvKeys().length === 0;
+}
+
+/** Which required contract env keys are still empty after testnet fallbacks. */
+export function getMissingChainEnvKeys(): string[] {
+  const missing: string[] = [];
+  if (!getFactoryAddress()) missing.push("factory (NEXT_PUBLIC_FACTORY_ADDRESS)");
+  if (!getCollateralAddress()) missing.push("collateral (NEXT_PUBLIC_COLLATERAL_ADDRESS)");
+  if (!getTreasuryAddress()) missing.push("treasury (NEXT_PUBLIC_TREASURY_ADDRESS)");
+  if (!getUmaOracleAddress()) missing.push("UMA oracle (NEXT_PUBLIC_UMA_OPTIMISTIC_ORACLE_V3)");
+  return missing;
+}
+
+export function chainEnvConfigErrorMessage(): string {
+  const missing = getMissingChainEnvKeys();
+  if (missing.length === 0) return "";
+  return `On-chain env missing — set ${missing.join(", ")}.`;
 }

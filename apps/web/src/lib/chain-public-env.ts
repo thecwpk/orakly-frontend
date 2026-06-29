@@ -24,6 +24,14 @@ function parseAddressList(raw: string): `0x${string}`[] {
     .map((a) => (a.startsWith("0x") ? a : `0x${a}`) as `0x${string}`);
 }
 
+/** Orakly BSC testnet (97) deployment — used when env vars are unset (e.g. Vercel pre-config). */
+const BSC_TESTNET_CONTRACT_DEFAULTS = {
+  factoryAddress: "0x180532197f84701e5e183ccbd2f66ea52982dbb2",
+  collateralAddress: "0xf327c48b8acf444311938bf380a26fddb48bb67d",
+  treasuryAddress: "0xA5c5814BA8F5a3926513fD78DDb0968711Ebe8D4",
+  umaOptimisticOracleV3: "0x911a78b32c66261bff31b01a122b4f1e2df8da51",
+} as const;
+
 /** HTTP RPC for BSC testnet — client + server fallbacks. */
 export function getBscTestnetRpcUrl(): string {
   return firstNonEmpty(
@@ -43,7 +51,11 @@ export function getChainMarketTradeAddressRaw(): string {
 }
 
 export function getFactoryAddressRaw(): string {
-  return firstNonEmpty(trimEnv("NEXT_PUBLIC_FACTORY_ADDRESS"), getChainMarketTradeAddressRaw());
+  return firstNonEmpty(
+    trimEnv("NEXT_PUBLIC_FACTORY_ADDRESS"),
+    getChainMarketTradeAddressRaw(),
+    BSC_TESTNET_CONTRACT_DEFAULTS.factoryAddress,
+  );
 }
 
 export const chainPublicEnv = {
@@ -52,10 +64,19 @@ export const chainPublicEnv = {
   rpcUrl: getBscTestnetRpcUrl(),
   factoryAddress: getFactoryAddressRaw(),
   factoryDeployBlock: trimEnv("NEXT_PUBLIC_FACTORY_DEPLOY_BLOCK"),
-  collateralAddress: trimEnv("NEXT_PUBLIC_COLLATERAL_ADDRESS"),
+  collateralAddress: firstNonEmpty(
+    trimEnv("NEXT_PUBLIC_COLLATERAL_ADDRESS"),
+    BSC_TESTNET_CONTRACT_DEFAULTS.collateralAddress,
+  ),
   collateralDecimals: trimEnv("NEXT_PUBLIC_COLLATERAL_DECIMALS") || "6",
-  treasuryAddress: trimEnv("NEXT_PUBLIC_TREASURY_ADDRESS"),
-  umaOptimisticOracleV3: trimEnv("NEXT_PUBLIC_UMA_OPTIMISTIC_ORACLE_V3"),
+  treasuryAddress: firstNonEmpty(
+    trimEnv("NEXT_PUBLIC_TREASURY_ADDRESS"),
+    BSC_TESTNET_CONTRACT_DEFAULTS.treasuryAddress,
+  ),
+  umaOptimisticOracleV3: firstNonEmpty(
+    trimEnv("NEXT_PUBLIC_UMA_OPTIMISTIC_ORACLE_V3"),
+    BSC_TESTNET_CONTRACT_DEFAULTS.umaOptimisticOracleV3,
+  ),
   adminAddresses: parseAddressList(trimEnv("NEXT_PUBLIC_ADMIN_ADDRESSES")),
   bscTestnetUsdcFaucetUrl: trimEnv("NEXT_PUBLIC_BSC_TESTNET_USDC_FAUCET_URL"),
 } as const;

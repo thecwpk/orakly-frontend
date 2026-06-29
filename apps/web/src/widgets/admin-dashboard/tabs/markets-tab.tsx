@@ -21,7 +21,7 @@ import { toast } from "sonner";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAccount, useChainId } from "wagmi";
 import { useLinkMarketOnChain } from "@/features/chain-trading/hooks/use-link-market-on-chain";
-import { isChainEnvConfigured } from "@/features/chain-trading/lib/chain-contract-env";
+import { isChainEnvConfigured, chainEnvConfigErrorMessage } from "@/features/chain-trading/lib/chain-contract-env";
 import { testBnbChain } from "@/providers/web3/chains";
 import { cn } from "@/lib/utils";
 import { adminApi } from "../lib/admin-api";
@@ -141,7 +141,7 @@ export function AdminMarketsTab({
       return;
     }
     if (!isChainEnvConfigured()) {
-      toast.error("On-chain env missing on this deployment.");
+      toast.error(chainEnvConfigErrorMessage() || "On-chain env missing.");
       return;
     }
     if (offChainMarkets.length === 0) {
