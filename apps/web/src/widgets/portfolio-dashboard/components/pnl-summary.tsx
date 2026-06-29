@@ -24,11 +24,11 @@ function PnlSummaryInner({
 
   if (dense) {
     return (
-      <div className="rounded-lg border border-white/[0.07] bg-[#07070d]/95 px-3 py-2 ring-1 ring-white/[0.04]">
+      <div className="rounded-lg border border-[var(--hub-border)] bg-[var(--hub-card)] px-3 py-2 ring-1 ring-[var(--hub-border)]">
         <p className="text-[8px] font-semibold uppercase tracking-[0.14em] text-[var(--hub-muted)]">
           P&amp;L analytics
         </p>
-        <div className="mt-2 grid grid-cols-3 gap-2 divide-x divide-white/[0.06]">
+        <div className="mt-2 grid grid-cols-3 gap-2 divide-x divide-[var(--hub-border)]">
           {items.map((item) => {
             const pos = item.value >= 0;
             return (
@@ -61,7 +61,7 @@ function PnlSummaryInner({
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.08 + i * 0.05, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-            className="glass-panel rounded-xl px-3 py-2.5 ring-1 ring-white/7"
+            className="glass-panel rounded-xl px-3 py-2.5 ring-1 ring-[var(--hub-border)]"
           >
             <p className="text-[9px] font-bold uppercase tracking-wide text-[var(--hub-muted)]">{item.label}</p>
             <p

@@ -193,7 +193,7 @@ function AchievementCard({
                     achievement.tone === "violet" && "from-[var(--hub-primary-bright)] to-fuchsia-400",
                     achievement.tone === "rose" && "from-rose-400 to-amber-400",
                   )
-                : "bg-zinc-600",
+                : "bg-[var(--hub-track-bg)]",
             )}
           />
         </div>

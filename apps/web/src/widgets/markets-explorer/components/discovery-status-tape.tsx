@@ -35,30 +35,30 @@ export function DiscoveryStatusTape({
       ? "text-emerald-300"
       : connectionStatus === "connecting" || connectionStatus === "error"
         ? "text-amber-300"
-        : "text-zinc-500";
+        : "text-[var(--hub-muted)]";
 
   return (
     <div
       className={cn(
-        "flex flex-wrap items-center gap-x-4 gap-y-1 border-b border-app-subtle bg-app-ticker-band px-2 py-1.5 text-[10px] font-medium uppercase tracking-[0.12em] text-zinc-500",
+        "flex flex-wrap items-center gap-x-4 gap-y-1 border-b border-[var(--hub-border)] bg-[var(--hub-bg-subtle)] px-2 py-1.5 text-[10px] font-medium uppercase tracking-[0.12em] text-[var(--hub-muted)]",
       )}
       aria-label="Market discovery status"
     >
       <span className="inline-flex items-center gap-1.5">
-        <Database className="h-3 w-3 text-zinc-600" aria-hidden />
-        <span className="font-mono tabular-nums text-zinc-300">{totalMarkets}</span>
-        <span className="normal-case tracking-normal text-zinc-600">loaded</span>
+        <Database className="h-3 w-3 text-[var(--hub-muted)]" aria-hidden />
+        <span className="font-mono tabular-nums text-[var(--hub-fg)]">{totalMarkets}</span>
+        <span className="normal-case tracking-normal text-[var(--hub-muted)]">loaded</span>
       </span>
 
-      <span className="hidden h-3 w-px bg-white/[0.08] sm:block" aria-hidden />
+      <span className="hidden h-3 w-px bg-[var(--hub-border)] sm:block" aria-hidden />
 
       <span className="inline-flex items-center gap-1.5">
-        <Zap className="h-3 w-3 text-cyan-500/80" aria-hidden />
-        <span className="font-mono tabular-nums text-zinc-400">{liveCount}</span>
-        <span className="normal-case tracking-normal text-zinc-600">live now</span>
+        <Zap className="h-3 w-3 text-[var(--hub-primary-bright)]" aria-hidden />
+        <span className="font-mono tabular-nums text-[var(--hub-fg)]/90">{liveCount}</span>
+        <span className="normal-case tracking-normal text-[var(--hub-muted)]">live now</span>
       </span>
 
-      <span className="hidden h-3 w-px bg-white/[0.08] md:block" aria-hidden />
+      <span className="hidden h-3 w-px bg-[var(--hub-border)] md:block" aria-hidden />
 
       <span className={cn("inline-flex items-center gap-1.5", tone)}>
         <Activity className="h-3 w-3" aria-hidden />
@@ -66,11 +66,11 @@ export function DiscoveryStatusTape({
       </span>
 
       <span className="ml-auto inline-flex items-center gap-1.5 normal-case tracking-normal">
-        <span className="text-zinc-600">HTTP</span>
+        <span className="text-[var(--hub-muted)]">HTTP</span>
         <span
           className={cn(
-            "font-mono text-[10px] tabular-nums text-zinc-400",
-            isFetching && "text-cyan-300",
+            "font-mono text-[10px] tabular-nums text-[var(--hub-fg)]/80",
+            isFetching && "text-[var(--hub-primary-bright)]",
           )}
         >
           {updatedLabel ? `Δ ${updatedLabel}` : "—"}
