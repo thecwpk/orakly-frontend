@@ -33,7 +33,7 @@ export async function GET(req: NextRequest) {
   try {
     await requireAdminPermission(req, "analytics.read");
     const { searchParams } = new URL(req.url);
-    const take = Math.min(Number(searchParams.get("take") ?? 40), 100);
+    const take = Math.min(Number(searchParams.get("take") ?? 40), 120);
     const statusRaw = searchParams.get("status");
     const statusValues = Object.values(MarketStatus) as string[];
     const statusFilter =
