@@ -56,8 +56,8 @@ function ActiveMarketsInner({
             className="mb-3 flex items-end justify-between gap-3"
           >
             <div>
-              <p className="text-[11px] font-semibold uppercase tracking-wider text-zinc-500">Active book</p>
-              <p className="text-sm font-medium text-white">Markets you carry</p>
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-[var(--hub-muted)]">Active book</p>
+              <p className="text-sm font-medium text-[var(--hub-fg)]">Markets you carry</p>
             </div>
           </motion.div>
           <div className="grid gap-3 sm:grid-cols-2">
@@ -75,8 +75,8 @@ function ActiveMarketsInner({
           transition={{ delay: 0.06 }}
           className="mb-3"
         >
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-zinc-500">Discover</p>
-          <p className="text-sm font-medium text-white">Liquid OPEN markets</p>
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-[var(--hub-muted)]">Discover</p>
+          <p className="text-sm font-medium text-[var(--hub-fg)]">Liquid OPEN markets</p>
         </motion.div>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {rows.discover.map((m, i) => (
@@ -84,7 +84,7 @@ function ActiveMarketsInner({
           ))}
         </div>
         {!rows.discover.length ?
-          <p className="py-6 text-center text-[13px] text-zinc-500">Feed loading or no open markets.</p>
+          <p className="py-6 text-center text-[13px] text-[var(--hub-muted)]">Feed loading or no open markets.</p>
         : null}
       </section>
     </div>

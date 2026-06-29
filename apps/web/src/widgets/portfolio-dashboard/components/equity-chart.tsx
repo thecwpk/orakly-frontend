@@ -43,9 +43,9 @@ function EquityChartInner({ data }: { data: EquityPoint[] }) {
   return (
     <div className="glass-panel-strong overflow-hidden rounded-2xl">
       <div className="border-b border-white/6 px-4 py-3 sm:px-5">
-        <p className="text-[11px] font-semibold uppercase tracking-wider text-zinc-500">Performance</p>
-        <p className="text-sm font-medium text-white">Equity curve (anchored)</p>
-        <p className="mt-1 text-[11px] leading-snug text-zinc-600">
+        <p className="text-[11px] font-semibold uppercase tracking-wider text-[var(--hub-muted)]">Performance</p>
+        <p className="text-sm font-medium text-[var(--hub-fg)]">Equity curve (anchored)</p>
+        <p className="mt-1 text-[11px] leading-snug text-[var(--hub-muted)]">
           Path implied from your fills; terminal point matches live equity. Not tax or brokerage advice.
         </p>
       </div>

@@ -339,13 +339,13 @@ function MarketCardImpl({
               "hover:border-primary/30 hover:from-secondary/45 hover:to-card hover:ring-primary/20",
             )
           : cn(
-              "border-white/[0.07]",
-              "bg-gradient-to-br from-[hsl(228_26%_16%/0.97)] via-[hsl(228_28%_12%/0.98)] to-[hsl(232_32%_9%/0.99)]",
-              "shadow-[0_22px_48px_-32px_hsl(228_40%_6%/0.62),inset_0_1px_0_rgba(255,255,255,0.055)]",
+              "hub-card border border-[var(--hub-border)] bg-[var(--hub-card)]",
+              "shadow-[0_4px_20px_rgb(0_0_0_/_0.22)]",
+              "transition-[border-color,background-color,box-shadow,transform] duration-200 ease-out",
               isSubtleChrome
-                ? "hover:border-white/[0.11] hover:shadow-[0_28px_56px_-36px_hsl(228_42%_5%/0.68),inset_0_1px_0_rgba(255,255,255,0.07)]"
+                ? "hover:border-[var(--hub-border-strong)] hover:bg-[var(--hub-card-hover)]"
                 : cn(
-                    "hover:border-white/[0.09]",
+                    "hover:border-[var(--hub-border-strong)]",
                     ACCENT_RING[accent],
                   ),
             ),
@@ -388,7 +388,7 @@ function MarketCardImpl({
       {!pmBrowse ? (
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-[hsl(228_35%_8%/0.48)] to-transparent"
+          className="pointer-events-none absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-[var(--hub-bg-subtle)]/80 to-transparent"
         />
       ) : (
         <div
@@ -513,7 +513,7 @@ function MarketCardImpl({
             {/* SUPPORTIVE: category · live · spark · watchlist */}
             <header className="flex items-start gap-2">
               <div className="flex min-w-0 flex-1 flex-wrap items-center gap-1">
-                <span className="rounded-md bg-[hsl(228_32%_14%/0.55)] px-1.5 py-px text-[8.5px] font-semibold uppercase tracking-[0.12em] text-zinc-400 ring-1 ring-white/[0.08]">
+                <span className="rounded-md bg-[var(--hub-bg-subtle)] px-1.5 py-px text-[8.5px] font-semibold uppercase tracking-[0.12em] text-[var(--hub-muted)] ring-1 ring-[var(--hub-border)]">
                   {market.category}
                 </span>
                 {isLive ? (
@@ -525,21 +525,21 @@ function MarketCardImpl({
                     Live
                   </span>
                 ) : isClosed ? (
-                  <span className="rounded-md bg-zinc-500/12 px-1.5 py-px text-[8.5px] font-semibold uppercase tracking-wide text-zinc-500 ring-1 ring-white/[0.05]">
+                  <span className="rounded-md bg-[var(--hub-bg-subtle)] px-1.5 py-px text-[8.5px] font-semibold uppercase tracking-wide text-[var(--hub-muted)] ring-1 ring-[var(--hub-border)]">
                     Closed
                   </span>
                 ) : (
-                  <span className="rounded-md bg-white/[0.04] px-1.5 py-px text-[8.5px] font-semibold uppercase tracking-wide text-zinc-500 ring-1 ring-white/[0.05]">
+                  <span className="rounded-md bg-[var(--hub-bg-subtle)] px-1.5 py-px text-[8.5px] font-semibold uppercase tracking-wide text-[var(--hub-muted)] ring-1 ring-[var(--hub-border)]">
                     Open
                   </span>
                 )}
                 {tradedAgoLabel && isLive ? (
-                  <span className="font-mono text-[9px] text-zinc-500">{tradedAgoLabel} ago</span>
+                  <span className="font-mono text-[9px] text-[var(--hub-muted)]">{tradedAgoLabel} ago</span>
                 ) : null}
               </div>
 
               <div className="flex shrink-0 items-start gap-1.5 pl-1">
-                <div className="rounded-md bg-[hsl(228_30%_12%/0.52)] py-0.5 pl-1 pr-0.5 ring-1 ring-white/[0.07]">
+                <div className="rounded-md bg-[var(--hub-bg-subtle)] py-0.5 pl-1 pr-0.5 ring-1 ring-[var(--hub-border)]">
                   <Sparkline
                     data={sparkData}
                     tone={accent}
@@ -570,7 +570,7 @@ function MarketCardImpl({
             <div className={cn("relative mt-2.5", !isCompact && "mt-3")}>
               <div className="flex items-end justify-between gap-2 sm:gap-3">
                 <div className="min-w-0 flex-1">
-                  <p className="text-[8.5px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
+                  <p className="text-[8.5px] font-semibold uppercase tracking-[0.14em] text-[var(--hub-muted)]">
                     Yes
                   </p>
                   <p className={cn(oddsClass, "text-cyan-400 drop-shadow-[0_0_20px_rgba(34,211,238,0.18)]")}>
@@ -583,7 +583,7 @@ function MarketCardImpl({
                   aria-hidden
                 />
                 <div className="min-w-0 flex-1 text-right">
-                  <p className="text-[8.5px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
+                  <p className="text-[8.5px] font-semibold uppercase tracking-[0.14em] text-[var(--hub-muted)]">
                     No
                   </p>
                   <p className={cn(oddsClass, "text-rose-400 drop-shadow-[0_0_20px_rgba(251,113,133,0.14)]")}>
@@ -593,7 +593,7 @@ function MarketCardImpl({
                 </div>
               </div>
 
-              <div className="relative mt-2 h-[3px] overflow-hidden rounded-full bg-[hsl(228_28%_10%/0.62)] ring-1 ring-white/[0.06]">
+              <div className="relative mt-2 h-[3px] overflow-hidden rounded-full bg-[var(--hub-track-bg)] ring-1 ring-[var(--hub-border)]">
                 <div className="absolute inset-y-0 left-0 w-full bg-gradient-to-r from-white/[0.03] to-transparent" />
                 <motion.div
                   key={`${market.id}-${yesPct}`}
@@ -616,24 +616,24 @@ function MarketCardImpl({
               )}
             >
               <div className="flex flex-col gap-0">
-                <span className="text-[8px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
+                <span className="text-[8px] font-semibold uppercase tracking-[0.14em] text-[var(--hub-muted)]">
                   Vol
                 </span>
-                <span className="font-mono text-[10.5px] font-medium tabular-nums text-zinc-200">
+                <span className="font-mono text-[10.5px] font-medium tabular-nums text-[var(--hub-fg)]">
                   {formatCompactUsd(volumeUsd)}
                 </span>
               </div>
               <div className="hidden h-7 w-px bg-white/[0.06] sm:block" aria-hidden />
               <div className="flex flex-col gap-0">
-                <span className="text-[8px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
+                <span className="text-[8px] font-semibold uppercase tracking-[0.14em] text-[var(--hub-muted)]">
                   Liq
                 </span>
-                <span className="font-mono text-[10.5px] font-medium tabular-nums text-zinc-300">
+                <span className="font-mono text-[10.5px] font-medium tabular-nums text-[var(--hub-muted)]">
                   {formatCompactUsd(liquidityUsd)}
                 </span>
               </div>
               <div className="ml-auto flex min-w-0 flex-col items-end gap-0 text-right sm:ml-0">
-                <span className="text-[8px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
+                <span className="text-[8px] font-semibold uppercase tracking-[0.14em] text-[var(--hub-muted)]">
                   Resolve
                 </span>
                 <span
@@ -641,10 +641,10 @@ function MarketCardImpl({
                     "inline-flex items-center gap-1 font-mono text-[10px] tabular-nums ring-1",
                     "rounded-md px-1.5 py-0.5",
                     isClosed
-                      ? "bg-zinc-500/10 text-zinc-500 ring-white/[0.04]"
+                      ? "bg-[var(--hub-bg-subtle)] text-[var(--hub-muted)] ring-[var(--hub-border)]"
                       : closing.label.endsWith("m") || closing.label.endsWith("h")
                         ? "bg-rose-500/10 text-rose-300 ring-rose-400/18"
-                        : "bg-white/[0.04] text-zinc-400 ring-white/[0.06]",
+                        : "bg-[var(--hub-bg-subtle)] text-[var(--hub-muted)] ring-[var(--hub-border)]",
                   )}
                   title="Time until resolution"
                 >
@@ -657,14 +657,14 @@ function MarketCardImpl({
             {/* Volume intensity — thin, supportive */}
             <div className="relative mt-2">
               <div className="mb-1 flex items-center justify-between gap-2">
-                <span className="text-[8px] font-semibold uppercase tracking-[0.14em] text-zinc-600">
+                <span className="text-[8px] font-semibold uppercase tracking-[0.14em] text-[var(--hub-muted)]">
                   Flow vs book
                 </span>
-                <span className="font-mono text-[9px] tabular-nums text-zinc-500">
+                <span className="font-mono text-[9px] tabular-nums text-[var(--hub-muted)]">
                   {Math.round(volRatio * 100)}%
                 </span>
               </div>
-              <div className="h-[2px] overflow-hidden rounded-full bg-[hsl(228_28%_10%/0.65)] ring-1 ring-white/[0.05]">
+              <div className="h-[2px] overflow-hidden rounded-full bg-[var(--hub-track-bg)] ring-1 ring-[var(--hub-border)]">
                 <motion.div
                   className={cn("h-full rounded-full bg-gradient-to-r", ACCENT_VOL[accent])}
                   initial={{ width: 0 }}
@@ -687,7 +687,7 @@ function MarketCardImpl({
         >
           <Link
             href={detailsHref}
-            className="pointer-events-auto inline-flex items-center gap-1 rounded-lg bg-[hsl(228_32%_12%/0.75)] px-2 py-1 text-[10px] font-semibold text-zinc-100 ring-1 ring-white/[0.1] backdrop-blur-sm transition hover:bg-cyan-500/18 hover:text-cyan-50 hover:ring-cyan-400/35"
+            className="pointer-events-auto inline-flex items-center gap-1 rounded-lg bg-[var(--hub-card)] px-2 py-1 text-[10px] font-semibold text-[var(--hub-fg)] ring-1 ring-[var(--hub-border)] backdrop-blur-sm transition hover:bg-[var(--hub-primary-soft)] hover:text-[var(--hub-primary-bright)] hover:ring-[var(--hub-border-strong)]"
           >
             Trade
             <ArrowUpRight className="h-3 w-3 opacity-80" />

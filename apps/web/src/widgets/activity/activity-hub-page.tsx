@@ -23,8 +23,11 @@ import { useSocketRegistry } from "@/websocket/socket-registry";
 const WHALE_NOTIONAL_USD = 3_500;
 const FEED_CAP = 240;
 
+const HUB_LANE =
+  "hub-lane-panel flex min-h-0 flex-col overflow-hidden rounded-xl supports-[backdrop-filter]:backdrop-blur-sm";
+
 const STATUS_FALLBACK = {
-  dot: "bg-zinc-500",
+  dot: "bg-[var(--hub-muted)]",
   label: "Offline",
 } as const;
 
@@ -73,28 +76,28 @@ function TapeLane({
   return (
     <section
       className={cn(
-        "flex min-h-0 flex-col overflow-hidden rounded-xl bg-[#07070f]/92 ring-1 ring-white/[0.07]",
-        "supports-[backdrop-filter]:backdrop-blur-sm",
-        primary &&
-          "shadow-[inset_0_1px_0_0_rgba(255,255,255,0.04)] ring-emerald-400/15",
+        HUB_LANE,
+        primary && "ring-[var(--hub-border-strong)]",
       )}
     >
       <div
         aria-hidden
         className={cn(
           "pointer-events-none h-px",
-          primary ? "bg-gradient-to-r from-transparent via-emerald-400/35 to-transparent" : "bg-white/[0.06]",
+          primary
+            ? "bg-gradient-to-r from-transparent via-[var(--hub-primary)]/35 to-transparent"
+            : "bg-[var(--hub-border)]",
         )}
       />
       <header
         className={cn(
-          "flex items-start gap-2 border-b border-white/[0.06]",
+          "flex items-start gap-2 border-b border-[var(--hub-border)]",
           primary ? "px-3 py-2 sm:px-3.5" : "px-2.5 py-1.5",
         )}
       >
         <span
           className={cn(
-            "mt-px inline-flex shrink-0 items-center justify-center rounded-md bg-cyan-500/10 text-cyan-300 ring-1 ring-cyan-400/25",
+            "mt-px inline-flex shrink-0 items-center justify-center rounded-md bg-[var(--hub-primary-soft)] text-[var(--hub-primary-bright)] ring-1 ring-[var(--hub-border)]",
             primary ? "h-8 w-8" : "h-6 w-6",
           )}
         >
@@ -103,13 +106,13 @@ function TapeLane({
         <div className="min-w-0 leading-tight">
           <p
             className={cn(
-              "font-bold uppercase tracking-[0.18em] text-zinc-500",
+              "font-bold uppercase tracking-[0.18em] text-[var(--hub-muted)]",
               primary ? "text-[10px]" : "text-[9px]",
             )}
           >
             {kicker}
           </p>
-          <p className={cn("font-semibold text-white", primary ? "text-sm" : "text-[12px]")}>
+          <p className={cn("font-semibold text-[var(--hub-fg)]", primary ? "text-sm" : "text-[12px]")}>
             {title}
           </p>
         </div>
@@ -124,14 +127,14 @@ function TapeLane({
         {rows.length === 0 ? (
           <p
             className={cn(
-              "px-3 py-5 text-center leading-snug text-zinc-500",
+              "px-3 py-5 text-center leading-snug text-[var(--hub-muted)]",
               primary ? "text-[12px]" : "text-[11px]",
             )}
           >
             {emptyHint}
           </p>
         ) : (
-          <div className="divide-y divide-white/[0.045]">
+          <div className="divide-y divide-[var(--hub-border)]">
             {rows.map((row) => (
               <ActivityRow
                 key={row.id}
@@ -155,34 +158,34 @@ function TrendingLane({
   items: ReadonlyArray<{ slug: string; title: string; count: number }>;
 }) {
   return (
-    <section className="flex min-h-0 flex-col overflow-hidden rounded-xl bg-[#07070f]/92 ring-1 ring-white/[0.07] supports-[backdrop-filter]:backdrop-blur-sm">
-      <div aria-hidden className="pointer-events-none h-px bg-white/[0.06]" />
-      <header className="flex items-start gap-2 border-b border-white/[0.06] px-2.5 py-1.5">
-        <span className="mt-px inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-violet-500/10 text-violet-200 ring-1 ring-violet-400/25">
+    <section className={HUB_LANE}>
+      <div aria-hidden className="pointer-events-none h-px bg-[var(--hub-border)]" />
+      <header className="flex items-start gap-2 border-b border-[var(--hub-border)] px-2.5 py-1.5">
+        <span className="mt-px inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-[var(--hub-primary-soft)] text-[var(--hub-primary-bright)] ring-1 ring-[var(--hub-border)]">
           <TrendingUp className="h-3 w-3" aria-hidden />
         </span>
         <div className="min-w-0 leading-tight">
-          <p className="text-[9px] font-bold uppercase tracking-[0.18em] text-zinc-500">Heat</p>
-          <p className="text-[12px] font-semibold text-white">Trending markets</p>
+          <p className="text-[9px] font-bold uppercase tracking-[0.18em] text-[var(--hub-muted)]">Heat</p>
+          <p className="text-[12px] font-semibold text-[var(--hub-fg)]">Trending markets</p>
         </div>
       </header>
       <div className="max-h-[min(30vh,280px)] min-h-[80px] overflow-y-auto overscroll-contain">
         {items.length === 0 ? (
-          <p className="px-3 py-4 text-center text-[11px] text-zinc-500">
+          <p className="px-3 py-4 text-center text-[11px] text-[var(--hub-muted)]">
             Flow will rank markets by recent fill count.
           </p>
         ) : (
-          <ul className="divide-y divide-white/[0.045]">
+          <ul className="divide-y divide-[var(--hub-border)]">
             {items.map((it) => (
               <li key={it.slug}>
                 <Link
                   href={ROUTES.market(it.slug)}
-                  className="flex items-center gap-2 px-2.5 py-1 transition-colors hover:bg-white/[0.04]"
+                  className="flex items-center gap-2 px-2.5 py-1 transition-colors hover:bg-[var(--hub-bg-subtle)]"
                 >
-                  <span className="min-w-0 flex-1 truncate text-[11px] font-medium leading-tight text-zinc-100">
+                  <span className="min-w-0 flex-1 truncate text-[11px] font-medium leading-tight text-[var(--hub-fg)]">
                     {it.title}
                   </span>
-                  <span className="shrink-0 rounded bg-white/[0.06] px-1 py-px font-mono text-[9px] tabular-nums text-cyan-200 ring-1 ring-white/10">
+                  <span className="shrink-0 rounded bg-[var(--hub-bg-subtle)] px-1 py-px font-mono text-[9px] tabular-nums text-[var(--hub-primary-bright)] ring-1 ring-[var(--hub-border)]">
                     {it.count} fills
                   </span>
                 </Link>
@@ -210,42 +213,42 @@ function MovementsLane({
   now: number;
 }) {
   return (
-    <section className="flex min-h-0 flex-col overflow-hidden rounded-xl bg-[#07070f]/92 ring-1 ring-white/[0.07] supports-[backdrop-filter]:backdrop-blur-sm">
-      <div aria-hidden className="pointer-events-none h-px bg-white/[0.06]" />
-      <header className="flex items-start gap-2 border-b border-white/[0.06] px-2.5 py-1.5">
+    <section className={HUB_LANE}>
+      <div aria-hidden className="pointer-events-none h-px bg-[var(--hub-bg-subtle)]" />
+      <header className="flex items-start gap-2 border-b border-[var(--hub-border)] px-2.5 py-1.5">
         <span className="mt-px inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-amber-500/10 text-amber-200 ring-1 ring-amber-400/25">
           <BarChart3 className="h-3 w-3" aria-hidden />
         </span>
         <div className="min-w-0 leading-tight">
-          <p className="text-[9px] font-bold uppercase tracking-[0.18em] text-zinc-500">Tape vs mid</p>
-          <p className="text-[12px] font-semibold text-white">Market movers</p>
+          <p className="text-[9px] font-bold uppercase tracking-[0.18em] text-[var(--hub-muted)]">Tape vs mid</p>
+          <p className="text-[12px] font-semibold text-[var(--hub-fg)]">Market movers</p>
         </div>
       </header>
       <div className="max-h-[min(30vh,280px)] min-h-[80px] overflow-y-auto overscroll-contain">
         {rows.length === 0 ? (
-          <p className="px-3 py-4 text-center text-[11px] text-zinc-500">
+          <p className="px-3 py-4 text-center text-[11px] text-[var(--hub-muted)]">
             Prints vs feed mid appear as trades cross active books.
           </p>
         ) : (
-          <ul className="divide-y divide-white/[0.045]">
+          <ul className="divide-y divide-[var(--hub-border)]">
             {rows.map((r) => {
               const up = r.deltaCents > 0.05;
               const down = r.deltaCents < -0.05;
-              const tone = up ? "text-emerald-300" : down ? "text-rose-300" : "text-zinc-400";
+              const tone = up ? "text-emerald-300" : down ? "text-rose-300" : "text-[var(--hub-muted)]";
               const sign = r.deltaCents > 0 ? "+" : "";
               return (
                 <li key={r.slug}>
                   <Link
                     href={ROUTES.market(r.slug)}
-                    className="group flex items-center gap-2 px-2.5 py-1 transition-colors hover:bg-white/[0.04]"
+                    className="group flex items-center gap-2 px-2.5 py-1 transition-colors hover:bg-[var(--hub-bg-subtle)]"
                   >
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-[11px] font-medium leading-tight text-zinc-100 group-hover:text-white">
+                      <p className="truncate text-[11px] font-medium leading-tight text-[var(--hub-fg)] group-hover:text-[var(--hub-fg)]">
                         {r.title}
                       </p>
-                      <p className="mt-0.5 font-mono text-[9px] tabular-nums text-zinc-600">
+                      <p className="mt-0.5 font-mono text-[9px] tabular-nums text-[var(--hub-muted)]">
                         last {r.tradeLabel}
-                        <span className="text-zinc-700"> · </span>
+                        <span className="text-[var(--hub-border)]"> · </span>
                         mid {r.midLabel}
                       </p>
                     </div>
@@ -254,7 +257,7 @@ function MovementsLane({
                         {sign}
                         {r.deltaCents.toFixed(1)}¢
                       </p>
-                      <p className="font-mono text-[9px] tabular-nums text-zinc-600">{timeAgo(r.at, now)}</p>
+                      <p className="font-mono text-[9px] tabular-nums text-[var(--hub-muted)]">{timeAgo(r.at, now)}</p>
                     </div>
                   </Link>
                 </li>
@@ -386,30 +389,30 @@ export function ActivityHubPage() {
       <header className="flex flex-wrap items-center justify-between gap-r16">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-white/[0.04] px-2 py-0.5 ring-1 ring-white/[0.08]">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-[var(--hub-bg-subtle)] px-2 py-0.5 ring-1 ring-[var(--hub-border)]">
               <span className={cn("h-1.5 w-1.5 rounded-full", status.dot)} />
-              <span className="font-mono text-[10px] text-zinc-400">{status.label}</span>
+              <span className="font-mono text-[10px] text-[var(--hub-muted)]">{status.label}</span>
             </span>
-            <h1 className="text-lg font-semibold tracking-tight text-white sm:text-xl">Activity</h1>
+            <h1 className="text-lg font-semibold tracking-tight text-[var(--hub-fg)] sm:text-xl">Activity</h1>
           </div>
-          <p className="mt-1 flex flex-wrap gap-x-2 gap-y-0 font-mono text-[10px] text-zinc-600">
+          <p className="mt-1 flex flex-wrap gap-x-2 gap-y-0 font-mono text-[10px] text-[var(--hub-muted)]">
             <span className="inline-flex items-center gap-1">
-              <ArrowRightLeft className="h-3 w-3 text-zinc-500" aria-hidden />
+              <ArrowRightLeft className="h-3 w-3 text-[var(--hub-muted)]" aria-hidden />
               live tape
             </span>
-            <span className="text-zinc-700">·</span>
+            <span className="text-[var(--hub-border)]">·</span>
             <span>whales</span>
-            <span className="text-zinc-700">·</span>
+            <span className="text-[var(--hub-border)]">·</span>
             <span>flow heat</span>
-            <span className="text-zinc-700">·</span>
+            <span className="text-[var(--hub-border)]">·</span>
             <span>movers</span>
-            <span className="text-zinc-700">·</span>
+            <span className="text-[var(--hub-border)]">·</span>
             <span>settlements</span>
           </p>
         </div>
         <Link
           href={ROUTES.leaderboard}
-          className="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-white/[0.05] px-3 py-2 text-[12px] font-medium text-zinc-200 ring-1 ring-white/10 transition hover:bg-white/[0.1]"
+          className="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-[var(--hub-bg-subtle)] px-3 py-2 text-[12px] font-medium text-[var(--hub-fg)] ring-1 ring-[var(--hub-border)] transition hover:bg-[var(--hub-card-hover)]"
         >
           <Activity className="h-3.5 w-3.5" aria-hidden />
           Leaderboard

@@ -27,7 +27,7 @@ export type AnimatedStatProps = {
 };
 
 const TONE: Record<AnimatedStatTone, string> = {
-  neutral: "text-zinc-100",
+  neutral: "text-[var(--hub-fg)]",
   emerald: "text-emerald-200",
   rose: "text-rose-200",
   cyan: "text-cyan-200",
@@ -71,14 +71,14 @@ function AnimatedStatInner({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
       className={cn(
-        "rounded-xl bg-black/30 ring-1 ring-white/[0.06]",
+        "rounded-xl bg-[var(--hub-bg-subtle)] ring-1 ring-[var(--hub-border)]",
         size === "sm" ? "px-3 py-2" : "px-3.5 py-2.5",
         className,
       )}
     >
       <div className="flex items-center gap-1.5">
         {icon}
-        <p className="text-[9.5px] font-bold uppercase tracking-[0.18em] text-zinc-500">
+        <p className="text-[9.5px] font-bold uppercase tracking-[0.18em] text-[var(--hub-muted)]">
           {label}
         </p>
       </div>
@@ -92,7 +92,7 @@ function AnimatedStatInner({
         {formatValue(animated, format)}
       </p>
       {hint ? (
-        <p className="mt-1 text-[10.5px] text-zinc-500">{hint}</p>
+        <p className="mt-1 text-[10.5px] text-[var(--hub-muted)]">{hint}</p>
       ) : null}
     </motion.div>
   );

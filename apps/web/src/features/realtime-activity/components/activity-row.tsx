@@ -72,7 +72,7 @@ function TradeRow({
 
   const outcomeTone = isYes
     ? "text-cyan-200 bg-cyan-500/10 ring-cyan-400/25"
-    : "text-violet-200 bg-violet-500/10 ring-violet-400/25";
+    : "text-violet-200 bg-[var(--hub-primary-soft)] ring-[var(--hub-border)]";
 
   const stripGradient = isBuy
     ? "from-emerald-400/0 via-emerald-400/70 to-emerald-400/0"
@@ -83,7 +83,7 @@ function TradeRow({
 
   const href = row.market ? ROUTES.market(row.market.slug) : null;
   const wrapperClass = cn(
-    "relative flex items-center gap-3 transition-colors hover:bg-white/[0.04]",
+    "relative flex items-center gap-3 transition-colors hover:bg-[var(--hub-bg-subtle)]",
     dense ? "gap-2 px-2 py-1" : compact ? "px-3 py-2" : "px-4 py-2.5",
     href ? "cursor-pointer" : "",
   );
@@ -112,29 +112,29 @@ function TradeRow({
       <div className="min-w-0 flex-1">
         <p
           className={cn(
-            "truncate font-medium leading-tight text-zinc-100 group-hover:text-white",
+            "truncate font-medium leading-tight text-[var(--hub-fg)] group-hover:text-[var(--hub-fg)]",
             dense ? "text-[11px]" : compact ? "text-[12px]" : "text-[12.5px]",
           )}
         >
-          {row.market ? row.market.title : <span className="text-zinc-500">(unknown market)</span>}
+          {row.market ? row.market.title : <span className="text-[var(--hub-muted)]">(unknown market)</span>}
         </p>
         <p
           className={cn(
-            "mt-0.5 flex flex-wrap items-center gap-x-1.5 gap-y-0 text-zinc-500",
+            "mt-0.5 flex flex-wrap items-center gap-x-1.5 gap-y-0 text-[var(--hub-muted)]",
             dense ? "text-[9.5px]" : "text-[10.5px]",
           )}
         >
-          <span className="font-mono tabular-nums text-zinc-300">
+          <span className="font-mono tabular-nums text-[var(--hub-muted)]">
             {row.quantity.toFixed(2)}
           </span>
           <span className="text-zinc-700">@</span>
-          <span className="font-mono tabular-nums text-zinc-300">
+          <span className="font-mono tabular-nums text-[var(--hub-muted)]">
             {probToCents(row.price)}
           </span>
           {row.market ? (
             <>
               <span className="text-zinc-700">·</span>
-              <span className="uppercase tracking-wider text-zinc-500">
+              <span className="uppercase tracking-wider text-[var(--hub-muted)]">
                 {row.market.category}
               </span>
             </>
@@ -151,7 +151,7 @@ function TradeRow({
         >
           {compactUsd(row.notionalUsd)}
         </p>
-        <p className={cn("mt-0.5 font-mono tabular-nums text-zinc-600", dense ? "text-[9px]" : "text-[10px]")}>
+        <p className={cn("mt-0.5 font-mono tabular-nums text-[var(--hub-muted)]", dense ? "text-[9px]" : "text-[10px]")}>
           {ago}
         </p>
       </div>
@@ -216,14 +216,14 @@ const UPDATE_ICON: Record<string, { icon: LucideIcon; tone: string; strip: strin
   },
   POSITION_OPENED: {
     icon: CircleDot,
-    tone: "text-violet-200 bg-violet-500/15 ring-violet-400/30",
-    strip: "from-violet-400/0 via-violet-400/70 to-violet-400/0",
+    tone: "text-violet-200 bg-[var(--hub-primary-soft)] ring-[var(--hub-border-strong)]",
+    strip: "from-[var(--hub-primary-bright)]/0 via-violet-400/70 to-[var(--hub-primary-bright)]/0",
   },
 };
 
 const DEFAULT_UPDATE = {
   icon: Info,
-  tone: "text-zinc-200 bg-white/[0.06] ring-white/[0.1]",
+  tone: "text-[var(--hub-fg)] bg-white/[0.06] ring-white/[0.1]",
   strip: "from-zinc-400/0 via-zinc-400/40 to-zinc-400/0",
 } as const;
 
@@ -245,7 +245,7 @@ function UpdateRow({
   const ago = timeAgo(row.at, now);
   const href = row.market ? ROUTES.market(row.market.slug) : null;
   const wrapperClass = cn(
-    "relative flex items-center gap-3 transition-colors hover:bg-white/[0.04]",
+    "relative flex items-center gap-3 transition-colors hover:bg-[var(--hub-bg-subtle)]",
     dense ? "gap-2 px-2 py-1" : compact ? "px-3 py-2" : "px-4 py-2.5",
   );
 
@@ -263,7 +263,7 @@ function UpdateRow({
       <div className="min-w-0 flex-1">
         <p
           className={cn(
-            "truncate font-medium leading-tight text-zinc-100 group-hover:text-white",
+            "truncate font-medium leading-tight text-[var(--hub-fg)] group-hover:text-[var(--hub-fg)]",
             dense ? "text-[11px]" : compact ? "text-[12px]" : "text-[12.5px]",
           )}
         >
@@ -271,26 +271,26 @@ function UpdateRow({
         </p>
         <p
           className={cn(
-            "mt-0.5 flex flex-wrap items-center gap-x-1.5 gap-y-0 text-zinc-500",
+            "mt-0.5 flex flex-wrap items-center gap-x-1.5 gap-y-0 text-[var(--hub-muted)]",
             dense ? "text-[9.5px]" : "text-[10.5px]",
           )}
         >
           {row.market ? (
             <>
-              <span className="truncate text-zinc-400">{row.market.title}</span>
+              <span className="truncate text-[var(--hub-muted)]">{row.market.title}</span>
               <span className="text-zinc-700">·</span>
-              <span className="uppercase tracking-wider text-zinc-500">
+              <span className="uppercase tracking-wider text-[var(--hub-muted)]">
                 {row.market.category}
               </span>
             </>
           ) : row.description ? (
-            <span className="truncate text-zinc-400">{row.description}</span>
+            <span className="truncate text-[var(--hub-muted)]">{row.description}</span>
           ) : (
-            <span className="text-zinc-600">platform update</span>
+            <span className="text-[var(--hub-muted)]">platform update</span>
           )}
         </p>
       </div>
-      <span className={cn("shrink-0 font-mono tabular-nums text-zinc-600", dense ? "text-[9px]" : "text-[10px]")}>
+      <span className={cn("shrink-0 font-mono tabular-nums text-[var(--hub-muted)]", dense ? "text-[9px]" : "text-[10px]")}>
         {ago}
       </span>
     </>
@@ -308,7 +308,7 @@ function UpdateRow({
       {fresh ? (
         <motion.span
           aria-hidden
-          className="pointer-events-none absolute inset-0 bg-gradient-to-r from-violet-400/20 via-cyan-400/12 to-transparent"
+          className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[var(--hub-primary-bright)]/20 via-cyan-400/12 to-transparent"
           initial={{ opacity: 0.75 }}
           animate={{ opacity: 0 }}
           transition={{ duration: 0.9, ease: "easeOut" }}
@@ -357,12 +357,12 @@ const NOTIF_META: Record<
   },
   MENTION: {
     icon: AtSign,
-    tone: "text-violet-200 bg-violet-500/15 ring-violet-400/30",
-    strip: "from-violet-400/0 via-violet-400/70 to-violet-400/0",
+    tone: "text-violet-200 bg-[var(--hub-primary-soft)] ring-[var(--hub-border-strong)]",
+    strip: "from-[var(--hub-primary-bright)]/0 via-violet-400/70 to-[var(--hub-primary-bright)]/0",
   },
   SYSTEM: {
     icon: Info,
-    tone: "text-zinc-200 bg-white/[0.06] ring-white/[0.1]",
+    tone: "text-[var(--hub-fg)] bg-white/[0.06] ring-white/[0.1]",
     strip: "from-zinc-400/0 via-zinc-400/40 to-zinc-400/0",
   },
 };
@@ -386,7 +386,7 @@ function NotificationRow({
   const inner = (
     <div
       className={cn(
-        "flex items-start gap-3 transition-colors hover:bg-white/[0.04]",
+        "flex items-start gap-3 transition-colors hover:bg-[var(--hub-bg-subtle)]",
         dense ? "gap-2 px-2 py-1" : compact ? "px-3 py-2" : "px-4 py-2.5",
         !row.read && "bg-white/[0.012]",
       )}
@@ -404,7 +404,7 @@ function NotificationRow({
         <div className="flex items-center gap-1.5">
           <p
             className={cn(
-              "truncate font-medium leading-tight text-zinc-100 group-hover:text-white",
+              "truncate font-medium leading-tight text-[var(--hub-fg)] group-hover:text-[var(--hub-fg)]",
               dense ? "text-[11px]" : compact ? "text-[12px]" : "text-[12.5px]",
             )}
           >
@@ -420,11 +420,11 @@ function NotificationRow({
             />
           ) : null}
         </div>
-        <p className={cn("mt-0.5 line-clamp-1 text-zinc-500", dense ? "text-[10px]" : "text-[11px]")}>
+        <p className={cn("mt-0.5 line-clamp-1 text-[var(--hub-muted)]", dense ? "text-[10px]" : "text-[11px]")}>
           {row.description}
         </p>
       </div>
-      <span className={cn("shrink-0 font-mono tabular-nums text-zinc-600", dense ? "text-[9px]" : "text-[10px]")}>
+      <span className={cn("shrink-0 font-mono tabular-nums text-[var(--hub-muted)]", dense ? "text-[9px]" : "text-[10px]")}>
         {ago}
       </span>
     </div>

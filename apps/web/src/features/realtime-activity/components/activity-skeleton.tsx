@@ -9,15 +9,15 @@ function Row({ compact }: { compact?: boolean }) {
         compact ? "px-3 py-2" : "px-4 py-2.5",
       )}
     >
-      <div className="h-4 w-9 rounded-md bg-white/[0.05] skeleton-shimmer" />
-      <div className="h-4 w-7 rounded-md bg-white/[0.04] skeleton-shimmer" />
+      <div className="h-4 w-9 rounded-md bg-[var(--hub-bg-subtle)] skeleton-shimmer" />
+      <div className="h-4 w-7 rounded-md bg-[var(--hub-bg-subtle)] skeleton-shimmer" />
       <div className="min-w-0 flex-1 space-y-1.5">
-        <div className="h-3 w-3/4 rounded bg-white/[0.05] skeleton-shimmer" />
-        <div className="h-2.5 w-1/2 rounded bg-white/[0.03] skeleton-shimmer" />
+        <div className="h-3 w-3/4 rounded bg-[var(--hub-bg-subtle)] skeleton-shimmer" />
+        <div className="h-2.5 w-1/2 rounded bg-[var(--hub-bg-subtle)] skeleton-shimmer" />
       </div>
       <div className="space-y-1.5 text-right">
-        <div className="ml-auto h-3 w-12 rounded bg-white/[0.05] skeleton-shimmer" />
-        <div className="ml-auto h-2 w-7 rounded bg-white/[0.03] skeleton-shimmer" />
+        <div className="ml-auto h-3 w-12 rounded bg-[var(--hub-bg-subtle)] skeleton-shimmer" />
+        <div className="ml-auto h-2 w-7 rounded bg-[var(--hub-bg-subtle)] skeleton-shimmer" />
       </div>
     </div>
   );
@@ -31,7 +31,7 @@ function ActivitySkeletonImpl({
   compact?: boolean;
 }) {
   return (
-    <div className="divide-y divide-white/[0.04]">
+    <div className="divide-y divide-[var(--hub-border)]">
       {Array.from({ length: count }).map((_, i) => (
         <Row key={i} compact={compact} />
       ))}

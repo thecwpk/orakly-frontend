@@ -439,17 +439,17 @@ function ErrorPanel({ onRetry }: { onRetry: () => void }) {
     <Container width="md">
       <div className="flex flex-col items-center gap-r16 rounded-xl bg-rose-500/[0.06] px-r16 py-s48 text-center ring-1 ring-rose-400/20">
         <Activity className="h-5 w-5 text-rose-300" />
-        <p className="text-[13px] font-medium text-zinc-100">
+        <p className="text-[13px] font-medium text-[var(--hub-fg)]">
           Couldn&apos;t load markets
         </p>
-        <p className="max-w-sm text-[12px] text-zinc-400">
+        <p className="max-w-sm text-[12px] text-[var(--hub-muted)]">
           The feed might be temporarily unreachable. Retry now or check your
           connection.
         </p>
         <button
           type="button"
           onClick={onRetry}
-          className="rounded-md bg-white/[0.06] px-3 py-1.5 text-[12px] font-medium text-zinc-200 ring-1 ring-white/[0.08] transition hover:bg-white/[0.1]"
+          className="hub-btn-secondary px-3 py-1.5 text-[12px]"
         >
           Retry
         </button>

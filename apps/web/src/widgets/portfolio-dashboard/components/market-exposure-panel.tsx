@@ -78,21 +78,21 @@ function MarketExposurePanelInner({
         transition={{ duration: 0.15 }}
         className="surface-terminal-solid rounded-md px-r24 py-s40 text-center"
       >
-        <Layers className="mx-auto h-7 w-7 text-zinc-600" />
-        <p className="mt-r16 font-mono text-[11px] font-medium text-zinc-500">No book concentration</p>
-        <p className="mt-r8 font-mono text-[10px] text-zinc-600">Exposure builds from open legs</p>
+        <Layers className="mx-auto h-7 w-7 text-[var(--hub-muted)]" />
+        <p className="mt-r16 font-mono text-[11px] font-medium text-[var(--hub-muted)]">No book concentration</p>
+        <p className="mt-r8 font-mono text-[10px] text-[var(--hub-muted)]">Exposure builds from open legs</p>
       </motion.div>
     );
   }
 
   return (
     <div className="surface-terminal-solid overflow-hidden rounded-md">
-      <div className="border-b border-white/[0.06] px-r16 py-r16 sm:px-r20">
+      <div className="border-b border-[var(--hub-border)] px-r16 py-r16 sm:px-r20">
         <p className="label-terminal">Risk rail</p>
-        <p className="mt-r4 font-mono text-[11px] font-medium tabular-nums text-zinc-200">
+        <p className="mt-r4 font-mono text-[11px] font-medium tabular-nums text-[var(--hub-fg)]">
           Exposure vs equity
         </p>
-        <p className="mt-r8 font-mono text-[10px] tabular-nums text-zinc-600">
+        <p className="mt-r8 font-mono text-[10px] tabular-nums text-[var(--hub-muted)]">
           Share % · marked notional per leg
         </p>
       </div>
@@ -139,7 +139,7 @@ function MarketExposurePanelInner({
         </ResponsiveContainer>
       </div>
 
-      <ul className="max-h-[120px] divide-y divide-white/[0.05] overflow-y-auto overscroll-contain border-t border-white/[0.06]">
+      <ul className="max-h-[120px] divide-y divide-white/[0.05] overflow-y-auto overscroll-contain border-t border-[var(--hub-border)]">
         {slices.slice(0, 12).map((s, i) => (
           <li key={`${s.marketId}-${s.side}`} className="flex items-center gap-2 px-4 py-1.5 text-[11px] sm:px-5">
             <span
@@ -149,7 +149,7 @@ function MarketExposurePanelInner({
             />
             <Link
               href={`/markets/${s.slug}`}
-              className="min-w-0 flex-1 truncate font-medium text-zinc-300 hover:text-cyan-200"
+              className="min-w-0 flex-1 truncate font-medium text-[var(--hub-muted)] hover:text-[var(--hub-primary-bright)]"
             >
               {s.title}
             </Link>
@@ -158,15 +158,15 @@ function MarketExposurePanelInner({
                 "shrink-0 rounded px-1 py-px font-mono text-[9px] font-bold ring-1",
                 s.side === "YES"
                   ? "bg-cyan-500/15 text-cyan-200 ring-cyan-500/25"
-                  : "bg-violet-500/15 text-violet-200 ring-violet-500/25",
+                  : "bg-[var(--hub-primary-soft)] text-violet-200 ring-violet-500/25",
               )}
             >
               {s.side}
             </span>
-            <span className="shrink-0 font-mono tabular-nums text-zinc-400">
+            <span className="shrink-0 font-mono tabular-nums text-[var(--hub-muted)]">
               {s.pctOfEquity.toFixed(1)}%
             </span>
-            <span className="hidden shrink-0 font-mono text-[10px] tabular-nums text-zinc-500 sm:inline">
+            <span className="hidden shrink-0 font-mono text-[10px] tabular-nums text-[var(--hub-muted)] sm:inline">
               {formatCompactUsd(s.notionalUsd)}
             </span>
           </li>
@@ -175,22 +175,22 @@ function MarketExposurePanelInner({
 
       {categories.length > 1 ? (
         <div className="border-t border-white/6 px-4 py-3 sm:px-5">
-          <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-zinc-500">
+          <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-[var(--hub-muted)]">
             Category mix
           </p>
           <div className="flex flex-wrap gap-1.5">
             {categories.map((c, i) => (
               <span
                 key={c.name}
-                className="inline-flex items-center gap-1 rounded-md bg-white/[0.04] px-2 py-1 font-mono text-[10px] ring-1 ring-white/[0.06]"
+                className="inline-flex items-center gap-1 rounded-md bg-[var(--hub-bg-subtle)] px-2 py-1 font-mono text-[10px] ring-1 ring-[var(--hub-border)]"
               >
                 <span
                   className="h-1.5 w-1.5 rounded-full"
                   style={{ backgroundColor: BAR_COLORS[i % BAR_COLORS.length] }}
                   aria-hidden
                 />
-                <span className="text-zinc-400">{c.name}</span>
-                <span className="tabular-nums text-zinc-200">{c.pct.toFixed(0)}%</span>
+                <span className="text-[var(--hub-muted)]">{c.name}</span>
+                <span className="tabular-nums text-[var(--hub-fg)]">{c.pct.toFixed(0)}%</span>
               </span>
             ))}
           </div>

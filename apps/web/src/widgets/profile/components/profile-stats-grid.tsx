@@ -40,7 +40,7 @@ function ProfileStatsGridInner({
         format="usd"
         tone="cyan"
         hint="Avg notional"
-        icon={<Wallet className="h-3 w-3 text-cyan-300" />}
+        icon={<Wallet className="h-3 w-3 text-[var(--hub-primary-bright)]" />}
       />
       <AnimatedStat
         label="Streak"
@@ -48,7 +48,7 @@ function ProfileStatsGridInner({
         format="int"
         tone="violet"
         hint="Consecutive wins"
-        icon={<Target className="h-3 w-3 text-violet-300" />}
+        icon={<Target className="h-3 w-3 text-[var(--hub-primary-bright)]" />}
       />
       <AnimatedStat
         label="Trades"
@@ -56,7 +56,7 @@ function ProfileStatsGridInner({
         format="int"
         tone="neutral"
         hint="Closed in window"
-        icon={<Activity className="h-3 w-3 text-zinc-400" />}
+        icon={<Activity className="h-3 w-3 text-[var(--hub-muted)]" />}
       />
     </section>
   );

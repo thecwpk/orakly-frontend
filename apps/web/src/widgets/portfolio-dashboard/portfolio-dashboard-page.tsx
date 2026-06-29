@@ -41,7 +41,7 @@ function NoSessionPanel() {
       primaryAction={
         <PrefetchLink
           href={ROUTES.wallet}
-          className="inline-flex items-center gap-r16 rounded-[3px] bg-cyan-500/12 px-r24 py-r16 font-mono text-[11px] font-semibold text-cyan-100 transition hover:bg-cyan-500/18 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/35"
+          className="inline-flex items-center gap-r16 rounded-[3px] bg-[var(--hub-primary-soft)] px-r24 py-r16 font-mono text-[11px] font-semibold text-[var(--hub-fg)] transition hover:bg-cyan-500/18 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hub-border-strong)]"
         >
           <ArrowUpRight className="h-3.5 w-3.5" /> Wallet
         </PrefetchLink>
@@ -49,7 +49,7 @@ function NoSessionPanel() {
       secondaryAction={
         <PrefetchLink
           href={ROUTES.markets}
-          className="inline-flex items-center gap-r16 rounded-[3px] bg-white/[0.05] px-r24 py-r16 font-mono text-[11px] font-semibold text-zinc-200 transition hover:bg-white/[0.08] active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/15"
+          className="inline-flex items-center gap-r16 rounded-lg border border-[var(--hub-border)] bg-[var(--hub-bg-subtle)] px-r24 py-r16 text-[11px] font-semibold text-[var(--hub-muted)] transition hover:bg-[var(--hub-card-hover)] hover:text-[var(--hub-fg)] active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hub-primary)]/35"
         >
           <ArrowLeft className="h-3.5 w-3.5" /> Markets
         </PrefetchLink>
@@ -137,7 +137,7 @@ const PortfolioDashboardInner = memo(function PortfolioDashboardInner({
           actions={
             <PrefetchLink
               href={ROUTES.markets}
-              className="inline-flex items-center gap-r16 rounded-[3px] border border-white/[0.08] bg-white/[0.03] px-r16 py-r8 font-mono text-[9.5px] font-medium uppercase tracking-[0.06em] text-zinc-400 transition hover:border-white/[0.12] hover:bg-white/[0.05] hover:text-zinc-200 active:scale-[0.98]"
+              className="inline-flex items-center gap-r16 rounded-[3px] border border-[var(--hub-border)] bg-[var(--hub-bg-subtle)] px-r16 py-r8 font-mono text-[9.5px] font-medium uppercase tracking-[0.06em] text-[var(--hub-muted)] transition hover:border-white/[0.12] hover:bg-[var(--hub-bg-subtle)] hover:text-[var(--hub-fg)] active:scale-[0.98]"
             >
               <ArrowLeft className="h-3.5 w-3.5 opacity-80" />
               Markets
@@ -166,7 +166,7 @@ const PortfolioDashboardInner = memo(function PortfolioDashboardInner({
                   <div className="flex flex-wrap items-center justify-between gap-r16">
                     <p className="label-terminal">On-chain · {snapshot.onChain.chainId}</p>
                     {snapshot.onChain.syncedAt ? (
-                      <p className="font-mono text-[9px] tabular-nums text-zinc-600">
+                      <p className="font-mono text-[9px] tabular-nums text-[var(--hub-muted)]">
                         {new Date(snapshot.onChain.syncedAt).toLocaleTimeString()}
                       </p>
                     ) : null}
@@ -175,10 +175,10 @@ const PortfolioDashboardInner = memo(function PortfolioDashboardInner({
                     {snapshot.onChain.balances.map((b) => (
                       <div
                         key={`${b.tokenAddress}-${b.symbol}`}
-                        className="rounded-[3px] bg-white/[0.035] px-r16 py-r8 ring-1 ring-white/[0.06]"
+                        className="rounded-[3px] bg-white/[0.035] px-r16 py-r8 ring-1 ring-[var(--hub-border)]"
                       >
                         <p className="label-terminal text-[7.5px]">{b.symbol}</p>
-                        <p className="mt-r4 font-mono text-[11px] tabular-nums text-zinc-200">{b.formattedBalance}</p>
+                        <p className="mt-r4 font-mono text-[11px] tabular-nums text-[var(--hub-fg)]">{b.formattedBalance}</p>
                       </div>
                     ))}
                   </div>
@@ -197,7 +197,7 @@ const PortfolioDashboardInner = memo(function PortfolioDashboardInner({
             </aside>
           </div>
 
-          <section className="mt-s48 border-t border-white/[0.06] pt-r24 lg:pt-s40">
+          <section className="mt-s48 border-t border-[var(--hub-border)] pt-r24 lg:pt-s40">
             <p className="label-terminal mb-r16">Execution log</p>
             <TradesHistory
               trades={flatTrades}

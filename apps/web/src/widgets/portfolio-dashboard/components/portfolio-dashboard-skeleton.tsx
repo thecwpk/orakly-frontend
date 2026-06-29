@@ -6,9 +6,9 @@ import { SkeletonLine } from "@/widgets/landing/components/landing-skeletons";
 
 export function PortfolioDashboardSkeleton({ className }: { className?: string }) {
   return (
-    <main className={cn("text-zinc-100", className)}>
+    <main className={cn("text-[var(--hub-fg)]", className)}>
       <Container width="2xl" className="pb-s48 pt-s40 lg:pb-s64 lg:pt-s56">
-        <div className="flex flex-wrap items-end justify-between gap-r16 border-b border-white/[0.06] pb-r24">
+        <div className="flex flex-wrap items-end justify-between gap-r16 border-b border-[var(--hub-border)] pb-r24">
           <div className="space-y-r16">
             <SkeletonLine className="h-5 w-32 rounded-[3px]" shimmer />
             <SkeletonLine className="h-3 w-56 rounded-[3px]" shimmer />
@@ -31,7 +31,7 @@ export function PortfolioDashboardSkeleton({ className }: { className?: string }
             </div>
           </div>
 
-          <div className="mt-s48 border-t border-white/[0.06] pt-r24">
+          <div className="mt-s48 border-t border-[var(--hub-border)] pt-r24">
             <SkeletonLine className="mb-r16 h-2 w-28 rounded-[3px]" shimmer />
             <SkeletonLine className="h-[220px] w-full rounded-md" shimmer />
           </div>

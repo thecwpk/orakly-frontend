@@ -22,16 +22,16 @@ function Metric({
     <div
       className={cn(
         "relative min-w-[8.5rem] flex-1 px-3 py-2 sm:min-w-0 sm:px-4 sm:py-2.5",
-        "border-b border-white/[0.06] sm:border-b-0 sm:border-r sm:border-white/[0.06] last:border-r-0",
+        "border-b border-[var(--hub-border)] sm:border-b-0 sm:border-r sm:border-[var(--hub-border)] last:border-r-0",
         className,
       )}
     >
       <p className="label-terminal">{label}</p>
-      <div className={cn("mt-1 font-mono text-[15px] font-semibold tabular-nums leading-none text-zinc-50 sm:text-base", valueClassName)}>
+      <div className={cn("mt-1 font-mono text-[15px] font-semibold tabular-nums leading-none text-[var(--hub-fg)] sm:text-base", valueClassName)}>
         {value}
       </div>
       {sub ? (
-        <div className="mt-1 text-[9px] leading-snug text-zinc-600">{sub}</div>
+        <div className="mt-1 text-[9px] leading-snug text-[var(--hub-muted)]">{sub}</div>
       ) : null}
     </div>
   );
@@ -63,9 +63,9 @@ function PortfolioTerminalSummaryInner({
 
   return (
     <div className="surface-terminal-solid overflow-hidden rounded-md">
-      <div className="border-b border-white/[0.06] px-r16 py-r16 sm:px-r24">
+      <div className="border-b border-[var(--hub-border)] px-r16 py-r16 sm:px-r24">
         <p className="label-terminal tracking-[0.16em]">Book summary</p>
-        <p className="mt-r4 font-mono text-[10px] tabular-nums text-zinc-600">
+        <p className="mt-r4 font-mono text-[10px] tabular-nums text-[var(--hub-muted)]">
           Marks · venue mid · FIFO win rate
         </p>
       </div>
@@ -76,9 +76,9 @@ function PortfolioTerminalSummaryInner({
           value={formatCompactUsd(equityUsd)}
           sub={
             <>
-              <span className="font-mono text-zinc-500">Avail {formatCompactUsd(availableUsd)}</span>
+              <span className="font-mono text-[var(--hub-muted)]">Avail {formatCompactUsd(availableUsd)}</span>
               {" · "}
-              <span className="font-mono text-zinc-500">Lock {formatCompactUsd(lockedUsd)}</span>
+              <span className="font-mono text-[var(--hub-muted)]">Lock {formatCompactUsd(lockedUsd)}</span>
             </>
           }
           className="sm:flex-[1.35]"
@@ -110,7 +110,7 @@ function PortfolioTerminalSummaryInner({
         <Metric
           label="Exposure"
           value={`${exposurePctOfEquity.toFixed(1)}%`}
-          sub={<span className="font-mono text-zinc-500">{formatCompactUsd(exposureNotionalUsd)} book</span>}
+          sub={<span className="font-mono text-[var(--hub-muted)]">{formatCompactUsd(exposureNotionalUsd)} book</span>}
           className="sm:max-w-[9rem]"
         />
         <Metric

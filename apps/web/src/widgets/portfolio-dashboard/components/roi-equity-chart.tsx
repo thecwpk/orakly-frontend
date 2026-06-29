@@ -47,15 +47,15 @@ function RoiEquityChartInner({
 
   return (
     <div className="overflow-hidden rounded-lg border border-white/[0.07] bg-[#07070d]/95 ring-1 ring-emerald-500/15 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
-      <div className="border-b border-white/[0.06] px-3 py-2 sm:px-3.5">
+      <div className="border-b border-[var(--hub-border)] px-3 py-2 sm:px-3.5">
         <div className="flex flex-wrap items-end justify-between gap-2">
           <div>
-            <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-zinc-500">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--hub-muted)]">
               Performance
             </p>
-            <p className="text-[12px] font-medium text-zinc-200">Equity &amp; ROI</p>
+            <p className="text-[12px] font-medium text-[var(--hub-fg)]">Equity &amp; ROI</p>
           </div>
-          <div className="flex gap-3 font-mono text-[10px] text-zinc-500">
+          <div className="flex gap-3 font-mono text-[10px] text-[var(--hub-muted)]">
             <span className="inline-flex items-center gap-1">
               <span className="h-2 w-2 rounded-full bg-emerald-400" aria-hidden />
               Equity USD
@@ -66,7 +66,7 @@ function RoiEquityChartInner({
             </span>
           </div>
         </div>
-        <p className="mt-1 text-[10px] leading-snug text-zinc-600">
+        <p className="mt-1 text-[10px] leading-snug text-[var(--hub-muted)]">
           ROI is return vs first point on this curve; anchored from fills. Not tax advice.
         </p>
       </div>

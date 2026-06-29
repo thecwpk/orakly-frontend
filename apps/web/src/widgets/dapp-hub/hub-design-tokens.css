@@ -1145,6 +1145,13 @@
   box-shadow: 0 4px 20px rgb(0 0 0 / 0.22);
 }
 
+.hub-lane-panel {
+  border-radius: var(--hub-radius);
+  border: 1px solid var(--hub-border);
+  background: color-mix(in srgb, var(--hub-card) 94%, var(--hub-bg-subtle));
+  box-shadow: 0 4px 20px rgb(0 0 0 / 0.22);
+}
+
 .hub-card-interactive {
   transition:
     border-color 0.2s ease,

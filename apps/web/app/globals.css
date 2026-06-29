@@ -821,6 +821,35 @@
       0 0 0 1px rgba(251, 113, 133, 0.12),
       0 0 24px -8px rgba(244, 63, 94, 0.28);
   }
+
+  /* Hub canvas — remap legacy terminal/glass utilities to navy trading tokens */
+  .hub-app-canvas .surface-terminal-solid,
+  .hub-app-canvas .surface-terminal {
+    border-color: var(--hub-border);
+    background-color: color-mix(in srgb, var(--hub-card) 94%, var(--hub-bg-subtle));
+    box-shadow: 0 4px 20px rgb(0 0 0 / 0.22);
+  }
+
+  .hub-app-canvas .glass-panel,
+  .hub-app-canvas .glass-panel-strong {
+    border-color: var(--hub-border);
+    background-color: var(--hub-card);
+    box-shadow: 0 4px 20px rgb(0 0 0 / 0.22);
+    backdrop-filter: none;
+  }
+
+  .hub-app-canvas .label-terminal {
+    color: var(--hub-muted);
+  }
+
+  .hub-app-canvas .neon-edge-cyan,
+  .hub-app-canvas .neon-edge-violet,
+  .hub-app-canvas .neon-edge-rose {
+    box-shadow:
+      0 0 0 1px color-mix(in srgb, var(--hub-border-strong) 70%, transparent),
+      0 4px 20px rgb(0 0 0 / 0.18);
+  }
+
   .text-gradient-neon {
     background-image: linear-gradient(
       90deg,

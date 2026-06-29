@@ -107,7 +107,7 @@ function ProfileHeroInner({
           <Avatar address={address} />
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-2">
-              <h1 className="truncate text-balance text-[22px] font-semibold tracking-tight text-white sm:text-[28px]">
+              <h1 className="truncate text-balance text-[22px] font-semibold tracking-tight text-[var(--hub-fg)] sm:text-[28px]">
                 {alias}
               </h1>
               <Badge tone={isMine ? "emerald" : "violet"}>
@@ -122,7 +122,7 @@ function ProfileHeroInner({
               type="button"
               onClick={() => void handleCopyAddress()}
               className={cn(
-                "group mt-1 inline-flex items-center gap-1.5 rounded-md px-1 py-0.5 font-mono text-[11.5px] text-zinc-400 transition hover:bg-white/[0.04] hover:text-zinc-200",
+                "group mt-1 inline-flex items-center gap-1.5 rounded-md px-1 py-0.5 font-mono text-[11.5px] text-[var(--hub-muted)] transition hover:bg-[var(--hub-bg-subtle)] hover:text-[var(--hub-fg)]",
                 copiedAddr && "bg-emerald-500/10 text-emerald-200",
               )}
               aria-label="Copy address"
@@ -135,16 +135,16 @@ function ProfileHeroInner({
               )}
             </button>
 
-            <ul className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-zinc-500">
+            <ul className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-[var(--hub-muted)]">
               <li className="inline-flex items-center gap-1">
                 <Users className="h-3 w-3" />
-                <span className="font-mono font-bold tabular-nums text-zinc-200">
+                <span className="font-mono font-bold tabular-nums text-[var(--hub-fg)]">
                   {followers.toLocaleString()}
                 </span>
                 followers
               </li>
               <li>
-                <span className="font-mono font-bold tabular-nums text-zinc-300">
+                <span className="font-mono font-bold tabular-nums text-[var(--hub-muted)]">
                   {following.toLocaleString()}
                 </span>{" "}
                 following
@@ -176,7 +176,7 @@ function ProfileHeroInner({
                     "inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[12px] font-bold ring-1 transition",
                     following_
                       ? "bg-emerald-500/15 text-emerald-200 ring-emerald-400/30 hover:bg-emerald-500/20"
-                      : "bg-gradient-to-r from-cyan-400 to-violet-400 text-zinc-950 ring-cyan-300/30 hover:brightness-110",
+                      : "bg-gradient-to-r from-cyan-400 to-[var(--hub-primary-bright)] text-zinc-950 ring-[var(--hub-border)] hover:brightness-110",
                   )}
                 >
                   {following_ ? (
@@ -195,7 +195,7 @@ function ProfileHeroInner({
               <button
                 type="button"
                 onClick={() => void handleShare()}
-                className="inline-flex items-center gap-1.5 rounded-lg bg-white/[0.05] px-3 py-1.5 text-[12px] font-medium text-zinc-200 ring-1 ring-white/10 transition hover:bg-white/[0.1]"
+                className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--hub-bg-subtle)] px-3 py-1.5 text-[12px] font-medium text-[var(--hub-fg)] ring-1 ring-[var(--hub-border)] transition hover:bg-[var(--hub-card-hover)]"
               >
                 <Share2 className="h-3.5 w-3.5" />
                 Share
@@ -203,7 +203,7 @@ function ProfileHeroInner({
               <button
                 type="button"
                 onClick={() => void handleCopyAddress()}
-                className="inline-flex items-center gap-1.5 rounded-lg bg-white/[0.04] px-3 py-1.5 text-[12px] font-medium text-zinc-300 ring-1 ring-white/10 transition hover:bg-white/[0.08]"
+                className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--hub-bg-subtle)] px-3 py-1.5 text-[12px] font-medium text-[var(--hub-muted)] ring-1 ring-[var(--hub-border)] transition hover:bg-[var(--hub-card-hover)]"
               >
                 <Copy className="h-3.5 w-3.5" />
                 Copy address
@@ -256,7 +256,7 @@ function Avatar({ address }: { address: string }) {
       }}
     >
       <div className="absolute inset-0.5 rounded-[14px] bg-[#06060a]/60 backdrop-blur-sm" />
-      <span className="relative font-mono text-[13px] font-bold uppercase tracking-tight text-white">
+      <span className="relative font-mono text-[13px] font-bold uppercase tracking-tight text-[var(--hub-fg)]">
         {seed}
       </span>
     </motion.div>
@@ -272,7 +272,7 @@ function Badge({
 }) {
   const toneClass: Record<typeof tone, string> = {
     emerald: "bg-emerald-500/15 text-emerald-200 ring-emerald-400/30",
-    violet: "bg-violet-500/10 text-violet-200 ring-violet-400/30",
+    violet: "bg-[var(--hub-primary-soft)] text-violet-200 ring-[var(--hub-border-strong)]",
     amber: "bg-amber-500/15 text-amber-200 ring-amber-400/30",
   };
   return (

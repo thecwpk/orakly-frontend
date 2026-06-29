@@ -23,7 +23,7 @@ function ActivityFilterTabsImpl({
       role="tablist"
       aria-label="Activity filter"
       className={cn(
-        "inline-flex items-center gap-0.5 rounded-md bg-black/30 p-0.5 ring-1 ring-white/[0.08]",
+        "inline-flex items-center gap-0.5 rounded-md bg-[var(--hub-bg-subtle)] p-0.5 ring-1 ring-[var(--hub-border)]",
         className,
       )}
     >
@@ -40,8 +40,8 @@ function ActivityFilterTabsImpl({
             className={cn(
               "relative inline-flex items-center gap-1.5 rounded-sm px-2.5 py-1 text-[11px] font-bold transition",
               isActive
-                ? "text-zinc-100"
-                : "text-zinc-500 hover:text-zinc-300",
+                ? "text-[var(--hub-fg)]"
+                : "text-[var(--hub-muted)] hover:text-[var(--hub-muted)]",
             )}
           >
             {isActive ? (
@@ -49,7 +49,7 @@ function ActivityFilterTabsImpl({
                 aria-hidden
                 layoutId="activity-filter-active"
                 transition={{ type: "spring", stiffness: 380, damping: 32 }}
-                className="absolute inset-0 -z-10 rounded-sm bg-white/[0.08] ring-1 ring-white/[0.08]"
+                className="absolute inset-0 -z-10 rounded-sm bg-[var(--hub-card-hover)] ring-1 ring-[var(--hub-border)]"
               />
             ) : null}
             <span>{opt.label}</span>
@@ -59,7 +59,7 @@ function ActivityFilterTabsImpl({
                   "rounded-md px-1 py-px font-mono text-[9.5px] tabular-nums leading-none",
                   isActive
                     ? "bg-cyan-400/15 text-cyan-200 ring-1 ring-cyan-400/25"
-                    : "bg-white/[0.04] text-zinc-500 ring-1 ring-white/[0.06]",
+                    : "bg-[var(--hub-bg-subtle)] text-[var(--hub-muted)] ring-1 ring-[var(--hub-border)]",
                 )}
               >
                 {count > 99 ? "99+" : count}

@@ -21,16 +21,16 @@ function TradesHistoryInner({
 }) {
   return (
     <div className="surface-terminal-solid overflow-hidden rounded-md">
-      <div className="border-b border-white/[0.06] px-r16 py-r16 sm:px-r20">
+      <div className="border-b border-[var(--hub-border)] px-r16 py-r16 sm:px-r20">
         <p className="label-terminal">Fills</p>
-        <p className="mt-r4 font-mono text-[10px] tabular-nums text-zinc-500">
+        <p className="mt-r4 font-mono text-[10px] tabular-nums text-[var(--hub-muted)]">
           Newest first · optimistic rows dim until confirmed
         </p>
       </div>
       <div className="max-h-[min(52vh,420px)] overflow-x-auto overflow-y-auto overscroll-contain scrollbar-terminal">
         <table className="w-full min-w-[600px] border-collapse text-left text-[11px]">
           <thead className="sticky top-0 z-[1] bg-[#06060b]/98 backdrop-blur-sm">
-            <tr className="text-[8.5px] font-semibold uppercase tracking-[0.12em] text-zinc-600">
+            <tr className="text-[8.5px] font-semibold uppercase tracking-[0.12em] text-[var(--hub-muted)]">
               <th className="px-3 py-2 font-medium sm:px-3.5">Time</th>
               <th className="px-2 py-2 font-medium">Side</th>
               <th className="px-2 py-2 font-medium">Out</th>
@@ -50,11 +50,11 @@ function TradesHistoryInner({
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.12 }}
                   className={cn(
-                    "font-mono text-zinc-400",
+                    "font-mono text-[var(--hub-muted)]",
                     pend && "opacity-60",
                   )}
                 >
-                  <td className="whitespace-nowrap px-3 py-1.5 text-zinc-600 sm:px-3.5 sm:py-2">
+                  <td className="whitespace-nowrap px-3 py-1.5 text-[var(--hub-muted)] sm:px-3.5 sm:py-2">
                     {pend ? "…" : new Date(t.executedAt).toLocaleString()}
                   </td>
                   <td className="px-2 py-1.5 sm:py-2">
@@ -79,16 +79,16 @@ function TradesHistoryInner({
           </tbody>
         </table>
         {!trades.length ?
-          <p className="px-4 py-8 text-center text-[12px] text-zinc-600">No trades yet.</p>
+          <p className="px-4 py-8 text-center text-[12px] text-[var(--hub-muted)]">No trades yet.</p>
         : null}
       </div>
       {hasNextPage ?
-        <div className="border-t border-white/[0.06] p-2">
+        <div className="border-t border-[var(--hub-border)] p-2">
           <button
             type="button"
             disabled={isFetchingNextPage}
             onClick={onLoadMore}
-            className="flex w-full items-center justify-center gap-2 rounded-md bg-white/[0.06] py-2 text-[11px] font-semibold text-zinc-200 ring-1 ring-white/[0.08] transition hover:bg-white/[0.09] disabled:opacity-50"
+            className="flex w-full items-center justify-center gap-2 rounded-md bg-white/[0.06] py-2 text-[11px] font-semibold text-[var(--hub-fg)] ring-1 ring-[var(--hub-border)] transition hover:bg-[var(--hub-card-hover)] disabled:opacity-50"
           >
             {isFetchingNextPage ?
               <>

@@ -56,7 +56,7 @@ export function ProfilePage({ address }: ProfilePageProps) {
   }
 
   return (
-    <main className="mx-auto flex max-w-6xl flex-col pb-s64 pt-s48 md:pt-s56">
+    <main className="hub-root mx-auto flex max-w-6xl flex-col pb-s64 pt-s48 md:pt-s56">
       <div className="mb-r24">
         <ProfileHero
           address={profile.address}

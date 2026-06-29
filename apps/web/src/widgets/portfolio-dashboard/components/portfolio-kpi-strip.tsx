@@ -18,7 +18,7 @@ type Kpi = {
 const accentRing: Record<Kpi["accent"], string> = {
   cyan: "ring-cyan-400/25 bg-cyan-500/10 text-cyan-200",
   emerald: "ring-emerald-400/25 bg-emerald-500/10 text-emerald-200",
-  violet: "ring-violet-400/25 bg-violet-500/10 text-violet-200",
+  violet: "ring-[var(--hub-border)] bg-[var(--hub-primary-soft)] text-violet-200",
   amber: "ring-amber-400/25 bg-amber-500/10 text-amber-200",
   rose: "ring-rose-400/25 bg-rose-500/10 text-rose-200",
 };
@@ -111,20 +111,20 @@ function PortfolioKpiStripInner({
           >
             <div className="flex items-start justify-between gap-2">
               <div className="min-w-0">
-                <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-zinc-500">
+                <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-[var(--hub-muted)]">
                   {k.label}
                 </p>
                 <p
                   className={cn(
                     "mt-1 font-mono text-lg font-semibold leading-none tracking-tight tabular-nums sm:text-xl",
                     isPnl && (pnlPos ? "text-emerald-200" : "text-rose-200"),
-                    !isPnl && "text-white",
+                    !isPnl && "text-[var(--hub-fg)]",
                   )}
                 >
                   {k.value}
                 </p>
                 {k.sub ? (
-                  <p className="mt-1 font-mono text-[9px] text-zinc-600">{k.sub}</p>
+                  <p className="mt-1 font-mono text-[9px] text-[var(--hub-muted)]">{k.sub}</p>
                 ) : null}
               </div>
               <Icon className="h-4 w-4 shrink-0 opacity-60" aria-hidden />

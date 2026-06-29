@@ -85,7 +85,7 @@ function RealtimeActivityFeedImpl({
     <section
       aria-label="Realtime activity"
       className={cn(
-        "relative overflow-hidden rounded-2xl bg-[#0a0a12]/85 ring-1 ring-white/[0.06] supports-[backdrop-filter]:backdrop-blur",
+        "relative overflow-hidden rounded-2xl bg-[#0a0a12]/85 ring-1 ring-[var(--hub-border)] supports-[backdrop-filter]:backdrop-blur",
         className,
       )}
     >
@@ -96,18 +96,18 @@ function RealtimeActivityFeedImpl({
       />
 
       {showHeader ? (
-        <header className="flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.06] px-4 py-3">
+        <header className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--hub-border)] px-4 py-3">
           <div className="flex items-center gap-2.5">
-            <span className="inline-flex h-7 w-7 items-center justify-center rounded-md bg-cyan-500/10 text-cyan-300 ring-1 ring-cyan-400/25">
+            <span className="inline-flex h-7 w-7 items-center justify-center rounded-md bg-cyan-500/10 text-[var(--hub-primary-bright)] ring-1 ring-cyan-400/25">
               <Activity className="h-3.5 w-3.5" />
             </span>
             <div className="leading-tight">
               {eyebrow ? (
-                <p className="text-[9.5px] font-bold uppercase tracking-[0.22em] text-zinc-500">
+                <p className="text-[9.5px] font-bold uppercase tracking-[0.22em] text-[var(--hub-muted)]">
                   {eyebrow}
                 </p>
               ) : null}
-              <p className="text-[13px] font-semibold text-white">{title}</p>
+              <p className="text-[13px] font-semibold text-[var(--hub-fg)]">{title}</p>
             </div>
           </div>
 
@@ -120,10 +120,10 @@ function RealtimeActivityFeedImpl({
               />
             ) : null}
             <span
-              className="inline-flex items-center gap-1.5 rounded-md bg-white/[0.03] px-1.5 py-1 text-[10px] font-medium text-zinc-300 ring-1 ring-white/[0.06]"
+              className="inline-flex items-center gap-1.5 rounded-md bg-[var(--hub-bg-subtle)] px-1.5 py-1 text-[10px] font-medium text-[var(--hub-muted)] ring-1 ring-[var(--hub-border)]"
               aria-live="polite"
             >
-              <Radio className="h-2.5 w-2.5 text-zinc-500" />
+              <Radio className="h-2.5 w-2.5 text-[var(--hub-muted)]" />
               <span aria-hidden className={cn("h-1.5 w-1.5 rounded-full", status.dot)} />
               <span>{status.label}</span>
             </span>
@@ -144,8 +144,8 @@ function RealtimeActivityFeedImpl({
             transition={{ duration: 0.15 }}
             className={cn(
               "absolute left-1/2 z-10 inline-flex -translate-x-1/2 items-center gap-1.5",
-              "rounded-full bg-cyan-500/15 px-2.5 py-1 text-[11px] font-semibold text-cyan-100",
-              "ring-1 ring-cyan-400/35 shadow-[0_4px_24px_-6px_rgba(34,211,238,0.4)] backdrop-blur",
+              "rounded-full bg-cyan-500/15 px-2.5 py-1 text-[11px] font-semibold text-[var(--hub-fg)]",
+              "ring-1 ring-[var(--hub-border-strong)] shadow-[0_4px_24px_-6px_rgba(34,211,238,0.4)] backdrop-blur",
               "hover:bg-cyan-500/20",
               showHeader ? "top-[58px]" : "top-2",
             )}
@@ -179,7 +179,7 @@ function RealtimeActivityFeedImpl({
         ) : (
           <motion.ol
             layout
-            className="divide-y divide-white/[0.04]"
+            className="divide-y divide-[var(--hub-border)]"
           >
             <AnimatePresence initial={false}>
               {rows.map((row) => (
@@ -205,7 +205,7 @@ function RealtimeActivityFeedImpl({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="flex items-center gap-1.5 border-t border-white/[0.05] px-4 py-2 text-[10.5px] text-zinc-500"
+            className="flex items-center gap-1.5 border-t border-white/[0.05] px-4 py-2 text-[10.5px] text-[var(--hub-muted)]"
           >
             <Pause className="h-3 w-3" />
             <span>
@@ -229,16 +229,16 @@ function EmptyState({
 }) {
   return (
     <div className="flex flex-col items-center justify-center px-6 py-12 text-center">
-      <div className="mb-3 inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/[0.04] ring-1 ring-white/[0.08]">
-        <Radio className="h-4 w-4 text-zinc-500" />
+      <div className="mb-3 inline-flex h-9 w-9 items-center justify-center rounded-full bg-[var(--hub-bg-subtle)] ring-1 ring-[var(--hub-border)]">
+        <Radio className="h-4 w-4 text-[var(--hub-muted)]" />
       </div>
-      <p className="text-[13px] font-medium text-zinc-300">
+      <p className="text-[13px] font-medium text-[var(--hub-muted)]">
         {filter === "trades" && "No trades yet"}
         {filter === "updates" && "No market updates yet"}
         {filter === "yours" && "No notifications yet"}
         {filter === "all" && "Tape is quiet"}
       </p>
-      <p className="mt-1 max-w-xs text-[11.5px] leading-snug text-zinc-500">
+      <p className="mt-1 max-w-xs text-[11.5px] leading-snug text-[var(--hub-muted)]">
         {marketScope
           ? "Waiting for the next print on this market — fills will stream in here as they happen."
           : "Activity will appear here in real time the moment it lands on the platform."}

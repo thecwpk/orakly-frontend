@@ -32,9 +32,9 @@ const TONE: Record<AchievementTone, { ring: string; glow: string; text: string; 
   },
   violet: {
     ring: "ring-violet-400/40",
-    glow: "from-violet-400/25 via-violet-400/8 to-transparent",
+    glow: "from-[var(--hub-primary-bright)]/25 via-violet-400/8 to-transparent",
     text: "text-violet-200",
-    bg: "bg-violet-500/15",
+    bg: "bg-[var(--hub-primary-soft)]",
   },
   rose: {
     ring: "ring-rose-400/40",
@@ -60,25 +60,25 @@ function ProfileAchievementsInner({ profile, className }: ProfileAchievementsPro
       transition={{ duration: 0.35 }}
       aria-label="Achievements"
       className={cn(
-        "glass-panel-strong overflow-hidden rounded-2xl ring-1 ring-white/[0.06]",
+        "glass-panel-strong overflow-hidden rounded-2xl ring-1 ring-[var(--hub-border)]",
         className,
       )}
     >
-      <header className="flex items-center justify-between gap-3 border-b border-white/[0.06] px-4 py-3 sm:px-5">
+      <header className="flex items-center justify-between gap-3 border-b border-[var(--hub-border)] px-4 py-3 sm:px-5">
         <div className="flex items-center gap-2">
           <span className="inline-flex h-7 w-7 items-center justify-center rounded-md bg-amber-500/10 text-amber-300 ring-1 ring-amber-400/25">
             <Award className="h-3.5 w-3.5" />
           </span>
           <div>
-            <p className="text-[9.5px] font-bold uppercase tracking-[0.2em] text-zinc-500">
+            <p className="text-[9.5px] font-bold uppercase tracking-[0.2em] text-[var(--hub-muted)]">
               Milestones
             </p>
-            <h2 className="text-[14px] font-semibold tracking-tight text-white">
+            <h2 className="text-[14px] font-semibold tracking-tight text-[var(--hub-fg)]">
               Achievements
             </h2>
           </div>
         </div>
-        <span className="rounded-md bg-white/[0.04] px-1.5 py-0.5 font-mono text-[10.5px] tabular-nums text-zinc-300 ring-1 ring-white/[0.08]">
+        <span className="rounded-md bg-[var(--hub-bg-subtle)] px-1.5 py-0.5 font-mono text-[10.5px] tabular-nums text-[var(--hub-muted)] ring-1 ring-[var(--hub-border)]">
           {unlockedCount} / {list.length}
         </span>
       </header>
@@ -111,8 +111,8 @@ function AchievementCard({
       className={cn(
         "group relative overflow-hidden rounded-xl px-3 py-3 ring-1 transition",
         unlocked
-          ? cn("bg-black/30", tone.ring)
-          : "bg-black/30 ring-white/[0.05] hover:ring-white/[0.1]",
+          ? cn("bg-[var(--hub-bg-subtle)]", tone.ring)
+          : "bg-[var(--hub-bg-subtle)] ring-white/[0.05] hover:ring-white/[0.1]",
       )}
     >
       {unlocked ? (
@@ -130,7 +130,7 @@ function AchievementCard({
             "inline-flex h-8 w-8 items-center justify-center rounded-md ring-1 transition",
             unlocked
               ? cn(tone.bg, tone.text, tone.ring)
-              : "bg-white/[0.03] text-zinc-500 ring-white/[0.06]",
+              : "bg-[var(--hub-bg-subtle)] text-[var(--hub-muted)] ring-[var(--hub-border)]",
           )}
         >
           {unlocked ? (
@@ -151,7 +151,7 @@ function AchievementCard({
             Unlocked
           </span>
         ) : (
-          <span className="rounded-full bg-white/[0.04] px-1.5 py-0.5 text-[9.5px] font-bold uppercase tracking-wider text-zinc-500 ring-1 ring-white/[0.06]">
+          <span className="rounded-full bg-[var(--hub-bg-subtle)] px-1.5 py-0.5 text-[9.5px] font-bold uppercase tracking-wider text-[var(--hub-muted)] ring-1 ring-[var(--hub-border)]">
             Locked
           </span>
         )}
@@ -161,18 +161,18 @@ function AchievementCard({
         <p
           className={cn(
             "text-[12px] font-semibold leading-tight",
-            unlocked ? "text-white" : "text-zinc-300",
+            unlocked ? "text-[var(--hub-fg)]" : "text-[var(--hub-muted)]",
           )}
         >
           {achievement.title}
         </p>
-        <p className="mt-0.5 line-clamp-2 text-[10.5px] leading-snug text-zinc-500">
+        <p className="mt-0.5 line-clamp-2 text-[10.5px] leading-snug text-[var(--hub-muted)]">
           {achievement.description}
         </p>
       </div>
 
       <div className="relative mt-2">
-        <div className="h-1.5 overflow-hidden rounded-full bg-white/[0.04]">
+        <div className="h-1.5 overflow-hidden rounded-full bg-[var(--hub-bg-subtle)]">
           <motion.div
             initial={{ width: 0 }}
             animate={{ width: `${achievement.pct}%` }}
@@ -189,15 +189,15 @@ function AchievementCard({
                     "bg-gradient-to-r",
                     achievement.tone === "amber" && "from-amber-400 to-rose-400",
                     achievement.tone === "emerald" && "from-emerald-400 to-cyan-400",
-                    achievement.tone === "cyan" && "from-cyan-400 to-violet-400",
-                    achievement.tone === "violet" && "from-violet-400 to-fuchsia-400",
+                    achievement.tone === "cyan" && "from-cyan-400 to-[var(--hub-primary-bright)]",
+                    achievement.tone === "violet" && "from-[var(--hub-primary-bright)] to-fuchsia-400",
                     achievement.tone === "rose" && "from-rose-400 to-amber-400",
                   )
                 : "bg-zinc-600",
             )}
           />
         </div>
-        <p className="mt-1 text-right font-mono text-[10px] tabular-nums text-zinc-500">
+        <p className="mt-1 text-right font-mono text-[10px] tabular-nums text-[var(--hub-muted)]">
           {achievement.formatProgress(achievement.current, achievement.target)}
         </p>
       </div>

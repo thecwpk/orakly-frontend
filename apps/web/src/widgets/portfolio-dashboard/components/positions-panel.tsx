@@ -34,14 +34,14 @@ function PositionsPanelInner({
   if (!positions.length) {
     return (
       <div className="surface-terminal-solid rounded-md px-r24 py-s48 text-center">
-        <p className="font-mono text-[11px] font-medium tabular-nums text-zinc-400">No open legs</p>
-        <p className="mt-r8 font-mono text-[10px] text-zinc-600">
+        <p className="font-mono text-[11px] font-medium tabular-nums text-[var(--hub-muted)]">No open legs</p>
+        <p className="mt-r8 font-mono text-[10px] text-[var(--hub-muted)]">
           Size routes from Markets · fills sync here
         </p>
         <Link
           href={ROUTES.discover}
           prefetch
-          className="mt-r24 inline-flex rounded-[3px] bg-white/[0.06] px-r16 py-r8 font-mono text-[10px] font-semibold uppercase tracking-wide text-zinc-200 transition hover:bg-white/[0.09]"
+          className="mt-r24 inline-flex rounded-[3px] bg-white/[0.06] px-r16 py-r8 font-mono text-[10px] font-semibold uppercase tracking-wide text-[var(--hub-fg)] transition hover:bg-[var(--hub-card-hover)]"
         >
           Markets
         </Link>
@@ -51,14 +51,14 @@ function PositionsPanelInner({
 
   return (
     <div className="surface-terminal-solid overflow-hidden rounded-md">
-      <div className="flex flex-wrap items-end justify-between gap-r16 border-b border-white/[0.06] px-r16 py-r16 sm:px-r20">
+      <div className="flex flex-wrap items-end justify-between gap-r16 border-b border-[var(--hub-border)] px-r16 py-r16 sm:px-r20">
         <div>
           <p className="label-terminal">Positions</p>
-          <p className="mt-r4 font-mono text-[11px] font-medium tabular-nums text-zinc-200">
+          <p className="mt-r4 font-mono text-[11px] font-medium tabular-nums text-[var(--hub-fg)]">
             {positions.length} leg{positions.length === 1 ? "" : "s"}
           </p>
         </div>
-        <p className="font-mono text-[9px] text-zinc-600">
+        <p className="font-mono text-[9px] text-[var(--hub-muted)]">
           Δ = mark − avg (¢)
         </p>
       </div>
@@ -66,7 +66,7 @@ function PositionsPanelInner({
       <div className="scrollbar-terminal max-h-[min(52vh,420px)] overflow-auto overscroll-contain">
         <table className="w-full min-w-[720px] border-collapse text-left">
           <thead className="sticky top-0 z-[1] bg-[#06060b]/98 backdrop-blur-sm">
-            <tr className="text-[8.5px] font-semibold uppercase tracking-[0.12em] text-zinc-600">
+            <tr className="text-[8.5px] font-semibold uppercase tracking-[0.12em] text-[var(--hub-muted)]">
               <th className="whitespace-nowrap px-3 py-2 font-medium sm:px-3.5">Market</th>
               <th className="whitespace-nowrap px-2 py-2 font-medium">Side</th>
               <th className="whitespace-nowrap px-2 py-2 text-right font-medium">Qty</th>
@@ -88,11 +88,11 @@ function PositionsPanelInner({
               const yesMid = positionYesMidPct(p);
 
               return (
-                <tr key={`${p.marketId}-${p.side}`} className="font-mono text-[11px] text-zinc-300">
+                <tr key={`${p.marketId}-${p.side}`} className="font-mono text-[11px] text-[var(--hub-muted)]">
                   <td className="max-w-[220px] px-3 py-1.5 sm:max-w-[280px] sm:px-3.5 sm:py-2">
                     <Link
                       href={ROUTES.market(p.market.slug)}
-                      className="line-clamp-2 text-[11px] font-sans font-medium leading-snug text-zinc-100 transition hover:text-cyan-300/95"
+                      className="line-clamp-2 text-[11px] font-sans font-medium leading-snug text-[var(--hub-fg)] transition hover:text-[var(--hub-primary-bright)]/95"
                     >
                       {p.market.title}
                     </Link>
@@ -102,8 +102,8 @@ function PositionsPanelInner({
                       className={cn(
                         "inline-flex rounded px-1.5 py-px text-[9.5px] font-bold ring-1",
                         p.side === "YES"
-                          ? "bg-cyan-500/12 text-cyan-200 ring-cyan-500/22"
-                          : "bg-violet-500/12 text-violet-200 ring-violet-500/22",
+                          ? "bg-[var(--hub-primary-soft)] text-cyan-200 ring-cyan-500/22"
+                          : "bg-[var(--hub-primary-soft)] text-violet-200 ring-violet-500/22",
                       )}
                     >
                       {p.side}
@@ -112,7 +112,7 @@ function PositionsPanelInner({
                   <td className="whitespace-nowrap px-2 py-1.5 text-right tabular-nums sm:py-2">
                     {qty.toLocaleString(undefined, { maximumFractionDigits: 2 })}
                   </td>
-                  <td className="whitespace-nowrap px-2 py-1.5 text-right tabular-nums text-zinc-400 sm:py-2">
+                  <td className="whitespace-nowrap px-2 py-1.5 text-right tabular-nums text-[var(--hub-muted)] sm:py-2">
                     {(entry * 100).toFixed(1)}¢
                   </td>
                   <td className="whitespace-nowrap px-2 py-1.5 text-right sm:py-2">
@@ -121,12 +121,12 @@ function PositionsPanelInner({
                       initial={{ opacity: 0.65 }}
                       animate={{ opacity: 1 }}
                       transition={{ duration: 0.2 }}
-                      className="tabular-nums text-zinc-200"
+                      className="tabular-nums text-[var(--hub-fg)]"
                     >
                       {(mark * 100).toFixed(1)}¢
                     </motion.span>
                   </td>
-                  <td className="whitespace-nowrap px-2 py-1.5 text-right tabular-nums text-zinc-500 sm:py-2">
+                  <td className="whitespace-nowrap px-2 py-1.5 text-right tabular-nums text-[var(--hub-muted)] sm:py-2">
                     {yesMid != null ? `${yesMid}%` : "—"}
                   </td>
                   <td
@@ -134,7 +134,7 @@ function PositionsPanelInner({
                       "whitespace-nowrap px-2 py-1.5 text-right tabular-nums sm:py-2",
                       dCents != null && dCents > 0 && "text-emerald-400/95",
                       dCents != null && dCents < 0 && "text-rose-400/90",
-                      (dCents == null || dCents === 0) && "text-zinc-500",
+                      (dCents == null || dCents === 0) && "text-[var(--hub-muted)]",
                     )}
                   >
                     <motion.span

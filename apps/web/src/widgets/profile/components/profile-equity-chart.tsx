@@ -70,22 +70,22 @@ function ProfileEquityChartInner({
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35 }}
-      className="glass-panel-strong relative overflow-hidden rounded-2xl ring-1 ring-white/[0.06]"
+      className="glass-panel-strong relative overflow-hidden rounded-2xl ring-1 ring-[var(--hub-border)]"
     >
-      <header className="flex flex-wrap items-end justify-between gap-3 border-b border-white/[0.06] px-4 py-3 sm:px-5">
+      <header className="flex flex-wrap items-end justify-between gap-3 border-b border-[var(--hub-border)] px-4 py-3 sm:px-5">
         <div className="flex items-start gap-3">
           <span className="inline-flex h-8 w-8 items-center justify-center rounded-md bg-emerald-500/10 text-emerald-300 ring-1 ring-emerald-400/25">
             <LineChart className="h-3.5 w-3.5" />
           </span>
           <div>
-            <p className="text-[9.5px] font-bold uppercase tracking-[0.2em] text-zinc-500">
+            <p className="text-[9.5px] font-bold uppercase tracking-[0.2em] text-[var(--hub-muted)]">
               Performance
             </p>
-            <h2 className="text-[14px] font-semibold tracking-tight text-white">
+            <h2 className="text-[14px] font-semibold tracking-tight text-[var(--hub-fg)]">
               Equity curve
             </h2>
-            <p className="mt-1 flex flex-wrap items-baseline gap-2 text-[11px] text-zinc-500">
-              <span className="font-mono text-[15px] font-semibold tabular-nums text-zinc-100">
+            <p className="mt-1 flex flex-wrap items-baseline gap-2 text-[11px] text-[var(--hub-muted)]">
+              <span className="font-mono text-[15px] font-semibold tabular-nums text-[var(--hub-fg)]">
                 {compactUsd(summary.endValue)}
               </span>
               <span
@@ -99,7 +99,7 @@ function ProfileEquityChartInner({
                 <TrendingUp className="h-2.5 w-2.5" />
                 {signedPct(summary.deltaPct, 2)}
               </span>
-              <span className="font-mono text-zinc-500">
+              <span className="font-mono text-[var(--hub-muted)]">
                 ({summary.deltaAbs >= 0 ? "+" : "−"}
                 {compactUsd(Math.abs(summary.deltaAbs))})
               </span>
@@ -173,7 +173,7 @@ function WindowTabs({
     <div
       role="tablist"
       aria-label="Time window"
-      className="inline-flex rounded-lg bg-black/30 p-1 ring-1 ring-white/[0.08]"
+      className="inline-flex rounded-lg bg-[var(--hub-bg-subtle)] p-1 ring-1 ring-[var(--hub-border)]"
     >
       {WINDOW_OPTIONS.map((opt) => {
         const isActive = opt.id === value;
@@ -187,8 +187,8 @@ function WindowTabs({
             className={cn(
               "rounded-md px-2 py-0.5 text-[10.5px] font-bold uppercase tracking-wider transition",
               isActive
-                ? "bg-white/[0.08] text-white shadow-inner shadow-cyan-500/10 ring-1 ring-cyan-400/30"
-                : "text-zinc-500 hover:text-zinc-300",
+                ? "bg-[var(--hub-card-hover)] text-[var(--hub-fg)] shadow-inner shadow-cyan-500/10 ring-1 ring-cyan-400/30"
+                : "text-[var(--hub-muted)] hover:text-[var(--hub-muted)]",
             )}
           >
             {opt.label}
