@@ -5,7 +5,8 @@ import { ArrowDownLeft, ArrowUpRight, Loader2, Wallet } from "lucide-react";
 import { memo, useEffect, useMemo, useRef, useState } from "react";
 import type { Address } from "viem";
 import { formatUnits } from "viem";
-import { useAccount, useReadContract } from "wagmi";
+import { useAccount, useChainId, useReadContract } from "wagmi";
+import { testBnbChain } from "@/providers/web3/chains";
 import { erc20Abi } from "@/features/chain-trading/abis/erc20";
 import { useOnChainTradePreview } from "@/features/chain-trading/hooks/use-on-chain-trade-preview";
 import {
@@ -217,7 +218,8 @@ function TradeComposePanelInner({
   const [sharesInput, setSharesInput] = useState<string>("");
 
   const actorId = useAuthStore((s) => s.tradingUserId ?? undefined);
-  const { address } = useAccount();
+  const { address, isConnected } = useAccount();
+  const walletChainId = useChainId();
   const isOnChain = Boolean(market.onChainAddress);
   const collateral = getCollateralAddress();
 
@@ -313,16 +315,17 @@ function TradeComposePanelInner({
   }, []);
 
   const quoteReady = isOnChain
-    ? !chainPreview.isFetching && !enriched.isProvisional
+    ? chainPreview.isReady && !enriched.isProvisional
     : Boolean(quoteQuery.data) && !quoteQuery.isFetching;
   const quoteFailed = isOnChain
     ? chainPreview.isError
     : quoteQuery.isError && !quoteQuery.data;
 
+  const wrongChain =
+    isOnChain && isConnected && walletChainId !== testBnbChain.id;
+
   // ── Validation
-  const composeEnabled = isOnChain
-    ? market.status === "OPEN"
-    : Boolean(market.tradeMarketId) && market.status === "OPEN";
+  const composeEnabled = isOnChain && market.status === "OPEN";
   const exceedsBalance =
     direction === "BUY" &&
     balance != null &&
@@ -333,16 +336,20 @@ function TradeComposePanelInner({
       : sharesNum <= 0;
 
   const blockingError = !isOnChain
-    ? "This market is not deployed on-chain — trading requires a MetaMask market contract."
-    : market.status !== "OPEN"
-      ? `This market is ${market.status.toLowerCase()} — trading disabled.`
-      : quoteFailed
-        ? "Could not load an on-chain quote — check wallet network (BSC testnet)."
-      : exceedsBalance
-        ? "Amount exceeds wallet collateral balance."
-        : lowAmount
-          ? "Enter an amount above $0.01."
-          : null;
+    ? "This market is not deployed on-chain — ask an admin to deploy it from Admin → Markets."
+    : !isConnected
+      ? "Connect MetaMask on BSC testnet to trade."
+      : wrongChain
+        ? "Switch MetaMask to BNB Smart Chain Testnet (chain 97)."
+      : market.status !== "OPEN"
+        ? `This market is ${market.status.toLowerCase()} — trading disabled.`
+        : quoteFailed
+          ? "Could not load an on-chain quote — check network and that the market contract exists."
+          : exceedsBalance
+            ? "Amount exceeds wallet collateral balance."
+            : lowAmount
+              ? "Enter an amount above $0.01."
+              : null;
 
   // ── Quick presets
   const setPresetUsd = (n: number) => {
@@ -364,7 +371,7 @@ function TradeComposePanelInner({
       draft: {
         outcome,
         direction,
-        shares: sharesNum,
+        shares: isOnChain ? enriched.quantity : sharesNum,
         usd:
           direction === "BUY"
             ? enriched.totalDebitUsd
@@ -537,11 +544,13 @@ function TradeComposePanelInner({
       <div className="space-y-1.5 rounded-xl bg-black/30 px-3.5 py-3 ring-1 ring-white/[0.06]">
         <div className="mb-1 flex items-center justify-between text-[10.5px] font-semibold uppercase tracking-wider text-zinc-500">
           <span>Transaction preview</span>
-          {quoteQuery.isFetching || chainPreview.isFetching || enriched.isProvisional ? (
+          {quoteQuery.isFetching || (isOnChain && chainPreview.isFetching && !chainPreview.isReady) || (!isOnChain && enriched.isProvisional) ? (
             <span className="inline-flex items-center gap-1 text-[10px] text-zinc-500">
               <Loader2 className="h-2.5 w-2.5 animate-spin" />
-              {quoteQuery.isFetching || chainPreview.isFetching ? "quoting" : "estimating"}
+              {isOnChain ? "on-chain quote" : "quoting"}
             </span>
+          ) : isOnChain && chainPreview.isReady ? (
+            <span className="text-[10px] text-emerald-400/90">live</span>
           ) : null}
         </div>
         <StatRow

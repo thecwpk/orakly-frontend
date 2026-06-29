@@ -1,5 +1,7 @@
 "use client";
 
+import { useCallback } from "react";
+import { toast } from "sonner";
 import { create } from "zustand";
 
 /** Minimal market shape the modal needs to open. */
@@ -51,7 +53,20 @@ export const useTradeModalStore = create<State>((set) => ({
     })),
 }));
 
-/** Stable hook for triggers — returns just `open` so callers don't subscribe to state. */
+/** Stable hook for triggers — blocks markets that are not deployed on-chain. */
 export function useOpenTradeModal() {
-  return useTradeModalStore((s) => s.open);
+  const open = useTradeModalStore((s) => s.open);
+  return useCallback(
+    (market: TradeModalMarket, initialOutcome: "YES" | "NO" = "YES") => {
+      if (!market.onChainAddress) {
+        toast.error("Trading not available yet", {
+          description:
+            "This market is not deployed on-chain. An admin must deploy it from Admin → Markets first.",
+        });
+        return;
+      }
+      open(market, initialOutcome);
+    },
+    [open],
+  );
 }

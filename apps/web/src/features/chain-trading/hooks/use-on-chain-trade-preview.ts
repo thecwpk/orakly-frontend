@@ -32,13 +32,16 @@ export function useOnChainTradePreview({
   quote: EnrichedQuote;
   isFetching: boolean;
   isError: boolean;
+  /** True once fee + preview reads have settled (success or error). */
+  isReady: boolean;
 } {
   const debouncedAmount = useDebouncedValue(String(amount), debounceMs);
   const amountNum = Number.parseFloat(debouncedAmount) || 0;
   const decimals = collateralDecimals();
   const enabled = Boolean(marketAddress) && amountNum > 0;
 
-  const { data: feeBps = 0, isFetching: feePending } = useReadContract({
+  const { data: feeBps = 0, isFetching: feePending, isFetched: feeFetched } =
+    useReadContract({
     address: marketAddress ?? undefined,
     abi: marketAbi,
     functionName: "feeBps",
@@ -81,14 +84,20 @@ export function useOnChainTradePreview({
   const previewArgs =
     direction === "BUY" ? ([netCollateralWei] as const) : ([sharesWei] as const);
 
-  const { data: previewData, isFetching: previewPending, isError } = useReadContract({
+  const previewEnabled =
+    enabled && (direction === "BUY" ? netCollateralWei > 0n : sharesWei > 0n);
+
+  const {
+    data: previewData,
+    isFetching: previewPending,
+    isError,
+    isFetched: previewFetched,
+  } = useReadContract({
     address: marketAddress ?? undefined,
     abi: marketAbi,
     functionName: previewFn,
     args: previewArgs,
-    query: {
-      enabled: enabled && (direction === "BUY" ? netCollateralWei > 0n : sharesWei > 0n),
-    },
+    query: { enabled: previewEnabled },
   });
 
   const quote = useMemo(() => {
@@ -117,9 +126,15 @@ export function useOnChainTradePreview({
     });
   }, [amountNum, decimals, direction, feeBps, midYes, outcome, previewData]);
 
+  const isFetching = feePending || previewPending;
+  const feeReady = !marketAddress || feeFetched;
+  const previewReady = !previewEnabled || previewFetched || isError;
+  const isReady = feeReady && previewReady && !isFetching;
+
   return {
     quote,
-    isFetching: feePending || previewPending,
+    isFetching,
     isError,
+    isReady,
   };
 }
