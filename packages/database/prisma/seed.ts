@@ -333,6 +333,31 @@ const MARKETS: readonly SeedMarket[] = [
   },
 ];
 
+function seedNarrativeFor(row: { categorySlug: string; title: string }): string {
+  const title = row.title.toLowerCase();
+  if (title.includes("base")) return "Base";
+  if (title.includes("solana")) return "Solana";
+  if (title.includes("rwa")) return "RWA";
+  if (title.includes("doge") || title.includes("meme")) return "Memes";
+  if (title.includes("openai") || title.includes("ai ") || title.includes("humane"))
+    return "AI";
+  if (title.includes("etf") || title.includes("cpi") || title.includes("nvda")) return "ETF";
+
+  const byCat: Record<string, string> = {
+    "crypto-narratives": "Memes",
+    ecosystems: "Base",
+    crypto: "DeFi",
+    macro: "ETF",
+    tech: "AI",
+    "industry-events": "AI",
+    science: "RWA",
+    sports: "Gaming",
+    politics: "DeFi",
+    "meme-coins": "Memes",
+  };
+  return byCat[row.categorySlug] ?? "AI";
+}
+
 async function main() {
   for (const c of CATEGORIES) {
     await prisma.category.upsert({
@@ -355,7 +380,7 @@ async function main() {
     const opensAt = new Date(Date.now() - (row.createdDaysAgo + 5) * 86_400_000);
     const createdAt = new Date(Date.now() - row.createdDaysAgo * 86_400_000);
 
-    await prisma.market.upsert({
+    const market = await prisma.market.upsert({
       where: { slug: row.slug },
       create: {
         slug: row.slug,
@@ -383,6 +408,28 @@ async function main() {
         trendingScore: new Prisma.Decimal(row.trendingScore),
       },
     });
+
+    const narrative = seedNarrativeFor(row);
+    const linked = await prisma.marketSuggestion.findUnique({
+      where: { marketId: market.id },
+      select: { id: true, narrative: true },
+    });
+    if (!linked) {
+      await prisma.marketSuggestion.create({
+        data: {
+          title: market.title,
+          category: row.categorySlug,
+          narrative,
+          status: "APPROVED",
+          marketId: market.id,
+        },
+      });
+    } else if (!linked.narrative) {
+      await prisma.marketSuggestion.update({
+        where: { id: linked.id },
+        data: { narrative },
+      });
+    }
   }
 
   const attentionSeed: {

@@ -16,7 +16,7 @@ import {
   toDec,
 } from "./constants";
 import { TradingError } from "./errors";
-import { requirePlatformLiquidityUserId } from "./platform-user";
+import { ensurePlatformLiquidityUserId } from "./platform-user";
 import { ensureWalletAndPortfolio } from "./user-setup";
 import { creditAvailableBalance } from "./wallet-ledger";
 import { publishMarketResolved } from "../realtime/notify";
@@ -45,7 +45,7 @@ export type ResolutionSnapshot = {
 export async function resolveMarket(
   input: ResolveMarketInput,
 ): Promise<ResolutionSnapshot> {
-  const platformUserId = requirePlatformLiquidityUserId();
+  const platformUserId = await ensurePlatformLiquidityUserId();
 
   const result = await prisma.$transaction(
     async (tx) => {

@@ -35,6 +35,7 @@ export function prismaMarketToFeedDto(m: FeedRow): Market {
 
   return {
     id: m.id,
+    backendMarketId: m.id,
     slug: m.slug,
     title: m.title,
     category: m.category?.name ?? "General",

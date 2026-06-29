@@ -1,9 +1,13 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
+import { OutcomeSide, Prisma } from "@prisma/client";
 import { z } from "zod";
-import { proxyToExpress } from "@/server/orakly-express-proxy";
-import { requireTradingUserId } from "@/server/trading/auth-context";
+import { ok } from "../_lib/response";
 import { tradingJsonError } from "../_lib/trading-http";
+import { requireTradingUserId } from "@/server/trading/auth-context";
+import { listUserTrades } from "@/server/trading/queries";
+import { executeMarketTrade } from "@/server/trading/trade.service";
+import { narrativeSideToExecutionOutcome } from "@/shared/trading/narrative-trade-side";
 
 const bodySchema = z.object({
   marketId: z.string().uuid(),
@@ -17,7 +21,13 @@ const bodySchema = z.object({
 export async function GET(req: NextRequest) {
   try {
     const userId = await requireTradingUserId(req);
-    return proxyToExpress(req, "/api/v1/trades", { userId });
+    const take = Math.min(
+      Number(req.nextUrl.searchParams.get("take") ?? 50),
+      200,
+    );
+    const cursor = req.nextUrl.searchParams.get("cursor");
+    const data = await listUserTrades({ userId, take, cursor });
+    return NextResponse.json(ok(data));
   } catch (e) {
     return tradingJsonError(e);
   }
@@ -40,19 +50,27 @@ export async function POST(req: NextRequest) {
       req.headers.get("idempotency-key") ??
       `web:${userId}:${parsed.data.marketId}:${Date.now()}`;
 
-    return proxyToExpress(req, "/api/v1/trades", {
+    const quantity = new Prisma.Decimal(
+      typeof parsed.data.quantity === "number"
+        ? parsed.data.quantity.toFixed(12)
+        : parsed.data.quantity,
+    );
+
+    const outcome = narrativeSideToExecutionOutcome(
+      parsed.data.side,
+    ) as OutcomeSide;
+
+    const snapshot = await executeMarketTrade({
       userId,
-      method: "POST",
+      marketId: parsed.data.marketId,
+      outcome,
+      direction: parsed.data.direction,
+      quantity,
+      clientSeq: parsed.data.clientSeq,
       idempotencyKey,
-      body: {
-        userId,
-        marketId: parsed.data.marketId,
-        side: parsed.data.side,
-        direction: parsed.data.direction,
-        quantity: parsed.data.quantity,
-        clientSeq: parsed.data.clientSeq,
-      },
     });
+
+    return NextResponse.json(ok(snapshot));
   } catch (e) {
     return tradingJsonError(e);
   }

@@ -10,7 +10,7 @@ import { BPS_DENOMINATOR, D1, clampPrice, toDec } from "./constants";
 import { TradingError } from "./errors";
 import { computeExecutionPrice } from "./pricing";
 import { increasePosition, decreasePosition } from "./positions";
-import { requirePlatformLiquidityUserId } from "./platform-user";
+import { ensurePlatformLiquidityUserId } from "./platform-user";
 import { ensureWalletAndPortfolio } from "./user-setup";
 import {
   creditAvailableBalance,
@@ -120,7 +120,7 @@ export async function executeMarketTrade(
     throw new TradingError("INVALID_QUANTITY", "Quantity out of allowed bounds", 400);
   }
 
-  const platformUserId = requirePlatformLiquidityUserId();
+  const platformUserId = await ensurePlatformLiquidityUserId();
   if (input.userId === platformUserId) {
     throw new TradingError(
       "INVALID_ACTOR",

@@ -33,6 +33,7 @@ type CreateState = {
   takerFeeBps: number;
   liquidityUsd: number;
   initialProbability: number;
+  publishOpen: boolean;
 };
 
 const DEFAULT_STATE: CreateState = {
@@ -45,6 +46,7 @@ const DEFAULT_STATE: CreateState = {
   takerFeeBps: 25,
   liquidityUsd: 25_000,
   initialProbability: 0.5,
+  publishOpen: true,
 };
 
 function slugify(s: string): string {
@@ -108,11 +110,14 @@ export function CreateMarketDialog({
           takerFeeBps: s.takerFeeBps,
           liquidityUsd: s.liquidityUsd,
           initialProbability: s.initialProbability,
+          status: s.publishOpen ? "OPEN" : "DRAFT",
           ...(s.categoryId ? { categoryId: s.categoryId } : {}),
         },
       }),
-    onSuccess: () => {
-      toast.success("Market draft created");
+    onSuccess: (_data, variables) => {
+      toast.success(
+        variables.publishOpen ? "Market published — live for trading" : "Market draft created",
+      );
       void qc.invalidateQueries({ queryKey: ["admin", "markets"] });
       void qc.invalidateQueries({ queryKey: adminMarketsKey("ALL", 80) });
       void qc.invalidateQueries({ queryKey: adminOverviewKey });
@@ -161,6 +166,7 @@ export function CreateMarketDialog({
       takerFeeBps: tpl.takerFeeBps,
       liquidityUsd: tpl.liquiditySeedUsd,
       initialProbability: tpl.initialProbability,
+      publishOpen: true,
     });
   };
 
@@ -484,12 +490,40 @@ export function CreateMarketDialog({
                 </select>
               </Field>
             </div>
+
+            <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-[var(--hub-border)] bg-[var(--hub-bg-subtle)]/60 px-3.5 py-3">
+              <input
+                type="checkbox"
+                checked={state.publishOpen}
+                onChange={(e) =>
+                  setState((s) => ({ ...s, publishOpen: e.target.checked }))
+                }
+                className="mt-0.5 h-4 w-4 rounded border-[var(--hub-border)] accent-[var(--hub-primary)]"
+              />
+              <span className="text-[12.5px] leading-relaxed text-[var(--hub-fg)]/85">
+                <span className="font-semibold text-[var(--hub-fg)]">
+                  Publish immediately (OPEN)
+                </span>
+                <span className="mt-0.5 block text-[var(--hub-fg)]/65">
+                  When checked, traders can buy/sell right away. Uncheck to save as a private
+                  draft.
+                </span>
+              </span>
+            </label>
           </div>
 
           <footer className="flex flex-col gap-2 border-t border-[var(--hub-border)] px-5 py-3 sm:flex-row sm:items-center sm:justify-between">
             <p className="text-[11px] leading-relaxed text-[var(--hub-fg)]/65">
-              Saves as <span className="font-mono text-[var(--hub-fg)]/85">DRAFT</span> · publish
-              from the markets table when ready
+              {state.publishOpen ?
+                <>
+                  Saves as <span className="font-mono text-[var(--hub-fg)]/85">OPEN</span> ·
+                  tradable immediately
+                </>
+              : <>
+                  Saves as <span className="font-mono text-[var(--hub-fg)]/85">DRAFT</span> ·
+                  publish from the markets table when ready
+                </>
+              }
             </p>
             <div className="flex items-center gap-2">
               <button
@@ -511,7 +545,7 @@ export function CreateMarketDialog({
                 ) : (
                   <Plus className="h-3.5 w-3.5" />
                 )}
-                Save draft
+                {state.publishOpen ? "Publish market" : "Save draft"}
               </motion.button>
             </div>
           </footer>

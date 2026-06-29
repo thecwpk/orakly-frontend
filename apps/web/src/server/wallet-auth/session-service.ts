@@ -10,7 +10,16 @@ import {
   signWalletSessionToken,
   type WalletSessionClaims,
 } from "@/features/wallet/server/wallet-session";
+import { toDec } from "@/server/trading/constants";
 import { WalletAuthHttpError } from "./wallet-auth-errors";
+
+const DEFAULT_STARTER_BALANCE_USD = 10_000;
+
+function starterBalance() {
+  const raw = process.env.TRADING_STARTER_BALANCE_USD?.trim();
+  const n = raw ? Number(raw) : DEFAULT_STARTER_BALANCE_USD;
+  return toDec(Number.isFinite(n) && n > 0 ? n : DEFAULT_STARTER_BALANCE_USD);
+}
 
 export const WALLET_AUTH_SESSION_TTL_MS = 1000 * 60 * 60 * 24 * 7;
 
@@ -104,6 +113,22 @@ export async function completeWalletAuthentication(
       select: { id: true },
     });
     resolvedUserId = resolvedUser.id;
+
+    await tx.wallet.upsert({
+      where: { userId: resolvedUserId },
+      create: {
+        userId: resolvedUserId,
+        availableBalance: starterBalance(),
+        lockedBalance: toDec(0),
+      },
+      update: {},
+    });
+
+    await tx.portfolio.upsert({
+      where: { userId: resolvedUserId },
+      create: { userId: resolvedUserId },
+      update: {},
+    });
 
     await tx.walletAuthSession.create({
       data: {
