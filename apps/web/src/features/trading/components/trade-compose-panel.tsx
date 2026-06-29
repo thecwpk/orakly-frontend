@@ -3,6 +3,15 @@
 import { motion } from "framer-motion";
 import { ArrowDownLeft, ArrowUpRight, Loader2, Wallet } from "lucide-react";
 import { memo, useEffect, useMemo, useRef, useState } from "react";
+import type { Address } from "viem";
+import { formatUnits } from "viem";
+import { useAccount, useReadContract } from "wagmi";
+import { erc20Abi } from "@/features/chain-trading/abis/erc20";
+import { useOnChainTradePreview } from "@/features/chain-trading/hooks/use-on-chain-trade-preview";
+import {
+  collateralDecimals,
+  getCollateralAddress,
+} from "@/features/chain-trading/lib/chain-contract-env";
 import {
   useMarketQuoteDebouncedQuery,
   usePortfolioQuery,
@@ -208,12 +217,30 @@ function TradeComposePanelInner({
   const [sharesInput, setSharesInput] = useState<string>("");
 
   const actorId = useAuthStore((s) => s.tradingUserId ?? undefined);
+  const { address } = useAccount();
+  const isOnChain = Boolean(market.onChainAddress);
+  const collateral = getCollateralAddress();
 
-  // Wallet (optional until user signs in — guests can still preview quotes).
-  const portfolio = usePortfolioQuery(actorId);
-  const balance = parseFloatSafe(
-    portfolio.data?.wallet?.availableBalanceUsd ?? null,
-  );
+  const { data: chainBalanceWei } = useReadContract({
+    address: collateral ?? undefined,
+    abi: erc20Abi,
+    functionName: "balanceOf",
+    args: address ? [address] : undefined,
+    query: { enabled: isOnChain && Boolean(address) && Boolean(collateral) },
+  });
+
+  const chainBalanceUsd = useMemo(() => {
+    if (chainBalanceWei == null) return null;
+    return Number.parseFloat(
+      formatUnits(chainBalanceWei as bigint, collateralDecimals()),
+    );
+  }, [chainBalanceWei]);
+
+  // Custodial wallet (legacy listings only).
+  const portfolio = usePortfolioQuery(isOnChain ? undefined : actorId);
+  const balance = isOnChain
+    ? chainBalanceUsd
+    : parseFloatSafe(portfolio.data?.wallet?.availableBalanceUsd ?? null);
 
   // Live quote (debounced) — driven by shares
   const sharesNum = useMemo(() => {
@@ -226,7 +253,7 @@ function TradeComposePanelInner({
   }, [mode, usdInput, sharesInput, outcome, market.midYes]);
 
   const quoteQuery = useMarketQuoteDebouncedQuery(
-    market.tradeMarketId ?? undefined,
+    isOnChain ? undefined : (market.tradeMarketId ?? undefined),
     {
       outcome,
       direction,
@@ -234,16 +261,38 @@ function TradeComposePanelInner({
     },
   );
 
-  const enriched = useMemo(
-    () =>
-      enrichQuote(quoteQuery.data, {
-        midYes: market.midYes,
-        quantity: sharesNum,
-        direction,
-        outcome,
-      }),
-    [quoteQuery.data, market.midYes, sharesNum, direction, outcome],
-  );
+  const previewAmount =
+    direction === "SELL"
+      ? sharesNum
+      : mode === "USD"
+        ? (parseFloatSafe(usdInput) ?? 0)
+        : sharesNum;
+
+  const chainPreview = useOnChainTradePreview({
+    marketAddress: isOnChain ? (market.onChainAddress as Address) : null,
+    outcome,
+    direction,
+    amount: previewAmount,
+    midYes: market.midYes,
+  });
+
+  const enriched = useMemo(() => {
+    if (isOnChain) return chainPreview.quote;
+    return enrichQuote(quoteQuery.data, {
+      midYes: market.midYes,
+      quantity: sharesNum,
+      direction,
+      outcome,
+    });
+  }, [
+    chainPreview.quote,
+    direction,
+    isOnChain,
+    market.midYes,
+    outcome,
+    quoteQuery.data,
+    sharesNum,
+  ]);
 
   const payout = useMemo(() => summarizePayout(enriched), [enriched]);
 
@@ -263,27 +312,34 @@ function TradeComposePanelInner({
     inputRef.current?.select();
   }, []);
 
-  const quoteReady = Boolean(quoteQuery.data) && !quoteQuery.isFetching;
-  const quoteFailed = quoteQuery.isError && !quoteQuery.data;
+  const quoteReady = isOnChain
+    ? !chainPreview.isFetching && !enriched.isProvisional
+    : Boolean(quoteQuery.data) && !quoteQuery.isFetching;
+  const quoteFailed = isOnChain
+    ? chainPreview.isError
+    : quoteQuery.isError && !quoteQuery.data;
 
   // ── Validation
-  const composeEnabled =
-    Boolean(market.tradeMarketId) && market.status === "OPEN";
+  const composeEnabled = isOnChain
+    ? market.status === "OPEN"
+    : Boolean(market.tradeMarketId) && market.status === "OPEN";
   const exceedsBalance =
-    actorId != null &&
     direction === "BUY" &&
     balance != null &&
     enriched.totalDebitUsd > balance;
-  const lowAmount = sharesNum <= 0 || enriched.totalDebitUsd < 0.01;
+  const lowAmount =
+    direction === "BUY"
+      ? sharesNum <= 0 || enriched.totalDebitUsd < 0.01
+      : sharesNum <= 0;
 
-  const blockingError = !market.tradeMarketId
-    ? "Market is not yet wired for trading on this network."
+  const blockingError = !isOnChain
+    ? "This market is not deployed on-chain — trading requires a MetaMask market contract."
     : market.status !== "OPEN"
       ? `This market is ${market.status.toLowerCase()} — trading disabled.`
       : quoteFailed
-        ? "Could not load a live quote — check your connection and retry."
+        ? "Could not load an on-chain quote — check wallet network (BSC testnet)."
       : exceedsBalance
-        ? "Amount exceeds available balance."
+        ? "Amount exceeds wallet collateral balance."
         : lowAmount
           ? "Enter an amount above $0.01."
           : null;
@@ -309,7 +365,10 @@ function TradeComposePanelInner({
         outcome,
         direction,
         shares: sharesNum,
-        usd: enriched.totalDebitUsd,
+        usd:
+          direction === "BUY"
+            ? enriched.totalDebitUsd
+            : enriched.netCreditUsd,
       },
       quote: enriched,
     });
@@ -325,7 +384,8 @@ function TradeComposePanelInner({
     { id: "SELL", label: "Sell", icon: ArrowDownLeft },
   ];
 
-  const showWalletSkeleton = portfolio.isLoading && !portfolio.data;
+  const showWalletSkeleton =
+    !isOnChain && portfolio.isLoading && !portfolio.data;
 
   return (
     <div className="relative">
@@ -459,7 +519,15 @@ function TradeComposePanelInner({
             <Wallet className="h-3 w-3" />
             <span>Balance</span>
             <span className="font-mono tabular-nums text-zinc-300">
-              {balance != null ? formatUsd(balance) : portfolio.isLoading ? "…" : "—"}
+              {balance != null
+                ? formatUsd(balance)
+                : isOnChain
+                  ? address
+                    ? "…"
+                    : "Connect wallet"
+                  : portfolio.isLoading
+                    ? "…"
+                    : "—"}
             </span>
           </span>
         </div>
@@ -469,10 +537,10 @@ function TradeComposePanelInner({
       <div className="space-y-1.5 rounded-xl bg-black/30 px-3.5 py-3 ring-1 ring-white/[0.06]">
         <div className="mb-1 flex items-center justify-between text-[10.5px] font-semibold uppercase tracking-wider text-zinc-500">
           <span>Transaction preview</span>
-          {quoteQuery.isFetching || enriched.isProvisional ? (
+          {quoteQuery.isFetching || chainPreview.isFetching || enriched.isProvisional ? (
             <span className="inline-flex items-center gap-1 text-[10px] text-zinc-500">
               <Loader2 className="h-2.5 w-2.5 animate-spin" />
-              {quoteQuery.isFetching ? "quoting" : "estimating"}
+              {quoteQuery.isFetching || chainPreview.isFetching ? "quoting" : "estimating"}
             </span>
           ) : null}
         </div>

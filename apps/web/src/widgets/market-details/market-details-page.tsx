@@ -141,6 +141,8 @@ function MarketDetailsLoaded({ market }: { market: Market }) {
   const tradeModalMarket: TradeModalMarket | null = useMemo(
     () => ({
       tradeMarketId,
+      onChainAddress: market.onChainAddress ?? null,
+      chainId: market.chainId ?? null,
       slug: market.slug,
       title: market.title,
       category: market.category,
@@ -148,7 +150,7 @@ function MarketDetailsLoaded({ market }: { market: Market }) {
       status: market.status,
       closesAt: market.closesAt,
     }),
-    [market, midYes, tradeMarketId],
+    [market, midYes, tradeMarketId, market.onChainAddress, market.chainId],
   );
 
   const hasRelatedMarkets = useMemo(() => {

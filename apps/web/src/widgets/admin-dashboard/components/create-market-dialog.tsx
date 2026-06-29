@@ -7,6 +7,11 @@ import { BookOpen, Droplet, Loader2, Plus, Sparkles, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useAccount, useChainId } from "wagmi";
+import { useDeployOnChainMarket } from "@/features/chain-trading/hooks/use-deploy-on-chain-market";
+import { isChainEnvConfigured } from "@/features/chain-trading/lib/chain-contract-env";
+import { narrativeToChainCategory } from "@/features/chain-trading/lib/narrative-to-chain-category";
+import { testBnbChain } from "@/providers/web3/chains";
 import { cn } from "@/lib/utils";
 import { adminApi } from "../lib/admin-api";
 import {
@@ -93,6 +98,10 @@ export function CreateMarketDialog({
   }, [open]);
 
   const qc = useQueryClient();
+  const { address } = useAccount();
+  const chainId = useChainId();
+  const deployOnChain = useDeployOnChainMarket();
+  const [deployPhase, setDeployPhase] = useState<"idle" | "deploying" | "saving">("idle");
 
   const selectedNarrative = useMemo(
     () => ADMIN_NARRATIVE_OPTIONS.find((n) => n.key === state.narrative),
@@ -100,7 +109,7 @@ export function CreateMarketDialog({
   );
 
   const mutation = useMutation({
-    mutationFn: async (s: CreateState) =>
+    mutationFn: async (s: CreateState & { onChainAddress?: string; chainId?: number }) =>
       adminApi("/markets", {
         method: "POST",
         json: {
@@ -113,19 +122,25 @@ export function CreateMarketDialog({
           liquidityUsd: s.liquidityUsd,
           initialProbability: s.initialProbability,
           status: s.publishOpen ? "OPEN" : "DRAFT",
+          onChainAddress: s.onChainAddress ?? null,
+          chainId: s.chainId ?? null,
           ...(s.categoryId ? { categoryId: s.categoryId } : {}),
         },
       }),
     onSuccess: (_data, variables) => {
       toast.success(
-        variables.publishOpen ? "Market published — live for trading" : "Market draft created",
+        variables.publishOpen
+          ? "Market deployed on-chain and published"
+          : "Market draft created",
       );
+      setDeployPhase("idle");
       void qc.invalidateQueries({ queryKey: ["admin", "markets"] });
-      void qc.invalidateQueries({ queryKey: adminMarketsKey("ALL", 80) });
+      void qc.invalidateQueries({ queryKey: adminMarketsKey("ALL", 120) });
       void qc.invalidateQueries({ queryKey: adminOverviewKey });
       onOpenChange(false);
     },
     onError: (e: unknown) => {
+      setDeployPhase("idle");
       toast.error(e instanceof Error ? e.message : "Create failed");
     },
   });
@@ -138,6 +153,8 @@ export function CreateMarketDialog({
     if (!isFutureDate(state.closesAt)) out.closesAt = "Must be in the future";
     if (state.takerFeeBps < 0 || state.takerFeeBps > 500) {
       out.takerFeeBps = "0–500 bps";
+    } else if (state.publishOpen && state.takerFeeBps > 200) {
+      out.takerFeeBps = "On-chain markets max 200 bps (2%)";
     }
     if (state.liquidityUsd < 100 || state.liquidityUsd > 10_000_000) {
       out.liquidityUsd = "$100 – $10M";
@@ -148,7 +165,8 @@ export function CreateMarketDialog({
     return out;
   }, [state]);
 
-  const canSubmit = Object.keys(errors).length === 0 && !mutation.isPending;
+  const isBusy = mutation.isPending || deployOnChain.isPending || deployPhase !== "idle";
+  const canSubmit = Object.keys(errors).length === 0 && !isBusy;
 
   const yesPct = Math.round(state.initialProbability * 100);
   const noPct = 100 - yesPct;
@@ -190,9 +208,55 @@ export function CreateMarketDialog({
     setState((s) => ({ ...s, title: v, slug: autoSlug ? slugify(v) : s.slug }));
   };
 
-  const submit = () => {
+  const submit = async () => {
     if (!canSubmit) return;
-    mutation.mutate(state);
+
+    if (!state.publishOpen) {
+      mutation.mutate(state);
+      return;
+    }
+
+    if (!address) {
+      toast.error("Connect the factory-owner wallet in MetaMask to deploy markets.");
+      return;
+    }
+    if (chainId !== testBnbChain.id) {
+      toast.error("Switch MetaMask to BNB Smart Chain Testnet (chain 97).");
+      return;
+    }
+    if (!isChainEnvConfigured()) {
+      toast.error("On-chain env missing — configure factory, collateral, treasury, and UMA oracle.");
+      return;
+    }
+
+    try {
+      setDeployPhase("deploying");
+      const endTimeUnix = Math.floor(new Date(state.closesAt).getTime() / 1000);
+      const deployed = await deployOnChain.mutateAsync({
+        question: state.title.trim(),
+        resolutionSource:
+          state.description.trim() ||
+          "Resolves per admin resolution rules in the Orakly hub listing.",
+        category: narrativeToChainCategory(state.narrative),
+        endTimeUnix,
+        seedLiquidityUsd: "100",
+        assertionRewardUsd: "5",
+        requiredBondUsd: "1",
+        feeBps: Math.min(state.takerFeeBps, 200),
+      });
+
+      setDeployPhase("saving");
+      mutation.mutate({
+        ...state,
+        onChainAddress: deployed.marketAddress,
+        chainId: deployed.chainId,
+      });
+    } catch (e) {
+      setDeployPhase("idle");
+      if (e instanceof Error && !deployOnChain.isError) {
+        toast.error(e.message);
+      }
+    }
   };
 
   return (
@@ -230,8 +294,8 @@ export function CreateMarketDialog({
                   id="create-market-dialog-desc"
                   className="mt-0.5 text-[12px] leading-relaxed text-[var(--hub-muted)]"
                 >
-                  Drafts stay private until you publish. Narrative + liquidity seed
-                  control where traders discover the market.
+                  Publishing deploys a Market.sol contract via MetaMask, then saves the
+                  listing with its on-chain address. Drafts stay off-chain until you publish.
                 </p>
               </div>
             </div>
@@ -446,7 +510,11 @@ export function CreateMarketDialog({
 
               <Field
                 label="Taker fee (bps)"
-                hint={`${state.takerFeeBps} bps = ${(state.takerFeeBps / 100).toFixed(2)}% per fill`}
+                hint={
+                  state.publishOpen
+                    ? `${Math.min(state.takerFeeBps, 200)} bps on-chain (max 200) · trading fees go to treasury`
+                    : `${state.takerFeeBps} bps = ${(state.takerFeeBps / 100).toFixed(2)}% per fill`
+                }
                 error={errors.takerFeeBps}
                 className="mt-4"
               >
@@ -518,8 +586,9 @@ export function CreateMarketDialog({
             <p className="text-[11px] leading-relaxed text-[var(--hub-muted)]">
               {state.publishOpen ?
                 <>
-                  Saves as <span className="font-mono text-[var(--hub-fg)]">OPEN</span> ·
-                  tradable immediately
+                  Deploys on BSC testnet via{" "}
+                  <span className="font-mono text-[var(--hub-fg)]">MarketFactory</span> ·
+                  saves as <span className="font-mono text-[var(--hub-fg)]">OPEN</span>
                 </>
               : <>
                   Saves as <span className="font-mono text-[var(--hub-fg)]">DRAFT</span> ·
@@ -542,12 +611,18 @@ export function CreateMarketDialog({
                 onClick={submit}
                 className="inline-flex items-center gap-1.5 rounded-xl bg-[var(--hub-primary)] px-3.5 py-2 text-[12.5px] font-bold text-white ring-1 ring-[var(--hub-border-strong)] transition hover:brightness-110 disabled:opacity-40"
               >
-                {mutation.isPending ? (
+                {isBusy ? (
                   <Loader2 className="h-3.5 w-3.5 animate-spin" />
                 ) : (
                   <Plus className="h-3.5 w-3.5" />
                 )}
-                {state.publishOpen ? "Publish market" : "Save draft"}
+                {deployPhase === "deploying"
+                  ? "Deploying on-chain…"
+                  : deployPhase === "saving"
+                    ? "Saving listing…"
+                    : state.publishOpen
+                      ? "Deploy & publish"
+                      : "Save draft"}
               </motion.button>
             </div>
           </footer>

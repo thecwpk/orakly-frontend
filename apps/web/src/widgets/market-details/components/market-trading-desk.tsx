@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import { memo, useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { toast } from "sonner";
+import { useAccount } from "wagmi";
 import type { TradeModalMarket } from "@/features/trading/store/use-trade-modal-store";
 import { useOpenTradeModal } from "@/features/trading";
 import type { MarketOddsDto } from "@/shared/api/fetchers/markets-live";
@@ -15,7 +16,6 @@ import {
 } from "@/shared/api/hooks";
 import { cn } from "@/lib/utils";
 import { ROUTES } from "@/shared/constants/routes";
-import { useIsAuthenticated } from "@/state/selectors/auth.selectors";
 import type { MarketRealtimeSnapshot } from "@/websocket/store/market-realtime-store";
 import { useSocketRegistry } from "@/websocket/socket-registry";
 import { marketDetailPanelClass } from "./market-detail-section";
@@ -125,19 +125,22 @@ function MarketTradingDeskInner({
   });
 
   const openTradeModal = useOpenTradeModal();
-  const tradingSignedIn = useIsAuthenticated();
+  const { isConnected } = useAccount();
+  const isOnChain = Boolean(tradeModalMarket?.onChainAddress);
 
-  const canOpenTradeModal =
-    Boolean(tradeModalMarket?.tradeMarketId) && !disabledHint;
+  const canOpenTradeModal = isOnChain && !disabledHint;
 
   const openModal = useCallback(() => {
-    if (!tradingSignedIn) return;
-    if (!tradeModalMarket?.tradeMarketId) {
-      toast.error("Trading is not available for this market yet.");
+    if (!isConnected) {
+      toast.message("Connect MetaMask to trade on-chain.");
+      return;
+    }
+    if (!tradeModalMarket?.onChainAddress) {
+      toast.error("This market is not deployed on-chain yet.");
       return;
     }
     openTradeModal(tradeModalMarket, outcome);
-  }, [tradingSignedIn, openTradeModal, outcome, tradeModalMarket]);
+  }, [isConnected, openTradeModal, outcome, tradeModalMarket]);
 
   const bal = portfolio.data?.wallet?.availableBalanceUsd;
 
@@ -170,9 +173,9 @@ function MarketTradingDeskInner({
         <ConnectionPill className="shrink-0" />
       </div>
 
-      {!marketId ?
+      {!isOnChain ?
         <div className="rounded-md bg-amber-500/10 px-2.5 py-1.5 text-[11px] text-amber-100 ring-1 ring-amber-500/25">
-          Trading is not wired for this listing yet. Browse other open markets or check back later.
+          This listing is not deployed on-chain — create or publish a market from Admin to enable MetaMask trading.
         </div>
       : null}
 
@@ -316,12 +319,12 @@ function MarketTradingDeskInner({
         </span>
       </div>
 
-      {!tradingSignedIn ? (
+      {!isConnected ? (
         <Link
           href={ROUTES.wallet}
           className="flex min-h-[48px] touch-manipulation items-center justify-center gap-2 rounded-lg bg-[var(--md-primary)] py-2.5 text-[13px] font-bold text-white shadow-[0_4px_14px_rgb(59_130_246_/_0.35)] transition hover:brightness-105 sm:min-h-0"
         >
-          Log in to trade
+          Connect wallet to trade
           <ChevronRight className="h-4 w-4 opacity-80" />
         </Link>
       ) : (
@@ -338,9 +341,9 @@ function MarketTradingDeskInner({
       )}
       {!compact ? (
         <p className="text-center text-[9px] leading-snug text-zinc-600">
-          {tradingSignedIn ?
-            "Modal execution · Portfolio reflects fills"
-          : "Connect wallet and sign in from Wallet to enable trading."}
+          {isConnected
+            ? "On-chain execution via MetaMask · BSC testnet"
+            : "Connect wallet on the Wallet page to trade on-chain."}
         </p>
       ) : null}
     </div>

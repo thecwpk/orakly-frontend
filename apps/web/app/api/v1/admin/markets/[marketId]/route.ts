@@ -14,6 +14,8 @@ const patchSchema = z.object({
   description: z.string().max(8000).optional().nullable(),
   status: z.nativeEnum(MarketStatus).optional(),
   categoryId: z.string().uuid().optional().nullable(),
+  onChainAddress: z.string().regex(/^0x[a-fA-F0-9]{40}$/).optional().nullable(),
+  chainId: z.number().int().positive().optional().nullable(),
 });
 
 type RouteCtx = { params: Promise<{ marketId: string }> };

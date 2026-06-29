@@ -5,9 +5,9 @@ export const D1 = new Prisma.Decimal(1);
 export const MIN_PRICE = new Prisma.Decimal("0.01");
 export const MAX_PRICE = new Prisma.Decimal("0.99");
 
-/** Resolution split: platform takes 70%, winning holders share 30% of `collateralPoolUsd`. */
-export const PLATFORM_RESOLUTION_BPS = 7000;
-export const WINNERS_RESOLUTION_BPS = 3000;
+/** Resolution split: platform takes 75%, winning holders share 25% of `collateralPoolUsd`. */
+export const PLATFORM_RESOLUTION_BPS = 7500;
+export const WINNERS_RESOLUTION_BPS = 2500;
 export const BPS_DENOMINATOR = 10_000;
 
 export function toDec(v: string | number): Prisma.Decimal {

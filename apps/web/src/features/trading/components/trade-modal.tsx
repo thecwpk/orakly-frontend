@@ -3,13 +3,12 @@
 import { Dialog as DialogPrimitive } from "radix-ui";
 import { AnimatePresence, motion } from "framer-motion";
 import { Clock, X } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
-import { ROUTES } from "@/shared/constants/routes";
-import { useExecuteTradeMutation } from "@/shared/api/hooks";
-import { useAuthStore } from "@/state/stores/auth.store";
-import type { TradeExecutionSnapshotDto } from "@/shared/api/fetchers/execute-trade";
+import { useAccount } from "wagmi";
+import { useChainMarketExecution } from "@/features/chain-trading/hooks/use-chain-market-execution";
+import { collateralDecimals } from "@/features/chain-trading/lib/chain-contract-env";
+import { parseUnits, type Address } from "viem";
 import { useTradeModalStore } from "../store/use-trade-modal-store";
 import {
   TradeComposePanel,
@@ -18,7 +17,6 @@ import {
 } from "./trade-compose-panel";
 import { TradeConfirmPanel } from "./trade-confirm-panel";
 import { TradeResultPanel } from "./trade-result-panel";
-import { toTradeApiSide } from "@/shared/trading/narrative-trade-side";
 import { cn } from "@/lib/utils";
 
 type Phase = "compose" | "confirm" | "result";
@@ -34,35 +32,16 @@ function timeUntilClose(iso: string): string {
   return `${d}d`;
 }
 
-function tempIdempotencyKey(): string {
-  if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
-    return crypto.randomUUID();
-  }
-  return `idem-${Date.now()}`;
-}
-
 export function TradeModal() {
-  const router = useRouter();
+  const { address, isConnected } = useAccount();
   const { isOpen, market, initialOutcome, setOpen, close } = useTradeModalStore();
-  const tradingUserId = useAuthStore((s) => s.tradingUserId);
-  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
-  const demoTradingUserId =
-    typeof window !== "undefined" ?
-      process.env.NEXT_PUBLIC_TRADING_USER_ID?.trim()
-    : undefined;
-  const isDemoActor = Boolean(
-    demoTradingUserId && tradingUserId === demoTradingUserId,
-  );
-  const canExecuteTrade =
-    Boolean(tradingUserId) && (isAuthenticated || isDemoActor);
+  const canExecuteTrade = isConnected && Boolean(address) && Boolean(market?.onChainAddress);
 
   // ── Phase + draft persisted across phases (compose → confirm → result)
   const [phase, setPhase] = useState<Phase>("compose");
   const [composed, setComposed] = useState<TradeComposeResult | null>(null);
-  const [submission, setSubmission] = useState<TradeExecutionSnapshotDto | null>(
-    null,
-  );
   const [error, setError] = useState<string | null>(null);
+  const [chainTxHash, setChainTxHash] = useState<string | null>(null);
   // Snapshot mid YES at compose-time so the confirm slippage banner is meaningful.
   const [composedMid, setComposedMid] = useState<number>(0.5);
 
@@ -71,60 +50,47 @@ export function TradeModal() {
     if (isOpen) {
       setPhase("compose");
       setComposed(null);
-      setSubmission(null);
+      setChainTxHash(null);
       setError(null);
       if (market) setComposedMid(market.midYes);
     }
   }, [isOpen, market]);
 
-  // ── Trade execution mutation, scoped to the current user.
-  const exec = useExecuteTradeMutation({
-    userId: tradingUserId ?? "__noop__",
-  });
+  const chainExec = useChainMarketExecution();
 
   const handleConfirm = useCallback(
     (draft: TradeDraft) => {
-      if (!market?.tradeMarketId || !tradingUserId) {
-        setError("Trading is unavailable for this market.");
+      if (!market?.onChainAddress) {
+        setError(
+          "This market is not deployed on-chain. Only on-chain markets can be traded via MetaMask.",
+        );
         setPhase("result");
         return;
       }
       if (!composed) return;
 
       setError(null);
-      setSubmission(null);
-      const q = composed.quote;
-      exec.mutate(
+      setChainTxHash(null);
+
+      const decimals = collateralDecimals();
+      const amountWei =
+        draft.direction === "BUY"
+          ? parseUnits(draft.usd.toFixed(decimals), decimals)
+          : parseUnits(draft.shares.toFixed(6), 18);
+
+      chainExec.mutate(
         {
-          marketId: market.tradeMarketId,
-          side: toTradeApiSide(draft.outcome, draft.direction),
+          marketAddress: market.onChainAddress as Address,
+          outcome: draft.outcome,
           direction: draft.direction,
-          quantity: String(draft.shares.toFixed(4)),
-          idempotencyKey: tempIdempotencyKey(),
-          optimistic: {
-            execPrice: q.execPrice,
-            impliedYesAfter: q.impliedYesAfter,
-            notionalUsd: q.notionalUsd,
-            feeUsd: q.feeUsd,
-            totalDebitUsd: q.totalDebitUsd,
-            netCreditUsd: q.netCreditUsd,
-            direction: draft.direction,
-            outcome: draft.outcome,
-          },
+          amountWei,
         },
         {
-          onSuccess: (snap) => {
-            setSubmission(snap);
+          onSuccess: (res) => {
+            setChainTxHash(res.txHash);
             setPhase("result");
-            toast.success("Trade executed", {
-              description: `${draft.direction} ${draft.shares.toFixed(2)} ${draft.outcome} @ ${snap.executedPrice}`,
-              action: {
-                label: "Portfolio",
-                onClick: () => {
-                  close();
-                  router.push(ROUTES.portfolio);
-                },
-              },
+            toast.success("On-chain trade confirmed", {
+              description: `${draft.direction} ${draft.outcome} — tx ${res.txHash.slice(0, 10)}…`,
             });
           },
           onError: (e) => {
@@ -134,7 +100,7 @@ export function TradeModal() {
         },
       );
     },
-    [close, composed, exec, market?.tradeMarketId, router, tradingUserId],
+    [chainExec, composed, market?.onChainAddress],
   );
 
   if (!market) return null;
@@ -185,10 +151,10 @@ export function TradeModal() {
             "outline-none",
           )}
           onInteractOutside={(e) => {
-            if (exec.isPending) e.preventDefault();
+            if (chainExec.isPending) e.preventDefault();
           }}
           onEscapeKeyDown={(e) => {
-            if (exec.isPending) e.preventDefault();
+            if (chainExec.isPending) e.preventDefault();
           }}
         >
           {/* Drag handle (mobile) */}
@@ -220,7 +186,7 @@ export function TradeModal() {
             </div>
 
             <DialogPrimitive.Close
-              disabled={exec.isPending}
+              disabled={chainExec.isPending}
               aria-label="Close trade modal"
               className={cn(
                 "inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-white/[0.04] text-zinc-300 ring-1 ring-white/[0.08] transition active:scale-95 sm:h-8 sm:w-8",
@@ -271,7 +237,7 @@ export function TradeModal() {
                     draft={composed.draft}
                     quote={composed.quote}
                     midYesAtCompose={composedMid}
-                    isSubmitting={exec.isPending}
+                    isSubmitting={chainExec.isPending}
                     canExecuteTrade={canExecuteTrade}
                     onBack={() => setPhase("compose")}
                     onConfirm={() => handleConfirm(composed.draft)}
@@ -288,17 +254,17 @@ export function TradeModal() {
                   <TradeResultPanel
                     market={market}
                     draft={composed.draft}
-                    result={submission}
+                    result={null}
+                    chainTxHash={chainTxHash}
                     error={error}
                     onRetry={() => {
                       setError(null);
-                      setSubmission(null);
-                      handleConfirm(composed.draft);
+                      setChainTxHash(null);
                       setPhase("confirm");
                     }}
                     onTradeAgain={() => {
                       setError(null);
-                      setSubmission(null);
+                      setChainTxHash(null);
                       setComposed(null);
                       setPhase("compose");
                     }}
@@ -309,7 +275,7 @@ export function TradeModal() {
             </AnimatePresence>
           </div>
 
-          {exec.isPending && phase === "confirm" ? (
+          {chainExec.isPending && phase === "confirm" ? (
             <div
               className="absolute inset-0 z-[100] flex flex-col justify-end rounded-2xl bg-[#030308]/55 backdrop-blur-[6px]"
               aria-live="polite"
@@ -323,7 +289,7 @@ export function TradeModal() {
                     aria-label="Posting trade"
                   />
                   <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-zinc-400">
-                    Matching · posting fill
+                    MetaMask · on-chain fill
                   </p>
                 </div>
                 <div className="h-1 overflow-hidden rounded-full bg-white/[0.06]">
@@ -339,7 +305,7 @@ export function TradeModal() {
                   />
                 </div>
                 <p className="mt-2 text-center text-[10px] text-zinc-600">
-                  Odds &amp; balance update instantly — reconciling with server…
+                  Approve collateral if prompted, then confirm the trade in MetaMask…
                 </p>
               </div>
             </div>

@@ -18,7 +18,20 @@ export {
   useChainTradeBuy,
   useOptimisticChainTradeMutation,
   useMirrorWalletTxToasts,
+  useDeployOnChainMarket,
+  useChainMarketExecution,
+  useOnChainTradePreview,
+  useLinkMarketOnChain,
   type ChainTradeBuyArgs,
   type OptimisticChainTradeBody,
 } from "./hooks";
+export {
+  getFactoryAddress,
+  getCollateralAddress,
+  getTreasuryAddress,
+  isChainEnvConfigured,
+  bscTestnetTxUrl,
+  collateralDecimals,
+} from "./lib/chain-contract-env";
+export { narrativeToChainCategory } from "./lib/narrative-to-chain-category";
 export { ChainTradeOutcomeButtons } from "./components/chain-trade-outcome-buttons";

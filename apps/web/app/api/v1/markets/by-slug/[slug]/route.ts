@@ -32,6 +32,8 @@ export async function GET(_req: Request, ctx: RouteCtx) {
       resolutionReason: true,
       resolvedOutcome: true,
       generationMeta: true,
+      onChainAddress: true,
+      chainId: true,
       category: { select: { name: true } },
       creator: { select: { displayName: true, walletAddress: true } },
     },

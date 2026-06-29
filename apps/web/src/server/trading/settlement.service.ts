@@ -39,7 +39,7 @@ export type ResolutionSnapshot = {
 };
 
 /**
- * Locks the market, distributes `collateralPoolUsd` as 70% platform / 30% winning outcome holders,
+ * Locks the market, distributes `collateralPoolUsd` as 75% platform / 25% winning outcome holders,
  * credits wallets, writes ledger rows, deletes positions, clears the pool.
  */
 export async function resolveMarket(

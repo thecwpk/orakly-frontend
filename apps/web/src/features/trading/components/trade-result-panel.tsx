@@ -10,13 +10,12 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { memo } from "react";
-import type { TradeExecutionSnapshotDto } from "@/shared/api/fetchers/execute-trade";
+import { bscTestnetTxUrl } from "@/features/chain-trading/lib/chain-contract-env";
 import { ROUTES } from "@/shared/constants/routes";
 import {
   formatCents,
   formatShares,
   formatUsd,
-  parseFloatSafe,
 } from "../lib/trade-math";
 import type { TradeModalMarket } from "../store/use-trade-modal-store";
 import type { TradeDraft } from "./trade-compose-panel";
@@ -59,7 +58,7 @@ function Cell({
 function TradeResultPanelInner({
   market,
   draft,
-  result,
+  chainTxHash,
   error,
   onRetry,
   onTradeAgain,
@@ -67,7 +66,8 @@ function TradeResultPanelInner({
 }: {
   market: TradeModalMarket;
   draft: TradeDraft;
-  result: TradeExecutionSnapshotDto | null;
+  result?: null;
+  chainTxHash?: string | null;
   error: string | null;
   onRetry: () => void;
   onTradeAgain: () => void;
@@ -118,12 +118,12 @@ function TradeResultPanelInner({
   }
 
   // ─── Success
-  const px = parseFloatSafe(result?.executedPrice ?? null) ?? draft.usd / draft.shares;
-  const qty = parseFloatSafe(result?.quantity ?? null) ?? draft.shares;
-  const notional = parseFloatSafe(result?.notionalUsd ?? null) ?? draft.usd;
-  const fee = parseFloatSafe(result?.feeUsd ?? null) ?? 0;
-  const newBalance = parseFloatSafe(result?.walletAvailableUsd ?? null);
-  const newYes = parseFloatSafe(result?.odds?.yesPrice ?? null);
+  const px = draft.shares > 0 ? draft.usd / draft.shares : 0.5;
+  const qty = draft.shares;
+  const notional = draft.usd;
+  const fee = 0;
+  const newBalance = null;
+  const newYes = null;
 
   return (
     <div className="flex flex-col gap-4">
@@ -169,7 +169,7 @@ function TradeResultPanelInner({
           />
         </motion.div>
         <p className="mt-3 text-base font-semibold tracking-tight text-white">
-          Trade executed
+          On-chain trade confirmed
         </p>
         <p className="mt-1 text-[12px] leading-relaxed text-zinc-300">
           {draft.direction === "BUY" ? "Bought" : "Sold"}{" "}
@@ -185,17 +185,21 @@ function TradeResultPanelInner({
         <Cell label="Quantity" value={`${formatShares(qty)} ${draft.outcome}`} />
         <Cell label="Avg price" value={formatCents(px)} emphasis="primary" />
         <Cell label="Fill notional" value={formatUsd(notional)} />
-        <Cell label="Fee" value={formatUsd(fee)} />
-        <Cell
-          label="New YES px"
-          value={newYes != null ? formatCents(newYes) : "—"}
-          emphasis="primary"
-        />
-        <Cell
-          label="Wallet"
-          value={newBalance != null ? formatUsd(newBalance) : "—"}
-          emphasis="success"
-        />
+        <Cell label="Fee" value={fee > 0 ? formatUsd(fee) : "on-chain"} />
+        {newYes != null ? (
+          <Cell
+            label="New YES px"
+            value={formatCents(newYes)}
+            emphasis="primary"
+          />
+        ) : null}
+        {newBalance != null ? (
+          <Cell
+            label="Wallet"
+            value={formatUsd(newBalance)}
+            emphasis="success"
+          />
+        ) : null}
       </div>
 
       <div className="grid grid-cols-3 gap-2">
@@ -231,10 +235,21 @@ function TradeResultPanelInner({
       </div>
 
       <p className="text-center font-mono text-[10px] text-zinc-600">
-        Tx ref{" "}
-        <span className="text-zinc-400">
-          {result?.tradeId ? result.tradeId.slice(0, 14) + "…" : "pending"}
-        </span>{" "}
+        {chainTxHash ? (
+          <>
+            Tx{" "}
+            <Link
+              href={bscTestnetTxUrl(chainTxHash)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-cyan-400/90 hover:underline"
+            >
+              {chainTxHash.slice(0, 14)}…
+            </Link>
+          </>
+        ) : (
+          "Tx pending"
+        )}{" "}
         · Market <span className="text-zinc-400">{market.slug}</span>
       </p>
     </div>

@@ -14,6 +14,9 @@ export interface Market {
   status: MarketStatus;
   /** UUID for REST trading / odds when `id` is a display key */
   backendMarketId?: string;
+  /** On-chain Market.sol clone — MetaMask trades target this address. */
+  onChainAddress?: string | null;
+  chainId?: number | null;
   description?: string | null;
   resolutionReason?: string | null;
   resolutionStatus?: string | null;

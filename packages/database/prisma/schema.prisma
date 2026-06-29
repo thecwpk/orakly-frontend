@@ -430,6 +430,11 @@ model Market {
   /// Generator template id, horizons, targets — drives oracle copy & lifecycle tooling.
   generationMeta Json?   @db.JsonB
 
+  /// Clone `Market.sol` address on BSC testnet (required for live trading).
+  onChainAddress String? @map("on_chain_address") @db.VarChar(42)
+  chainId        Int?    @map("chain_id")
+
+  @@index([onChainAddress])
   @@index([status, closesAt])
   @@index([categoryId, status])
   @@index([status, trendingScore(sort: Desc)])

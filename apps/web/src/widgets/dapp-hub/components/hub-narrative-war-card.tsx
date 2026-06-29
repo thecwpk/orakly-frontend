@@ -81,6 +81,8 @@ export function HubNarrativeWarCard({ battle }: { battle: NarrativeWarCard }) {
                 if (!battle.marketSlug) return;
                 openTrade({
                   tradeMarketId: null,
+                  onChainAddress: null,
+                  chainId: null,
                   slug: battle.marketSlug,
                   title: battle.marketTitle ?? battle.label,
                   category: "Narrative",

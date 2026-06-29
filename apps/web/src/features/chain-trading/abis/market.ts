@@ -4,6 +4,47 @@ import type { Abi } from "viem";
 export const marketAbi: Abi = [
   {
     type: "function",
+    name: "previewBuyYes",
+    stateMutability: "view",
+    inputs: [{ name: "netCollateral", type: "uint256" }],
+    outputs: [{ type: "uint256" }],
+  },
+  {
+    type: "function",
+    name: "previewBuyNo",
+    stateMutability: "view",
+    inputs: [{ name: "netCollateral", type: "uint256" }],
+    outputs: [{ type: "uint256" }],
+  },
+  {
+    type: "function",
+    name: "previewSellYesOut",
+    stateMutability: "view",
+    inputs: [{ name: "yesToSell", type: "uint256" }],
+    outputs: [
+      { name: "collateralOut", type: "uint256" },
+      { name: "fee", type: "uint256" },
+    ],
+  },
+  {
+    type: "function",
+    name: "previewSellNoOut",
+    stateMutability: "view",
+    inputs: [{ name: "noToSell", type: "uint256" }],
+    outputs: [
+      { name: "collateralOut", type: "uint256" },
+      { name: "fee", type: "uint256" },
+    ],
+  },
+  {
+    type: "function",
+    name: "feeBps",
+    stateMutability: "view",
+    inputs: [],
+    outputs: [{ type: "uint16" }],
+  },
+  {
+    type: "function",
     name: "buyYes",
     inputs: [
       { name: "collateralIn", type: "uint256" },

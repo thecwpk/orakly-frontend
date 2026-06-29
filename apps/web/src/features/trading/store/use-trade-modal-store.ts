@@ -4,10 +4,11 @@ import { create } from "zustand";
 
 /** Minimal market shape the modal needs to open. */
 export type TradeModalMarket = {
-  /** Backend UUID for trading. May be null when the market hasn't been
-   *  resolved to a tradable id yet — modal still renders, but trading is
-   *  disabled with a hint. */
+  /** Backend UUID for trading APIs / portfolio cache keys. */
   tradeMarketId: string | null;
+  /** On-chain Market.sol clone — required for MetaMask execution. */
+  onChainAddress: string | null;
+  chainId: number | null;
   /** UI-friendly slug (used for routing/links). */
   slug: string;
   title: string;

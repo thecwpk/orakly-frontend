@@ -270,6 +270,8 @@ function MarketCardImpl({
       openTradeModal(
         {
           tradeMarketId,
+          onChainAddress: market.onChainAddress ?? null,
+          chainId: market.chainId ?? null,
           slug: market.slug,
           title: market.title,
           category: market.category,

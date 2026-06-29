@@ -25,6 +25,8 @@ const createSchema = z.object({
   liquidityUsd: z.number().min(100).max(10_000_000).optional(),
   initialProbability: z.number().min(0.01).max(0.99).optional(),
   status: z.nativeEnum(MarketStatus).optional(),
+  onChainAddress: z.string().regex(/^0x[a-fA-F0-9]{40}$/).optional().nullable(),
+  chainId: z.number().int().positive().optional().nullable(),
 });
 
 export async function GET(req: NextRequest) {
@@ -47,11 +49,15 @@ export async function GET(req: NextRequest) {
         id: true,
         slug: true,
         title: true,
+        description: true,
         status: true,
+        takerFeeBps: true,
         volumeTotalUsd: true,
         liquidityUsd: true,
         closesAt: true,
         createdAt: true,
+        onChainAddress: true,
+        chainId: true,
         category: { select: { id: true, name: true, slug: true } },
       },
     });
@@ -87,6 +93,8 @@ export async function POST(req: NextRequest) {
       liquidityUsd: parsed.data.liquidityUsd,
       initialProbability: parsed.data.initialProbability,
       status: parsed.data.status,
+      onChainAddress: parsed.data.onChainAddress ?? null,
+      chainId: parsed.data.chainId ?? null,
     });
 
     await adminRecordMarketCreatedActivity({

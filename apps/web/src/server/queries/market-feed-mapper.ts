@@ -15,6 +15,8 @@ type FeedRow = {
   resolutionReason?: string | null;
   resolvedOutcome?: string | null;
   generationMeta?: Prisma.JsonValue | null;
+  onChainAddress?: string | null;
+  chainId?: number | null;
   category: { name: string } | null;
   creator?: { displayName: string | null; walletAddress: string | null } | null;
 };
@@ -53,5 +55,7 @@ export function prismaMarketToFeedDto(m: FeedRow): Market {
         ? (m.generationMeta as Record<string, unknown>)
         : null,
     creatorDisplayName,
+    onChainAddress: m.onChainAddress ?? null,
+    chainId: m.chainId ?? null,
   };
 }

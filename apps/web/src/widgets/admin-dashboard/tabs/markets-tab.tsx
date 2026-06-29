@@ -6,6 +6,7 @@ import {
   CheckCircle2,
   ExternalLink,
   Filter,
+  Link2,
   Pause,
   Play,
   Plus,
@@ -18,6 +19,10 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useAccount, useChainId } from "wagmi";
+import { useLinkMarketOnChain } from "@/features/chain-trading/hooks/use-link-market-on-chain";
+import { isChainEnvConfigured } from "@/features/chain-trading/lib/chain-contract-env";
+import { testBnbChain } from "@/providers/web3/chains";
 import { cn } from "@/lib/utils";
 import { adminApi } from "../lib/admin-api";
 import {
@@ -54,9 +59,13 @@ export function AdminMarketsTab({
   const [showCreate, setShowCreate] = useState(false);
   const [resolveTarget, setResolveTarget] = useState<ResolveTarget>(null);
   const [moderateTarget, setModerateTarget] = useState<ModerateTarget>(null);
+  const [bulkDeploying, setBulkDeploying] = useState(false);
 
   const marketsQ = useAdminMarketsQuery(filter, true);
   const categoriesQ = useAdminCategoriesQuery(canCreate);
+  const { address } = useAccount();
+  const chainId = useChainId();
+  const linkOnChain = useLinkMarketOnChain();
 
   const qc = useQueryClient();
 
@@ -116,9 +125,68 @@ export function AdminMarketsTab({
     );
   }, [marketsQ.data]);
 
+  const offChainMarkets = useMemo(
+    () => (marketsQ.data ?? []).filter((m) => !m.onChainAddress),
+    [marketsQ.data],
+  );
+
+  const deployAllOffChain = async () => {
+    if (!canCreate) return;
+    if (!address) {
+      toast.error("Connect the factory-owner wallet in MetaMask.");
+      return;
+    }
+    if (chainId !== testBnbChain.id) {
+      toast.error("Switch MetaMask to BNB Smart Chain Testnet (chain 97).");
+      return;
+    }
+    if (!isChainEnvConfigured()) {
+      toast.error("On-chain env missing on this deployment.");
+      return;
+    }
+    if (offChainMarkets.length === 0) {
+      toast.message("All visible markets are already on-chain.");
+      return;
+    }
+
+    setBulkDeploying(true);
+    let ok = 0;
+    let fail = 0;
+    for (const m of offChainMarkets) {
+      try {
+        toast.message(`Deploying (${ok + fail + 1}/${offChainMarkets.length})…`, {
+          description: m.title.slice(0, 72),
+        });
+        await linkOnChain.mutateAsync({
+          id: m.id,
+          title: m.title,
+          description: m.description,
+          closesAt: m.closesAt,
+          takerFeeBps: m.takerFeeBps,
+          status: m.status,
+          category: m.category,
+        });
+        ok += 1;
+      } catch {
+        fail += 1;
+        toast.error(`Stopped bulk deploy after failure on “${m.title.slice(0, 48)}”.`);
+        break;
+      }
+    }
+    setBulkDeploying(false);
+    void qc.invalidateQueries({ queryKey: ["admin", "markets"] });
+    void qc.invalidateQueries({ queryKey: adminMarketsKey(filter, 120) });
+    void qc.invalidateQueries({ queryKey: adminOverviewKey });
+    if (ok > 0) {
+      toast.success(`Linked ${ok} market${ok === 1 ? "" : "s"} on-chain`, {
+        description: fail > 0 ? `${fail} failed` : undefined,
+      });
+    }
+  };
+
   const reload = () => {
     void marketsQ.refetch();
-    void qc.invalidateQueries({ queryKey: adminMarketsKey(filter, 80) });
+    void qc.invalidateQueries({ queryKey: adminMarketsKey(filter, 120) });
   };
 
   return (
@@ -140,14 +208,32 @@ export function AdminMarketsTab({
             Refresh
           </button>
           {canCreate ? (
-            <button
-              type="button"
-              onClick={() => setShowCreate(true)}
-              className="inline-flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-[var(--hub-primary)] to-cyan-600 px-3 py-1.5 text-[12px] font-bold text-white shadow-[0_8px_30px_-8px_rgba(167,139,250,0.6)] ring-1 ring-[var(--hub-border-strong)] transition hover:brightness-110"
-            >
-              <Plus className="h-3.5 w-3.5" />
-              New market
-            </button>
+            <>
+              {offChainMarkets.length > 0 ? (
+                <button
+                  type="button"
+                  onClick={() => void deployAllOffChain()}
+                  disabled={bulkDeploying || linkOnChain.isPending}
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--hub-bg-subtle)] px-2.5 py-1.5 text-[12px] font-semibold text-[var(--hub-fg)] ring-1 ring-[var(--hub-border)] transition hover:bg-[var(--hub-card-hover)] disabled:opacity-50"
+                >
+                  <Link2
+                    className={cn(
+                      "h-3.5 w-3.5",
+                      (bulkDeploying || linkOnChain.isPending) && "animate-pulse",
+                    )}
+                  />
+                  Deploy all off-chain ({offChainMarkets.length})
+                </button>
+              ) : null}
+              <button
+                type="button"
+                onClick={() => setShowCreate(true)}
+                className="inline-flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-[var(--hub-primary)] to-cyan-600 px-3 py-1.5 text-[12px] font-bold text-white shadow-[0_8px_30px_-8px_rgba(167,139,250,0.6)] ring-1 ring-[var(--hub-border-strong)] transition hover:brightness-110"
+              >
+                <Plus className="h-3.5 w-3.5" />
+                New market
+              </button>
+            </>
           ) : null}
         </>
       }
@@ -254,6 +340,7 @@ export function AdminMarketsTab({
                   <th scope="col" className="px-3 py-2.5">Market</th>
                   <th scope="col" className="px-3 py-2.5">Status</th>
                   <th scope="col" className="px-3 py-2.5">Category</th>
+                  <th scope="col" className="px-3 py-2.5">Chain</th>
                   <th scope="col" className="px-3 py-2.5 text-right">Actions</th>
                 </tr>
               </thead>
@@ -266,8 +353,21 @@ export function AdminMarketsTab({
                     <MarketRow
                       key={m.id}
                       market={m}
+                      canCreate={canCreate}
                       canModerate={canModerate}
                       canResolve={canResolve}
+                      linkBusy={linkOnChain.isPending || bulkDeploying}
+                      onDeploy={() =>
+                        linkOnChain.mutate({
+                          id: m.id,
+                          title: m.title,
+                          description: m.description,
+                          closesAt: m.closesAt,
+                          takerFeeBps: m.takerFeeBps,
+                          status: m.status,
+                          category: m.category,
+                        })
+                      }
                       onResolveYes={() =>
                         setResolveTarget({ id: m.id, title: m.title, outcome: "YES" })
                       }
@@ -351,19 +451,26 @@ export function AdminMarketsTab({
 
 function MarketRow({
   market,
+  canCreate,
   canModerate,
   canResolve,
+  linkBusy,
+  onDeploy,
   onResolveYes,
   onResolveNo,
   onModerate,
 }: {
   market: AdminMarketRow;
+  canCreate: boolean;
   canModerate: boolean;
   canResolve: boolean;
+  linkBusy: boolean;
+  onDeploy: () => void;
   onResolveYes: () => void;
   onResolveNo: () => void;
   onModerate: (status: string) => void;
 }) {
+  const onChain = Boolean(market.onChainAddress);
   return (
     <motion.tr
       layout="position"
@@ -396,7 +503,28 @@ function MarketRow({
         {market.category?.name ?? <span className="text-[var(--hub-muted)]">—</span>}
       </td>
       <td className="px-3 py-2">
+        {onChain ? (
+          <span className="inline-flex items-center gap-1 rounded-md bg-emerald-500/10 px-2 py-0.5 font-mono text-[10px] text-emerald-200 ring-1 ring-emerald-400/25">
+            <CheckCircle2 className="h-3 w-3" />
+            {market.onChainAddress?.slice(0, 8)}…
+          </span>
+        ) : (
+          <span className="rounded-md bg-amber-500/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-200 ring-1 ring-amber-400/25">
+            Off-chain
+          </span>
+        )}
+      </td>
+      <td className="px-3 py-2">
         <div className="flex flex-wrap items-center justify-end gap-1">
+          {canCreate && !onChain ? (
+            <ActionButton
+              tone="violet"
+              icon={Link2}
+              onClick={onDeploy}
+              label="Deploy"
+              disabled={linkBusy}
+            />
+          ) : null}
           {canModerate ? (
             <>
               {market.status !== "OPEN" ? (
@@ -453,11 +581,13 @@ function ActionButton({
   icon: Icon,
   onClick,
   label,
+  disabled,
 }: {
   tone: "emerald" | "amber" | "rose" | "violet";
   icon: typeof Play;
   onClick: () => void;
   label: string;
+  disabled?: boolean;
 }) {
   const TONE = {
     emerald: "bg-emerald-500/12 text-emerald-200 ring-emerald-400/25 hover:bg-emerald-500/20",
@@ -469,8 +599,9 @@ function ActionButton({
     <button
       type="button"
       onClick={onClick}
+      disabled={disabled}
       className={cn(
-        "inline-flex items-center gap-1 rounded-lg px-2 py-1 text-[10.5px] font-bold uppercase tracking-wider ring-1 transition",
+        "inline-flex items-center gap-1 rounded-lg px-2 py-1 text-[10.5px] font-bold uppercase tracking-wider ring-1 transition disabled:cursor-not-allowed disabled:opacity-40",
         TONE[tone],
       )}
     >

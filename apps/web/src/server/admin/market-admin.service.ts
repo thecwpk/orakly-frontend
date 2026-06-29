@@ -25,6 +25,8 @@ export type AdminCreateMarketInput = {
   liquidityUsd?: number;
   initialProbability?: number;
   status?: MarketStatus;
+  onChainAddress?: string | null;
+  chainId?: number | null;
 };
 
 export async function adminCreateMarket(input: AdminCreateMarketInput) {
@@ -60,6 +62,8 @@ export async function adminCreateMarket(input: AdminCreateMarketInput) {
       makerFeeBps: 0,
       liquidityUsd: toDec(input.liquidityUsd ?? 25_000),
       collateralPoolUsd: toDec(0),
+      onChainAddress: input.onChainAddress?.toLowerCase() ?? null,
+      chainId: input.chainId ?? null,
     },
   });
 
@@ -97,6 +101,8 @@ export type AdminModerateMarketInput = {
   description?: string | null;
   status?: MarketStatus;
   categoryId?: string | null;
+  onChainAddress?: string | null;
+  chainId?: number | null;
 };
 
 export async function adminModerateMarket(input: AdminModerateMarketInput) {
@@ -114,6 +120,12 @@ export async function adminModerateMarket(input: AdminModerateMarketInput) {
       input.categoryId ?
         { connect: { id: input.categoryId } }
       : { disconnect: true };
+  }
+  if (input.onChainAddress !== undefined) {
+    data.onChainAddress = input.onChainAddress?.toLowerCase() ?? null;
+  }
+  if (input.chainId !== undefined) {
+    data.chainId = input.chainId;
   }
 
   return prisma.market.update({

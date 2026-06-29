@@ -25,7 +25,12 @@ export type AdminMarketRow = {
   id: string;
   slug: string;
   title: string;
+  description?: string | null;
   status: string;
+  takerFeeBps?: number;
+  closesAt: string;
+  onChainAddress?: string | null;
+  chainId?: number | null;
   category: { id: string; name: string; slug: string } | null;
 };
 
@@ -96,7 +101,7 @@ export function useAdminRevenueQuery(days: number, enabled: boolean) {
 export function useAdminMarketsQuery(
   status: string,
   enabled: boolean,
-  take = 80,
+  take = 120,
 ) {
   return useQuery({
     queryKey: adminMarketsKey(status, take),
