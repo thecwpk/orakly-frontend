@@ -14,12 +14,11 @@ import { appStickyToolbarBleedStyle } from "@/shared/constants/page-layout";
 import { ROUTES } from "@/shared/constants/routes";
 import { useInfiniteScroll, usePagedSlice } from "@/shared/hooks/use-infinite-scroll";
 import { Container, Section, Stack } from "@/shared/ui";
-import { TrendingMarketCard } from "@/widgets/trending-prediction-markets";
-import { TrendingMarketGridSkeleton } from "@/widgets/trending-prediction-markets/components/trending-market-card-skeleton";
 import { useLiveMarketStatus } from "@/widgets/trending-prediction-markets/lib/use-live-market-status";
 import { cn } from "@/lib/utils";
 import { MarketsCategoryRail } from "./components/markets-category-rail";
 import { MarketsExplorerDiscoveryStrip } from "./components/markets-explorer-discovery-strip";
+import { MarketsExplorerGrid, MarketsExplorerGridSkeleton } from "./components/markets-explorer-grid";
 import { MarketsExplorerSidebar } from "./components/markets-explorer-sidebar";
 import { MarketsHotNarrativesRail } from "./components/markets-hot-narratives-rail";
 import { MarketsListRow } from "./components/markets-list-row";
@@ -27,9 +26,6 @@ import { MarketsListSkeleton } from "./components/markets-list-skeleton";
 import { MarketsToolbar } from "./components/markets-toolbar";
 import { filterMarkets, sortMarkets } from "./lib/filter-and-sort";
 import { useUrlFiltersSync } from "./lib/use-url-filters-sync";
-
-const ACCENTS = ["cyan", "violet", "emerald", "rose", "amber"] as const;
-type Accent = (typeof ACCENTS)[number];
 
 const PAGE_SIZE = 30;
 
@@ -65,7 +61,7 @@ export function MarketsExplorerPage() {
   const all = useMemo(() => data ?? [], [data]);
 
   const allIds = useMemo(() => all.map((m) => m.id), [all]);
-  const { liveSet, lastTradeAt } = useLiveMarketStatus(allIds);
+  const { liveSet } = useLiveMarketStatus(allIds);
 
   const hotNarratives = useMemo(() => {
     return [...all]
@@ -117,11 +113,6 @@ export function MarketsExplorerPage() {
     });
   }, [all, filterBase, category, sort, trendingOnly, liveSet]);
 
-  const featuredIds = useMemo(
-    () => new Set(ranked.slice(0, 2).map((m) => m.id)),
-    [ranked],
-  );
-
   const sidebarMovers = useMemo(() => {
     return [...ranked]
       .filter((m) => m.status === "OPEN")
@@ -137,16 +128,6 @@ export function MarketsExplorerPage() {
     onLoadMore: loadMore,
     disabled: feedLoading,
   });
-
-  const visibleIdsKey = useMemo(
-    () => visible.map((m) => m.id).join(","),
-    [visible],
-  );
-  const volumeMax = useMemo(
-    () => visible.reduce((acc, m) => Math.max(acc, m.volumeUsd ?? 0), 0),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [visibleIdsKey],
-  );
 
   // Scroll to top when filters change — skip the first hydration pass from URL/store.
   const skipScrollRef = useRef(true);
@@ -185,27 +166,6 @@ export function MarketsExplorerPage() {
   const totalCount = ranked.length;
 
   const gridAnimKey = `${explorerFeed}|${search}|${category}|${sort}|${trendingOnly}|${minLiquidityUsd}|${minVolumeUsd}|${viewMode}`;
-
-  const gridContainerVariants = {
-    hidden: { opacity: reduceMotion ? 1 : 0 },
-    show: {
-      opacity: 1,
-      transition:
-        reduceMotion ? { duration: 0 }
-        : { staggerChildren: 0.018, delayChildren: 0.02 },
-    },
-  };
-
-  const gridItemVariants = {
-    hidden: reduceMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: 4 },
-    show: {
-      opacity: 1,
-      y: 0,
-      transition:
-        reduceMotion ? { duration: 0 }
-        : { type: "spring" as const, stiffness: 520, damping: 34 },
-    },
-  };
 
   return (
     <Section spacing="tight" width="2xl">
@@ -306,7 +266,7 @@ export function MarketsExplorerPage() {
               <ErrorPanel onRetry={() => void refetch()} />
             ) : feedLoading ? (
               viewMode === "grid" ? (
-                <TrendingMarketGridSkeleton count={18} compact />
+                <MarketsExplorerGridSkeleton count={12} />
               ) : (
                 <MarketsListSkeleton count={10} />
               )
@@ -325,37 +285,11 @@ export function MarketsExplorerPage() {
             ) : viewMode === "grid" ? (
               <motion.div
                 key={gridAnimKey}
-                className={cn(
-                  "grid grid-flow-dense gap-r8",
-                  "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6",
-                )}
-                variants={gridContainerVariants}
-                initial="hidden"
-                animate="show"
+                initial={reduceMotion ? false : { opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={reduceMotion ? { duration: 0 } : { duration: 0.2 }}
               >
-                {visible.map((m, i) => {
-                  const featured = featuredIds.has(m.id);
-                  return (
-                    <motion.div
-                      key={m.id}
-                      variants={gridItemVariants}
-                      className={cn(
-                        featured && "md:col-span-2 md:row-span-2",
-                      )}
-                    >
-                      <TrendingMarketCard
-                        market={m}
-                        index={i % 8}
-                        accent={ACCENTS[i % ACCENTS.length] as Accent}
-                        chrome="subtle"
-                        volumeMax={volumeMax}
-                        isLive={liveSet.has(m.id)}
-                        lastTradeAt={lastTradeAt.get(m.id) ?? null}
-                        variant={featured ? "featured" : "compact"}
-                      />
-                    </motion.div>
-                  );
-                })}
+                <MarketsExplorerGrid markets={visible} />
               </motion.div>
             ) : (
               <ListContainer>

@@ -51,7 +51,7 @@ export function HubMarketFeedGrid() {
               <HubFeedCardBinary
                 key={item.market.id}
                 market={item.market}
-                onTrade={() => openTrade(marketToTradeModal(item.market))}
+                onTrade={(side) => openTrade(marketToTradeModal(item.market), side)}
               />
             ),
           )}

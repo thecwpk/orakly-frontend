@@ -16,7 +16,7 @@ import { HubProbabilityArc } from "./hub-probability-arc";
 
 type HubFeedCardBinaryProps = {
   market: HubMarketEnriched;
-  onTrade: () => void;
+  onTrade: (side: "YES" | "NO") => void;
 };
 
 /** Polymarket BTC Up/Down style — arc gauge + stacked bet hints + large buttons. */
@@ -53,7 +53,11 @@ export function HubFeedCardBinary({ market, onTrade }: HubFeedCardBinaryProps) {
                 </span>
               ))}
             </div>
-            <button type="button" onClick={onTrade} className="hub-feed-binary-btn hub-feed-binary-btn--yes">
+            <button
+              type="button"
+              onClick={() => onTrade("YES")}
+              className="hub-feed-binary-btn hub-feed-binary-btn--yes"
+            >
               <span className="hub-feed-binary-btn-main">
                 {upDown ? `+ $${hints.yes} ${yesLabel}` : `${yesLabel} ${yesCents}`}
               </span>
@@ -67,7 +71,11 @@ export function HubFeedCardBinary({ market, onTrade }: HubFeedCardBinaryProps) {
                 </span>
               ))}
             </div>
-            <button type="button" onClick={onTrade} className="hub-feed-binary-btn hub-feed-binary-btn--no">
+            <button
+              type="button"
+              onClick={() => onTrade("NO")}
+              className="hub-feed-binary-btn hub-feed-binary-btn--no"
+            >
               <span className="hub-feed-binary-btn-main">
                 {upDown ? `${noLabel} + $${hints.no}` : `${noLabel} ${noCents}`}
               </span>
