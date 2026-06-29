@@ -18,9 +18,12 @@ const createSchema = z.object({
   slug: z.string().min(2).max(180),
   description: z.string().max(8000).optional().nullable(),
   categoryId: z.string().uuid().optional().nullable(),
+  narrative: z.string().min(2).max(64).optional().nullable(),
   opensAt: z.string().datetime().optional().nullable(),
   closesAt: z.string().datetime(),
   takerFeeBps: z.number().int().min(0).max(500).optional(),
+  liquidityUsd: z.number().min(100).max(10_000_000).optional(),
+  initialProbability: z.number().min(0.01).max(0.99).optional(),
   status: z.nativeEnum(MarketStatus).optional(),
 });
 
@@ -76,10 +79,13 @@ export async function POST(req: NextRequest) {
       slug: parsed.data.slug,
       description: parsed.data.description ?? null,
       categoryId: parsed.data.categoryId ?? null,
+      narrative: parsed.data.narrative ?? null,
       creatorId: ctx.userId,
       opensAt: parsed.data.opensAt ? new Date(parsed.data.opensAt) : null,
       closesAt: new Date(parsed.data.closesAt),
       takerFeeBps: parsed.data.takerFeeBps,
+      liquidityUsd: parsed.data.liquidityUsd,
+      initialProbability: parsed.data.initialProbability,
       status: parsed.data.status,
     });
 

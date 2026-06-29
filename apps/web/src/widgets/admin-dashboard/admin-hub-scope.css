@@ -31,3 +31,42 @@
     color-mix(in srgb, var(--hub-bg-subtle) 88%, var(--hub-card)) 100%
   );
 }
+
+.hub-admin .admin-field-label {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: var(--hub-fg);
+}
+
+.hub-admin .admin-field-hint {
+  font-size: 11px;
+  line-height: 1.45;
+  color: color-mix(in srgb, var(--hub-fg) 62%, var(--hub-muted));
+}
+
+.hub-admin .admin-field-input {
+  border: 1px solid var(--hub-border-strong);
+  background: color-mix(in srgb, var(--hub-bg-subtle) 90%, var(--hub-card));
+  color: var(--hub-fg);
+  color-scheme: dark;
+}
+
+.hub-admin .admin-field-input::placeholder {
+  color: color-mix(in srgb, var(--hub-muted) 88%, transparent);
+}
+
+.hub-admin .admin-field-input:disabled {
+  cursor: not-allowed;
+  opacity: 0.72;
+}
+
+.hub-admin select.admin-field-input option {
+  background: var(--hub-card);
+  color: var(--hub-fg);
+}
+
+.hub-admin input[type="datetime-local"].admin-field-input::-webkit-calendar-picker-indicator {
+  filter: invert(0.85);
+  opacity: 0.9;
+}

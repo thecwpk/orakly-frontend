@@ -17,10 +17,13 @@ export type AdminCreateMarketInput = {
   slug: string;
   description?: string | null;
   categoryId?: string | null;
+  narrative?: string | null;
   creatorId?: string | null;
   opensAt?: Date | null;
   closesAt: Date;
   takerFeeBps?: number;
+  liquidityUsd?: number;
+  initialProbability?: number;
   status?: MarketStatus;
 };
 
@@ -35,25 +38,57 @@ export async function adminCreateMarket(input: AdminCreateMarketInput) {
     throw new TradingError("CONFLICT", "Slug already taken", 409);
   }
 
-  const mid = new Prisma.Decimal("0.5");
-  return prisma.market.create({
+  const mid =
+    input.initialProbability != null
+      ? clampPrice(toDec(input.initialProbability))
+      : new Prisma.Decimal("0.5");
+
+  const market = await prisma.market.create({
     data: {
       title: input.title.trim(),
       slug,
       description: input.description?.trim() || null,
       categoryId: input.categoryId ?? null,
       creatorId: input.creatorId ?? null,
-      status: input.status ?? MarketStatus.OPEN,
+      status: input.status ?? MarketStatus.DRAFT,
       opensAt: input.opensAt ?? new Date(),
       closesAt: input.closesAt,
       yesPrice: mid,
       noPrice: clampPrice(D1.minus(mid)),
+      probability: mid,
       takerFeeBps: input.takerFeeBps ?? 25,
       makerFeeBps: 0,
-      liquidityUsd: toDec(250_000),
+      liquidityUsd: toDec(input.liquidityUsd ?? 25_000),
       collateralPoolUsd: toDec(0),
     },
   });
+
+  const narrative = input.narrative?.trim();
+  if (narrative) {
+    const categorySlug =
+      market.categoryId
+        ? (
+            await prisma.category.findUnique({
+              where: { id: market.categoryId },
+              select: { slug: true },
+            })
+          )?.slug ?? "general"
+        : "general";
+
+    await prisma.marketSuggestion.create({
+      data: {
+        title: market.title,
+        description: market.description,
+        category: categorySlug,
+        narrative,
+        status: "APPROVED",
+        marketId: market.id,
+        submitterId: input.creatorId ?? null,
+      },
+    });
+  }
+
+  return market;
 }
 
 export type AdminModerateMarketInput = {
