@@ -1,11 +1,13 @@
 import { parseUnits, type Address } from "viem";
 import type { EnrichedQuote } from "@/features/trading/lib/trade-math";
+import { usdToShares } from "@/features/trading/lib/trade-math";
 import { marketAbi } from "../abis/market";
-import { collateralDecimals } from "./chain-contract-env";
+import {
+  collateralDecimals,
+  outcomeShareDecimals,
+} from "./chain-contract-env";
 import { enrichFromChainPreview } from "./chain-preview-math";
 import { createChainTradingPublicClient } from "./viem-read-client";
-
-const SHARE_DECIMALS = 18;
 
 export type FetchChainTradePreviewInput = {
   marketAddress: Address;
@@ -15,6 +17,16 @@ export type FetchChainTradePreviewInput = {
   midYes: number;
 };
 
+function estimateBuyShares(
+  grossUsd: number,
+  outcome: "YES" | "NO",
+  midYes: number,
+  feeBps: number,
+): number {
+  const px = outcome === "YES" ? midYes : 1 - midYes;
+  return usdToShares(grossUsd, px, feeBps);
+}
+
 /**
  * Read fee + preview from Market.sol via a public RPC client (no wallet required).
  */
@@ -23,6 +35,7 @@ export async function fetchChainTradePreview(
 ): Promise<EnrichedQuote> {
   const client = createChainTradingPublicClient();
   const decimals = collateralDecimals();
+  const shareDecimals = outcomeShareDecimals();
   const amountNum = Math.max(0, input.amount);
 
   const feeBps = Number(
@@ -52,13 +65,21 @@ export async function fetchChainTradePreview(
       collateralDecimals: decimals,
       feeBps,
       collateralInUsd: amountNum,
-      shares: amountNum,
+      estimatedShares: estimateBuyShares(
+        amountNum,
+        input.outcome,
+        input.midYes,
+        feeBps,
+      ),
       previewSharesOutWei: previewSharesOutWei as bigint,
       midYes: input.midYes,
     });
   }
 
-  const sharesWei = parseUnits(amountNum.toFixed(6), SHARE_DECIMALS);
+  const sharesWei = parseUnits(
+    amountNum.toFixed(shareDecimals),
+    shareDecimals,
+  );
   const previewFn =
     input.outcome === "YES" ? "previewSellYesOut" : "previewSellNoOut";
   const previewSell = (await client.readContract({
@@ -74,7 +95,7 @@ export async function fetchChainTradePreview(
     collateralDecimals: decimals,
     feeBps,
     collateralInUsd: 0,
-    shares: amountNum,
+    estimatedShares: amountNum,
     previewSell,
     midYes: input.midYes,
   });

@@ -5,6 +5,7 @@ import { formatUnits, type Address } from "viem";
 import { erc20Abi } from "../abis/erc20";
 import { marketAbi } from "../abis/market";
 import { createChainTradingPublicClient } from "../lib/viem-read-client";
+import { outcomeShareDecimals } from "../lib/chain-contract-env";
 
 export type ChainMarketPosition = {
   marketId: string;
@@ -82,8 +83,13 @@ export function useChainWalletPositions(
             }),
           ]);
 
-          const yesShares = Number.parseFloat(formatUnits(yesBal as bigint, 18));
-          const noShares = Number.parseFloat(formatUnits(noBal as bigint, 18));
+          const shareDecimals = outcomeShareDecimals();
+          const yesShares = Number.parseFloat(
+            formatUnits(yesBal as bigint, shareDecimals),
+          );
+          const noShares = Number.parseFloat(
+            formatUnits(noBal as bigint, shareDecimals),
+          );
           if (yesShares <= 0 && noShares <= 0) continue;
 
           const midYes = m.midYes;

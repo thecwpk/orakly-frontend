@@ -4,9 +4,11 @@ import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import type { Address } from "viem";
 import { useDebouncedValue } from "@/shared/api/hooks";
-import type { EnrichedQuote } from "@/features/trading/lib/trade-math";
-import { collateralDecimals } from "../lib/chain-contract-env";
-import { enrichFromChainPreview } from "../lib/chain-preview-math";
+import {
+  buildProvisionalQuote,
+  usdToShares,
+  type EnrichedQuote,
+} from "@/features/trading/lib/trade-math";
 import { fetchChainTradePreview } from "../lib/fetch-chain-trade-preview";
 
 export type OnChainPreviewInput = {
@@ -25,26 +27,23 @@ function provisionalQuote(input: {
   amount: number;
   midYes: number;
 }): EnrichedQuote {
-  const decimals = collateralDecimals();
   if (input.direction === "BUY") {
-    return enrichFromChainPreview({
+    const px = input.outcome === "YES" ? input.midYes : 1 - input.midYes;
+    const shares = usdToShares(input.amount, px, 0);
+    return buildProvisionalQuote({
+      midYes: input.midYes,
+      quantity: shares,
       direction: "BUY",
       outcome: input.outcome,
-      collateralDecimals: decimals,
-      feeBps: 0,
-      collateralInUsd: input.amount,
-      shares: input.amount,
-      midYes: input.midYes,
+      takerFeeBps: 0,
     });
   }
-  return enrichFromChainPreview({
+  return buildProvisionalQuote({
+    midYes: input.midYes,
+    quantity: input.amount,
     direction: "SELL",
     outcome: input.outcome,
-    collateralDecimals: decimals,
-    feeBps: 0,
-    collateralInUsd: 0,
-    shares: input.amount,
-    midYes: input.midYes,
+    takerFeeBps: 0,
   });
 }
 

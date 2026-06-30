@@ -7,7 +7,7 @@ import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useAccount } from "wagmi";
 import { useChainMarketExecution } from "@/features/chain-trading/hooks/use-chain-market-execution";
-import { collateralDecimals } from "@/features/chain-trading/lib/chain-contract-env";
+import { collateralDecimals, outcomeShareDecimals } from "@/features/chain-trading/lib/chain-contract-env";
 import { parseUnits, type Address } from "viem";
 import { useTradeModalStore } from "../store/use-trade-modal-store";
 import {
@@ -73,10 +73,11 @@ export function TradeModal() {
       setChainTxHash(null);
 
       const decimals = collateralDecimals();
+      const shareDecimals = outcomeShareDecimals();
       const amountWei =
         draft.direction === "BUY"
           ? parseUnits(draft.usd.toFixed(decimals), decimals)
-          : parseUnits(draft.shares.toFixed(6), 18);
+          : parseUnits(draft.shares.toFixed(shareDecimals), shareDecimals);
 
       chainExec.mutate(
         {

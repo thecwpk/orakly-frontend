@@ -9,9 +9,7 @@ import { wagmiConfig } from "@/providers/web3/wagmi-config";
 import { testBnbChain } from "@/providers/web3/chains";
 import { erc20Abi } from "../abis/erc20";
 import { marketAbi } from "../abis/market";
-import {
-  getCollateralAddress,
-} from "../lib/chain-contract-env";
+import { getCollateralAddress } from "../lib/chain-contract-env";
 import { formatChainTradeError } from "../lib/format-trade-error";
 
 const SLIPPAGE_BPS = 500n; // 5%

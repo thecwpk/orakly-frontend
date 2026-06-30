@@ -34,6 +34,11 @@ export function collateralDecimals(): number {
   return Number.isFinite(n) && n > 0 ? n : 6;
 }
 
+/** Raw outcome share amounts use the same scale as collateral (see Market.sol). */
+export function outcomeShareDecimals(): number {
+  return collateralDecimals();
+}
+
 export function isChainEnvConfigured(): boolean {
   return getMissingChainEnvKeys().length === 0;
 }

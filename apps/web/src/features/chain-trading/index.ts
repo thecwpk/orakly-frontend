@@ -34,6 +34,7 @@ export {
   isChainEnvConfigured,
   bscTestnetTxUrl,
   collateralDecimals,
+  outcomeShareDecimals,
   chainEnvConfigErrorMessage,
   getMissingChainEnvKeys,
 } from "./lib/chain-contract-env";
