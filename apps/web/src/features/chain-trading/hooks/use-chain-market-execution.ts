@@ -1,6 +1,6 @@
 "use client";
 
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import type { Address } from "viem";
 import { getPublicClient, waitForTransactionReceipt } from "wagmi/actions";
@@ -36,6 +36,7 @@ export type ChainMarketExecutionResult = {
  * MetaMask trade path — ERC20 approve (buy) then Market.sol buy/sell.
  */
 export function useChainMarketExecution() {
+  const queryClient = useQueryClient();
   const { address } = useAccount();
   const chainId = useChainId();
   const { writeContractAsync } = useWriteContract();
@@ -142,6 +143,9 @@ export function useChainMarketExecution() {
       });
       if (receipt.status !== "success") throw new Error("Trade transaction reverted.");
       return { txHash: hash };
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["chain"] });
     },
     onError: (e) => {
       toast.error(formatChainTradeError(e));

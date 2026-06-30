@@ -1,8 +1,12 @@
 "use client";
 
+import { useQueryClient } from "@tanstack/react-query";
 import { useCallback } from "react";
 import { toast } from "sonner";
 import { create } from "zustand";
+import { invalidateMarketsFeed } from "@/shared/api/invalidate";
+import { queryKeys } from "@/shared/api/query-keys";
+import { resolveTradeModalMarket } from "../lib/resolve-trade-modal-market";
 
 /** Minimal market shape the modal needs to open. */
 export type TradeModalMarket = {
@@ -53,20 +57,46 @@ export const useTradeModalStore = create<State>((set) => ({
     })),
 }));
 
-/** Stable hook for triggers — blocks markets that are not deployed on-chain. */
+/** Opens trade modal — hydrates on-chain address from API when feed cache is stale. */
 export function useOpenTradeModal() {
   const open = useTradeModalStore((s) => s.open);
+  const qc = useQueryClient();
+
   return useCallback(
     (market: TradeModalMarket, initialOutcome: "YES" | "NO" = "YES") => {
-      if (!market.onChainAddress) {
-        toast.error("Trading not available yet", {
-          description:
-            "This market is not deployed on-chain. An admin must deploy it from Admin → Markets first.",
-        });
-        return;
-      }
-      open(market, initialOutcome);
+      void (async () => {
+        let resolved = market;
+        if (!market.onChainAddress?.trim()) {
+          const toastId = toast.loading("Loading on-chain market…");
+          const hydrated = await resolveTradeModalMarket(market);
+          toast.dismiss(toastId);
+          if (hydrated) {
+            resolved = hydrated;
+            void qc.invalidateQueries({
+              queryKey: queryKeys.markets.bySlug(market.slug),
+            });
+            invalidateMarketsFeed(qc);
+          }
+        }
+
+        if (!resolved.onChainAddress?.trim()) {
+          toast.error("Trading not available yet", {
+            description:
+              "This market has no on-chain contract linked. Deploy it from Admin → Markets, then try again.",
+          });
+          return;
+        }
+
+        if (resolved.status !== "OPEN") {
+          toast.error("Market not open for trading", {
+            description: `Status: ${resolved.status}`,
+          });
+          return;
+        }
+
+        open(resolved, initialOutcome);
+      })();
     },
-    [open],
+    [open, qc],
   );
 }

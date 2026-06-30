@@ -3,16 +3,20 @@
 import { formatCompactUsd } from "@orakly/utils";
 import { ChevronRight, Zap } from "lucide-react";
 import { motion } from "framer-motion";
-import { memo, useCallback, useEffect, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { toast } from "sonner";
 import { useAccount } from "wagmi";
+import type { Address } from "viem";
+import {
+  useChainCollateralBalance,
+  useOnChainTradePreview,
+} from "@/features/chain-trading";
 import type { TradeModalMarket } from "@/features/trading/store/use-trade-modal-store";
 import { useOpenTradeModal } from "@/features/trading";
 import type { MarketOddsDto } from "@/shared/api/fetchers/markets-live";
 import {
   useMarketQuoteDebouncedQuery,
-  usePortfolioQuery,
 } from "@/shared/api/hooks";
 import { cn } from "@/lib/utils";
 import { ROUTES } from "@/shared/constants/routes";
@@ -117,16 +121,55 @@ function MarketTradingDeskInner({
     setOutcome(initialOutcome);
   }, [initialOutcome]);
 
-  const portfolio = usePortfolioQuery(userId);
-  const quote = useMarketQuoteDebouncedQuery(marketId ?? undefined, {
+  const openTradeModal = useOpenTradeModal();
+  const { address, isConnected } = useAccount();
+  const isOnChain = Boolean(tradeModalMarket?.onChainAddress);
+
+  const custodialQuote = useMarketQuoteDebouncedQuery(
+    isOnChain ? undefined : (marketId ?? undefined),
+    {
+      outcome,
+      direction,
+      quantity: qty,
+    },
+  );
+
+  const qtyNum = Number.parseFloat(qty.trim());
+  const qtyOk = Number.isFinite(qtyNum) && qtyNum > 0;
+  const previewAmount =
+    direction === "BUY" ? qtyNum : qtyNum;
+
+  const chainPreview = useOnChainTradePreview({
+    marketAddress: isOnChain
+      ? (tradeModalMarket?.onChainAddress as Address)
+      : null,
     outcome,
     direction,
-    quantity: qty,
+    amount: previewAmount,
+    midYes,
   });
 
-  const openTradeModal = useOpenTradeModal();
-  const { isConnected } = useAccount();
-  const isOnChain = Boolean(tradeModalMarket?.onChainAddress);
+  const collateralQ = useChainCollateralBalance(
+    isOnChain ? (address as Address | undefined) : undefined,
+  );
+
+  const quoteFetching = isOnChain
+    ? chainPreview.isFetching
+    : custodialQuote.isFetching;
+
+  const activeQuote = useMemo(() => {
+    if (isOnChain) {
+      const q = chainPreview.quote;
+      return {
+        execPrice: String(q.execPrice),
+        notionalUsd: String(q.notionalUsd),
+        feeUsd: String(q.feeUsd),
+        impliedYesAfter: String(q.impliedYesAfter),
+        totalDebitUsd: String(q.totalDebitUsd),
+      };
+    }
+    return custodialQuote.data;
+  }, [chainPreview.quote, custodialQuote.data, isOnChain]);
 
   const canOpenTradeModal = isOnChain && !disabledHint;
 
@@ -142,16 +185,13 @@ function MarketTradingDeskInner({
     openTradeModal(tradeModalMarket, outcome);
   }, [isConnected, openTradeModal, outcome, tradeModalMarket]);
 
-  const bal = portfolio.data?.wallet?.availableBalanceUsd;
-
-  const qtyNum = Number.parseFloat(qty.trim());
-  const qtyOk = Number.isFinite(qtyNum) && qtyNum > 0;
+  const bal = isOnChain ? collateralQ.data?.formatted : undefined;
 
   /** Binary payout ceiling: ~$1 per winning share (preview only). */
   const estMaxPayoutUsd =
     direction === "BUY" && qtyOk ? qtyNum : null;
 
-  const debitStr = quote.data?.totalDebitUsd ?? quote.data?.notionalUsd;
+  const debitStr = activeQuote?.totalDebitUsd ?? activeQuote?.notionalUsd;
   const debitNum = debitStr ? Number.parseFloat(String(debitStr).replace(/[^0-9.-]+/g, "")) : NaN;
   const estProfitIfWin =
     estMaxPayoutUsd != null && Number.isFinite(debitNum)
@@ -249,28 +289,28 @@ function MarketTradingDeskInner({
         <div className="flex justify-between gap-2">
           <span className="shrink-0 text-[var(--md-muted)]">Exec</span>
           <motion.span
-            key={`${quote.dataUpdatedAt}-${quote.data?.execPrice ?? ""}`}
+            key={`${activeQuote?.execPrice ?? ""}-${quoteFetching}`}
             initial={{ opacity: 0.55 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.14 }}
             className={cn(
               "min-w-0 text-right font-medium tabular-nums text-[var(--md-primary-bright)]",
-              quote.isFetching && "opacity-70",
+              quoteFetching && "opacity-70",
             )}
           >
-            {quote.isFetching ? "…" : formatExecPxLine(quote.data?.execPrice)}
+            {quoteFetching ? "…" : formatExecPxLine(activeQuote?.execPrice)}
           </motion.span>
         </div>
         <div className="flex justify-between gap-2">
           <span className="text-[var(--md-muted)]">Notional</span>
           <span className="min-w-0 text-right tabular-nums text-[var(--md-fg)]">
-            {quote.isFetching ? "…" : formatNotionalLine(quote.data?.notionalUsd)}
+            {quoteFetching ? "…" : formatNotionalLine(activeQuote?.notionalUsd)}
           </span>
         </div>
         <div className="flex justify-between gap-2">
           <span className="text-zinc-500">Fee</span>
           <span className="tabular-nums text-zinc-200">
-            {quote.isFetching ? "…" : formatNotionalLine(quote.data?.feeUsd)}
+            {quoteFetching ? "…" : formatNotionalLine(activeQuote?.feeUsd)}
           </span>
         </div>
         {!compact ? (
@@ -278,7 +318,7 @@ function MarketTradingDeskInner({
             <div className="flex justify-between gap-2 border-t border-white/[0.07] pt-1">
               <span className="text-zinc-500">After (YES)</span>
               <span className="min-w-0 text-right tabular-nums text-zinc-200">
-                {quote.isFetching ? "…" : formatExecPxLine(quote.data?.impliedYesAfter)}
+                {quoteFetching ? "…" : formatExecPxLine(activeQuote?.impliedYesAfter)}
               </span>
             </div>
             <div className="flex justify-between gap-2 border-t border-white/6 pt-1">
@@ -307,15 +347,15 @@ function MarketTradingDeskInner({
       </div>
 
       <div className="flex items-center justify-between text-[10px] text-zinc-500">
-        <span>Available</span>
+        <span>Collateral</span>
         <span className="font-mono text-zinc-200">
-          {userId ?
-            bal != null ?
-              formatCompactUsd(Number.parseFloat(bal))
-            : portfolio.isLoading ?
-              "…"
-            : "—"
-          : "—"}
+          {!isConnected
+            ? "—"
+            : bal != null
+              ? formatCompactUsd(bal)
+              : collateralQ.isLoading
+                ? "…"
+                : "—"}
         </span>
       </div>
 

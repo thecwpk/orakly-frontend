@@ -8,6 +8,6 @@ import { testBnbChain } from "@/providers/web3/chains";
 export function createChainTradingPublicClient() {
   return createPublicClient({
     chain: testBnbChain,
-    transport: http(getBscTestnetRpcUrl()),
+    transport: http(getBscTestnetRpcUrl(), { timeout: 15_000 }),
   });
 }

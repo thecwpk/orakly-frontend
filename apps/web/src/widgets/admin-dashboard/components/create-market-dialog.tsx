@@ -13,7 +13,8 @@ import { isChainEnvConfigured, chainEnvConfigErrorMessage } from "@/features/cha
 import { narrativeToChainCategory } from "@/features/chain-trading/lib/narrative-to-chain-category";
 import { testBnbChain } from "@/providers/web3/chains";
 import { cn } from "@/lib/utils";
-import { adminApi } from "../lib/admin-api";
+import { invalidateMarketsFeed } from "@/shared/api/invalidate";
+import { queryKeys } from "@/shared/api/query-keys";
 import {
   ADMIN_MARKET_TEMPLATES,
   ADMIN_NARRATIVE_OPTIONS,
@@ -27,6 +28,7 @@ import {
   adminOverviewKey,
   type AdminCategoryRow,
 } from "../hooks/use-admin-queries";
+import { adminApi } from "../lib/admin-api";
 
 type CreateState = {
   narrative: AdminNarrativeKey | "";
@@ -137,6 +139,12 @@ export function CreateMarketDialog({
       void qc.invalidateQueries({ queryKey: ["admin", "markets"] });
       void qc.invalidateQueries({ queryKey: adminMarketsKey("ALL", 120) });
       void qc.invalidateQueries({ queryKey: adminOverviewKey });
+      invalidateMarketsFeed(qc);
+      if (variables.slug) {
+        void qc.invalidateQueries({
+          queryKey: queryKeys.markets.bySlug(variables.slug),
+        });
+      }
       onOpenChange(false);
     },
     onError: (e: unknown) => {

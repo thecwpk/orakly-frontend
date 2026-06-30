@@ -290,6 +290,8 @@ function MarketCardImpl({
       market.category,
       market.status,
       market.closesAt,
+      market.onChainAddress,
+      market.chainId,
       probability,
     ],
   );

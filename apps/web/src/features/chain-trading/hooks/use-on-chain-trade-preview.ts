@@ -1,15 +1,13 @@
 "use client";
 
 import { useMemo } from "react";
-import { parseUnits, type Address } from "viem";
-import { useReadContract } from "wagmi";
+import { useQuery } from "@tanstack/react-query";
+import type { Address } from "viem";
 import { useDebouncedValue } from "@/shared/api/hooks";
+import type { EnrichedQuote } from "@/features/trading/lib/trade-math";
 import { collateralDecimals } from "../lib/chain-contract-env";
 import { enrichFromChainPreview } from "../lib/chain-preview-math";
-import { marketAbi } from "../abis/market";
-import type { EnrichedQuote } from "@/features/trading/lib/trade-math";
-
-const SHARE_DECIMALS = 18;
+import { fetchChainTradePreview } from "../lib/fetch-chain-trade-preview";
 
 export type OnChainPreviewInput = {
   marketAddress: Address | null;
@@ -20,6 +18,35 @@ export type OnChainPreviewInput = {
   midYes: number;
   debounceMs?: number;
 };
+
+function provisionalQuote(input: {
+  outcome: "YES" | "NO";
+  direction: "BUY" | "SELL";
+  amount: number;
+  midYes: number;
+}): EnrichedQuote {
+  const decimals = collateralDecimals();
+  if (input.direction === "BUY") {
+    return enrichFromChainPreview({
+      direction: "BUY",
+      outcome: input.outcome,
+      collateralDecimals: decimals,
+      feeBps: 0,
+      collateralInUsd: input.amount,
+      shares: input.amount,
+      midYes: input.midYes,
+    });
+  }
+  return enrichFromChainPreview({
+    direction: "SELL",
+    outcome: input.outcome,
+    collateralDecimals: decimals,
+    feeBps: 0,
+    collateralInUsd: 0,
+    shares: input.amount,
+    midYes: input.midYes,
+  });
+}
 
 export function useOnChainTradePreview({
   marketAddress,
@@ -37,104 +64,50 @@ export function useOnChainTradePreview({
 } {
   const debouncedAmount = useDebouncedValue(String(amount), debounceMs);
   const amountNum = Number.parseFloat(debouncedAmount) || 0;
-  const decimals = collateralDecimals();
   const enabled = Boolean(marketAddress) && amountNum > 0;
 
-  const { data: feeBps = 0, isFetching: feePending, isFetched: feeFetched } =
-    useReadContract({
-    address: marketAddress ?? undefined,
-    abi: marketAbi,
-    functionName: "feeBps",
-    query: { enabled: Boolean(marketAddress) },
-  });
-
-  const collateralWei = useMemo(() => {
-    if (!enabled || direction !== "BUY") return 0n;
-    try {
-      return parseUnits(amountNum.toFixed(decimals), decimals);
-    } catch {
-      return 0n;
-    }
-  }, [amountNum, decimals, direction, enabled]);
-
-  const sharesWei = useMemo(() => {
-    if (!enabled || direction !== "SELL") return 0n;
-    try {
-      return parseUnits(amountNum.toFixed(6), SHARE_DECIMALS);
-    } catch {
-      return 0n;
-    }
-  }, [amountNum, direction, enabled]);
-
-  const netCollateralWei = useMemo(() => {
-    if (collateralWei <= 0n) return 0n;
-    const bps = BigInt(Math.min(Number(feeBps) || 0, 200));
-    return (collateralWei * (10_000n - bps)) / 10_000n;
-  }, [collateralWei, feeBps]);
-
-  const previewFn =
-    direction === "BUY"
-      ? outcome === "YES"
-        ? "previewBuyYes"
-        : "previewBuyNo"
-      : outcome === "YES"
-        ? "previewSellYesOut"
-        : "previewSellNoOut";
-
-  const previewArgs =
-    direction === "BUY" ? ([netCollateralWei] as const) : ([sharesWei] as const);
-
-  const previewEnabled =
-    enabled && (direction === "BUY" ? netCollateralWei > 0n : sharesWei > 0n);
-
-  const {
-    data: previewData,
-    isFetching: previewPending,
-    isError,
-    isFetched: previewFetched,
-  } = useReadContract({
-    address: marketAddress ?? undefined,
-    abi: marketAbi,
-    functionName: previewFn,
-    args: previewArgs,
-    query: { enabled: previewEnabled },
-  });
-
-  const quote = useMemo(() => {
-    const bps = Number(feeBps) || 0;
-    if (direction === "BUY") {
-      return enrichFromChainPreview({
-        direction,
-        outcome,
-        collateralDecimals: decimals,
-        feeBps: bps,
-        collateralInUsd: amountNum,
-        shares: amountNum,
-        previewSharesOutWei: previewData as bigint | undefined,
-        midYes,
-      });
-    }
-    return enrichFromChainPreview({
-      direction,
+  const query = useQuery({
+    queryKey: [
+      "chain",
+      "trade-preview",
+      marketAddress,
       outcome,
-      collateralDecimals: decimals,
-      feeBps: bps,
-      collateralInUsd: 0,
-      shares: amountNum,
-      previewSell: previewData as readonly [bigint, bigint] | undefined,
-      midYes,
-    });
-  }, [amountNum, decimals, direction, feeBps, midYes, outcome, previewData]);
+      direction,
+      amountNum,
+    ],
+    enabled,
+    staleTime: 4_000,
+    gcTime: 60_000,
+    retry: 1,
+    queryFn: () =>
+      fetchChainTradePreview({
+        marketAddress: marketAddress!,
+        outcome,
+        direction,
+        amount: amountNum,
+        midYes,
+      }),
+  });
 
-  const isFetching = feePending || previewPending;
-  const feeReady = !marketAddress || feeFetched;
-  const previewReady = !previewEnabled || previewFetched || isError;
-  const isReady = feeReady && previewReady && !isFetching;
+  const fallback = useMemo(
+    () =>
+      provisionalQuote({
+        outcome,
+        direction,
+        amount: amountNum,
+        midYes,
+      }),
+    [amountNum, direction, midYes, outcome],
+  );
+
+  const quote = query.data ?? fallback;
+  const isFetching = enabled && query.isFetching;
+  const isReady = !enabled || (query.isFetched && !query.isFetching);
 
   return {
     quote,
     isFetching,
-    isError,
+    isError: query.isError,
     isReady,
   };
 }

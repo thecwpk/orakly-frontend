@@ -16,9 +16,14 @@ import {
 } from "./cache-tiers";
 
 export const CACHE_POLICY = {
-  /** Lists / reference: rarely stale on its own — refresh via invalidation or realtime. */
+  /** Lists / reference — refresh on focus so admin deploys reach cards quickly. */
   marketsFeed: {
-    ...REFERENCE_TIER,
+    staleTime: 30_000,
+    gcTime: REFERENCE_TIER.gcTime,
+    refetchOnWindowFocus: true,
+    refetchOnReconnect: true,
+    refetchInterval: false as const,
+    refetchIntervalInBackground: false,
   },
 
   /** Odds / liquidity: WS pushes invalidate; HTTP is fallback snapshot. */

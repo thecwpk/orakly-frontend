@@ -21,6 +21,7 @@ import { toast } from "sonner";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAccount, useChainId } from "wagmi";
 import { useLinkMarketOnChain } from "@/features/chain-trading/hooks/use-link-market-on-chain";
+import { invalidateMarketsFeed } from "@/shared/api/invalidate";
 import { isChainEnvConfigured, chainEnvConfigErrorMessage } from "@/features/chain-trading/lib/chain-contract-env";
 import { testBnbChain } from "@/providers/web3/chains";
 import { cn } from "@/lib/utils";
@@ -159,6 +160,7 @@ export function AdminMarketsTab({
         });
         await linkOnChain.mutateAsync({
           id: m.id,
+          slug: m.slug,
           title: m.title,
           description: m.description,
           closesAt: m.closesAt,
@@ -177,6 +179,7 @@ export function AdminMarketsTab({
     void qc.invalidateQueries({ queryKey: ["admin", "markets"] });
     void qc.invalidateQueries({ queryKey: adminMarketsKey(filter, 120) });
     void qc.invalidateQueries({ queryKey: adminOverviewKey });
+    invalidateMarketsFeed(qc);
     if (ok > 0) {
       toast.success(`Linked ${ok} market${ok === 1 ? "" : "s"} on-chain`, {
         description: fail > 0 ? `${fail} failed` : undefined,
@@ -360,6 +363,7 @@ export function AdminMarketsTab({
                       onDeploy={() =>
                         linkOnChain.mutate({
                           id: m.id,
+                          slug: m.slug,
                           title: m.title,
                           description: m.description,
                           closesAt: m.closesAt,

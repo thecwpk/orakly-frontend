@@ -4,15 +4,10 @@ import { motion } from "framer-motion";
 import { ArrowDownLeft, ArrowUpRight, Loader2, Wallet } from "lucide-react";
 import { memo, useEffect, useMemo, useRef, useState } from "react";
 import type { Address } from "viem";
-import { formatUnits } from "viem";
-import { useAccount, useChainId, useReadContract } from "wagmi";
+import { useAccount, useChainId } from "wagmi";
 import { testBnbChain } from "@/providers/web3/chains";
-import { erc20Abi } from "@/features/chain-trading/abis/erc20";
+import { useChainCollateralBalance } from "@/features/chain-trading/hooks/use-chain-collateral-balance";
 import { useOnChainTradePreview } from "@/features/chain-trading/hooks/use-on-chain-trade-preview";
-import {
-  collateralDecimals,
-  getCollateralAddress,
-} from "@/features/chain-trading/lib/chain-contract-env";
 import {
   useMarketQuoteDebouncedQuery,
   usePortfolioQuery,
@@ -221,22 +216,11 @@ function TradeComposePanelInner({
   const { address, isConnected } = useAccount();
   const walletChainId = useChainId();
   const isOnChain = Boolean(market.onChainAddress);
-  const collateral = getCollateralAddress();
 
-  const { data: chainBalanceWei } = useReadContract({
-    address: collateral ?? undefined,
-    abi: erc20Abi,
-    functionName: "balanceOf",
-    args: address ? [address] : undefined,
-    query: { enabled: isOnChain && Boolean(address) && Boolean(collateral) },
-  });
-
-  const chainBalanceUsd = useMemo(() => {
-    if (chainBalanceWei == null) return null;
-    return Number.parseFloat(
-      formatUnits(chainBalanceWei as bigint, collateralDecimals()),
-    );
-  }, [chainBalanceWei]);
+  const collateralQ = useChainCollateralBalance(
+    isOnChain ? (address as Address | undefined) : undefined,
+  );
+  const chainBalanceUsd = isOnChain ? collateralQ.data?.formatted ?? null : null;
 
   // Custodial wallet (legacy listings only).
   const portfolio = usePortfolioQuery(isOnChain ? undefined : actorId);
@@ -470,7 +454,8 @@ function TradeComposePanelInner({
         <div
           className={cn(
             "group relative flex h-16 items-center rounded-xl bg-black/40 ring-1 transition focus-within:ring-2",
-            blockingError === "Amount exceeds available balance."
+            blockingError === "Amount exceeds available balance." ||
+            blockingError === "Amount exceeds wallet collateral balance."
               ? "ring-rose-400/40 focus-within:ring-rose-400/60"
               : "ring-white/[0.08] focus-within:ring-cyan-400/40",
           )}
@@ -544,7 +529,11 @@ function TradeComposePanelInner({
       <div className="space-y-1.5 rounded-xl bg-black/30 px-3.5 py-3 ring-1 ring-white/[0.06]">
         <div className="mb-1 flex items-center justify-between text-[10.5px] font-semibold uppercase tracking-wider text-zinc-500">
           <span>Transaction preview</span>
-          {quoteQuery.isFetching || (isOnChain && chainPreview.isFetching && !chainPreview.isReady) || (!isOnChain && enriched.isProvisional) ? (
+          {quoteFailed ? (
+            <span className="inline-flex items-center gap-1 text-[10px] text-rose-400/90">
+              quote failed
+            </span>
+          ) : quoteQuery.isFetching || (isOnChain && chainPreview.isFetching && !chainPreview.isReady) || (!isOnChain && enriched.isProvisional) ? (
             <span className="inline-flex items-center gap-1 text-[10px] text-zinc-500">
               <Loader2 className="h-2.5 w-2.5 animate-spin" />
               {isOnChain ? "on-chain quote" : "quoting"}

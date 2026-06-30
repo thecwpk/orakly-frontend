@@ -80,3 +80,11 @@ export const chainPublicEnv = {
   adminAddresses: parseAddressList(trimEnv("NEXT_PUBLIC_ADMIN_ADDRESSES")),
   bscTestnetUsdcFaucetUrl: trimEnv("NEXT_PUBLIC_BSC_TESTNET_USDC_FAUCET_URL"),
 } as const;
+
+/** Testnet USDC faucet — same token as collateral when configured. */
+export function getBscTestnetUsdcFaucetUrl(): string {
+  return (
+    chainPublicEnv.bscTestnetUsdcFaucetUrl ||
+    "https://www.bnbchain.org/en/testnet-faucet"
+  );
+}

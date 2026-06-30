@@ -2,6 +2,11 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import {
+  invalidateMarketsFeed,
+  invalidateMarketLive,
+} from "@/shared/api/invalidate";
+import { queryKeys } from "@/shared/api/query-keys";
 import { adminApi } from "@/widgets/admin-dashboard/lib/admin-api";
 import {
   marketRecordToDeployInput,
@@ -11,6 +16,7 @@ import { useDeployOnChainMarket } from "./use-deploy-on-chain-market";
 
 export type LinkMarketOnChainInput = DeployableMarketRecord & {
   id: string;
+  slug?: string;
   status?: string;
 };
 
@@ -40,6 +46,13 @@ export function useLinkMarketOnChain() {
         description: market.title.slice(0, 64),
       });
       void qc.invalidateQueries({ queryKey: ["admin", "markets"] });
+      invalidateMarketsFeed(qc);
+      invalidateMarketLive(qc, market.id, { includeFeed: true });
+      if (market.slug) {
+        void qc.invalidateQueries({
+          queryKey: queryKeys.markets.bySlug(market.slug),
+        });
+      }
     },
     onError: (e) => {
       if (e instanceof Error) toast.error(e.message);

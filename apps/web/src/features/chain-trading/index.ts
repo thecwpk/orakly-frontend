@@ -22,6 +22,8 @@ export {
   useChainMarketExecution,
   useOnChainTradePreview,
   useLinkMarketOnChain,
+  useChainCollateralBalance,
+  useChainWalletPositions,
   type ChainTradeBuyArgs,
   type OptimisticChainTradeBody,
 } from "./hooks";

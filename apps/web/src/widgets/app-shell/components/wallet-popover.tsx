@@ -22,11 +22,10 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { useWalletBalanceQuery } from "@/shared/api/hooks";
+import { useChainCollateralBalance } from "@/features/chain-trading";
+import { getBscTestnetUsdcFaucetUrl } from "@/lib/chain-public-env";
 import { ROUTES } from "@/shared/constants/routes";
-import { useAuthStore } from "@/state/stores/auth.store";
 import { cn } from "@/lib/utils";
-import { parseUsd } from "@/widgets/portfolio-dashboard/lib/portfolio-metrics";
 
 function truncate(addr: string) {
   return `${addr.slice(0, 6)}…${addr.slice(-4)}`;
@@ -44,34 +43,24 @@ function StatusDot({ tone }: { tone: "ok" | "warn" | "err" | "idle" }) {
   return <span className={cn("h-1.5 w-1.5 rounded-full", cls)} />;
 }
 
-function CustodialBalance({ userId }: { userId: string | undefined }) {
-  const balanceQ = useWalletBalanceQuery(userId);
-  const available = balanceQ.data
-    ? parseUsd(balanceQ.data.availableBalanceUsd)
-    : 0;
-  const locked = balanceQ.data ? parseUsd(balanceQ.data.lockedBalanceUsd) : 0;
+function ChainCollateralBalance({ address }: { address: `0x${string}` }) {
+  const balanceQ = useChainCollateralBalance(address);
+  const available = balanceQ.data?.formatted ?? 0;
+  const symbol = balanceQ.data?.symbol ?? "USDC";
 
   return (
-    <div className="grid grid-cols-2 gap-2 px-3 py-2.5">
+    <div className="grid grid-cols-1 gap-2 px-3 py-2.5">
       <div className="rounded-lg bg-white/[0.03] px-2.5 py-2 ring-1 ring-white/[0.05]">
         <p className="text-[9.5px] font-medium uppercase tracking-wider text-zinc-500">
-          Available
+          Trading collateral
         </p>
         <p className="mt-0.5 font-mono text-[14px] font-semibold text-white">
           {balanceQ.isLoading && !balanceQ.data
             ? "—"
             : `$${available.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+          <span className="ml-1 text-[11px] font-normal text-zinc-500">{symbol}</span>
         </p>
-      </div>
-      <div className="rounded-lg bg-white/[0.03] px-2.5 py-2 ring-1 ring-white/[0.05]">
-        <p className="text-[9.5px] font-medium uppercase tracking-wider text-zinc-500">
-          Locked
-        </p>
-        <p className="mt-0.5 font-mono text-[14px] font-semibold text-white">
-          {balanceQ.isLoading && !balanceQ.data
-            ? "—"
-            : `$${locked.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
-        </p>
+        <p className="mt-0.5 text-[10px] text-zinc-600">On-chain · BSC testnet</p>
       </div>
     </div>
   );
@@ -84,7 +73,7 @@ export function WalletPopover({
   connectLabel?: string;
   variant?: "default" | "hub";
 }) {
-  const actorId = useAuthStore((s) => s.tradingUserId ?? undefined);
+  const faucetUrl = getBscTestnetUsdcFaucetUrl();
   const [open, setOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const { address, status, chain: wagmiChain } = useAccount();
@@ -285,24 +274,26 @@ export function WalletPopover({
                 <ChevronDown className="h-3 w-3 -rotate-90 text-zinc-500" />
               </button>
 
-              <CustodialBalance userId={actorId} />
+              <ChainCollateralBalance address={addr as `0x${string}`} />
 
               <div className="grid grid-cols-2 gap-1.5 px-3 pb-2.5">
-                <Link
-                  href={ROUTES.wallet}
+                <a
+                  href={faucetUrl}
+                  target="_blank"
+                  rel="noreferrer"
                   onClick={() => setOpen(false)}
                   className="inline-flex items-center justify-center gap-1.5 rounded-md bg-white/[0.05] px-2 py-1.5 text-[11.5px] font-medium text-zinc-200 ring-1 ring-white/[0.06] transition hover:bg-white/[0.08]"
                 >
                   <ArrowDownLeft className="h-3.5 w-3.5 text-emerald-300" />
-                  Deposit
-                </Link>
+                  Get USDC
+                </a>
                 <Link
                   href={ROUTES.wallet}
                   onClick={() => setOpen(false)}
                   className="inline-flex items-center justify-center gap-1.5 rounded-md bg-white/[0.05] px-2 py-1.5 text-[11.5px] font-medium text-zinc-200 ring-1 ring-white/[0.06] transition hover:bg-white/[0.08]"
                 >
                   <ArrowUpRight className="h-3.5 w-3.5 text-cyan-300" />
-                  Withdraw
+                  Wallet
                 </Link>
               </div>
 

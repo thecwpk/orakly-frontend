@@ -45,6 +45,20 @@ export const marketAbi: Abi = [
   },
   {
     type: "function",
+    name: "yesToken",
+    stateMutability: "view",
+    inputs: [],
+    outputs: [{ type: "address" }],
+  },
+  {
+    type: "function",
+    name: "noToken",
+    stateMutability: "view",
+    inputs: [],
+    outputs: [{ type: "address" }],
+  },
+  {
+    type: "function",
     name: "buyYes",
     inputs: [
       { name: "collateralIn", type: "uint256" },

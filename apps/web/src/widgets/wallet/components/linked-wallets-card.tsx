@@ -143,7 +143,7 @@ function LinkedWalletsCardInner({
             <p className="flex items-center gap-1.5 text-[10.5px] text-zinc-500">
               <CheckCircle2 className="h-3 w-3 text-emerald-400/80" />
               {isConnected
-                ? "All linked wallets share the same custodial identity."
+                ? "Linked wallets share the same signed-in profile."
                 : "Connect a wallet to bind it to your identity."}
             </p>
             <ConnectButton.Custom>
