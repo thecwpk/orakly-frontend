@@ -108,8 +108,11 @@ function ProfileHeroInner({
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-2">
               <h1 className="truncate text-balance text-[22px] font-semibold tracking-tight text-[var(--hub-fg)] sm:text-[28px]">
-                {alias}
+                {isMine ? "Your Profile" : alias}
               </h1>
+              {isMine ? (
+                <span className="truncate text-sm text-[var(--hub-muted)]">{alias}</span>
+              ) : null}
               <Badge tone={isMine ? "emerald" : "violet"}>
                 {isMine ? "Mine" : "Public"}
               </Badge>

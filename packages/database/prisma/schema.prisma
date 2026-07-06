@@ -408,6 +408,14 @@ model Market {
   takerFeeBps Int @default(0)
   makerFeeBps Int @default(0)
 
+  creatorAddress       String?
+  creatorRewardPercent Float   @default(0)
+  resolutionSource     String?
+  narrative            String?
+  attentionScore       Float?
+  convictionScore      Float?
+  momentum             String  @default("Stable")
+
   trades         Trade[]
   positions      Position[]
   activities     Activity[]
@@ -796,8 +804,20 @@ model AttentionScore {
   tvlGrowth           Decimal @default(0) @db.Decimal(12, 6)
   previousScore       Decimal? @db.Decimal(8, 4)
 
+  narrativeSlug   String   @default("")
+  narrativeName   String   @default("")
+  convictionScore Float  @default(0)
+  momentum        String @default("Stable")
+  volume24hUsd    Float  @default(0)
+  activeMarkets   Int    @default(0)
+  uniqueTraders   Int    @default(0)
+  liquidity       Float  @default(0)
+  openInterest    Float  @default(0)
+  scorePrev24h    Float  @default(0)
+
   rawSnapshot Json? @db.JsonB
 
+  @@index([narrativeSlug])
   @@index([score(sort: Desc)])
   @@index([updatedAt(sort: Desc)])
   @@map("attention_scores")
@@ -816,6 +836,12 @@ model MarketSuggestion {
 
   votesUp   Int @default(0)
   votesDown Int @default(0)
+
+  voteCount            Int      @default(0)
+  voterAddresses       String[]
+  creatorRewardPercent Float    @default(0)
+  feesEarned           Float    @default(0)
+  rejectionReason      String?
 
   submitterId String? @map("submitter_id") @db.Uuid
   submitter   User?   @relation("SuggestionSubmitter", fields: [submitterId], references: [id], onDelete: SetNull)
@@ -912,4 +938,12 @@ model MarketProbabilitySnapshot {
   updatedAt DateTime @updatedAt
 
   @@map("market_probability_snapshots")
+}
+
+model PlatformConfig {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String
+  updatedAt DateTime @updatedAt
+  updatedBy String   @default("system")
 }

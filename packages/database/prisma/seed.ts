@@ -484,6 +484,31 @@ async function main() {
     }
   }
 
+  // PlatformConfig defaults
+  const defaultConfigs = [
+    { key: 'attention_weight_volume',         value: '30' },
+    { key: 'attention_weight_liquidity',      value: '20' },
+    { key: 'attention_weight_markets',        value: '15' },
+    { key: 'attention_weight_traders',        value: '20' },
+    { key: 'attention_weight_engagement',     value: '15' },
+    { key: 'conviction_weight_capital',       value: '35' },
+    { key: 'conviction_weight_position_size', value: '25' },
+    { key: 'conviction_weight_liquidity',     value: '20' },
+    { key: 'conviction_weight_open_positions',value: '20' },
+    { key: 'creator_default_reward_percent',  value: '5'  },
+    { key: 'momentum_growing_threshold',      value: '5'  },
+    { key: 'momentum_cooling_threshold',      value: '-5' },
+  ]
+
+  for (const config of defaultConfigs) {
+    await prisma.platformConfig.upsert({
+      where:  { key: config.key },
+      update: {},
+      create: config,
+    })
+  }
+  console.log('Seeded PlatformConfig defaults')
+
   const count = await prisma.market.count({ where: { status: MarketStatus.OPEN } });
   console.log(`Seed complete: ${MARKETS.length} markets upserted; ${count} OPEN markets in DB.`);
 }

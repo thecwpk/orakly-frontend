@@ -30,6 +30,12 @@ const tiles: {
     icon: Trophy,
   },
   {
+    href: ROUTES.analytics,
+    title: "Analytics",
+    description: "Historical attention and market outcomes",
+    icon: BarChart3,
+  },
+  {
     href: ROUTES.wallet,
     title: "Wallet",
     description: "Connect and session security",

@@ -4,10 +4,14 @@ import { Dialog as DialogPrimitive } from "radix-ui";
 import { AnimatePresence, motion } from "framer-motion";
 import { Clock, X } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useAccount } from "wagmi";
 import { useChainMarketExecution } from "@/features/chain-trading/hooks/use-chain-market-execution";
+import { recordOnChainTrade } from "@/features/chain-trading/lib/record-on-chain-trade";
 import { collateralDecimals, outcomeShareDecimals } from "@/features/chain-trading/lib/chain-contract-env";
+import { queryKeys } from "@/shared/api/query-keys";
+import { applyFeedActivity } from "@/websocket/store/feed-store";
 import { parseUnits, type Address } from "viem";
 import { useTradeModalStore } from "../store/use-trade-modal-store";
 import {
@@ -33,6 +37,7 @@ function timeUntilClose(iso: string): string {
 }
 
 export function TradeModal() {
+  const queryClient = useQueryClient();
   const { address, isConnected } = useAccount();
   const { isOpen, market, initialOutcome, setOpen, close } = useTradeModalStore();
   const canExecuteTrade = isConnected && Boolean(address) && Boolean(market?.onChainAddress);
@@ -87,12 +92,45 @@ export function TradeModal() {
           amountWei,
         },
         {
-          onSuccess: (res) => {
+          onSuccess: async (res) => {
             setChainTxHash(res.txHash);
             setPhase("result");
             toast.success("On-chain trade confirmed", {
               description: `${draft.direction} ${draft.outcome} — tx ${res.txHash.slice(0, 10)}…`,
             });
+
+            if (!market?.tradeMarketId || !composed) return;
+
+            const recorded = await recordOnChainTrade({
+              marketId: market.tradeMarketId,
+              txHash: res.txHash,
+              outcome: draft.outcome,
+              direction: draft.direction,
+              price: String(composed.quote.execPrice),
+              quantity: String(composed.quote.quantity),
+              notionalUsd: String(composed.quote.notionalUsd),
+              feeUsd: String(composed.quote.feeUsd),
+            });
+
+            if (recorded) {
+              applyFeedActivity({
+                activityId: recorded.tradeId,
+                marketId: market.tradeMarketId,
+                activityType: "TRADE",
+                title: `${draft.direction} ${draft.outcome}`,
+                payload: {
+                  tradeId: recorded.tradeId,
+                  marketId: market.tradeMarketId,
+                  price: String(composed.quote.execPrice),
+                  quantity: String(composed.quote.quantity),
+                  notionalUsd: String(composed.quote.notionalUsd),
+                  outcome: draft.outcome,
+                  side: draft.direction,
+                },
+                at: Date.now(),
+              });
+              void queryClient.invalidateQueries({ queryKey: queryKeys.leaderboard.root() });
+            }
           },
           onError: (e) => {
             setError(e instanceof Error ? e.message : "Unknown error");
@@ -101,7 +139,7 @@ export function TradeModal() {
         },
       );
     },
-    [chainExec, composed, market?.onChainAddress],
+    [chainExec, composed, market, queryClient],
   );
 
   if (!market) return null;

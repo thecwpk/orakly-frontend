@@ -1,6 +1,15 @@
 "use client";
 
-import { Activity, ArrowRightLeft, BarChart3, Gavel, TrendingUp, Waves } from "lucide-react";
+import {
+  Activity,
+  ArrowRightLeft,
+  BarChart3,
+  Coins,
+  Gavel,
+  TrendingUp,
+  Trophy,
+  Waves,
+} from "lucide-react";
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNotificationsStore } from "@/features/notifications";
@@ -24,7 +33,153 @@ const WHALE_NOTIONAL_USD = 3_500;
 const FEED_CAP = 240;
 
 const HUB_LANE =
-  "hub-lane-panel flex min-h-0 flex-col overflow-hidden rounded-xl supports-[backdrop-filter]:backdrop-blur-sm";
+  "act-lane-panel flex min-h-0 flex-col overflow-hidden rounded-xl supports-[backdrop-filter]:backdrop-blur-sm";
+
+function fmtUsdCompact(n: number): string {
+  if (!Number.isFinite(n) || n <= 0) return "$0";
+  if (n >= 1_000_000) return `$${(n / 1_000_000).toFixed(2)}M`;
+  if (n >= 10_000) return `$${(n / 1_000).toFixed(0)}K`;
+  if (n >= 1_000) return `$${(n / 1_000).toFixed(1)}K`;
+  return `$${Math.round(n).toLocaleString()}`;
+}
+
+function LaneHeader({
+  kicker,
+  title,
+  icon: Icon,
+  tone = "primary",
+  count,
+  primary,
+  live,
+}: {
+  kicker: string;
+  title: string;
+  icon: typeof Waves;
+  tone?: "primary" | "amber";
+  count?: number;
+  primary?: boolean;
+  live?: boolean;
+}) {
+  const chip =
+    tone === "amber"
+      ? "bg-amber-500/10 text-amber-200 ring-amber-400/25"
+      : "bg-[var(--hub-primary-soft)] text-[var(--hub-primary-bright)] ring-[var(--hub-border)]";
+  return (
+    <header
+      className={cn(
+        "flex items-center gap-2 border-b border-[var(--hub-border)]",
+        primary ? "px-3 py-2.5 sm:px-4" : "px-2.5 py-2",
+      )}
+    >
+      <span
+        className={cn(
+          "inline-flex shrink-0 items-center justify-center rounded-lg ring-1",
+          chip,
+          primary ? "h-8 w-8" : "h-6 w-6",
+        )}
+      >
+        <Icon className={primary ? "h-4 w-4" : "h-3 w-3"} aria-hidden />
+      </span>
+      <div className="min-w-0 leading-tight">
+        <p
+          className={cn(
+            "font-bold uppercase tracking-[0.2em] text-[var(--hub-muted)]",
+            primary ? "text-[10px]" : "text-[9px]",
+          )}
+        >
+          {kicker}
+        </p>
+        <p className={cn("font-semibold text-[var(--hub-fg)]", primary ? "text-sm" : "text-[12px]")}>
+          {title}
+        </p>
+      </div>
+      <div className="ml-auto flex shrink-0 items-center gap-2">
+        {live ? (
+          <span className="inline-flex items-center gap-1.5">
+            <span className="act-live-dot" aria-hidden />
+            <span className="font-mono text-[9px] uppercase tracking-wider text-[var(--hub-muted)]">
+              live
+            </span>
+          </span>
+        ) : null}
+        {typeof count === "number" && count > 0 ? (
+          <span className="act-count-badge" aria-label={`${count} items`}>
+            {count > 999 ? "999+" : count}
+          </span>
+        ) : null}
+      </div>
+    </header>
+  );
+}
+
+function LaneEmpty({
+  icon: Icon,
+  hint,
+  primary,
+}: {
+  icon: typeof Waves;
+  hint: string;
+  primary?: boolean;
+}) {
+  return (
+    <div className="flex flex-col items-center justify-center gap-2.5 px-4 py-8 text-center">
+      <span className="act-empty-ring" aria-hidden>
+        <Icon className="h-4 w-4" />
+      </span>
+      <p
+        className={cn(
+          "max-w-[24ch] leading-snug text-[var(--hub-muted)]",
+          primary ? "text-[12px]" : "text-[11px]",
+        )}
+      >
+        {hint}
+      </p>
+    </div>
+  );
+}
+
+function KpiCard({
+  icon: Icon,
+  label,
+  value,
+  accent,
+}: {
+  icon: typeof Waves;
+  label: string;
+  value: string;
+  accent?: "success" | "amber";
+}) {
+  const valueTone =
+    accent === "success"
+      ? "text-[var(--hub-success)]"
+      : accent === "amber"
+        ? "text-amber-200"
+        : "text-[var(--hub-primary-bright)]";
+  return (
+    <div className="act-kpi flex items-center gap-3 px-3 py-2.5 sm:px-3.5 sm:py-3">
+      <span
+        className={cn(
+          "inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ring-1 ring-[var(--hub-border)]",
+          accent === "amber"
+            ? "bg-amber-500/10 text-amber-200"
+            : accent === "success"
+              ? "bg-[var(--hub-success-bg)] text-[var(--hub-success)]"
+              : "bg-[var(--hub-primary-soft)] text-[var(--hub-primary-bright)]",
+        )}
+      >
+        <Icon className="h-4 w-4" aria-hidden />
+      </span>
+      <div className="min-w-0 leading-tight">
+        <p className={cn("font-mono text-[15px] font-bold tabular-nums sm:text-base", valueTone)}>
+          {value}
+        </p>
+        <p className="mt-0.5 text-[9.5px] font-semibold uppercase tracking-[0.12em] text-[var(--hub-muted)]">
+          {label}
+        </p>
+      </div>
+    </div>
+  );
+}
 
 const STATUS_FALLBACK = {
   dot: "bg-[var(--hub-muted)]",
@@ -74,65 +229,24 @@ function TapeLane({
   primary?: boolean;
 }) {
   return (
-    <section
-      className={cn(
-        HUB_LANE,
-        primary && "ring-[var(--hub-border-strong)]",
-      )}
-    >
-      <div
-        aria-hidden
-        className={cn(
-          "pointer-events-none h-px",
-          primary
-            ? "bg-gradient-to-r from-transparent via-[var(--hub-primary)]/35 to-transparent"
-            : "bg-[var(--hub-border)]",
-        )}
+    <section className={cn(HUB_LANE, primary && "act-lane-panel--primary")}>
+      <LaneHeader
+        kicker={kicker}
+        title={title}
+        icon={Icon}
+        count={rows.length}
+        primary={primary}
+        live={primary}
       />
-      <header
-        className={cn(
-          "flex items-start gap-2 border-b border-[var(--hub-border)]",
-          primary ? "px-3 py-2 sm:px-3.5" : "px-2.5 py-1.5",
-        )}
-      >
-        <span
-          className={cn(
-            "mt-px inline-flex shrink-0 items-center justify-center rounded-md bg-[var(--hub-primary-soft)] text-[var(--hub-primary-bright)] ring-1 ring-[var(--hub-border)]",
-            primary ? "h-8 w-8" : "h-6 w-6",
-          )}
-        >
-          <Icon className={primary ? "h-4 w-4" : "h-3 w-3"} aria-hidden />
-        </span>
-        <div className="min-w-0 leading-tight">
-          <p
-            className={cn(
-              "font-bold uppercase tracking-[0.18em] text-[var(--hub-muted)]",
-              primary ? "text-[10px]" : "text-[9px]",
-            )}
-          >
-            {kicker}
-          </p>
-          <p className={cn("font-semibold text-[var(--hub-fg)]", primary ? "text-sm" : "text-[12px]")}>
-            {title}
-          </p>
-        </div>
-      </header>
       <div
         className={cn(
-          "min-h-[120px] flex-1 overflow-y-auto overscroll-contain",
+          "act-lane-scroll min-h-[120px] flex-1 overflow-y-auto overscroll-contain",
           scrollClassName ??
             (primary ? "max-h-[min(62vh,580px)]" : "max-h-[min(30vh,280px)]"),
         )}
       >
         {rows.length === 0 ? (
-          <p
-            className={cn(
-              "px-3 py-5 text-center leading-snug text-[var(--hub-muted)]",
-              primary ? "text-[12px]" : "text-[11px]",
-            )}
-          >
-            {emptyHint}
-          </p>
+          <LaneEmpty icon={Icon} hint={emptyHint} primary={primary} />
         ) : (
           <div className="divide-y divide-[var(--hub-border)]">
             {rows.map((row) => (
@@ -159,33 +273,25 @@ function TrendingLane({
 }) {
   return (
     <section className={HUB_LANE}>
-      <div aria-hidden className="pointer-events-none h-px bg-[var(--hub-border)]" />
-      <header className="flex items-start gap-2 border-b border-[var(--hub-border)] px-2.5 py-1.5">
-        <span className="mt-px inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-[var(--hub-primary-soft)] text-[var(--hub-primary-bright)] ring-1 ring-[var(--hub-border)]">
-          <TrendingUp className="h-3 w-3" aria-hidden />
-        </span>
-        <div className="min-w-0 leading-tight">
-          <p className="text-[9px] font-bold uppercase tracking-[0.18em] text-[var(--hub-muted)]">Heat</p>
-          <p className="text-[12px] font-semibold text-[var(--hub-fg)]">Trending markets</p>
-        </div>
-      </header>
-      <div className="max-h-[min(30vh,280px)] min-h-[80px] overflow-y-auto overscroll-contain">
+      <LaneHeader kicker="Heat" title="Trending markets" icon={TrendingUp} count={items.length} />
+      <div className="act-lane-scroll max-h-[min(30vh,280px)] min-h-[80px] overflow-y-auto overscroll-contain">
         {items.length === 0 ? (
-          <p className="px-3 py-4 text-center text-[11px] text-[var(--hub-muted)]">
-            Flow will rank markets by recent fill count.
-          </p>
+          <LaneEmpty icon={TrendingUp} hint="Flow will rank markets by recent fill count." />
         ) : (
           <ul className="divide-y divide-[var(--hub-border)]">
-            {items.map((it) => (
+            {items.map((it, i) => (
               <li key={it.slug}>
                 <Link
                   href={ROUTES.market(it.slug)}
-                  className="flex items-center gap-2 px-2.5 py-1 transition-colors hover:bg-[var(--hub-bg-subtle)]"
+                  className="group flex items-center gap-2.5 px-2.5 py-1.5 transition-colors hover:bg-[var(--hub-bg-subtle)]"
                 >
-                  <span className="min-w-0 flex-1 truncate text-[11px] font-medium leading-tight text-[var(--hub-fg)]">
+                  <span className="w-4 shrink-0 text-center font-mono text-[10px] font-bold tabular-nums text-[var(--hub-muted)]">
+                    {i + 1}
+                  </span>
+                  <span className="min-w-0 flex-1 truncate text-[11px] font-medium leading-tight text-[var(--hub-fg)] group-hover:text-[var(--hub-primary-bright)]">
                     {it.title}
                   </span>
-                  <span className="shrink-0 rounded bg-[var(--hub-bg-subtle)] px-1 py-px font-mono text-[9px] tabular-nums text-[var(--hub-primary-bright)] ring-1 ring-[var(--hub-border)]">
+                  <span className="shrink-0 rounded-md bg-[var(--hub-primary-soft)] px-1.5 py-px font-mono text-[9px] font-semibold tabular-nums text-[var(--hub-primary-bright)] ring-1 ring-[var(--hub-border)]">
                     {it.count} fills
                   </span>
                 </Link>
@@ -214,21 +320,16 @@ function MovementsLane({
 }) {
   return (
     <section className={HUB_LANE}>
-      <div aria-hidden className="pointer-events-none h-px bg-[var(--hub-bg-subtle)]" />
-      <header className="flex items-start gap-2 border-b border-[var(--hub-border)] px-2.5 py-1.5">
-        <span className="mt-px inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-amber-500/10 text-amber-200 ring-1 ring-amber-400/25">
-          <BarChart3 className="h-3 w-3" aria-hidden />
-        </span>
-        <div className="min-w-0 leading-tight">
-          <p className="text-[9px] font-bold uppercase tracking-[0.18em] text-[var(--hub-muted)]">Tape vs mid</p>
-          <p className="text-[12px] font-semibold text-[var(--hub-fg)]">Market movers</p>
-        </div>
-      </header>
-      <div className="max-h-[min(30vh,280px)] min-h-[80px] overflow-y-auto overscroll-contain">
+      <LaneHeader
+        kicker="Tape vs mid"
+        title="Market movers"
+        icon={BarChart3}
+        tone="amber"
+        count={rows.length}
+      />
+      <div className="act-lane-scroll max-h-[min(30vh,280px)] min-h-[80px] overflow-y-auto overscroll-contain">
         {rows.length === 0 ? (
-          <p className="px-3 py-4 text-center text-[11px] text-[var(--hub-muted)]">
-            Prints vs feed mid appear as trades cross active books.
-          </p>
+          <LaneEmpty icon={BarChart3} hint="Prints vs feed mid appear as trades cross active books." />
         ) : (
           <ul className="divide-y divide-[var(--hub-border)]">
             {rows.map((r) => {
@@ -367,6 +468,23 @@ export function ActivityHubPage() {
 
   const liveTape = useMemo(() => tradesSorted.slice(0, 42), [tradesSorted]);
 
+  const kpis = useMemo(() => {
+    let volume = 0;
+    const activeMarkets = new Set<string>();
+    for (const t of tradesSorted) {
+      if (Number.isFinite(t.notionalUsd)) volume += t.notionalUsd;
+      if (t.market?.slug) activeMarkets.add(t.market.slug);
+    }
+    const fills = tradesSorted.length;
+    return {
+      volume,
+      fills,
+      whaleCount: whales.length,
+      activeMarkets: activeMarkets.size,
+      avgSize: fills > 0 ? volume / fills : 0,
+    };
+  }, [tradesSorted, whales.length]);
+
   const headTradeId = liveTape[0]?.kind === "trade" ? liveTape[0].id : null;
   const skipMountPulseRef = useRef(true);
   const [pulseTradeId, setPulseTradeId] = useState<string | null>(null);
@@ -382,20 +500,35 @@ export function ActivityHubPage() {
     return () => window.clearTimeout(id);
   }, [headTradeId]);
 
-  const status = STATUS_TONE[connectionStatus] ?? STATUS_FALLBACK;
+  const status = useMemo((): { dot: string; label: string } => {
+    if (connectionStatus === "connected") {
+      return STATUS_TONE.connected ?? STATUS_FALLBACK;
+    }
+    if (connectionStatus === "disconnected" && liveFeed.length > 0) {
+      return {
+        dot: "bg-sky-400 shadow-[0_0_10px_2px_rgba(56,189,248,0.45)]",
+        label: "REST",
+      };
+    }
+    return STATUS_TONE[connectionStatus] ?? STATUS_FALLBACK;
+  }, [connectionStatus, liveFeed.length]);
 
   return (
-    <main className="mx-auto max-w-[1400px] space-y-app-section pb-s48 pt-r24 sm:pb-s64 sm:pt-s40">
-      <header className="flex flex-wrap items-center justify-between gap-r16">
+    <main className="mx-auto max-w-[1400px] space-y-r24 pb-s48 pt-r24 sm:pb-s64 sm:pt-s40">
+      <header className="flex flex-wrap items-end justify-between gap-r16">
         <div className="min-w-0">
-          <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-[var(--hub-bg-subtle)] px-2 py-0.5 ring-1 ring-[var(--hub-border)]">
+          <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1.5">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-[var(--hub-bg-subtle)] px-2.5 py-1 ring-1 ring-[var(--hub-border)]">
               <span className={cn("h-1.5 w-1.5 rounded-full", status.dot)} />
-              <span className="font-mono text-[10px] text-[var(--hub-muted)]">{status.label}</span>
+              <span className="font-mono text-[10px] font-medium uppercase tracking-wider text-[var(--hub-muted)]">
+                {status.label}
+              </span>
             </span>
-            <h1 className="text-lg font-semibold tracking-tight text-[var(--hub-fg)] sm:text-xl">Activity</h1>
+            <h1 className="act-title-gradient text-2xl font-bold tracking-tight sm:text-3xl">
+              Activity
+            </h1>
           </div>
-          <p className="mt-1 flex flex-wrap gap-x-2 gap-y-0 font-mono text-[10px] text-[var(--hub-muted)]">
+          <p className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-0 font-mono text-[10px] text-[var(--hub-muted)]">
             <span className="inline-flex items-center gap-1">
               <ArrowRightLeft className="h-3 w-3 text-[var(--hub-muted)]" aria-hidden />
               live tape
@@ -412,12 +545,26 @@ export function ActivityHubPage() {
         </div>
         <Link
           href={ROUTES.leaderboard}
-          className="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-[var(--hub-bg-subtle)] px-3 py-2 text-[12px] font-medium text-[var(--hub-fg)] ring-1 ring-[var(--hub-border)] transition hover:bg-[var(--hub-card-hover)]"
+          className="group inline-flex shrink-0 items-center gap-2 rounded-lg bg-[var(--hub-primary)] px-3.5 py-2.5 text-[12px] font-semibold text-white shadow-[0_6px_18px_rgba(59,130,246,0.35)] ring-1 ring-white/10 transition hover:brightness-[1.06] active:scale-[0.98]"
         >
-          <Activity className="h-3.5 w-3.5" aria-hidden />
+          <Trophy className="h-3.5 w-3.5" aria-hidden />
           Leaderboard
+          <span className="text-white/70 transition group-hover:translate-x-0.5">→</span>
         </Link>
       </header>
+
+      <section className="grid grid-cols-2 gap-r16 sm:grid-cols-3 lg:grid-cols-5">
+        <KpiCard icon={Coins} label="24h Volume" value={fmtUsdCompact(kpis.volume)} />
+        <KpiCard icon={Activity} label="Fills" value={kpis.fills.toLocaleString()} />
+        <KpiCard icon={Waves} label="Whale prints" value={kpis.whaleCount.toLocaleString()} accent="amber" />
+        <KpiCard icon={TrendingUp} label="Active markets" value={kpis.activeMarkets.toLocaleString()} />
+        <KpiCard
+          icon={BarChart3}
+          label="Avg trade"
+          value={fmtUsdCompact(kpis.avgSize)}
+          accent="success"
+        />
+      </section>
 
       <div className="grid gap-r16 lg:grid-cols-[minmax(0,1.45fr)_minmax(300px,0.82fr)] lg:gap-r24">
         <div className="min-h-0 space-y-r16">

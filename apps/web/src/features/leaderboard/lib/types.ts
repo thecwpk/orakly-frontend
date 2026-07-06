@@ -2,6 +2,8 @@ export type LeaderboardWindow = "24h" | "7d" | "30d" | "all";
 
 export type LeaderboardSortKey = "pnl" | "roi" | "volume" | "winRate";
 
+export type LeaderboardMetricTab = "traders" | "winRate" | "pnl" | "creators";
+
 export type Trader = {
   /** Stable identifier (wallet address). */
   address: string;
@@ -17,6 +19,9 @@ export type Trader = {
   roiPct: number;
   /** Number of trades in the window. */
   trades: number;
+  tradeCount: number;
+  bestTradeUsd: number;
+  marketsTraded: number;
   /** 24h delta (in % of equity) — small + signed. */
   delta24h: number;
   /** Current win streak in trades, e.g. `7`. */

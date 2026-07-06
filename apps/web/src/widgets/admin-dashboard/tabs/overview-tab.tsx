@@ -10,10 +10,12 @@ import {
   Loader2,
   RefreshCw,
   Repeat,
+  Settings2,
   ShieldAlert,
   TrendingUp,
   Users,
 } from "lucide-react";
+import Link from "next/link";
 import { useMemo } from "react";
 import {
   Area,
@@ -35,6 +37,7 @@ import { Section, TabShell } from "../components/tab-shell";
 import { StatCard } from "../components/stat-card";
 import { EmptyState } from "../components/empty-state";
 import { adminUi } from "../lib/admin-ui-classes";
+import { ROUTES } from "@/shared/constants/routes";
 
 const STATUS_TONE: Record<string, { ring: string; bg: string; text: string }> = {
   OPEN: { ring: "ring-emerald-400/30", bg: "bg-emerald-500/10", text: "text-emerald-200" },
@@ -49,8 +52,10 @@ const FALLBACK_TONE = STATUS_TONE.OPEN!;
 
 export function AdminOverviewTab({
   permissions,
+  role,
 }: {
   permissions: ReadonlyArray<string>;
+  role?: string;
 }) {
   const overviewQ = useAdminOverviewQuery(true);
   const revenueQ = useAdminRevenueQuery(45, true);
@@ -85,12 +90,19 @@ export function AdminOverviewTab({
       title="Operator overview"
       description="Real-time platform health, fee revenue, and moderation queue. Auto-refreshes every 30s."
       actions={
-        <button
-          type="button"
-          onClick={refresh}
-          disabled={overviewQ.isFetching || revenueQ.isFetching}
-          className={adminUi.btnGhost}
-        >
+        <div className="flex flex-wrap items-center gap-2">
+          {role === "ADMIN" ? (
+            <Link href={ROUTES.adminConfig} className={adminUi.btnGhost}>
+              <Settings2 className="h-3.5 w-3.5" />
+              Metrics config
+            </Link>
+          ) : null}
+          <button
+            type="button"
+            onClick={refresh}
+            disabled={overviewQ.isFetching || revenueQ.isFetching}
+            className={adminUi.btnGhost}
+          >
           <RefreshCw
             className={cn(
               "h-3.5 w-3.5",
@@ -99,6 +111,7 @@ export function AdminOverviewTab({
           />
           Refresh
         </button>
+        </div>
       }
     >
       {overviewQ.isError ? (

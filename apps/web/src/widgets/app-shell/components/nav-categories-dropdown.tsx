@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronDown, Layers } from "lucide-react";
+import { ChevronDown, Layers, Users } from "lucide-react";
 import { PrefetchLink } from "@/shared/ui";
 import {
   DropdownMenu,
@@ -56,6 +56,15 @@ export function NavCategoriesDropdown({ className }: { className?: string }) {
           </DropdownMenuItem>
         ))}
         <DropdownMenuSeparator />
+        <DropdownMenuItem asChild>
+          <PrefetchLink
+            href={ROUTES.marketsCommunity}
+            className="flex cursor-pointer items-center gap-2 py-1.5 font-mono text-[10px] uppercase tracking-wide text-zinc-400"
+          >
+            <Users className="h-3.5 w-3.5 text-cyan-400/85" aria-hidden />
+            Community markets
+          </PrefetchLink>
+        </DropdownMenuItem>
         <DropdownMenuItem asChild>
           <PrefetchLink href={ROUTES.marketsBrowse} className="cursor-pointer font-mono text-[10px] uppercase tracking-wide text-zinc-400">
             Full explorer

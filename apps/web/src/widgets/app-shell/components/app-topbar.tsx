@@ -11,20 +11,22 @@ import { NotificationBell } from "./notification-popover";
 import { UserMenu } from "./user-menu";
 import { WalletPopover } from "./wallet-popover";
 import { useNavShortcuts } from "../lib/use-nav-shortcuts";
-import { isHubHomeActive, isAttentionAnchorActive } from "../lib/nav-config";
+import { isHubHomeActive, isAttentionAnchorActive, isAnalyticsActive, isNarrativeWarsActive } from "../lib/nav-config";
 
 export type AppTopbarDensity = "default" | "hub";
 
 type TopNavItem = {
   href: string;
   label: string;
-  kind: "home" | "markets" | "attention" | "portfolio";
+  kind: "home" | "markets" | "attention" | "analytics" | "portfolio" | "narrativeWars";
 };
 
 const TOP_NAV: TopNavItem[] = [
   { href: ROUTES.dapp, label: "Home", kind: "home" },
   { href: ROUTES.marketsBrowse, label: "Market", kind: "markets" },
   { href: ROUTES.attention, label: "Attention", kind: "attention" },
+  { href: ROUTES.analytics, label: "Analytics", kind: "analytics" },
+  { href: ROUTES.narrativeWars, label: "Narrative Wars", kind: "narrativeWars" },
   { href: ROUTES.portfolio, label: "Portfolio", kind: "portfolio" },
 ];
 
@@ -83,6 +85,10 @@ export function AppTopbar({ density = "default" }: { density?: AppTopbarDensity 
                 active = isHubHomeActive(pathname) && !isAttentionAnchorActive(pathname);
               } else if (item.kind === "attention") {
                 active = isAttentionAnchorActive(pathname);
+              } else if (item.kind === "analytics") {
+                active = isAnalyticsActive(pathname);
+              } else if (item.kind === "narrativeWars") {
+                active = isNarrativeWarsActive(pathname);
               } else if (item.kind === "markets") {
                 active =
                   pathname === "/markets" ||

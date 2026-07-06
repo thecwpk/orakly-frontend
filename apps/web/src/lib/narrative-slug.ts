@@ -1,0 +1,9 @@
+/** Display name from URL slug — hyphens to spaces, title-cased words. */
+export function slugToDisplayName(slug: string): string {
+  return slug
+    .trim()
+    .split("-")
+    .filter(Boolean)
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(" ");
+}

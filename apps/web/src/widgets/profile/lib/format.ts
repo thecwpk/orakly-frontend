@@ -22,12 +22,12 @@ export function signedPct(n: number, digits = 1): string {
   return `${n > 0 ? "+" : n < 0 ? "−" : ""}${Math.abs(n).toFixed(digits)}%`;
 }
 
-/** `0xab12…7e4f` truncation, preserves pre-truncated samples. */
+/** `0xab12...7e4f` truncation for public profiles. */
 export function shortAddress(addr: string): string {
   if (!addr) return "—";
   if (addr.length <= 12) return addr;
-  if (addr.includes("…")) return addr;
-  return `${addr.slice(0, 6)}…${addr.slice(-4)}`;
+  if (addr.includes("…") || addr.includes("...")) return addr;
+  return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
 }
 
 /** Compact "time ago" formatter. */

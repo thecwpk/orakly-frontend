@@ -3,12 +3,16 @@
 import { AnimatePresence, motion } from "framer-motion";
 import {
   Activity,
+  BarChart3,
+  Brain,
   Briefcase,
   LayoutGrid,
   Plus,
   Settings,
   Star,
+  Swords,
   Trophy,
+  Users,
   Wallet,
   type LucideIcon,
 } from "lucide-react";
@@ -114,6 +118,12 @@ export function MobileMoreSheet() {
                   label="Markets"
                 />
                 <SheetRow
+                  href={ROUTES.marketsCommunity}
+                  onNavigate={close}
+                  icon={Users}
+                  label="Community"
+                />
+                <SheetRow
                   href={ROUTES.watchlist}
                   onNavigate={close}
                   icon={Star}
@@ -144,16 +154,40 @@ export function MobileMoreSheet() {
                   label="Create market"
                 />
                 <SheetRow
+                  href={ROUTES.settings}
+                  onNavigate={close}
+                  icon={Settings}
+                  label="Settings"
+                />
+              </div>
+
+              <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-zinc-500">
+                Discover
+              </p>
+              <div className="space-y-2">
+                <SheetRow
+                  href={ROUTES.attention}
+                  onNavigate={close}
+                  icon={Brain}
+                  label="Attention"
+                />
+                <SheetRow
+                  href={ROUTES.narrativeWars}
+                  onNavigate={close}
+                  icon={Swords}
+                  label="Narrative Wars"
+                />
+                <SheetRow
                   href={ROUTES.leaderboard}
                   onNavigate={close}
                   icon={Trophy}
                   label="Leaderboard"
                 />
                 <SheetRow
-                  href={ROUTES.settings}
+                  href={ROUTES.analytics}
                   onNavigate={close}
-                  icon={Settings}
-                  label="Settings"
+                  icon={BarChart3}
+                  label="Analytics"
                 />
               </div>
 

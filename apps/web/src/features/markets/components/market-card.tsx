@@ -232,6 +232,11 @@ function MarketCardImpl({
   const noPct = 100 - yesPct;
   const volumeUsd = market.volumeUsd ?? 0;
   const liquidityUsd = market.liquidityUsd ?? 0;
+  const creatorAddress = market.creatorAddress?.trim() || null;
+  const attentionScore =
+    market.attentionScore != null && Number.isFinite(market.attentionScore)
+      ? market.attentionScore
+      : null;
   const volRatio =
     volumeMax && volumeMax > 0
       ? Math.min(1, volumeUsd / volumeMax)
@@ -569,6 +574,24 @@ function MarketCardImpl({
             >
               <h3 className={titleClass}>{market.title}</h3>
             </Link>
+
+            {creatorAddress || attentionScore != null ? (
+              <div className="relative mt-2 flex flex-wrap items-center gap-2">
+                {creatorAddress ? (
+                  <span
+                    className="font-mono text-[9px] tabular-nums text-[var(--hub-muted)]"
+                    title={creatorAddress}
+                  >
+                    {creatorAddress.slice(0, 6)}…{creatorAddress.slice(-4)}
+                  </span>
+                ) : null}
+                {attentionScore != null ? (
+                  <span className="inline-flex items-center rounded-full bg-blue-500/15 px-2 py-0.5 text-[9px] font-semibold text-blue-300 ring-1 ring-blue-400/25">
+                    Attention {Math.round(attentionScore)}
+                  </span>
+                ) : null}
+              </div>
+            ) : null}
 
             {/* SECONDARY: YES / NO */}
             <div className={cn("relative mt-2.5", !isCompact && "mt-3")}>

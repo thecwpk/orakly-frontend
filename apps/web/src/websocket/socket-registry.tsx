@@ -20,6 +20,7 @@ import {
 } from "@orakly/realtime-protocol";
 import { resolvePublicRealtimeUrl } from "@/lib/realtime-public-env";
 import { createMarketSocket } from "./client/create-socket";
+import { useActivityFeedHttpSync } from "./hooks/useActivityFeedHttpSync";
 import { applyFeedActivity } from "./store/feed-store";
 import {
   applyMarketMeta,
@@ -191,7 +192,21 @@ export function SocketRegistryProvider({
     [subscribeMarket, subscribeUserPortfolio, connectionStatus],
   );
 
-  return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
+  return (
+    <Ctx.Provider value={value}>
+      <ActivityFeedHttpSyncBridge connectionStatus={connectionStatus} />
+      {children}
+    </Ctx.Provider>
+  );
+}
+
+function ActivityFeedHttpSyncBridge({
+  connectionStatus,
+}: {
+  connectionStatus: ConnectionStatus;
+}) {
+  useActivityFeedHttpSync(connectionStatus);
+  return null;
 }
 
 export function useSocketRegistry(): Registry {

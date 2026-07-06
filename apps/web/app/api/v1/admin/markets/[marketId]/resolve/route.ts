@@ -9,6 +9,8 @@ import { requireAdminPermission } from "@/server/admin/admin-session";
 import { writeAdminAudit } from "@/server/admin/audit";
 import { ok } from "../../../../_lib/response";
 import { adminJsonError } from "../../../_lib/admin-http";
+import { triggerMetricsRefresh } from "@/server/analytics/trigger-refresh";
+import { prisma } from "@orakly/database";
 
 const bodySchema = z.object({
   outcome: z.enum(["YES", "NO"]),
@@ -56,6 +58,19 @@ export async function POST(req: NextRequest, ctx: RouteCtx) {
     });
 
     revalidateTag("markets-feed");
+
+    void prisma.market
+      .findUnique({
+        where: { id: marketId },
+        select: { narrative: true },
+      })
+      .then((market) => {
+        void triggerMetricsRefresh({
+          marketId,
+          narrativeSlug: market?.narrative ?? undefined,
+          event: "resolve",
+        });
+      });
 
     return NextResponse.json(ok(snapshot));
   } catch (e) {

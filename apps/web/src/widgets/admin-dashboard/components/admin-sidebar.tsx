@@ -6,15 +6,17 @@ import { memo } from "react";
 import { ROUTES } from "@/shared/constants/routes";
 import { PrefetchLink } from "@/shared/ui";
 import { cn } from "@/lib/utils";
-import type { AdminTabConfig, AdminTabId } from "../lib/permissions";
+import type { AdminTabConfig, AdminTabId, AdminSidebarLink } from "../lib/permissions";
 
 export type AdminSidebarProps = {
   tabs: ReadonlyArray<AdminTabConfig>;
-  active: AdminTabId;
+  active: AdminTabId | null;
   onSelect: (id: AdminTabId) => void;
   email: string | null;
   role: string;
   onSignOut: () => void;
+  externalLinks?: ReadonlyArray<AdminSidebarLink>;
+  pathname?: string | null;
   className?: string;
 };
 
@@ -25,6 +27,8 @@ function AdminSidebarInner({
   email,
   role,
   onSignOut,
+  externalLinks = [],
+  pathname,
   className,
 }: AdminSidebarProps) {
   return (
@@ -56,7 +60,7 @@ function AdminSidebarInner({
         <ul className="space-y-0.5">
           {tabs.map((tab) => {
             const Icon = tab.icon;
-            const isActive = tab.id === active;
+            const isActive = active != null && tab.id === active;
             return (
               <li key={tab.id}>
                 <button
@@ -101,6 +105,61 @@ function AdminSidebarInner({
             );
           })}
         </ul>
+
+        {externalLinks.length > 0 ? (
+          <>
+            <p className="mb-1.5 mt-4 px-2.5 text-[9px] font-bold uppercase tracking-[0.18em] text-[var(--hub-muted)]">
+              Configuration
+            </p>
+            <ul className="space-y-0.5">
+              {externalLinks.map((link) => {
+                const Icon = link.icon;
+                const isActive = pathname === link.href || pathname?.startsWith(`${link.href}/`);
+                return (
+                  <li key={link.href}>
+                    <PrefetchLink
+                      href={link.href}
+                      aria-current={isActive ? "page" : undefined}
+                      className={cn(
+                        "group flex w-full items-center gap-2.5 rounded-xl px-2.5 py-2 text-left transition",
+                        isActive
+                          ? "bg-[var(--hub-primary-soft)] text-[var(--hub-fg)] ring-1 ring-[var(--hub-border-strong)]"
+                          : "text-[var(--hub-muted)] hover:bg-[var(--hub-bg-subtle)]/80 hover:text-[var(--hub-fg)]",
+                      )}
+                    >
+                      <span
+                        className={cn(
+                          "flex h-7 w-7 shrink-0 items-center justify-center rounded-md ring-1",
+                          isActive
+                            ? "bg-[var(--hub-primary-soft)] text-[var(--hub-primary-bright)] ring-[var(--hub-border-strong)]"
+                            : "bg-[var(--hub-bg-subtle)]/60 text-[var(--hub-muted)] ring-[var(--hub-border)] group-hover:text-[var(--hub-fg)]",
+                        )}
+                      >
+                        <Icon className="h-3.5 w-3.5" />
+                      </span>
+                      <span className="min-w-0 flex-1">
+                        <span className="block text-[12.5px] font-semibold leading-tight">
+                          {link.label}
+                        </span>
+                        <span className="mt-0.5 block truncate text-[10px] text-[var(--hub-muted)]">
+                          {link.description}
+                        </span>
+                      </span>
+                      {isActive ? (
+                        <motion.span
+                          layoutId="admin-sidebar-link-active"
+                          aria-hidden
+                          className="h-5 w-0.5 rounded-full bg-[var(--hub-primary-bright)]"
+                          transition={{ type: "spring", stiffness: 460, damping: 32 }}
+                        />
+                      ) : null}
+                    </PrefetchLink>
+                  </li>
+                );
+              })}
+            </ul>
+          </>
+        ) : null}
       </nav>
 
       <footer className="space-y-2 border-t border-[var(--hub-border)] px-3 py-3 text-[11px]">

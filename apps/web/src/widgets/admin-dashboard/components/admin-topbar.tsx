@@ -8,10 +8,12 @@ import type { AdminTabConfig } from "../lib/permissions";
 export type AdminTopbarProps = {
   active: AdminTabConfig | null;
   onOpenDrawer: () => void;
+  /** Shown on mobile when no in-page tab is active (standalone admin routes). */
+  sectionLabel?: string;
 };
 
 /** Mobile-only section header below the global AppTopbar. */
-function AdminTopbarInner({ active, onOpenDrawer }: AdminTopbarProps) {
+function AdminTopbarInner({ active, sectionLabel, onOpenDrawer }: AdminTopbarProps) {
   return (
     <header
       className={cn(
@@ -34,7 +36,7 @@ function AdminTopbarInner({ active, onOpenDrawer }: AdminTopbarProps) {
             Admin
           </p>
           <p className="text-[13px] font-semibold tracking-tight text-[var(--hub-fg)]">
-            {active?.label ?? "Console"}
+            {active?.label ?? sectionLabel ?? "Console"}
           </p>
         </div>
       </div>

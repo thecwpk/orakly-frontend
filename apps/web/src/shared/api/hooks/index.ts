@@ -36,6 +36,7 @@ export { useMarketProbabilityQuery } from "./useMarketProbabilityQuery";
 export { useMarketTradesQuery } from "./useMarketTradesQuery";
 export { useMarketVolumeWindowQuery } from "./useMarketVolumeWindowQuery";
 export { useMarketQuoteDebouncedQuery } from "./useMarketQuoteDebouncedQuery";
+export { useCreatorStatsQuery } from "./useCreatorStatsQuery";
 
 /* ---------------------------------------------------------------- */
 /* Mutations                                                          */

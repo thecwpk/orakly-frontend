@@ -12,6 +12,7 @@ import {
 import { writeAdminAudit } from "@/server/admin/audit";
 import { ok } from "../../_lib/response";
 import { adminJsonError } from "../_lib/admin-http";
+import { triggerMetricsRefresh } from "@/server/analytics/trigger-refresh";
 
 const createSchema = z.object({
   title: z.string().min(4).max(512),
@@ -113,6 +114,12 @@ export async function POST(req: NextRequest) {
     });
 
     revalidateTag("markets-feed");
+
+    void triggerMetricsRefresh({
+      marketId: market.id,
+      narrativeSlug: parsed.data.narrative ?? undefined,
+      event: "create",
+    });
 
     return NextResponse.json(ok(market));
   } catch (e) {

@@ -2,11 +2,13 @@ import {
   BarChart3,
   FolderTree,
   LayoutDashboard,
+  Settings2,
   ShieldAlert,
   Store,
   Users,
   type LucideIcon,
 } from "lucide-react";
+import { ROUTES } from "@/shared/constants/routes";
 
 /**
  * Mirrors `AdminPermission` on the server. Keeping the strings in lockstep means
@@ -36,6 +38,24 @@ export type AdminTabConfig = {
   /** All permissions required to even *see* the tab in the sidebar. */
   required: ReadonlyArray<AdminPermission>;
 };
+
+export type AdminSidebarLink = {
+  href: string;
+  label: string;
+  description: string;
+  icon: LucideIcon;
+  requiresRole?: "ADMIN";
+};
+
+export const ADMIN_SIDEBAR_LINKS: ReadonlyArray<AdminSidebarLink> = [
+  {
+    href: ROUTES.adminConfig,
+    label: "Metrics Config",
+    description: "Attention & conviction weights.",
+    icon: Settings2,
+    requiresRole: "ADMIN",
+  },
+];
 
 export const ADMIN_TABS: ReadonlyArray<AdminTabConfig> = [
   {

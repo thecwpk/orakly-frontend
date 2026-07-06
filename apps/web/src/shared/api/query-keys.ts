@@ -44,6 +44,13 @@ export const queryKeys = {
   hub: {
     root: hubRoot,
     attention: () => [...hubRoot(), "attention"] as const,
+    attentionDashboard: (limit: number) =>
+      [...hubRoot(), "attentionDashboard", limit] as const,
+    attentionRotation: () => [...hubRoot(), "attentionRotation"] as const,
+    attentionHistory: (narrative: string, period: string) =>
+      [...hubRoot(), "attentionHistory", narrative, period] as const,
+    narrativeMarkets: (narrative: string, limit: number) =>
+      [...hubRoot(), "narrativeMarkets", narrative, limit] as const,
     stats: () => [...hubRoot(), "stats"] as const,
     narrativeWars: () => [...hubRoot(), "narrativeWars"] as const,
     conviction: (take: number) => [...hubRoot(), "conviction", take] as const,
@@ -59,6 +66,24 @@ export const queryKeys = {
     topics: () => [...hubRoot(), "topics"] as const,
     categories: () => [...hubRoot(), "categories"] as const,
     suggestions: (take: number) => [...hubRoot(), "suggestions", take] as const,
+  },
+  analytics: {
+    root: () => [...queryRoot, "analytics"] as const,
+    history: (filters: {
+      from: string;
+      to: string;
+      narrative: string;
+      category: string;
+    }) =>
+      [
+        ...queryRoot,
+        "analytics",
+        "history",
+        filters.from,
+        filters.to,
+        filters.narrative,
+        filters.category,
+      ] as const,
   },
   markets: {
     root: marketsRoot,
@@ -114,6 +139,21 @@ export const queryKeys = {
       [...marketsRoot(), "volumeWindow", slug] as const,
     /** `GET /api/v1/markets/by-slug/:slug` — detail page + trading id. */
     bySlug: (slug: string) => [...marketsRoot(), "bySlug", slug] as const,
+    /** GET /api/v1/suggestions — community market ideas. */
+    communitySuggestions: (params: {
+      tab: string;
+      status: string;
+      sort: string;
+      address?: string;
+    }) =>
+      [
+        ...marketsRoot(),
+        "communitySuggestions",
+        params.tab,
+        params.status,
+        params.sort,
+        params.address ?? "",
+      ] as const,
   },
 
   trades: {
@@ -157,6 +197,7 @@ export const queryKeys = {
         windowKey,
         sort ?? "default",
       ] as const,
+    creators: () => [...leaderboardRoot(), "creators"] as const,
   },
 
   profile: {
@@ -167,6 +208,11 @@ export const queryKeys = {
     /** Achievements panel (server-side or derived). */
     achievements: (address: string) =>
       [...profileRoot(), "address", address.toLowerCase(), "achievements"] as const,
+    creatorStats: (address: string) =>
+      [...profileRoot(), "address", address.toLowerCase(), "creatorStats"] as const,
+    trades: () => [...profileRoot(), "trades"] as const,
+    tradesByAddress: (address: string, cursor?: string | null) =>
+      [...profileRoot(), "trades", address.toLowerCase(), cursor ?? "head"] as const,
   },
 
   activity: {

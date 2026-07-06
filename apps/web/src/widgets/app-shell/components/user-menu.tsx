@@ -3,6 +3,8 @@
 import {
   Activity,
   BadgeCheck,
+  BarChart3,
+  Brain,
   Briefcase,
   LayoutGrid,
   Menu,
@@ -10,8 +12,10 @@ import {
   Shield,
   Sparkles,
   Star,
+  Swords,
   Trophy,
   User as UserIcon,
+  Users,
   Wallet,
 } from "lucide-react";
 import { PrefetchLink } from "@/shared/ui";
@@ -87,6 +91,12 @@ export function UserMenu() {
           </PrefetchLink>
         </DropdownMenuItem>
         <DropdownMenuItem asChild className={menuItem}>
+          <PrefetchLink href={ROUTES.marketsCommunity}>
+            <Users className="mr-2 size-4 text-zinc-500" aria-hidden />
+            Community
+          </PrefetchLink>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild className={menuItem}>
           <PrefetchLink href={ROUTES.watchlist}>
             <Star className="mr-2 size-4 text-zinc-500" aria-hidden />
             Watchlist
@@ -96,12 +106,6 @@ export function UserMenu() {
           <PrefetchLink href={ROUTES.marketCreate}>
             <Sparkles className="mr-2 size-4 text-yes/90" aria-hidden />
             Create market
-          </PrefetchLink>
-        </DropdownMenuItem>
-        <DropdownMenuItem asChild className={menuItem}>
-          <PrefetchLink href={ROUTES.leaderboard}>
-            <Trophy className="mr-2 size-4 text-zinc-500" aria-hidden />
-            Leaderboard
           </PrefetchLink>
         </DropdownMenuItem>
 
@@ -122,6 +126,34 @@ export function UserMenu() {
             </DropdownMenuItem>
           </DropdownMenuSubContent>
         </DropdownMenuSub>
+
+        <DropdownMenuSeparator className="my-2 bg-white/[0.07]" />
+
+        <DropdownMenuLabel className={sectionLabel}>Discover</DropdownMenuLabel>
+        <DropdownMenuItem asChild className={menuItem}>
+          <PrefetchLink href={ROUTES.attention}>
+            <Brain className="mr-2 size-4 text-zinc-500" aria-hidden />
+            Attention
+          </PrefetchLink>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild className={menuItem}>
+          <PrefetchLink href={ROUTES.narrativeWars}>
+            <Swords className="mr-2 size-4 text-zinc-500" aria-hidden />
+            Narrative Wars
+          </PrefetchLink>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild className={menuItem}>
+          <PrefetchLink href={ROUTES.leaderboard}>
+            <Trophy className="mr-2 size-4 text-zinc-500" aria-hidden />
+            Leaderboard
+          </PrefetchLink>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild className={menuItem}>
+          <PrefetchLink href={ROUTES.analytics}>
+            <BarChart3 className="mr-2 size-4 text-zinc-500" aria-hidden />
+            Analytics
+          </PrefetchLink>
+        </DropdownMenuItem>
 
         <DropdownMenuSeparator className="my-2 bg-white/[0.07]" />
 

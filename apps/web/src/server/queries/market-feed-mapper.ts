@@ -10,6 +10,7 @@ type FeedRow = {
   liquidityUsd: Prisma.Decimal;
   yesPrice: Prisma.Decimal | null;
   closesAt: Date | null;
+  resolvedAt?: Date | null;
   status: PrismaMarketStatus;
   resolutionStatus?: ResolutionStatus;
   resolutionReason?: string | null;
@@ -17,9 +18,16 @@ type FeedRow = {
   generationMeta?: Prisma.JsonValue | null;
   onChainAddress?: string | null;
   chainId?: number | null;
+  creatorAddress?: string | null;
+  resolutionSource?: string | null;
+  narrative?: string | null;
+  momentum?: string | null;
+  creatorRewardPercent?: number | null;
   category: { name: string } | null;
   creator?: { displayName: string | null; walletAddress: string | null } | null;
 };
+
+export type MarketFeedRow = FeedRow;
 
 export function prismaMarketToFeedDto(m: FeedRow): Market {
   const yes = m.yesPrice ? Number(m.yesPrice) : 0.5;

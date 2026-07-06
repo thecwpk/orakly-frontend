@@ -70,6 +70,27 @@ function parseTake(scope: MarketsFeedScope, lane: MarketsFeedLane, raw: string |
 /** GET /api/v1/markets — supports hub lanes + directory; defaults preserve legacy clients. */
 export async function GET(req: NextRequest) {
   const sp = req.nextUrl.searchParams;
+  const narrative = sp.get("narrative")?.trim();
+
+  if (narrative) {
+    const limitParam = Number.parseInt(sp.get("limit") ?? sp.get("take") ?? "20", 10);
+    const take =
+      Number.isFinite(limitParam) && limitParam > 0 ? Math.min(limitParam, 100) : 20;
+
+    try {
+      const { getMarketsByNarrative } = await import("@/server/queries/narrative-markets");
+      const data = await getMarketsByNarrative(narrative, take);
+      return NextResponse.json(ok(data), {
+        headers: {
+          "Cache-Control": "public, s-maxage=45, stale-while-revalidate=180",
+        },
+      });
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
+      return NextResponse.json(err("MARKETS_UNAVAILABLE", message), { status: 503 });
+    }
+  }
+
   const scope = parseScope(sp.get("scope"));
   const lane = parseLane(sp.get("lane"));
   const trendingBy = parseTrendingBy(sp.get("trendingBy"));

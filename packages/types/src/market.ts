@@ -23,4 +23,8 @@ export interface Market {
   resolvedOutcome?: string | null;
   generationMeta?: Record<string, unknown> | null;
   creatorDisplayName?: string | null;
+  /** EVM creator wallet when enriched from feed API. */
+  creatorAddress?: string | null;
+  /** Narrative attention score 0–100 when enriched. */
+  attentionScore?: number | null;
 }

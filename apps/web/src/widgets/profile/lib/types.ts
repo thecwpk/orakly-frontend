@@ -1,3 +1,8 @@
+import type {
+  ProfilePositionRow,
+  ProfileTradeRow,
+} from "@/shared/contracts/trader-profile";
+
 export type ProfileWindow = "24h" | "7d" | "30d" | "90d" | "all";
 
 export type EquityPoint = {
@@ -6,7 +11,6 @@ export type EquityPoint = {
   /** USD equity. */
   equity: number;
 };
-
 export type ProfileTrade = {
   id: string;
   marketSlug: string;
@@ -77,4 +81,7 @@ export type TraderProfile = {
   trades: ProfileTrade[];
   exposures: PositionExposure[];
   categoryMix: CategoryMix[];
+  positions?: ProfilePositionRow[];
+  publicTrades?: ProfileTradeRow[];
+  tradesNextCursor?: string | null;
 };

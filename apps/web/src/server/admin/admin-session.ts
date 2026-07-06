@@ -226,6 +226,15 @@ export async function requireAdminPermission(
   return ctx;
 }
 
+/** Full ADMIN role only — used for platform-wide configuration changes. */
+export async function requireAdminRole(req: NextRequest): Promise<AdminActorContext> {
+  const ctx = await resolveAdminActor(req);
+  if (ctx.role !== UserRole.ADMIN) {
+    throw new AdminAuthError("FORBIDDEN", "Admin role required", 403);
+  }
+  return ctx;
+}
+
 export function requireBootstrapApiToken(req: NextRequest): void {
   const expected = process.env.ADMIN_API_TOKEN?.trim();
   if (!expected) {

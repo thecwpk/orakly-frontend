@@ -12,6 +12,8 @@ export const ROUTES = {
   dapp: "/dapp",
   /** Attention dashboard — narrative momentum & matchups. */
   attention: "/attention",
+  /** Head-to-head narrative comparison tool. */
+  narrativeWars: "/narrative-wars",
   /** Live markets directory (marketing shell). */
   discover: "/discover",
   /** Primary exploration surface — dense grid, filters, infinite scroll. */
@@ -24,6 +26,8 @@ export const ROUTES = {
   marketsTrending: "/markets?live=1",
   /** Full directory — primary Markets nav target. */
   marketsBrowse: "/markets",
+  /** Community market submissions and voting. */
+  marketsCommunity: "/markets/community",
   /**
    * Polymarket-style “Breaking” hub — OPEN markets with fresh live signals (`filter=breaking` on API).
    * Implemented as dedicated route so it is not rewritten by `/markets` canonical `trending` redirect.
@@ -34,6 +38,8 @@ export const ROUTES = {
   /** Signed-in user overview (not operator admin). */
   userDashboard: "/dashboard",
   activity: "/activity",
+  /** Historical attention, volume, and resolved-market analytics. */
+  analytics: "/analytics",
   leaderboard: "/leaderboard",
   wallet: "/wallet",
   profile: "/profile",
@@ -57,6 +63,8 @@ export const ROUTES = {
   /* Operator console — own admin layout */
   adminLogin: "/admin/login",
   adminDashboard: "/admin/dashboard",
+  adminMarkets: "/admin/markets",
+  adminConfig: "/admin/config",
 
   /* Legacy → permanent redirect to /activity */
   pulse: "/pulse",

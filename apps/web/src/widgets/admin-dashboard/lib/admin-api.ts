@@ -86,3 +86,104 @@ export type AdminMe = {
 export async function fetchAdminMe() {
   return adminApi<AdminMe>("/me");
 }
+
+export type JobScheduleRow = {
+  jobName: string;
+  interval: string;
+  lastRun: string;
+  nextRun: string;
+};
+
+export async function fetchAdminConfig() {
+  const res = await fetch("/api/admin/config", { credentials: "include" });
+  const payload = (await res.json()) as {
+    ok: boolean;
+    data?: Record<string, string>;
+    jobSchedules?: JobScheduleRow[];
+    error?: { message?: string };
+  };
+
+  if (!payload.ok || !payload.data) {
+    throw new AdminApiError(payload.error?.message ?? "Failed to load config", res.status);
+  }
+
+  return {
+    configs: payload.data,
+    jobSchedules: payload.jobSchedules ?? [],
+  };
+}
+
+export async function putAdminConfig(configs: Array<{ key: string; value: string }>) {
+  const res = await fetch("/api/admin/config", {
+    method: "PUT",
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ configs }),
+  });
+
+  const payload = (await res.json()) as {
+    ok: boolean;
+    data?: Record<string, string>;
+    error?: { message?: string };
+  };
+
+  if (!payload.ok) {
+    throw new AdminApiError(payload.error?.message ?? "Failed to save config", res.status);
+  }
+
+  return payload.data ?? {};
+}
+
+export async function approveAdminSuggestion(
+  suggestionId: string,
+  creatorRewardPercent: number,
+) {
+  const res = await fetch(`/api/v1/suggestions/${suggestionId}/approve`, {
+    method: "POST",
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ creatorRewardPercent }),
+  });
+  const payload = (await res.json()) as {
+    ok: boolean;
+    data?: { id: string; slug: string };
+    error?: { message?: string };
+  };
+  if (!payload.ok) {
+    throw new AdminApiError(payload.error?.message ?? "Approve failed", res.status);
+  }
+  return payload.data!;
+}
+
+export async function rejectAdminSuggestion(suggestionId: string, reason?: string) {
+  const res = await fetch(`/api/v1/suggestions/${suggestionId}/reject`, {
+    method: "POST",
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ reason }),
+  });
+  const payload = (await res.json()) as {
+    ok: boolean;
+    data?: unknown;
+    error?: { message?: string };
+  };
+  if (!payload.ok) {
+    throw new AdminApiError(payload.error?.message ?? "Reject failed", res.status);
+  }
+  return payload.data;
+}
+
+export async function fetchAdminSuggestions(status = "all") {
+  const res = await fetch(`/api/v1/suggestions?status=${encodeURIComponent(status)}`, {
+    credentials: "include",
+  });
+  const payload = (await res.json()) as {
+    ok: boolean;
+    data?: import("@/shared/contracts/community-suggestion").CommunitySuggestion[];
+    error?: { message?: string };
+  };
+  if (!payload.ok || !payload.data) {
+    throw new AdminApiError(payload.error?.message ?? "Failed to load suggestions", res.status);
+  }
+  return payload.data;
+}
