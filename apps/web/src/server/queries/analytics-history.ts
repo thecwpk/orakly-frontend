@@ -2,6 +2,7 @@ import "server-only";
 
 import { MarketStatus, Prisma } from "@prisma/client";
 import { prisma } from "@orakly/database";
+import { loadExpandedAttentionTimeSeries } from "./attention-time-series";
 
 export type AnalyticsHistoryFilters = {
   from: Date;
@@ -65,35 +66,9 @@ export function parseAnalyticsPeriod(searchParams: URLSearchParams): { from: Dat
   return { from, to };
 }
 
-function clampScore(value: number): number {
-  if (!Number.isFinite(value)) return 0;
-  return Math.min(100, Math.max(0, Number(value.toFixed(2))));
-}
-
-function narrativeSlugFromRow(slug: string, narrative: string): string {
-  const s = slug.trim();
-  if (s) return s;
-  return narrative.trim().toLowerCase().replace(/\s+/g, "-");
-}
-
-function narrativeNameFromRow(name: string, narrative: string): string {
-  const n = name.trim();
-  return n || narrative.trim();
-}
-
-async function narrativesForCategory(categorySlug: string): Promise<string[]> {
-  const rows = await prisma.market.findMany({
-    where: {
-      narrative: { not: null },
-      category: { slug: { equals: categorySlug, mode: "insensitive" } },
-    },
-    select: { narrative: true },
-    distinct: ["narrative"],
-  });
-
-  return rows
-    .map((row) => row.narrative?.trim())
-    .filter((value): value is string => Boolean(value));
+function isAllFilter(value: string | undefined): boolean {
+  const v = value?.trim().toLowerCase();
+  return !v || v === "all";
 }
 
 function buildMarketWhere(
@@ -106,13 +81,13 @@ function buildMarketWhere(
   };
 
   const narrative = filters.narrative?.trim();
-  if (narrative && narrative.toLowerCase() !== "all") {
-    where.narrative = { equals: narrative, mode: "insensitive" };
+  if (!isAllFilter(narrative)) {
+    where.narrative = { equals: narrative!, mode: "insensitive" };
   }
 
   const category = filters.category?.trim();
-  if (category) {
-    where.category = { slug: { equals: category, mode: "insensitive" } };
+  if (!isAllFilter(category)) {
+    where.category = { slug: { equals: category!, mode: "insensitive" } };
   }
 
   return where;
@@ -121,56 +96,7 @@ function buildMarketWhere(
 async function loadAttentionTimeSeries(
   filters: AnalyticsHistoryFilters,
 ): Promise<AnalyticsAttentionPoint[]> {
-  const attentionWhere: Prisma.AttentionScoreWhereInput = {
-    createdAt: { gte: filters.from, lte: filters.to },
-  };
-
-  const narrative = filters.narrative?.trim();
-  if (narrative && narrative.toLowerCase() !== "all") {
-    attentionWhere.OR = [
-      { narrativeSlug: { equals: narrative, mode: "insensitive" } },
-      { narrative: { equals: narrative, mode: "insensitive" } },
-    ];
-  }
-
-  const category = filters.category?.trim();
-  if (category) {
-    const narratives = await narrativesForCategory(category);
-    if (narratives.length === 0) return [];
-
-    attentionWhere.AND = [
-      ...(Array.isArray(attentionWhere.AND) ? attentionWhere.AND : attentionWhere.AND ? [attentionWhere.AND] : []),
-      {
-        OR: [
-          { narrative: { in: narratives } },
-          { narrativeSlug: { in: narratives.map((n) => n.toLowerCase().replace(/\s+/g, "-")) } },
-        ],
-      },
-    ];
-  }
-
-  const rows = await prisma.attentionScore.findMany({
-    where: attentionWhere,
-    orderBy: { createdAt: "asc" },
-    select: {
-      createdAt: true,
-      narrative: true,
-      narrativeSlug: true,
-      narrativeName: true,
-      score: true,
-      convictionScore: true,
-      volume24hUsd: true,
-    },
-  });
-
-  return rows.map((row) => ({
-    date: row.createdAt.toISOString(),
-    narrativeSlug: narrativeSlugFromRow(row.narrativeSlug, row.narrative),
-    narrativeName: narrativeNameFromRow(row.narrativeName, row.narrative),
-    attentionScore: clampScore(Number(row.score)),
-    convictionScore: clampScore(row.convictionScore),
-    volume24hUsd: row.volume24hUsd,
-  }));
+  return loadExpandedAttentionTimeSeries(filters);
 }
 
 async function countUniqueTradersByMarket(

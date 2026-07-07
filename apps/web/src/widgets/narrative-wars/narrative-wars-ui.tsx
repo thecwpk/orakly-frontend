@@ -26,20 +26,20 @@ type ScoreCellProps = {
   barClassName?: string;
 };
 
-export function ScoreCell({ score, winner, barClassName = "bg-blue-500" }: ScoreCellProps) {
+export function ScoreCell({ score, winner, barClassName = "bg-cyan-400" }: ScoreCellProps) {
   const clamped = Math.min(100, Math.max(0, Math.round(score)));
 
   return (
     <div className="space-y-2">
       <span
         className={cn(
-          "font-mono text-lg tabular-nums",
-          winner && "font-bold text-green-600",
+          "font-mono text-lg tabular-nums text-zinc-100",
+          winner && "font-bold text-emerald-300",
         )}
       >
         {clamped}
       </span>
-      <div className="h-2 overflow-hidden rounded-full bg-gray-200">
+      <div className="h-2 overflow-hidden rounded-full bg-white/[0.08]">
         <div
           className={cn("h-full rounded-full transition-all", barClassName)}
           style={{ width: `${clamped}%` }}
@@ -50,9 +50,9 @@ export function ScoreCell({ score, winner, barClassName = "bg-blue-500" }: Score
 }
 
 const MOMENTUM_STYLES = {
-  Growing: "bg-emerald-100 text-emerald-700",
-  Cooling: "bg-red-100 text-red-700",
-  Stable: "bg-gray-100 text-gray-600",
+  Growing: "bg-emerald-500/15 text-emerald-300 ring-emerald-400/25",
+  Cooling: "bg-rose-500/15 text-rose-300 ring-rose-400/25",
+  Stable: "bg-zinc-500/15 text-zinc-300 ring-white/10",
 } as const;
 
 type MomentumBadgeProps = {
@@ -64,9 +64,9 @@ export function MomentumBadge({ momentum, winner }: MomentumBadgeProps) {
   return (
     <span
       className={cn(
-        "inline-flex rounded-full px-2.5 py-1 text-xs font-semibold",
+        "inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ring-1",
         MOMENTUM_STYLES[momentum],
-        winner && "font-bold ring-2 ring-green-400/40",
+        winner && "ring-2 ring-emerald-400/40",
       )}
     >
       {momentum}
@@ -94,13 +94,16 @@ type TrendSparklineProps = {
 
 function TrendSparklineInner({ data, loading }: TrendSparklineProps) {
   if (loading) {
-    return <div className="h-[60px] animate-pulse rounded bg-gray-200" />;
+    return <div className="h-[60px] animate-pulse rounded-lg bg-zinc-800/80" />;
   }
 
   const chartData =
     data.length > 0
       ? data.map((point, index) => ({ ...point, index }))
-      : [{ index: 0, attentionScore: 0 }, { index: 1, attentionScore: 0 }];
+      : [
+          { index: 0, attentionScore: 0 },
+          { index: 1, attentionScore: 0 },
+        ];
 
   return (
     <div className="h-[60px] w-full">
@@ -109,7 +112,7 @@ function TrendSparklineInner({ data, loading }: TrendSparklineProps) {
           <Line
             type="monotone"
             dataKey="attentionScore"
-            stroke="#3b82f6"
+            stroke="#22d3ee"
             strokeWidth={2}
             dot={false}
             isAnimationActive={chartData.length < 40}
@@ -134,6 +137,6 @@ export function numericWinner(
 export function winnerCellClass(side: "left" | "right", winner: "left" | "right" | "tie") {
   return cn(
     "rounded-lg p-3",
-    winner === side && "bg-green-50",
+    winner === side && "bg-emerald-500/10 ring-1 ring-emerald-400/20",
   );
 }

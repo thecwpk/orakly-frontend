@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@orakly/database";
 import { API_ERROR_CODES } from "../../_lib/errors";
 import { ok, err } from "../../_lib/response";
+import { loadNarrativeAttentionHistory } from "@/server/queries/attention-time-series";
 
 type Period = "24h" | "7d" | "30d" | "90d";
 
@@ -33,11 +33,6 @@ function parsePeriod(raw: string | null): Period {
   return "7d";
 }
 
-function clampScore(value: number): number {
-  if (!Number.isFinite(value)) return 0;
-  return Math.min(100, Math.max(0, Number(value.toFixed(2))));
-}
-
 /** GET /api/v1/attention/history — attention score time series for charts (public). */
 export async function GET(request: Request) {
   try {
@@ -52,29 +47,17 @@ export async function GET(request: Request) {
     }
 
     const period = parsePeriod(searchParams.get("period"));
-    const fromDate = new Date(Date.now() - PERIOD_MS[period]);
+    const to = new Date();
+    const from = new Date(Date.now() - PERIOD_MS[period]);
 
-    const rows = await prisma.attentionScore.findMany({
-      where: {
-        narrativeSlug: narrative,
-        createdAt: { gte: fromDate },
-      },
-      orderBy: { createdAt: "asc" },
-      select: {
-        score: true,
-        convictionScore: true,
-        volume24hUsd: true,
-        momentum: true,
-        createdAt: true,
-      },
-    });
+    const rows = await loadNarrativeAttentionHistory(narrative, from, to);
 
     const data: AttentionHistoryPoint[] = rows.map((row) => ({
-      date: row.createdAt.toISOString(),
-      attentionScore: clampScore(Number(row.score)),
-      convictionScore: clampScore(row.convictionScore),
+      date: row.date,
+      attentionScore: row.attentionScore,
+      convictionScore: row.convictionScore,
       volume24hUsd: row.volume24hUsd,
-      momentum: row.momentum?.trim() || "Stable",
+      momentum: "Stable",
     }));
 
     const payload: AttentionHistoryPayload = {

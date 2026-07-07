@@ -41,9 +41,9 @@ function ComparisonRow({
   winner: "left" | "right" | "tie";
 }) {
   return (
-    <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-4 border-b border-gray-100 py-4 last:border-b-0">
+    <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-4 border-b border-white/[0.06] py-4 last:border-b-0">
       <div className={winnerCellClass("left", winner)}>{left}</div>
-      <div className="min-w-[7rem] px-2 text-center text-xs font-semibold uppercase tracking-wide text-gray-500">
+      <div className="min-w-[7rem] px-2 text-center text-[10px] font-semibold uppercase tracking-[0.16em] text-zinc-500">
         {label}
       </div>
       <div className={winnerCellClass("right", winner)}>{right}</div>
@@ -82,7 +82,7 @@ export function NarrativeWarsComparisonTable({
   const tradersWinner = numericWinner(left.uniqueTraders, right.uniqueTraders);
 
   return (
-    <div className="overflow-hidden rounded-xl border border-gray-200 bg-white px-4 sm:px-6">
+    <div className="glass-panel-strong overflow-hidden rounded-2xl px-4 ring-1 ring-white/[0.06] sm:px-6">
       <ComparisonRow
         label="Attention Score"
         winner={attentionWinner}
@@ -90,14 +90,14 @@ export function NarrativeWarsComparisonTable({
           <ScoreCell
             score={left.attentionScore}
             winner={attentionWinner === "left"}
-            barClassName="bg-blue-500"
+            barClassName="bg-cyan-400"
           />
         }
         right={
           <ScoreCell
             score={right.attentionScore}
             winner={attentionWinner === "right"}
-            barClassName="bg-blue-500"
+            barClassName="bg-cyan-400"
           />
         }
       />
@@ -108,14 +108,14 @@ export function NarrativeWarsComparisonTable({
           <ScoreCell
             score={left.convictionScore}
             winner={convictionWinner === "left"}
-            barClassName="bg-purple-500"
+            barClassName="bg-violet-400"
           />
         }
         right={
           <ScoreCell
             score={right.convictionScore}
             winner={convictionWinner === "right"}
-            barClassName="bg-purple-500"
+            barClassName="bg-violet-400"
           />
         }
       />
@@ -151,8 +151,8 @@ export function NarrativeWarsComparisonTable({
         left={
           <span
             className={cn(
-              "font-mono text-base tabular-nums",
-              volumeWinner === "left" && "font-bold text-green-600",
+              "font-mono text-base tabular-nums text-zinc-200",
+              volumeWinner === "left" && "font-bold text-emerald-300",
             )}
           >
             {formatUsd(left.volume24hUsd)}
@@ -162,7 +162,7 @@ export function NarrativeWarsComparisonTable({
           <span
             className={cn(
               "font-mono text-base tabular-nums",
-              volumeWinner === "right" && "font-bold text-green-600",
+              volumeWinner === "right" && "font-bold text-emerald-300",
             )}
           >
             {formatUsd(right.volume24hUsd)}
@@ -176,7 +176,7 @@ export function NarrativeWarsComparisonTable({
           <span
             className={cn(
               "font-mono text-base tabular-nums",
-              liquidityWinner === "left" && "font-bold text-green-600",
+              liquidityWinner === "left" && "font-bold text-emerald-300",
             )}
           >
             {formatUsd(left.liquidity)}
@@ -186,7 +186,7 @@ export function NarrativeWarsComparisonTable({
           <span
             className={cn(
               "font-mono text-base tabular-nums",
-              liquidityWinner === "right" && "font-bold text-green-600",
+              liquidityWinner === "right" && "font-bold text-emerald-300",
             )}
           >
             {formatUsd(right.liquidity)}
@@ -200,7 +200,7 @@ export function NarrativeWarsComparisonTable({
           <span
             className={cn(
               "font-mono text-base tabular-nums",
-              marketsWinner === "left" && "font-bold text-green-600",
+              marketsWinner === "left" && "font-bold text-emerald-300",
             )}
           >
             {formatCount(left.activeMarkets)}
@@ -210,7 +210,7 @@ export function NarrativeWarsComparisonTable({
           <span
             className={cn(
               "font-mono text-base tabular-nums",
-              marketsWinner === "right" && "font-bold text-green-600",
+              marketsWinner === "right" && "font-bold text-emerald-300",
             )}
           >
             {formatCount(right.activeMarkets)}
@@ -224,7 +224,7 @@ export function NarrativeWarsComparisonTable({
           <span
             className={cn(
               "font-mono text-base tabular-nums",
-              oiWinner === "left" && "font-bold text-green-600",
+              oiWinner === "left" && "font-bold text-emerald-300",
             )}
           >
             {formatUsd(left.openInterest)}
@@ -234,7 +234,7 @@ export function NarrativeWarsComparisonTable({
           <span
             className={cn(
               "font-mono text-base tabular-nums",
-              oiWinner === "right" && "font-bold text-green-600",
+              oiWinner === "right" && "font-bold text-emerald-300",
             )}
           >
             {formatUsd(right.openInterest)}
@@ -248,7 +248,7 @@ export function NarrativeWarsComparisonTable({
           <span
             className={cn(
               "font-mono text-base tabular-nums",
-              tradersWinner === "left" && "font-bold text-green-600",
+              tradersWinner === "left" && "font-bold text-emerald-300",
             )}
           >
             {formatCount(left.uniqueTraders)}
@@ -258,7 +258,7 @@ export function NarrativeWarsComparisonTable({
           <span
             className={cn(
               "font-mono text-base tabular-nums",
-              tradersWinner === "right" && "font-bold text-green-600",
+              tradersWinner === "right" && "font-bold text-emerald-300",
             )}
           >
             {formatCount(right.uniqueTraders)}
@@ -284,15 +284,15 @@ function MarketsColumn({ slug, title }: MarketsColumnProps) {
 
   return (
     <div className="space-y-3">
-      <h3 className="text-sm font-semibold text-gray-900">{title}</h3>
+      <h3 className="text-sm font-semibold text-zinc-100">{title}</h3>
       {isLoading ? (
         <div className="space-y-2">
           {Array.from({ length: 5 }).map((_, index) => (
-            <div key={index} className="h-14 animate-pulse rounded-lg bg-gray-200" />
+            <div key={index} className="h-14 animate-pulse rounded-lg bg-zinc-800/80" />
           ))}
         </div>
       ) : markets.length === 0 ? (
-        <p className="rounded-lg border border-dashed border-gray-200 bg-gray-50 px-3 py-6 text-center text-sm text-gray-500">
+        <p className="rounded-lg border border-dashed border-white/[0.1] bg-white/[0.02] px-3 py-6 text-center text-sm text-zinc-500">
           No markets found.
         </p>
       ) : (
@@ -302,16 +302,16 @@ function MarketsColumn({ slug, title }: MarketsColumnProps) {
             return (
               <li
                 key={market.id}
-                className="rounded-lg border border-gray-200 bg-white px-3 py-2.5"
+                className="rounded-lg bg-white/[0.03] px-3 py-2.5 ring-1 ring-white/[0.06]"
               >
-                <p className="line-clamp-2 text-sm font-medium text-gray-900">
+                <p className="line-clamp-2 text-sm font-medium text-zinc-100">
                   {market.title}
                 </p>
-                <div className="mt-1.5 flex items-center justify-between gap-2 text-xs text-gray-500">
+                <div className="mt-1.5 flex items-center justify-between gap-2 text-xs text-zinc-500">
                   <span className="font-mono tabular-nums">
                     Vol {formatUsd(market.volumeUsd)}
                   </span>
-                  <span className="font-mono font-semibold tabular-nums text-gray-700">
+                  <span className="font-mono font-semibold tabular-nums text-cyan-200">
                     {yesPct}%
                   </span>
                 </div>
@@ -339,7 +339,7 @@ export function NarrativeWarsMarkets({
 }: NarrativeWarsMarketsProps) {
   return (
     <section className="space-y-4">
-      <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500">
+      <h2 className="text-[10px] font-semibold uppercase tracking-[0.18em] text-zinc-500">
         Top markets
       </h2>
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">

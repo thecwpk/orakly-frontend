@@ -264,7 +264,8 @@ function MultiLineChart({
               name={s.slug}
               stroke={CHART_COLORS[index % CHART_COLORS.length]}
               strokeWidth={2}
-              dot={false}
+              dot={chartData.length <= 3 ? { r: 2, fill: CHART_COLORS[index % CHART_COLORS.length] } : false}
+              connectNulls
               activeDot={{ r: 3 }}
             />
           ))}

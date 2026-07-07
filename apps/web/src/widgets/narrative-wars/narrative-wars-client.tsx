@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
+import { Swords } from "lucide-react";
 import { fetchAttentionDashboard } from "@/shared/api/fetchers/attention-dashboard";
 import { queryKeys } from "@/shared/api/query-keys";
 import { ROUTES } from "@/shared/constants/routes";
@@ -13,6 +14,9 @@ import {
 } from "./narrative-wars-comparison";
 
 const DASHBOARD_LIMIT = 50;
+
+const SELECT_CLASS =
+  "w-full rounded-xl border-0 bg-[#08080d] px-3 py-2.5 text-[13px] font-medium text-zinc-100 ring-1 ring-white/[0.1] transition focus:outline-none focus:ring-cyan-400/40";
 
 function NarrativeSelect({
   id,
@@ -32,10 +36,7 @@ function NarrativeSelect({
       id={id}
       value={value}
       onChange={(event) => onChange(event.target.value)}
-      className={cn(
-        "w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm font-medium text-gray-900",
-        "shadow-sm outline-none transition focus:border-gray-400 focus:ring-2 focus:ring-gray-200",
-      )}
+      className={SELECT_CLASS}
     >
       <option value="">Select narrative…</option>
       {options.map((option) => (
@@ -108,38 +109,55 @@ export function NarrativeWarsClient() {
   const bothSelected = Boolean(leftSlug && rightSlug && leftNarrative && rightNarrative);
 
   return (
-    <div className="space-y-10">
-      <header className="space-y-2">
-        <h1 className="text-3xl font-bold tracking-tight text-gray-900">Narrative Wars</h1>
-        <p className="text-sm text-gray-500">
+    <div className="space-y-8">
+      <header className="border-b border-white/[0.06] pb-r24">
+        <p className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.22em] text-cyan-400/90">
+          <Swords className="h-3 w-3" aria-hidden />
+          Head-to-head
+        </p>
+        <h1 className="mt-1.5 text-balance text-2xl font-semibold tracking-tight text-white sm:text-[1.75rem]">
+          Narrative Wars
+        </h1>
+        <p className="mt-1.5 max-w-2xl text-[12.5px] text-zinc-500">
           Compare attention, conviction, and market depth across crypto narratives.
         </p>
       </header>
 
-      <div className="grid grid-cols-1 items-center gap-4 sm:grid-cols-[1fr_auto_1fr]">
-        <NarrativeSelect
-          id="narrative-wars-left"
-          value={leftSlug}
-          onChange={setLeftSlug}
-          options={narrativeOptions}
-          disabledSlug={rightSlug || undefined}
-        />
-        <p className="text-center text-2xl font-bold text-gray-900" aria-hidden>
-          VS
+      <div className="glass-panel-strong space-y-4 rounded-2xl p-4 ring-1 ring-white/[0.06]">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-zinc-500">
+          Pick two narratives
         </p>
-        <NarrativeSelect
-          id="narrative-wars-right"
-          value={rightSlug}
-          onChange={setRightSlug}
-          options={narrativeOptions}
-          disabledSlug={leftSlug || undefined}
-        />
+        <div className="grid grid-cols-1 items-center gap-4 sm:grid-cols-[1fr_auto_1fr]">
+          <NarrativeSelect
+            id="narrative-wars-left"
+            value={leftSlug}
+            onChange={setLeftSlug}
+            options={narrativeOptions}
+            disabledSlug={rightSlug || undefined}
+          />
+          <p
+            className="text-center text-xl font-bold tracking-[0.2em] text-cyan-300/90"
+            aria-hidden
+          >
+            VS
+          </p>
+          <NarrativeSelect
+            id="narrative-wars-right"
+            value={rightSlug}
+            onChange={setRightSlug}
+            options={narrativeOptions}
+            disabledSlug={leftSlug || undefined}
+          />
+        </div>
       </div>
 
       {!bothSelected ? (
-        <div className="flex min-h-[240px] items-center justify-center rounded-xl border border-dashed border-gray-200 bg-gray-50 px-6 py-16 text-center">
-          <p className="text-base font-medium text-gray-500">
-            Select two narratives to compare
+        <div className="flex min-h-[280px] flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-white/[0.1] bg-white/[0.02] px-6 py-16 text-center">
+          <Swords className="h-8 w-8 text-zinc-600" aria-hidden />
+          <p className="text-[14px] font-medium text-zinc-300">Select two narratives to compare</p>
+          <p className="max-w-sm text-[12px] text-zinc-500">
+            Choose from {narrativeOptions.length || "…"} tracked narratives to see scores,
+            momentum, and top markets side by side.
           </p>
         </div>
       ) : (
