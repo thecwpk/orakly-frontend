@@ -323,7 +323,7 @@ export function AdminMetricsConfigPage() {
 
         <Section
           title="Current Job Schedules"
-          description="Read-only — intervals and run times are controlled via deployment environment variables."
+          description="Schedule settings are managed in platform configuration."
         >
           <JobSchedulesTable rows={jobSchedules} />
         </Section>

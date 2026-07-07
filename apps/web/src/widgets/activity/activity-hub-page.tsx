@@ -507,7 +507,7 @@ export function ActivityHubPage() {
     if (connectionStatus === "disconnected" && liveFeed.length > 0) {
       return {
         dot: "bg-sky-400 shadow-[0_0_10px_2px_rgba(56,189,248,0.45)]",
-        label: "REST",
+        label: "Updating",
       };
     }
     return STATUS_TONE[connectionStatus] ?? STATUS_FALLBACK;

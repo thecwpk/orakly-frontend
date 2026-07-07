@@ -7,7 +7,6 @@ import { Swords } from "lucide-react";
 import { fetchAttentionDashboard } from "@/shared/api/fetchers/attention-dashboard";
 import { queryKeys } from "@/shared/api/query-keys";
 import { ROUTES } from "@/shared/constants/routes";
-import { cn } from "@/lib/utils";
 import {
   NarrativeWarsComparisonTable,
   NarrativeWarsMarkets,

@@ -52,8 +52,7 @@ export function UserDashboardPage() {
         </p>
         <h1 className="mt-1 text-2xl font-semibold tracking-tight">Dashboard</h1>
         <p className="mt-2 max-w-lg text-sm text-muted-foreground">
-          Your trading history and analytics live in the sections below. This is separate from the
-          operator admin console.
+          Your portfolio, activity history, rankings, and wallet settings in one place.
         </p>
       </header>
 

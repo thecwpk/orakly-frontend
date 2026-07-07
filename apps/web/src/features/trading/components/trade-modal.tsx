@@ -67,7 +67,7 @@ export function TradeModal() {
     (draft: TradeDraft) => {
       if (!market?.onChainAddress) {
         setError(
-          "This market is not deployed on-chain. Only on-chain markets can be traded via MetaMask.",
+          "On-chain trading is not available for this market yet.",
         );
         setPhase("result");
         return;

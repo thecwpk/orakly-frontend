@@ -210,8 +210,8 @@ function RealtimeActivityFeedImpl({
             <Pause className="h-3 w-3" />
             <span>
               {connection === "connecting"
-                ? "Reconnecting realtime stream…"
-                : "Realtime feed offline — showing the last cached activity."}
+                ? "Reconnecting to the live feed…"
+                : "Showing the latest available activity while the live feed reconnects."}
             </span>
           </motion.div>
         )}

@@ -25,8 +25,8 @@ type SubmitMarketModalProps = {
 };
 
 const fieldClass = cn(
-  "w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900",
-  "outline-none transition focus:border-gray-400 focus:ring-2 focus:ring-gray-200",
+  "w-full rounded-xl border-0 bg-[#08080d] px-3 py-2.5 text-[13px] text-zinc-100",
+  "ring-1 ring-white/[0.1] outline-none transition focus:ring-cyan-400/40",
 );
 
 export function SubmitMarketModal({ open, onOpenChange, onSuccess }: SubmitMarketModalProps) {
@@ -45,7 +45,7 @@ export function SubmitMarketModal({ open, onOpenChange, onSuccess }: SubmitMarke
         resolutionSource: resolutionSource.trim() || undefined,
       }),
     onSuccess: () => {
-      toast.success("Market idea submitted!");
+      toast.success("Market idea submitted");
       setQuestion("");
       setCategory(SUBMIT_CATEGORIES[0].value);
       setResolutionSource("");
@@ -54,7 +54,7 @@ export function SubmitMarketModal({ open, onOpenChange, onSuccess }: SubmitMarke
       onSuccess();
     },
     onError: (error: Error) => {
-      toast.error(error.message || "Could not submit market idea. Sign in with your wallet.");
+      toast.error(error.message || "Unable to submit. Connect your wallet and try again.");
     },
   });
 
@@ -64,25 +64,25 @@ export function SubmitMarketModal({ open, onOpenChange, onSuccess }: SubmitMarke
   return (
     <DialogPrimitive.Root open={open} onOpenChange={onOpenChange}>
       <DialogPrimitive.Portal>
-        <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-black/50 backdrop-blur-[2px]" />
+        <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-black/60 backdrop-blur-[2px]" />
         <DialogPrimitive.Content
           className={cn(
             "fixed left-1/2 top-1/2 z-50 w-[calc(100%-2rem)] max-w-lg -translate-x-1/2 -translate-y-1/2",
-            "rounded-xl border border-gray-200 bg-white p-6 shadow-xl outline-none",
+            "glass-panel-strong rounded-2xl p-6 shadow-xl outline-none ring-1 ring-white/[0.08]",
           )}
         >
           <div className="mb-5 flex items-start justify-between gap-3">
             <div>
-              <DialogPrimitive.Title className="text-lg font-semibold text-gray-900">
+              <DialogPrimitive.Title className="text-lg font-semibold text-white">
                 Submit Market Idea
               </DialogPrimitive.Title>
-              <DialogPrimitive.Description className="mt-1 text-sm text-gray-500">
-                Propose a question for the community to vote on.
+              <DialogPrimitive.Description className="mt-1 text-sm text-zinc-500">
+                Propose a question for community review and voting.
               </DialogPrimitive.Description>
             </div>
             <DialogPrimitive.Close
               type="button"
-              className="rounded-lg p-1.5 text-gray-500 transition hover:bg-gray-100 hover:text-gray-800"
+              className="rounded-lg p-1.5 text-zinc-500 transition hover:bg-white/[0.06] hover:text-zinc-200"
               aria-label="Close"
             >
               <X className="h-4 w-4" />
@@ -94,7 +94,7 @@ export function SubmitMarketModal({ open, onOpenChange, onSuccess }: SubmitMarke
             onSubmit={(event) => {
               event.preventDefault();
               if (!address) {
-                toast.message("Connect wallet to submit a market idea");
+                toast.message("Connect your wallet to submit a market idea");
                 return;
               }
               if (!canSubmit) return;
@@ -102,7 +102,9 @@ export function SubmitMarketModal({ open, onOpenChange, onSuccess }: SubmitMarke
             }}
           >
             <label className="block space-y-1.5">
-              <span className="text-sm font-medium text-gray-700">Question</span>
+              <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-zinc-500">
+                Question
+              </span>
               <textarea
                 value={question}
                 onChange={(event) => setQuestion(event.target.value)}
@@ -110,13 +112,15 @@ export function SubmitMarketModal({ open, onOpenChange, onSuccess }: SubmitMarke
                 required
                 minLength={10}
                 maxLength={200}
-                placeholder="Will ETH reach $10k by end of 2026?"
+                placeholder="Will ETH reach $10,000 by December 31, 2026?"
                 className={cn(fieldClass, "resize-y")}
               />
             </label>
 
             <label className="block space-y-1.5">
-              <span className="text-sm font-medium text-gray-700">Category</span>
+              <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-zinc-500">
+                Category
+              </span>
               <select
                 value={category}
                 onChange={(event) => setCategory(event.target.value)}
@@ -131,26 +135,28 @@ export function SubmitMarketModal({ open, onOpenChange, onSuccess }: SubmitMarke
             </label>
 
             <label className="block space-y-1.5">
-              <span className="text-sm font-medium text-gray-700">Resolution Source</span>
+              <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-zinc-500">
+                Resolution source
+              </span>
               <input
                 type="text"
                 value={resolutionSource}
                 onChange={(event) => setResolutionSource(event.target.value)}
-                placeholder="CoinGecko, official announcement, etc."
+                placeholder="Official announcement, exchange close, or data provider"
                 className={fieldClass}
               />
             </label>
 
             <label className="block space-y-1.5">
-              <span className="text-sm font-medium text-gray-700">
-                Description <span className="font-normal text-gray-400">(optional)</span>
+              <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-zinc-500">
+                Description <span className="font-normal normal-case text-zinc-600">(optional)</span>
               </span>
               <textarea
                 value={description}
                 onChange={(event) => setDescription(event.target.value)}
                 rows={3}
                 maxLength={4000}
-                placeholder="Additional context for voters and reviewers…"
+                placeholder="Add context that helps voters evaluate the proposal."
                 className={cn(fieldClass, "resize-y")}
               />
             </label>
@@ -159,11 +165,11 @@ export function SubmitMarketModal({ open, onOpenChange, onSuccess }: SubmitMarke
               type="submit"
               disabled={!canSubmit}
               className={cn(
-                "inline-flex w-full items-center justify-center gap-2 rounded-lg px-4 py-2.5",
-                "text-sm font-semibold text-white transition",
+                "inline-flex w-full items-center justify-center gap-2 rounded-xl px-4 py-2.5",
+                "text-sm font-semibold transition",
                 canSubmit
-                  ? "bg-gray-900 hover:bg-gray-800"
-                  : "cursor-not-allowed bg-gray-300",
+                  ? "bg-cyan-500/20 text-cyan-100 ring-1 ring-cyan-400/35 hover:bg-cyan-500/30"
+                  : "cursor-not-allowed bg-white/[0.04] text-zinc-600 ring-1 ring-white/[0.06]",
               )}
             >
               {submitMutation.isPending ? (

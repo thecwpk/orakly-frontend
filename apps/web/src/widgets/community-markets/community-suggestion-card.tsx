@@ -30,13 +30,13 @@ function StatusBadge({ status }: { status: string }) {
   return (
     <span
       className={cn(
-        "inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold capitalize",
-        isApproved && "bg-emerald-100 text-emerald-700",
-        isRejected && "bg-red-100 text-red-700",
-        !isApproved && !isRejected && "bg-gray-100 text-gray-600",
+        "inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold capitalize ring-1",
+        isApproved && "bg-emerald-500/15 text-emerald-300 ring-emerald-400/25",
+        isRejected && "bg-rose-500/15 text-rose-300 ring-rose-400/25",
+        !isApproved && !isRejected && "bg-zinc-500/15 text-zinc-300 ring-white/10",
       )}
     >
-      {isApproved ? "approved" : isRejected ? "rejected" : "pending"}
+      {isApproved ? "Approved" : isRejected ? "Rejected" : "Pending"}
     </span>
   );
 }
@@ -96,7 +96,7 @@ export function CommunitySuggestionCard({
       if (context?.previous) {
         qc.setQueryData(queryKey, context.previous);
       }
-      toast.error("Could not register vote. Sign in with your wallet.");
+      toast.error("Unable to register your vote. Connect your wallet and try again.");
     },
     onSettled: () => {
       void qc.invalidateQueries({ queryKey });
@@ -108,18 +108,18 @@ export function CommunitySuggestionCard({
     : "Anonymous";
 
   return (
-    <article className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
-      <p className="text-base font-medium text-gray-900">{suggestion.question}</p>
+    <article className="glass-panel-strong rounded-2xl p-4 ring-1 ring-white/[0.06]">
+      <p className="text-base font-medium text-zinc-100">{suggestion.question}</p>
 
-      <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-gray-500">
-        <span className="rounded-full bg-gray-100 px-2.5 py-0.5 font-medium text-gray-700">
+      <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-zinc-500">
+        <span className="rounded-full bg-white/[0.05] px-2.5 py-0.5 font-medium text-zinc-300 ring-1 ring-white/[0.06]">
           {formatCategory(suggestion.category)}
         </span>
         <span className="font-mono tabular-nums">{submitter}</span>
       </div>
 
-      <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-gray-100 pt-3">
-        <span className="text-sm font-semibold tabular-nums text-gray-700">
+      <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-white/[0.06] pt-3">
+        <span className="text-sm font-semibold tabular-nums text-zinc-300">
           {suggestion.voteCount} {suggestion.voteCount === 1 ? "vote" : "votes"}
         </span>
 
@@ -129,19 +129,19 @@ export function CommunitySuggestionCard({
             disabled={voteMutation.isPending}
             onClick={() => {
               if (!normalizedWallet) {
-                toast.message("Connect wallet to vote");
+                toast.message("Connect your wallet to vote");
                 return;
               }
               voteMutation.mutate();
             }}
             className={cn(
-              "rounded-lg px-3 py-1.5 text-sm font-semibold transition",
+              "rounded-lg px-3 py-1.5 text-sm font-semibold transition ring-1",
               hasVoted
-                ? "bg-gray-900 text-white"
-                : "border border-gray-300 bg-white text-gray-900 hover:border-gray-400 hover:bg-gray-50",
+                ? "bg-cyan-500/20 text-cyan-100 ring-cyan-400/30"
+                : "bg-white/[0.03] text-zinc-200 ring-white/[0.08] hover:bg-white/[0.06]",
             )}
           >
-            {hasVoted ? "Voted ✓" : "Vote ↑"}
+            {hasVoted ? "Voted" : "Vote"}
           </button>
           <StatusBadge status={suggestion.status} />
         </div>

@@ -82,8 +82,8 @@ function MarketRealtimeStripInner({
             seq {seq}
           </span>
         ) : (
-          <span className="rounded-md bg-white/[0.04] px-1.5 py-0.5 font-mono text-[9.5px] text-zinc-600 ring-1 ring-white/[0.06]">
-            REST
+          <span className="rounded-md bg-white/[0.04] px-1.5 py-0.5 font-mono text-[9.5px] text-zinc-500 ring-1 ring-white/[0.06]">
+            Polling
           </span>
         )}
       </span>

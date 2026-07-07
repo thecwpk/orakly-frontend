@@ -4,6 +4,7 @@
   "buildCommand": "cd ../.. && npm run db:generate && npm run build --workspace=web",
   "env": {
     "NEXT_PUBLIC_APP_URL": "https://orakly-frontend-web.vercel.app",
+    "NEXT_PUBLIC_SITE_URL": "https://orakly-frontend-web.vercel.app",
     "INTERNAL_APP_URL": "https://orakly-frontend-web.vercel.app",
     "ORAKLY_VERCEL_ONLY": "true",
     "NEXT_PUBLIC_ORAKLY_VERCEL_ONLY": "true",

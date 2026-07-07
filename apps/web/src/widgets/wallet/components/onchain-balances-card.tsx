@@ -50,7 +50,7 @@ function OnchainBalancesCardInner({
           <Sparkles className="h-5 w-5 text-zinc-600" />
           <p className="text-[12px] font-medium text-zinc-300">No tokens detected</p>
           <p className="max-w-xs text-[11px] leading-snug text-zinc-500">
-            On-chain balances appear after the first RPC sync (native + configured ERC-20s).
+            Balances appear after your wallet connects and the first network sync completes.
           </p>
         </div>
       ) : (

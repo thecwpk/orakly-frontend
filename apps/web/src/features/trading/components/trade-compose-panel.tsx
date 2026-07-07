@@ -320,15 +320,15 @@ function TradeComposePanelInner({
       : sharesNum <= 0;
 
   const blockingError = !isOnChain
-    ? "This market is not deployed on-chain — ask an admin to deploy it from Admin → Markets."
+    ? "On-chain trading is not available for this market yet."
     : !isConnected
-      ? "Connect MetaMask on BSC testnet to trade."
+      ? "Connect your wallet on BNB Smart Chain Testnet to trade."
       : wrongChain
-        ? "Switch MetaMask to BNB Smart Chain Testnet (chain 97)."
+        ? "Switch your wallet to BNB Smart Chain Testnet to continue."
       : market.status !== "OPEN"
-        ? `This market is ${market.status.toLowerCase()} — trading disabled.`
+        ? `This market is ${market.status.toLowerCase()} — trading is unavailable.`
         : quoteFailed
-          ? "Could not load an on-chain quote — check network and that the market contract exists."
+          ? "Unable to load a trade quote. Check your network connection and try again."
           : exceedsBalance
             ? "Amount exceeds wallet collateral balance."
             : lowAmount

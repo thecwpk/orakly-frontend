@@ -84,9 +84,11 @@ export function SocketRegistryProvider({
     const url = resolveWsUrl().trim();
     if (!url) {
       if (process.env.NODE_ENV === "development") {
+        if (process.env.NODE_ENV === "development") {
         console.info(
-          "[orakly] Realtime disabled — set NEXT_PUBLIC_REALTIME_URL or REALTIME_UPSTREAM_URL + NEXT_PUBLIC_REALTIME_SAME_ORIGIN=true. REST APIs still work.",
+          "[orakly] Live feed unavailable — using scheduled updates.",
         );
+      }
       }
       setConnectionStatus("disconnected");
       socketRef.current = null;

@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useAccount } from "wagmi";
+import { Users } from "lucide-react";
 import { fetchCommunitySuggestions } from "@/shared/api/fetchers/community-suggestions";
 import { queryKeys } from "@/shared/api/query-keys";
 import { cn } from "@/lib/utils";
@@ -59,24 +60,31 @@ export default function CommunityMarketsPage() {
   const showMineConnectPrompt = activeTab === "mine" && !address;
 
   return (
-    <main className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-      <header className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+    <main className="mx-auto flex max-w-6xl flex-col gap-6 pb-s64 pt-s48 md:pt-s56">
+      <header className="flex flex-col gap-4 border-b border-white/[0.06] pb-r24 sm:flex-row sm:items-start sm:justify-between">
         <div className="space-y-2">
-          <h1 className="text-3xl font-bold tracking-tight text-gray-900">Community Markets</h1>
-          <p className="max-w-2xl text-sm text-gray-500">
-            Vote for markets you want to see. Top voted markets get approved.
+          <p className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.22em] text-cyan-400/90">
+            <Users className="h-3 w-3" aria-hidden />
+            Community
+          </p>
+          <h1 className="text-balance text-2xl font-semibold tracking-tight text-white sm:text-[1.75rem]">
+            Community Markets
+          </h1>
+          <p className="max-w-2xl text-[12.5px] text-zinc-500">
+            Propose market ideas and vote on submissions. The most supported ideas are reviewed for
+            listing.
           </p>
         </div>
         <button
           type="button"
           onClick={() => setShowSubmitModal(true)}
-          className="inline-flex shrink-0 items-center justify-center rounded-lg bg-gray-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-gray-800"
+          className="inline-flex shrink-0 items-center justify-center rounded-xl bg-cyan-500/15 px-4 py-2.5 text-sm font-semibold text-cyan-100 ring-1 ring-cyan-400/30 transition hover:bg-cyan-500/25"
         >
           Submit Market Idea
         </button>
       </header>
 
-      <div className="mb-6 flex flex-wrap gap-2 border-b border-gray-200 pb-px">
+      <div className="flex flex-wrap gap-2 border-b border-white/[0.06] pb-px">
         {TABS.map((tab) => (
           <button
             key={tab.id}
@@ -85,8 +93,8 @@ export default function CommunityMarketsPage() {
             className={cn(
               "-mb-px border-b-2 px-4 py-2 text-sm font-semibold transition",
               activeTab === tab.id
-                ? "border-gray-900 text-gray-900"
-                : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-800",
+                ? "border-cyan-400 text-cyan-200"
+                : "border-transparent text-zinc-500 hover:border-white/10 hover:text-zinc-300",
             )}
           >
             {tab.label}
@@ -95,21 +103,22 @@ export default function CommunityMarketsPage() {
       </div>
 
       {showMineConnectPrompt ? (
-        <div className="flex min-h-[200px] items-center justify-center rounded-xl border border-dashed border-gray-200 bg-gray-50 px-6 py-12 text-center">
-          <p className="text-sm font-medium text-gray-500">
+        <div className="flex min-h-[220px] items-center justify-center rounded-2xl border border-dashed border-white/[0.1] bg-white/[0.02] px-6 py-12 text-center">
+          <p className="text-sm font-medium text-zinc-400">
             Connect your wallet to view your submissions.
           </p>
         </div>
       ) : suggestionsQuery.isLoading ? (
         <div className="grid gap-4">
           {Array.from({ length: 4 }).map((_, index) => (
-            <div key={index} className="h-36 animate-pulse rounded-xl bg-gray-200" />
+            <div key={index} className="h-36 animate-pulse rounded-2xl bg-zinc-800/80" />
           ))}
         </div>
       ) : suggestions.length === 0 ? (
-        <div className="flex min-h-[200px] items-center justify-center rounded-xl border border-dashed border-gray-200 bg-gray-50 px-6 py-12 text-center">
-          <p className="text-sm font-medium text-gray-500">
-            No submissions yet. Be the first to submit a market idea!
+        <div className="flex min-h-[220px] flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-white/[0.1] bg-white/[0.02] px-6 py-12 text-center">
+          <p className="text-sm font-medium text-zinc-300">No submissions yet</p>
+          <p className="max-w-sm text-[12px] text-zinc-500">
+            Be the first to propose a market idea for the community to vote on.
           </p>
         </div>
       ) : (

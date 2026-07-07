@@ -179,7 +179,7 @@ function MarketTradingDeskInner({
       return;
     }
     if (!tradeModalMarket?.onChainAddress) {
-      toast.error("This market is not deployed on-chain yet.");
+      toast.error("On-chain trading is not available for this market yet.");
       return;
     }
     openTradeModal(tradeModalMarket, outcome);
@@ -215,7 +215,7 @@ function MarketTradingDeskInner({
 
       {!isOnChain ?
         <div className="rounded-md bg-amber-500/10 px-2.5 py-1.5 text-[11px] text-amber-100 ring-1 ring-amber-500/25">
-          This listing is not deployed on-chain — create or publish a market from Admin to enable MetaMask trading.
+          On-chain trading is not available for this market yet.
         </div>
       : null}
 

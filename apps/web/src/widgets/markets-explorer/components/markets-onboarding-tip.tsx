@@ -54,11 +54,11 @@ export function MarketsOnboardingTip() {
         </span>
         <div className="min-w-0 flex-1">
           <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--hub-primary-bright)]">
-            Trade like a terminal
+            Discover markets
           </p>
           <p className="mt-1 text-[12.5px] leading-snug text-[var(--hub-fg)]/90">
-            Browse every market instantly — open detail or trade in-place. Wallet &
-            sign-in only lock in when you confirm an order. Portfolio lives on{" "}
+            Browse open markets and open any listing for details. Connect your wallet only when you
+            are ready to place a trade. Track positions on{" "}
             <Link
               href={ROUTES.portfolio}
               className="text-[var(--hub-primary-bright)] underline-offset-2 hover:underline"
