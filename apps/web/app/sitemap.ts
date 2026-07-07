@@ -1,16 +1,9 @@
 import type { MetadataRoute } from "next";
-
-function siteUrl(): string {
-  return (
-    process.env.NEXT_PUBLIC_SITE_URL?.trim() ||
-    process.env.NEXT_PUBLIC_APP_URL?.trim() ||
-    "https://orakly-frontend-web.vercel.app"
-  ).replace(/\/$/, "");
-}
+import { getPublicSiteUrl } from "@/lib/public-site-url";
 
 /** Key public routes for search engines and AI reviewers. */
 export default function sitemap(): MetadataRoute.Sitemap {
-  const base = siteUrl();
+  const base = getPublicSiteUrl();
   const now = new Date();
 
   const paths = [

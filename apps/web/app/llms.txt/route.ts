@@ -1,13 +1,11 @@
+import { getPublicSiteUrl } from "@/lib/public-site-url";
+
 /**
  * Machine-readable app summary for AI reviewers and crawlers.
  * Spec: https://llmstxt.org/ (lightweight variant at /llms.txt)
  */
 export function GET() {
-  const base = (
-    process.env.NEXT_PUBLIC_SITE_URL?.trim() ||
-    process.env.NEXT_PUBLIC_APP_URL?.trim() ||
-    "https://orakly-frontend-web.vercel.app"
-  ).replace(/\/$/, "");
+  const base = getPublicSiteUrl();
 
   const body = `# Orakly Market
 
