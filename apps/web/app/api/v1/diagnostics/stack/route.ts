@@ -79,6 +79,7 @@ export async function GET(req: Request) {
 
   const dbUrl = inspectDatabaseUrl();
   const appUrl = inspectAppUrl();
+  const vercelOnly = process.env.ORAKLY_VERCEL_ONLY === "true";
 
   const envChecks: Check[] = [
     {
@@ -87,25 +88,36 @@ export async function GET(req: Request) {
       detail: dbUrl.detail,
     },
     {
+      id: "env.ORAKLY_VERCEL_ONLY",
+      ok: vercelOnly || !vercelOnly,
+      detail: vercelOnly ? "true — REST + cron worker mode" : "false — Railway realtime expected",
+    },
+    {
       id: "env.REALTIME_INGEST",
-      ok: envPresent("REALTIME_INGEST_URL") && envPresent("REALTIME_INGEST_SECRET"),
-      detail:
-        envPresent("REALTIME_INGEST_URL") && envPresent("REALTIME_INGEST_SECRET")
+      ok:
+        vercelOnly ||
+        (envPresent("REALTIME_INGEST_URL") && envPresent("REALTIME_INGEST_SECRET")),
+      detail: vercelOnly
+        ? "optional — skipped in Vercel-only mode"
+        : envPresent("REALTIME_INGEST_URL") && envPresent("REALTIME_INGEST_SECRET")
           ? "set"
           : "MISSING ingest URL or secret",
     },
     {
       id: "env.realtime_client",
       ok:
+        vercelOnly ||
         envPresent("NEXT_PUBLIC_REALTIME_URL") ||
         (envPresent("REALTIME_UPSTREAM_URL") &&
           process.env.NEXT_PUBLIC_REALTIME_SAME_ORIGIN === "true"),
-      detail: envPresent("NEXT_PUBLIC_REALTIME_URL")
-        ? "direct NEXT_PUBLIC_REALTIME_URL"
-        : envPresent("REALTIME_UPSTREAM_URL") &&
-            process.env.NEXT_PUBLIC_REALTIME_SAME_ORIGIN === "true"
-          ? "same-origin proxy"
-          : "MISSING realtime client config",
+      detail: vercelOnly
+        ? "optional — HTTP polling fallback"
+        : envPresent("NEXT_PUBLIC_REALTIME_URL")
+          ? "direct NEXT_PUBLIC_REALTIME_URL"
+          : envPresent("REALTIME_UPSTREAM_URL") &&
+              process.env.NEXT_PUBLIC_REALTIME_SAME_ORIGIN === "true"
+            ? "same-origin proxy"
+            : "MISSING realtime client config",
     },
     {
       id: "env.app_url",

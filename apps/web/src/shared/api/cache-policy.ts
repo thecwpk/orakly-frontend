@@ -14,6 +14,11 @@ import {
   REFERENCE_TIER,
   WARM_TIER,
 } from "./cache-tiers";
+import { isVercelOnlyMode, VERCEL_ONLY_MARKETS_POLL_MS } from "@/lib/vercel-only-env";
+
+const marketsFeedRefetchInterval = isVercelOnlyMode()
+  ? VERCEL_ONLY_MARKETS_POLL_MS
+  : (false as const);
 
 export const CACHE_POLICY = {
   /** Lists / reference — refresh on focus so admin deploys reach cards quickly. */
@@ -22,8 +27,8 @@ export const CACHE_POLICY = {
     gcTime: REFERENCE_TIER.gcTime,
     refetchOnWindowFocus: true,
     refetchOnReconnect: true,
-    refetchInterval: false as const,
-    refetchIntervalInBackground: false,
+    refetchInterval: marketsFeedRefetchInterval,
+    refetchIntervalInBackground: isVercelOnlyMode(),
   },
 
   /** Odds / liquidity: WS pushes invalidate; HTTP is fallback snapshot. */

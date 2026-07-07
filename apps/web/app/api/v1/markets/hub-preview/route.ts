@@ -9,6 +9,7 @@ import {
   hubMoversRankingEnabled,
 } from "@/server/queries/hub-markets-preview";
 import { MarketsFeedDatabaseError } from "@/server/queries/markets-feed-scoped";
+import { scheduleMarketsStaleRefresh } from "@/server/vercel-worker/stale-refresh";
 
 /** GET /api/v1/markets/hub-preview — batched hub lanes + hot topics; short CDN TTL. */
 export async function GET(req: NextRequest) {
@@ -44,6 +45,7 @@ export async function GET(req: NextRequest) {
 
   try {
     const data = await cachedFetch();
+    scheduleMarketsStaleRefresh();
     return NextResponse.json(ok(data), {
       headers: {
         "Cache-Control": "public, s-maxage=45, stale-while-revalidate=180",

@@ -5,14 +5,19 @@
   "env": {
     "NEXT_PUBLIC_APP_URL": "https://orakly-frontend-web.vercel.app",
     "INTERNAL_APP_URL": "https://orakly-frontend-web.vercel.app",
-    "NEXT_PUBLIC_REALTIME_SAME_ORIGIN": "true",
-    "REALTIME_UPSTREAM_URL": "https://realtime-production-e37e.up.railway.app",
-    "REALTIME_INGEST_URL": "https://realtime-production-e37e.up.railway.app"
+    "ORAKLY_VERCEL_ONLY": "true",
+    "NEXT_PUBLIC_ORAKLY_VERCEL_ONLY": "true",
+    "VERCEL_CRON_INGEST_ENABLED": "true",
+    "VERCEL_CRON_TRENDING_ENABLED": "true"
   },
   "crons": [
     {
-      "path": "/api/internal/cron/sample-market-odds-snapshots",
-      "schedule": "0 12 * * *"
+      "path": "/api/internal/cron/worker-bundle",
+      "schedule": "0 6 * * *"
+    },
+    {
+      "path": "/api/internal/cron/warm-markets-cache",
+      "schedule": "0 18 * * *"
     }
   ]
 }

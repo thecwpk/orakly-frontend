@@ -29,6 +29,9 @@ if (!base) {
 
 const cronSecret = process.env.CRON_SECRET?.trim();
 const revalidateSecret = process.env.VERCEL_REVALIDATE_SECRET?.trim();
+const vercelOnly =
+  process.env.ORAKLY_VERCEL_ONLY === "true" ||
+  process.env.NEXT_PUBLIC_ORAKLY_VERCEL_ONLY === "true";
 const realtimeBase = process.env.REALTIME_INGEST_URL?.trim().replace(/\/$/, "");
 const sameOrigin = process.env.NEXT_PUBLIC_REALTIME_SAME_ORIGIN === "true";
 const socketBase = sameOrigin ? base : process.env.NEXT_PUBLIC_REALTIME_URL?.trim().replace(/\/$/, "");
@@ -178,7 +181,9 @@ if (cronSecret) {
 
 console.log("\n── Realtime (Railway) ──\n");
 
-if (realtimeBase) {
+if (vercelOnly) {
+  pass("Vercel-only mode", "ORAKLY_VERCEL_ONLY — skipping Railway realtime checks");
+} else if (realtimeBase) {
   const r = await getJson(`${realtimeBase}/health`);
   if (r.ok) pass("Railway realtime /health", realtimeBase);
   else fail("Railway realtime /health", `HTTP ${r.status} ${r.text}`);
@@ -186,7 +191,9 @@ if (realtimeBase) {
   fail("Railway realtime /health", "REALTIME_INGEST_URL not in .env.local");
 }
 
-if (socketBase) {
+if (vercelOnly) {
+  pass("Socket.IO polling", "skipped — activity tape uses REST polling");
+} else if (socketBase) {
   const pollUrl = `${socketBase}/socket.io/?EIO=4&transport=polling`;
   const r = await getJson(pollUrl);
   if (r.ok && r.text.includes("sid")) {
@@ -208,7 +215,11 @@ for (const path of ["/", "/dapp", "/discover"]) {
 
 console.log("\n══════════════════════════════════════════");
 if (failed === 0) {
-  console.log("  ALL CHECKS PASSED — backend + markets + realtime look wired.");
+  console.log(
+    vercelOnly
+      ? "  ALL CHECKS PASSED — Vercel-only stack (REST + crons) looks wired."
+      : "  ALL CHECKS PASSED — backend + markets + realtime look wired.",
+  );
 } else {
   console.log(`  ${failed} CHECK(S) FAILED — fix items marked ✗ above.`);
 }

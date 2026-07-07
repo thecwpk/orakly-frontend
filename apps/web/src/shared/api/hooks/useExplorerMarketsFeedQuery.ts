@@ -15,7 +15,9 @@ export function useExplorerMarketsFeedQuery(enabled: boolean = true) {
     queryFn: fetchMarketsFeed,
     placeholderData: keepPreviousData,
     ...CACHE_POLICY.marketsFeed,
-    refetchInterval: enabled ? 60_000 : false,
+    refetchInterval: enabled
+      ? (CACHE_POLICY.marketsFeed.refetchInterval || 60_000)
+      : false,
     enabled,
     /** Interval polling already refreshes; skip extra churn on tab focus. */
     refetchOnWindowFocus: false,

@@ -1,5 +1,5 @@
 {
-  "name": "@orakly/jobs",
+  "name": "@orakly/narratives",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -9,17 +9,21 @@
     ".": "./src/index.ts"
   },
   "scripts": {
-    "check-types": "tsc --noEmit"
+    "check-types": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
-    "@orakly/crypto-integrations": "*",
     "@orakly/database": "*",
-    "@orakly/narratives": "*",
-    "@prisma/client": "^7.8.0"
+    "@orakly/realtime-protocol": "*",
+    "@prisma/client": "^7.8.0",
+    "bullmq": "^5.34.5",
+    "ioredis": "^5.4.2"
   },
   "devDependencies": {
     "@repo/typescript-config": "*",
     "@types/node": "^22.15.3",
-    "typescript": "5.9.2"
+    "typescript": "5.9.2",
+    "vitest": "^3.2.4"
   }
 }

@@ -39,3 +39,8 @@ export {
   type RefreshMarketTrendingMetricsResult,
 } from "./refresh-market-trending-metrics";
 export { postCryptoIngestRealtimeHint } from "./post-realtime-hint";
+export {
+  runNarrativeUpdatePipeline,
+  type NarrativePipelineResult,
+} from "./narrative-pipeline";
+export { runFullRecompute } from "./consistency-pipeline";

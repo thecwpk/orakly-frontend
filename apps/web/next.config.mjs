@@ -38,6 +38,8 @@ const nextConfig = {
     "@orakly/realtime-protocol",
     "@orakly/crypto-integrations",
     "@orakly/database",
+    "@orakly/jobs",
+    "@orakly/narratives",
     "@orakly/types",
     "@orakly/utils",
     "@orakly/config",
@@ -56,6 +58,9 @@ const nextConfig = {
         __dirname,
         "async-storage-stub.js",
       ),
+    };
+    config.resolve.extensionAlias = {
+      ".js": [".ts", ".tsx", ".js", ".jsx"],
     };
     return config;
   },

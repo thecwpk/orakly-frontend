@@ -1,5 +1,9 @@
-/** Cron-sized jobs — invoked from `app/api/internal/cron/*` or Railway worker (`@orakly/jobs`). */
-export { runCryptoIngestionPipeline } from "@orakly/jobs";
+/** Cron-sized jobs — invoked from `app/api/internal/cron/*` (Vercel-only mode). */
+export {
+  runCryptoIngestionPipeline,
+  runNarrativeUpdatePipeline,
+  runFullRecompute,
+} from "@orakly/jobs";
 export {
   computeTrendingScoreFromMetrics,
   refreshMarketTrendingMetrics,

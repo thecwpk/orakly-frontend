@@ -12,6 +12,7 @@ import {
 } from "@/server/queries/markets-feed-scoped";
 import { err, ok } from "../_lib/response";
 import { MarketsFeedDatabaseError } from "@/server/queries/markets-feed-scoped";
+import { scheduleMarketsStaleRefresh } from "@/server/vercel-worker/stale-refresh";
 
 function parseLane(raw: string | null): MarketsFeedLane {
   if (raw === "trending" || raw === "list" || raw === "alpha" || raw === "directory") {
@@ -80,6 +81,7 @@ export async function GET(req: NextRequest) {
     try {
       const { getMarketsByNarrative } = await import("@/server/queries/narrative-markets");
       const data = await getMarketsByNarrative(narrative, take);
+      scheduleMarketsStaleRefresh();
       return NextResponse.json(ok(data), {
         headers: {
           "Cache-Control": "public, s-maxage=45, stale-while-revalidate=180",
@@ -145,6 +147,7 @@ export async function GET(req: NextRequest) {
 
   try {
     const data = await cachedFetch();
+    scheduleMarketsStaleRefresh();
     return NextResponse.json(ok(data), {
       headers: {
         "Cache-Control": "public, s-maxage=45, stale-while-revalidate=180",
