@@ -46,7 +46,7 @@ export async function getNarrativeWars(): Promise<NarrativeWarCard[]> {
     const scoreB = rowB?.score ?? 50;
     const probs = splitProbs(scoreA, scoreB);
 
-    const narratives = new Set([pair.narrativeA, pair.narrativeB]);
+    const narratives = new Set<string>([pair.narrativeA, pair.narrativeB]);
     let totalVolume24hUsd = 0;
     for (const m of markets) {
       const narrative = m.marketSuggestion?.narrative;

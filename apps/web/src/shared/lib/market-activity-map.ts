@@ -2,7 +2,7 @@ import type { FeedActivityPayload } from "@orakly/realtime-protocol";
 import type {
   MarketActivityEvent,
   MarketActivityKind,
-} from "./market-activity";
+} from "@/shared/contracts/market-activity";
 
 function truncate(text: string, max: number): string {
   const t = text.trim();

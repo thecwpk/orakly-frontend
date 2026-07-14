@@ -6,6 +6,7 @@ import type {
   AppNotification,
   Notification,
   NotificationFilter,
+  NotificationKind,
 } from "../types";
 
 type NotificationsStore = {

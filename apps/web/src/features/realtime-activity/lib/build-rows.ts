@@ -124,12 +124,36 @@ function extractDescription(p: unknown): string | undefined {
   return undefined;
 }
 
+function toNotifVariant(
+  kind: Notification["kind"],
+): NotificationActivityRow["variant"] {
+  switch (kind) {
+    case "FILL":
+    case "SETTLE":
+    case "ALERT":
+    case "MENTION":
+    case "SYSTEM":
+      return kind;
+    case "SETTLEMENT":
+      return "SETTLE";
+    case "APPROVAL":
+    case "VOTE":
+    case "REWARD":
+    case "NEW_MARKET":
+      return "ALERT";
+    case "MARKET_CLOSING":
+      return "ALERT";
+    default:
+      return "SYSTEM";
+  }
+}
+
 function notificationToActivity(n: Notification): NotificationActivityRow {
   return {
     kind: "notification",
     id: `n:${n.id}`,
     at: isoToMs(n.at),
-    variant: n.kind,
+    variant: toNotifVariant(n.kind),
     title: n.title,
     description: n.body,
     href: n.href,

@@ -16,6 +16,7 @@ type AttentionDashboardItem = {
   uniqueTraders: number;
   liquidity: number;
   openInterest: number;
+  scorePrev24h: number;
   lastUpdated: string;
   _isMock?: true;
 };
