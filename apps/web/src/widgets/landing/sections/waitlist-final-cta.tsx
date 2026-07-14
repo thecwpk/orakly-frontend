@@ -21,7 +21,7 @@ export function WaitlistFinalCta() {
       id="early-access"
       className={cn(
         landingSectionBand,
-        "bg-[radial-gradient(ellipse_100%_90%_at_50%_-25%,oklch(0.42_0.16_285_/_0.35),transparent_55%),radial-gradient(ellipse_55%_45%_at_0%_100%,oklch(0.32_0.12_270_/_0.22),transparent_60%),linear-gradient(188deg,oklch(0.1_0.03_275),hsl(var(--background))_45%,oklch(0.09_0.025_280))]",
+        "bg-[radial-gradient(ellipse_100%_90%_at_50%_-25%,oklch(0.42_0.16_285_/_0.35),transparent_55%),radial-gradient(ellipse_55%_45%_at_0%_100%,oklch(0.32_0.12_270_/_0.22),transparent_60%),linear-gradient(188deg,oklch(0.1_0.03_275),var(--background)_45%,oklch(0.09_0.025_280))]",
       )}
     >
       <div

@@ -2,10 +2,12 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import { Menu, Search, X } from "lucide-react";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ROUTES } from "@/shared/constants/routes";
-import { BrandWordmarkLink, PrefetchLink } from "@/shared/ui";
+import { BRAND_LOGO_NAV } from "@/shared/constants/brand-logos";
+import { PrefetchLink } from "@/shared/ui";
 import { cn } from "@/lib/utils";
 import { NotificationBell } from "./notification-popover";
 import { WalletPopover } from "./wallet-popover";
@@ -18,39 +20,55 @@ import {
 
 export type AppTopbarDensity = "default" | "hub";
 
-function navLinkClass(active: boolean, hub: boolean) {
+const NAV_H = "h-14"; /* 56px */
+
+function navLinkClass(active: boolean) {
   return cn(
-    "relative shrink-0 pb-0.5 text-[13px] font-medium transition",
-    hub
-      ? active
-        ? "font-semibold text-[var(--hub-primary)]"
-        : "text-[var(--hub-muted)] hover:text-[var(--hub-fg)]"
-      : active
-        ? "text-[#f0f6ff]"
-        : "text-[#8ba3c7] hover:text-[#f0f6ff]",
-    active &&
-      (hub
-        ? "after:absolute after:inset-x-0 after:-bottom-0.5 after:h-0.5 after:rounded-full after:bg-[var(--hub-primary)]"
-        : "after:absolute after:inset-x-0 after:-bottom-0.5 after:h-0.5 after:rounded-full after:bg-[#60a5fa]"),
+    "rounded-md px-3 py-1.5 text-sm transition-colors",
+    active
+      ? "bg-white/10 text-white"
+      : "text-[#94a3b8] hover:bg-white/5 hover:text-white",
   );
 }
 
-function iconBtnClass(hub: boolean) {
+function iconBtnClass() {
   return cn(
-    "relative inline-flex size-9 shrink-0 items-center justify-center rounded-[10px] border transition",
-    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563eb]/35",
-    hub
-      ? "border-[var(--hub-border)] bg-[color-mix(in_srgb,var(--hub-card)_70%,transparent)] text-[var(--hub-muted)] hover:border-[var(--hub-border-strong)] hover:text-[var(--hub-fg)]"
-      : "border-white/[0.08] bg-white/[0.03] text-zinc-400 hover:border-white/[0.11] hover:bg-white/[0.06] hover:text-zinc-100",
+    "inline-flex size-9 shrink-0 items-center justify-center rounded-md text-[#94a3b8] transition-colors",
+    "hover:bg-white/5 hover:text-white",
+    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]/35",
+  );
+}
+
+function LogoMark({ onClick }: { onClick?: () => void }) {
+  return (
+    <PrefetchLink
+      href={ROUTES.dapp}
+      onClick={onClick}
+      className="flex shrink-0 items-center"
+      aria-label="Orakly home"
+    >
+      <Image
+        src={BRAND_LOGO_NAV}
+        alt=""
+        width={32}
+        height={32}
+        unoptimized
+        priority
+        className="h-8 w-8 object-contain"
+      />
+      <span className="ml-2 text-base font-bold text-white">Orakly</span>
+      <span className="ml-2 rounded bg-[var(--accent)] px-1.5 py-0.5 text-[6px] font-semibold uppercase leading-none tracking-wide text-white">
+        Beta
+      </span>
+    </PrefetchLink>
   );
 }
 
 /**
- * Sticky terminal navbar — logo + primary nav, search / notifications / wallet.
+ * Fixed top navigation — logo, 6 primary links, search / bell / wallet.
  */
 export function AppTopbar({ density = "default" }: { density?: AppTopbarDensity }) {
   useNavShortcuts();
-  const hub = density === "hub";
   const pathname = usePathname();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const openGlobalSearch = useGlobalSearchStore((s) => s.open);
@@ -77,32 +95,22 @@ export function AppTopbar({ density = "default" }: { density?: AppTopbarDensity 
     <header
       role="banner"
       data-topbar-density={density}
-      className={cn(
-        "relative sticky top-0 z-40 border-b backdrop-blur-sm supports-[backdrop-filter]:backdrop-blur-md",
-        hub
-          ? "border-[var(--hub-border)] bg-[var(--hub-chrome)]/95"
-          : "border-app-subtle bg-app-chrome/97 chrome-edge-subtle",
-      )}
+      className="fixed inset-x-0 top-0 z-50 w-full border-b border-white/5 bg-[#0f1117]/90 backdrop-blur-xl"
     >
       <div
         className={cn(
-          "mx-auto flex h-[var(--app-topbar-row-h)] w-full max-w-[90rem] items-center px-3 sm:px-4 lg:px-6",
-          hub ? "gap-3" : "gap-2 sm:gap-3 lg:gap-4",
+          "mx-auto flex max-w-7xl items-center justify-between px-4",
+          NAV_H,
         )}
       >
-        {/* Left — logo always → /dapp */}
-        <BrandWordmarkLink
-          href={ROUTES.dapp}
-          showTitle={false}
-          variant="nav"
-          tone="onDark"
-          priority
-          className="min-w-0 shrink-0"
-        />
+        {/* LEFT — logo + BETA */}
+        <div className="flex min-w-0 shrink-0 items-center">
+          <LogoMark />
+        </div>
 
-        {/* Center — desktop primary links */}
+        {/* CENTER — desktop primary links */}
         <nav
-          className="ml-5 hidden min-w-0 flex-1 items-center gap-4 md:flex lg:gap-5"
+          className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-0.5 md:flex"
           aria-label="Primary"
         >
           {TOP_NAV_ITEMS.map((item) => {
@@ -112,7 +120,7 @@ export function AppTopbar({ density = "default" }: { density?: AppTopbarDensity 
                 key={item.href}
                 href={item.href}
                 aria-current={active ? "page" : undefined}
-                className={navLinkClass(active, hub)}
+                className={navLinkClass(active)}
               >
                 {item.label}
               </PrefetchLink>
@@ -120,44 +128,45 @@ export function AppTopbar({ density = "default" }: { density?: AppTopbarDensity 
           })}
         </nav>
 
-        <div className="flex-1 md:hidden" aria-hidden />
-
-        {/* Right — desktop actions */}
-        <div className="hidden shrink-0 items-center gap-2 sm:gap-2.5 md:ml-auto md:flex">
+        {/* RIGHT — desktop actions */}
+        <div className="hidden shrink-0 items-center gap-1.5 md:flex">
           <button
             type="button"
             aria-label="Open search"
-            className={iconBtnClass(hub)}
+            className={iconBtnClass()}
             onClick={() => openGlobalSearch()}
           >
             <Search className="size-[18px]" strokeWidth={2} aria-hidden />
           </button>
           <NotificationBell />
-          <WalletPopover connectLabel="Connect Wallet" variant={hub ? "hub" : "default"} />
+          <WalletPopover connectLabel="Connect Wallet" variant="default" />
         </div>
 
-        {/* Mobile — hamburger top right */}
-        <button
-          type="button"
-          aria-label={drawerOpen ? "Close menu" : "Open menu"}
-          aria-expanded={drawerOpen}
-          aria-controls="app-mobile-nav-drawer"
-          className={cn(iconBtnClass(hub), "md:hidden")}
-          onClick={() => setDrawerOpen((v) => !v)}
-        >
-          {drawerOpen ? (
-            <X className="size-[18px]" strokeWidth={2} aria-hidden />
-          ) : (
-            <Menu className="size-[18px]" strokeWidth={2} aria-hidden />
-          )}
-        </button>
+        {/* MOBILE — connect + hamburger */}
+        <div className="flex shrink-0 items-center gap-1.5 md:hidden">
+          <WalletPopover connectLabel="Connect Wallet" variant="default" />
+          <button
+            type="button"
+            aria-label={drawerOpen ? "Close menu" : "Open menu"}
+            aria-expanded={drawerOpen}
+            aria-controls="app-mobile-nav-drawer"
+            className={iconBtnClass()}
+            onClick={() => setDrawerOpen((v) => !v)}
+          >
+            {drawerOpen ? (
+              <X className="size-[18px]" strokeWidth={2} aria-hidden />
+            ) : (
+              <Menu className="size-[18px]" strokeWidth={2} aria-hidden />
+            )}
+          </button>
+        </div>
       </div>
 
-      {/* Mobile drawer — slides in from left */}
+      {/* Mobile full-screen drawer */}
       <AnimatePresence>
         {drawerOpen ? (
           <div
-            className="fixed inset-0 z-[45] md:hidden"
+            className="fixed inset-0 z-[60] md:hidden"
             aria-modal="true"
             role="dialog"
             aria-label="Navigation menu"
@@ -167,41 +176,32 @@ export function AppTopbar({ density = "default" }: { density?: AppTopbarDensity 
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.15 }}
-              className="absolute inset-0 bg-black/55 backdrop-blur-[2px]"
-              onClick={() => setDrawerOpen(false)}
+              className="absolute inset-0 bg-[#0f1117]"
             />
-            <motion.aside
+            <motion.div
               id="app-mobile-nav-drawer"
-              initial={{ x: "-105%" }}
-              animate={{ x: 0 }}
-              exit={{ x: "-105%" }}
-              transition={{ type: "spring", stiffness: 420, damping: 36 }}
-              className={cn(
-                "absolute inset-y-0 left-0 flex w-[min(100vw-3rem,20rem)] flex-col border-r",
-                hub
-                  ? "border-[var(--hub-border)] bg-[var(--hub-chrome)]"
-                  : "border-white/[0.08] bg-[#0b0b14]",
-              )}
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.18 }}
+              className="relative flex h-full flex-col"
             >
-              <div className="flex h-[var(--app-topbar-row-h)] items-center justify-between border-b border-white/[0.06] px-3">
-                <BrandWordmarkLink
-                  href={ROUTES.dapp}
-                  showTitle={false}
-                  variant="nav"
-                  tone="onDark"
-                  onClick={() => setDrawerOpen(false)}
-                />
+              <div className={cn("flex items-center justify-between border-b border-white/5 px-4", NAV_H)}>
+                <LogoMark onClick={() => setDrawerOpen(false)} />
                 <button
                   type="button"
                   aria-label="Close menu"
-                  className={iconBtnClass(hub)}
+                  className={iconBtnClass()}
                   onClick={() => setDrawerOpen(false)}
                 >
                   <X className="size-[18px]" strokeWidth={2} aria-hidden />
                 </button>
               </div>
 
-              <nav className="flex flex-1 flex-col gap-0.5 overflow-y-auto px-2 py-3" aria-label="Mobile primary">
+              <nav
+                className="flex flex-1 flex-col gap-1 overflow-y-auto px-4 py-6"
+                aria-label="Mobile primary"
+              >
                 {TOP_NAV_ITEMS.map((item) => {
                   const active = resolvePrimaryNavActive(pathname, item);
                   return (
@@ -210,53 +210,32 @@ export function AppTopbar({ density = "default" }: { density?: AppTopbarDensity 
                       href={item.href}
                       aria-current={active ? "page" : undefined}
                       onClick={() => setDrawerOpen(false)}
-                      className={cn(
-                        "rounded-lg px-3 py-2.5 text-[14px] font-medium transition",
-                        active
-                          ? hub
-                            ? "bg-[var(--hub-primary)]/12 text-[var(--hub-primary)]"
-                            : "bg-white/[0.06] text-white ring-1 ring-cyan-400/25"
-                          : hub
-                            ? "text-[var(--hub-muted)] hover:bg-white/[0.04] hover:text-[var(--hub-fg)]"
-                            : "text-zinc-300 hover:bg-white/[0.04] hover:text-white",
-                      )}
+                      className={cn(navLinkClass(active), "px-4 py-3 text-base")}
                     >
                       {item.label}
                     </PrefetchLink>
                   );
                 })}
 
-                <div className="mt-3 space-y-2 border-t border-white/[0.06] px-1 pt-3">
+                <div className="mt-6 space-y-2 border-t border-white/5 pt-6">
                   <button
                     type="button"
                     onClick={() => {
                       setDrawerOpen(false);
                       openGlobalSearch();
                     }}
-                    className={cn(
-                      "flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-left text-[14px] font-medium transition",
-                      hub
-                        ? "text-[var(--hub-muted)] hover:bg-white/[0.04] hover:text-[var(--hub-fg)]"
-                        : "text-zinc-300 hover:bg-white/[0.04] hover:text-white",
-                    )}
+                    className="flex w-full items-center gap-2 rounded-md px-4 py-3 text-left text-base text-[#94a3b8] transition-colors hover:bg-white/5 hover:text-white"
                   >
-                    <Search className="size-4 shrink-0" aria-hidden />
+                    <Search className="size-[18px] shrink-0" aria-hidden />
                     Search
                   </button>
-                  <div className="flex items-center gap-2 px-1 pt-1">
+                  <div className="flex items-center gap-2 px-4 py-2">
                     <NotificationBell />
-                    <span className="text-[12px] text-zinc-400">Notifications</span>
+                    <span className="text-sm text-[#94a3b8]">Notifications</span>
                   </div>
                 </div>
               </nav>
-
-              <div className="border-t border-white/[0.06] p-3">
-                <WalletPopover
-                  connectLabel="Connect Wallet"
-                  variant={hub ? "hub" : "default"}
-                />
-              </div>
-            </motion.aside>
+            </motion.div>
           </div>
         ) : null}
       </AnimatePresence>

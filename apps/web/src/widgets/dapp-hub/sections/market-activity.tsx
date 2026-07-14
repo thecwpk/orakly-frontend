@@ -1,17 +1,8 @@
 "use client";
 
-import { AnimatePresence, motion } from "framer-motion";
-import {
-  Calendar,
-  Clock3,
-  Plus,
-  Star,
-  ThumbsUp,
-} from "lucide-react";
 import Link from "next/link";
-import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { LeaderboardAvatar } from "@/features/leaderboard/components/leaderboard-avatar";
 import { cn } from "@/lib/utils";
 import { ROUTES } from "@/shared/constants/routes";
 import { fetchMarketActivityFeed } from "@/shared/api/fetchers/activity-feed";
@@ -20,7 +11,6 @@ import type { MarketActivityEvent } from "@/shared/contracts/market-activity";
 import { feedPayloadToMarketActivity } from "@/shared/lib/market-activity-map";
 import { useLiveActivityFeed } from "@/websocket/hooks/useLiveActivityFeed";
 import { useSocketRegistry } from "@/websocket/socket-registry";
-import { fmtUsdCompact } from "../lib/format-hub-metrics";
 
 function shortenAddress(addr: string): string {
   if (addr.length < 12) return addr;
@@ -39,99 +29,119 @@ function formatTimeAgo(iso: string): string {
   return `${d} day${d === 1 ? "" : "s"} ago`;
 }
 
-function IconCircle({
-  className,
-  children,
-}: {
-  className: string;
-  children: ReactNode;
-}) {
+function truncateQuestion(q: string, max = 48): string {
+  const t = q.trim();
+  if (t.length <= max) return t;
+  return `${t.slice(0, max - 1)}…`;
+}
+
+/** First 6 hex digits of address → CSS hex color. */
+function avatarColorFromAddress(addr: string): string {
+  const cleaned = addr.replace(/^0x/i, "").replace(/[^0-9a-fA-F]/g, "");
+  const hex = `${cleaned}000000`.slice(0, 6);
+  return `#${hex}`;
+}
+
+function avatarInitials(addr: string): string {
+  const cleaned = addr.replace(/^0x/i, "");
+  return (cleaned.slice(0, 2) || "??").toUpperCase();
+}
+
+function WalletAvatar({ address }: { address: string }) {
+  return (
+    <span
+      className="flex size-9 shrink-0 items-center justify-center rounded-full text-[11px] font-bold text-white"
+      style={{ backgroundColor: avatarColorFromAddress(address) }}
+      aria-hidden
+    >
+      {avatarInitials(address)}
+    </span>
+  );
+}
+
+function EventAvatar({ event }: { event: MarketActivityEvent }) {
+  if (event.kind === "TRADE" && event.walletAddress) {
+    return <WalletAvatar address={event.walletAddress} />;
+  }
+
+  const tones: Record<string, string> = {
+    MARKET_APPROVED: "bg-blue-600",
+    MARKET_CREATED: "bg-teal-600",
+    MARKET_CLOSING: "bg-amber-600",
+    COMMUNITY_VOTE: "bg-violet-600",
+    UPCOMING_EVENT: "bg-slate-600",
+  };
+  const glyphs: Record<string, string> = {
+    MARKET_APPROVED: "✓",
+    MARKET_CREATED: "✨",
+    MARKET_CLOSING: "⏰",
+    COMMUNITY_VOTE: "👍",
+    UPCOMING_EVENT: "📅",
+  };
+
   return (
     <span
       className={cn(
-        "flex size-9 shrink-0 items-center justify-center rounded-full ring-1",
-        className,
+        "flex size-9 shrink-0 items-center justify-center rounded-full text-sm text-white",
+        tones[event.kind] ?? "bg-slate-600",
       )}
+      aria-hidden
     >
-      {children}
+      {glyphs[event.kind] ?? "•"}
     </span>
   );
 }
 
 function ActivityRow({
   event,
-  flash,
+  isNew,
 }: {
   event: MarketActivityEvent;
-  flash?: boolean;
+  isNew?: boolean;
 }) {
   const marketHref = event.marketSlug
     ? ROUTES.market(event.marketSlug)
     : ROUTES.markets;
+  const isYes = event.outcome !== "NO";
+  const q = truncateQuestion(event.question);
 
   return (
     <div
       className={cn(
-        "flex gap-3 border-b border-[var(--hub-border)] py-3 transition last:border-b-0",
-        "hover:bg-white/[0.03]",
-        flash && "bg-amber-400/15",
+        "flex items-start gap-3 border-b border-white/[0.03] px-4 py-3 transition-colors last:border-b-0 hover:bg-white/[0.02]",
+        isNew && "animate-slide-in animate-activity-flash",
       )}
     >
-      {/* Icon */}
-      {event.kind === "TRADE" && event.walletAddress ? (
-        <LeaderboardAvatar
-          address={event.walletAddress}
-          className="size-9 rounded-full"
-        />
-      ) : event.kind === "MARKET_APPROVED" ? (
-        <IconCircle className="bg-sky-500/15 ring-sky-400/30">
-          <Star className="size-4 text-sky-300" />
-        </IconCircle>
-      ) : event.kind === "MARKET_CREATED" ? (
-        <IconCircle className="bg-teal-500/15 ring-teal-400/30">
-          <Plus className="size-4 text-teal-300" />
-        </IconCircle>
-      ) : event.kind === "MARKET_CLOSING" ? (
-        <IconCircle className="bg-orange-500/15 ring-orange-400/30">
-          <Clock3 className="size-4 text-orange-300" />
-        </IconCircle>
-      ) : event.kind === "COMMUNITY_VOTE" ? (
-        <IconCircle className="bg-violet-500/15 ring-violet-400/30">
-          <ThumbsUp className="size-4 text-violet-300" />
-        </IconCircle>
-      ) : (
-        <IconCircle className="bg-amber-500/15 ring-amber-400/30">
-          <Calendar className="size-4 text-amber-300" />
-        </IconCircle>
-      )}
+      <EventAvatar event={event} />
 
-      {/* Text */}
       <div className="min-w-0 flex-1">
         {event.kind === "TRADE" ? (
           <>
-            <p className="text-[13px] leading-snug text-[var(--hub-fg)]">
+            <p className="text-sm text-slate-200">
               {event.walletAddress ? (
                 <Link
                   href={ROUTES.traderProfile(event.walletAddress)}
-                  className="font-medium text-[var(--hub-primary-bright)] hover:underline"
+                  className="font-mono text-xs text-slate-500 hover:text-slate-300"
+                  onClick={(e) => e.stopPropagation()}
                 >
                   {shortenAddress(event.walletAddress)}
                 </Link>
               ) : (
-                <span className="font-medium">Trader</span>
-              )}{" "}
-              bet{" "}
+                <span className="font-mono text-xs text-slate-500">Trader</span>
+              )}
+              {" bet "}
               <span
                 className={cn(
-                  "font-bold",
-                  event.outcome === "NO" ? "text-rose-400" : "text-emerald-400",
+                  "font-semibold",
+                  isYes ? "text-green-400" : "text-red-400",
                 )}
               >
                 {event.outcome ?? "YES"}
-              </span>{" "}
-              · {event.question}
+              </span>
+              {" · "}
+              <span className="text-slate-400">{q}</span>
             </p>
-            <p className="mt-1 text-[11px] text-[var(--hub-muted)]">
+            <p className="mt-0.5 text-xs text-slate-600">
               {event.amountBnb != null ? `${event.amountBnb} BNB` : "—"} ·{" "}
               {formatTimeAgo(event.at)}
             </p>
@@ -140,101 +150,104 @@ function ActivityRow({
 
         {event.kind === "MARKET_APPROVED" ? (
           <>
-            <p className="text-[13px] leading-snug text-[var(--hub-fg)]">
-              ✓ Market Approved — {event.question}
+            <p className="text-sm text-slate-200">
+              <span className="text-blue-400">✓ Approved</span>
+              {" — "}
+              {q}
             </p>
-            <p className="mt-1 text-[11px] text-[var(--hub-muted)]">
-              Now open for trading · {formatTimeAgo(event.at)}
-            </p>
+            <p className="mt-0.5 text-xs text-slate-600">{formatTimeAgo(event.at)}</p>
           </>
         ) : null}
 
         {event.kind === "MARKET_CREATED" ? (
           <>
-            <p className="text-[13px] leading-snug text-[var(--hub-fg)]">
-              ✨ New Market — {event.question}
+            <p className="text-sm text-slate-200">
+              <span className="text-teal-400">✨ New Market</span>
+              {" — "}
+              {q}
             </p>
-            <p className="mt-1 text-[11px] text-[var(--hub-muted)]">
-              {event.category ?? "Market"} · {formatTimeAgo(event.at)}
-            </p>
+            <p className="mt-0.5 text-xs text-slate-600">{formatTimeAgo(event.at)}</p>
           </>
         ) : null}
 
         {event.kind === "MARKET_CLOSING" ? (
           <>
-            <p className="text-[13px] leading-snug text-[var(--hub-fg)]">
-              ⏰ Closing Soon — {event.question}
+            <p className="text-sm text-slate-200">
+              <span className="text-amber-400">⏰ Closing Soon</span>
+              {" — "}
+              {q}
             </p>
-            <p className="mt-1 text-[11px] text-[var(--hub-muted)]">
-              Closes in {event.hoursUntilClose ?? "?"} hour
-              {(event.hoursUntilClose ?? 0) === 1 ? "" : "s"} ·{" "}
-              {fmtUsdCompact(event.volumeUsd ?? 0)} volume
-            </p>
+            <p className="mt-0.5 text-xs text-slate-600">{formatTimeAgo(event.at)}</p>
           </>
         ) : null}
 
         {event.kind === "COMMUNITY_VOTE" ? (
           <>
-            <p className="text-[13px] leading-snug text-[var(--hub-fg)]">
-              Community voted on — {event.question}
+            <p className="text-sm text-slate-200">
+              <span className="text-violet-400">👍 Community Vote</span>
+              {" — "}
+              {q}
             </p>
-            <p className="mt-1 text-[11px] text-[var(--hub-muted)]">
-              {event.voteCount ?? 0} total votes · {formatTimeAgo(event.at)}
-            </p>
+            <p className="mt-0.5 text-xs text-slate-600">{formatTimeAgo(event.at)}</p>
           </>
         ) : null}
 
         {event.kind === "UPCOMING_EVENT" ? (
           <>
-            <p className="text-[13px] leading-snug text-[var(--hub-fg)]">
-              📅 {event.eventName ?? event.question}
+            <p className="text-sm text-slate-200">
+              <span className="text-slate-400">📅 Upcoming</span>
+              {" — "}
+              {truncateQuestion(event.eventName ?? event.question)}
             </p>
-            <p className="mt-1 text-[11px] text-[var(--hub-muted)]">
-              {event.eventWhenLabel ?? "Soon"}
+            <p className="mt-0.5 text-xs text-slate-600">
+              {event.eventWhenLabel ?? formatTimeAgo(event.at)}
             </p>
           </>
         ) : null}
       </div>
 
-      {/* Right action / badge */}
       <div className="shrink-0 self-center">
         {event.kind === "TRADE" ? (
           <span
             className={cn(
-              "rounded-full px-2 py-0.5 text-[10px] font-bold ring-1",
-              event.outcome === "NO"
-                ? "bg-rose-500/15 text-rose-300 ring-rose-400/30"
-                : "bg-emerald-500/15 text-emerald-300 ring-emerald-400/30",
+              "rounded border px-2 py-0.5 text-[10px] font-medium",
+              isYes
+                ? "border-green-500/20 bg-green-500/10 text-green-400"
+                : "border-red-500/20 bg-red-500/10 text-red-400",
             )}
           >
             {event.outcome ?? "YES"}
           </span>
-        ) : null}
-
-        {event.kind === "MARKET_APPROVED" || event.kind === "MARKET_CLOSING" ? (
+        ) : event.category ? (
+          <span className="rounded border border-white/10 bg-white/5 px-2 py-0.5 text-[10px] font-medium text-slate-400">
+            {event.category}
+          </span>
+        ) : (
           <Link
             href={marketHref}
-            className="text-[12px] font-semibold text-[var(--hub-primary-bright)] hover:underline"
-          >
-            Trade →
-          </Link>
-        ) : null}
-
-        {event.kind === "MARKET_CREATED" ? (
-          <Link
-            href={marketHref}
-            className="text-[12px] font-semibold text-[var(--hub-primary-bright)] hover:underline"
+            className="text-[10px] font-medium text-indigo-400 hover:text-indigo-300"
           >
             View →
           </Link>
-        ) : null}
-
-        {event.kind === "COMMUNITY_VOTE" ? (
-          <span className="text-[12px] font-semibold text-violet-300">
-            {event.voteCount ?? 0} votes
-          </span>
-        ) : null}
+        )}
       </div>
+    </div>
+  );
+}
+
+function ActivitySkeletonRows() {
+  return (
+    <div className="divide-y divide-white/[0.03]">
+      {Array.from({ length: 5 }).map((_, i) => (
+        <div key={i} className="flex animate-pulse items-start gap-3 px-4 py-3">
+          <div className="size-9 shrink-0 rounded-full bg-white/10" />
+          <div className="min-w-0 flex-1 space-y-2">
+            <div className="h-3.5 w-[85%] rounded bg-white/10" />
+            <div className="h-2.5 w-28 rounded bg-white/5" />
+          </div>
+          <div className="mt-1 h-5 w-10 shrink-0 rounded bg-white/5" />
+        </div>
+      ))}
     </div>
   );
 }
@@ -255,7 +268,7 @@ export function MarketActivity() {
   });
 
   const [items, setItems] = useState<MarketActivityEvent[]>([]);
-  const [flashId, setFlashId] = useState<string | null>(null);
+  const [flashIds, setFlashIds] = useState<Set<string>>(new Set());
   const seenIds = useRef(new Set<string>());
 
   useEffect(() => {
@@ -268,6 +281,17 @@ export function MarketActivity() {
       const incoming = query.data.filter((e) => !seenIds.current.has(e.id));
       if (incoming.length === 0) return prev;
       for (const e of incoming) seenIds.current.add(e.id);
+      const newestId = incoming[0]?.id;
+      if (newestId) {
+        setFlashIds((s) => new Set(s).add(newestId));
+        window.setTimeout(() => {
+          setFlashIds((s) => {
+            const next = new Set(s);
+            next.delete(newestId);
+            return next;
+          });
+        }, 500);
+      }
       return [...incoming, ...prev].slice(0, 10);
     });
   }, [query.data]);
@@ -281,61 +305,49 @@ export function MarketActivity() {
     const fresh = mapped.filter((e) => !seenIds.current.has(e.id));
     if (fresh.length === 0) return;
 
-    const newest = fresh[0]!;
     for (const e of fresh) seenIds.current.add(e.id);
 
     setItems((prev) => [...fresh, ...prev].slice(0, 10));
-    setFlashId(newest.id);
-    const t = window.setTimeout(() => setFlashId(null), 500);
+    const newestId = fresh[0]!.id;
+    setFlashIds((s) => new Set(s).add(newestId));
+    const t = window.setTimeout(() => {
+      setFlashIds((s) => {
+        const next = new Set(s);
+        next.delete(newestId);
+        return next;
+      });
+    }, 500);
     return () => window.clearTimeout(t);
   }, [liveFeed, socketConnected]);
 
   const rows = useMemo(() => items.slice(0, 10), [items]);
+  const loading = query.isLoading && rows.length === 0;
 
   return (
     <section className="hub-section" aria-label="Market Activity">
-      <div className="mb-4 flex flex-col gap-3 sm:mb-5 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <h2 className="text-[20px] font-semibold tracking-tight text-[var(--hub-fg)]">
-            Market Activity
-          </h2>
-          <p className="mt-1 text-[13px] text-[var(--hub-muted)]">
-            Live feed of trades and events
-          </p>
+      <div className="mb-4 flex items-center justify-between">
+        <h2 className="text-xl font-bold text-white">Market Activity</h2>
+        <div className="flex items-center gap-2">
+          <span className="h-2 w-2 animate-pulse rounded-full bg-green-500" />
+          <span className="text-xs font-medium text-green-400">Live</span>
         </div>
-        <span className="inline-flex items-center gap-1.5 text-[12px] font-medium text-emerald-400">
-          <span className="relative flex size-2">
-            <span className="absolute inset-0 animate-ping rounded-full bg-green-500/70" />
-            <span className="relative size-2 animate-pulse rounded-full bg-green-500" />
-          </span>
-          Live
-        </span>
       </div>
 
-      <div className="rounded-2xl border border-[var(--hub-border)] bg-[var(--hub-card)] px-3 sm:px-4">
-        {query.isLoading && rows.length === 0 ? (
-          <div className="space-y-3 py-3">
-            {Array.from({ length: 5 }).map((_, i) => (
-              <div key={i} className="hub-skeleton h-12 w-full rounded-lg" />
-            ))}
-          </div>
+      <div className="overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--background-card)]">
+        {loading ? (
+          <ActivitySkeletonRows />
         ) : rows.length === 0 ? (
-          <p className="px-2 py-10 text-center text-[14px] text-[var(--hub-muted)]">
+          <p className="px-4 py-12 text-center text-sm text-slate-600">
             No activity yet. Be the first to trade! 🚀
           </p>
         ) : (
-          <AnimatePresence initial={false}>
-            {rows.map((event) => (
-              <motion.div
-                key={event.id}
-                initial={{ opacity: 0, y: -8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.15 }}
-              >
-                <ActivityRow event={event} flash={flashId === event.id} />
-              </motion.div>
-            ))}
-          </AnimatePresence>
+          rows.map((event) => (
+            <ActivityRow
+              key={event.id}
+              event={event}
+              isNew={flashIds.has(event.id)}
+            />
+          ))
         )}
       </div>
     </section>

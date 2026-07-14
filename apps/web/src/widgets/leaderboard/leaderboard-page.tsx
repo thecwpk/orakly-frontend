@@ -5,7 +5,6 @@ import { useMemo, useState, type ReactNode } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useAccount } from "wagmi";
 import { useConnectModal } from "@rainbow-me/rainbowkit";
-import { LeaderboardAvatar } from "@/features/leaderboard/components/leaderboard-avatar";
 import { compactUsd, shortAddress } from "@/features/leaderboard/lib/format";
 import { cn } from "@/lib/utils";
 import {
@@ -40,6 +39,14 @@ const TABS: { id: LeaderboardTab; label: string }[] = [
 ];
 
 const LIMIT = 50;
+
+const GRID: Record<LeaderboardTab, string> = {
+  traders: "grid-cols-[64px_minmax(140px,1.4fr)_repeat(4,minmax(72px,1fr))_72px]",
+  creators: "grid-cols-[64px_minmax(140px,1.4fr)_repeat(4,minmax(72px,1fr))_72px]",
+  accuracy: "grid-cols-[64px_minmax(140px,1.4fr)_repeat(4,minmax(72px,1fr))_72px]",
+  profit: "grid-cols-[64px_minmax(140px,1.4fr)_repeat(4,minmax(72px,1fr))_72px]",
+  volume: "grid-cols-[64px_minmax(140px,1.4fr)_repeat(4,minmax(72px,1fr))_72px]",
+};
 
 function tabSort(tab: LeaderboardTab): TraderLeaderboardSort {
   if (tab === "accuracy") return "accuracy";
@@ -78,33 +85,48 @@ function formatActiveSince(iso: string | null | undefined): string {
   }
 }
 
+function parseVol(row: TraderLeaderboardRowDto): number {
+  return Number.parseFloat(row.totalVolumeUsd) || 0;
+}
+
+function parsePnl(row: TraderLeaderboardRowDto): number {
+  return Number.parseFloat(row.pnlUsd) || 0;
+}
+
+function avatarColorFromAddress(addr: string): string {
+  const cleaned = addr.replace(/^0x/i, "").replace(/[^0-9a-fA-F]/g, "");
+  const hex = `${cleaned}000000`.slice(0, 6);
+  return `#${hex}`;
+}
+
+function avatarInitials(addr: string): string {
+  const cleaned = addr.replace(/^0x/i, "");
+  return (cleaned.slice(0, 2) || "??").toUpperCase();
+}
+
 function RankCell({ rank }: { rank: number }) {
   if (rank === 1) {
     return (
-      <span className="inline-flex h-8 w-10 items-center justify-center rounded-lg bg-amber-400/25 text-lg ring-1 ring-amber-300/40">
-        🥇
+      <span className="inline-flex items-center gap-1 text-lg font-black text-amber-400">
+        1 <span aria-hidden>🥇</span>
       </span>
     );
   }
   if (rank === 2) {
     return (
-      <span className="inline-flex h-8 w-10 items-center justify-center rounded-lg bg-zinc-300/20 text-lg ring-1 ring-zinc-200/30">
-        🥈
+      <span className="inline-flex items-center gap-1 font-black text-slate-300">
+        2 <span aria-hidden>🥈</span>
       </span>
     );
   }
   if (rank === 3) {
     return (
-      <span className="inline-flex h-8 w-10 items-center justify-center rounded-lg bg-orange-500/20 text-lg ring-1 ring-orange-400/30">
-        🥉
+      <span className="inline-flex items-center gap-1 font-black text-amber-600">
+        3 <span aria-hidden>🥉</span>
       </span>
     );
   }
-  return (
-    <span className="inline-flex h-8 w-10 items-center justify-center font-mono text-[13px] font-semibold tabular-nums text-zinc-400">
-      {rank}
-    </span>
-  );
+  return <span className="text-sm font-bold text-slate-600">{rank}</span>;
 }
 
 function WalletCell({ address }: { address: string }) {
@@ -113,11 +135,161 @@ function WalletCell({ address }: { address: string }) {
       href={ROUTES.traderProfile(address)}
       className="inline-flex min-w-0 items-center gap-2.5 transition hover:opacity-90"
     >
-      <LeaderboardAvatar address={address} className="h-8 w-8 rounded-full" />
-      <span className="truncate font-mono text-[13px] tabular-nums text-zinc-100">
+      <span
+        className="flex size-8 shrink-0 items-center justify-center rounded-full text-[10px] font-bold text-white"
+        style={{ backgroundColor: avatarColorFromAddress(address) }}
+        aria-hidden
+      >
+        {avatarInitials(address)}
+      </span>
+      <span className="truncate font-mono text-sm text-slate-300">
         {shortAddress(address)}
       </span>
     </Link>
+  );
+}
+
+function Cell({
+  children,
+  className,
+  align = "left",
+}: {
+  children: ReactNode;
+  className?: string;
+  align?: "left" | "right";
+}) {
+  return (
+    <div
+      className={cn(
+        "min-w-0 text-sm font-medium text-slate-300",
+        align === "right" && "text-right",
+        className,
+      )}
+    >
+      {children}
+    </div>
+  );
+}
+
+function GridHeader({
+  labels,
+  gridClass,
+}: {
+  labels: string[];
+  gridClass: string;
+}) {
+  return (
+    <div
+      className={cn(
+        "grid min-w-[760px] items-center gap-3 bg-white/[0.03] px-6 py-3",
+        gridClass,
+      )}
+    >
+      {labels.map((label) => (
+        <div
+          key={label}
+          className={cn(
+            "text-[10px] font-semibold uppercase tracking-widest text-slate-500",
+            label === "Actions" && "text-right",
+          )}
+        >
+          {label}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function GridRow({
+  gridClass,
+  children,
+}: {
+  gridClass: string;
+  children: ReactNode;
+}) {
+  return (
+    <div
+      className={cn(
+        "grid min-w-[760px] items-center gap-3 border-b border-white/[0.03] px-6 py-4 transition-colors hover:bg-white/[0.02]",
+        gridClass,
+      )}
+    >
+      {children}
+    </div>
+  );
+}
+
+function EmptyState() {
+  return (
+    <div className="py-20 text-center">
+      <div className="mb-4 text-5xl" aria-hidden>
+        🏆
+      </div>
+      <p className="text-lg font-semibold text-white">No rankings yet</p>
+      <p className="mx-auto mt-2 max-w-xs text-sm text-slate-500">
+        Rankings appear after the first trades are placed on live markets.
+      </p>
+    </div>
+  );
+}
+
+function YourRankRow({
+  gridClass,
+  colCount,
+  rankLabel,
+}: {
+  gridClass: string;
+  colCount: number;
+  rankLabel: string;
+}) {
+  const dashCols = Math.max(0, colCount - 1);
+  return (
+    <div
+      className={cn(
+        "sticky bottom-0 grid min-w-[760px] items-center gap-3 border-t border-indigo-500/30 bg-[#1a2035] px-6 py-4",
+        gridClass,
+      )}
+    >
+      <span className="text-xs font-medium text-indigo-400">{rankLabel}</span>
+      {Array.from({ length: dashCols }).map((_, i) => (
+        <span key={i} className="text-sm text-slate-600">
+          —
+        </span>
+      ))}
+    </div>
+  );
+}
+
+function BoardShell({
+  tab,
+  headers,
+  note,
+  children,
+  empty,
+  yourRank,
+  footer,
+}: {
+  tab: LeaderboardTab;
+  headers: string[];
+  note?: string;
+  children: ReactNode;
+  empty: boolean;
+  yourRank: ReactNode;
+  footer: ReactNode;
+}) {
+  const gridClass = GRID[tab];
+  return (
+    <div className="space-y-3">
+      {note ? <p className="text-xs text-slate-500">{note}</p> : null}
+      <div className="overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--background-card)]">
+        <div className="overflow-x-auto">
+          <GridHeader labels={headers} gridClass={gridClass} />
+          {empty ? <EmptyState /> : children}
+        </div>
+        {yourRank}
+      </div>
+      {!empty ? footer : null}
+    </div>
   );
 }
 
@@ -125,63 +297,11 @@ function ActionsCell({ address }: { address: string }) {
   return (
     <Link
       href={ROUTES.traderProfile(address)}
-      className="text-[12px] font-semibold text-blue-300 transition hover:text-blue-200"
+      className="text-xs font-semibold text-indigo-400 transition hover:text-indigo-300"
     >
       View →
     </Link>
   );
-}
-
-function TableShell({
-  headers,
-  note,
-  children,
-  footer,
-  yourRank,
-}: {
-  headers: string[];
-  note?: string;
-  children: ReactNode;
-  footer: ReactNode;
-  yourRank: ReactNode;
-}) {
-  return (
-    <div className="space-y-3">
-      {note ? <p className="text-[12px] text-zinc-500">{note}</p> : null}
-      <div className="overflow-hidden rounded-2xl border border-white/[0.08]">
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[760px] border-collapse text-left text-[13px]">
-            <thead className="border-b border-white/[0.06] bg-white/[0.02] text-[11px] font-semibold uppercase tracking-wider text-zinc-500">
-              <tr>
-                {headers.map((header) => (
-                  <th
-                    key={header}
-                    className={cn(
-                      "px-4 py-3",
-                      header === "Actions" && "text-right",
-                    )}
-                  >
-                    {header}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-white/[0.04]">{children}</tbody>
-          </table>
-        </div>
-        {yourRank}
-      </div>
-      {footer}
-    </div>
-  );
-}
-
-function parseVol(row: TraderLeaderboardRowDto): number {
-  return Number.parseFloat(row.totalVolumeUsd) || 0;
-}
-
-function parsePnl(row: TraderLeaderboardRowDto): number {
-  return Number.parseFloat(row.pnlUsd) || 0;
 }
 
 function TradersTable({
@@ -193,54 +313,42 @@ function TradersTable({
   yourRank: ReactNode;
   footer: ReactNode;
 }) {
+  const headers = [
+    "Rank",
+    "Wallet",
+    "Accuracy %",
+    "Markets Traded",
+    "Profit (BNB)",
+    "Creator Score",
+    "Actions",
+  ];
   return (
-    <TableShell
-      headers={[
-        "Rank",
-        "Wallet",
-        "Accuracy %",
-        "Markets Traded",
-        "Profit (BNB)",
-        "Creator Score",
-        "Actions",
-      ]}
+    <BoardShell
+      tab="traders"
+      headers={headers}
+      empty={rows.length === 0}
       yourRank={yourRank}
       footer={footer}
     >
       {rows.map((row, index) => {
         const address = row.walletAddress ?? row.userId;
         return (
-          <tr key={row.userId} className="hover:bg-white/[0.02]">
-            <td className="px-4 py-3">
-              <RankCell rank={index + 1} />
-            </td>
-            <td className="px-4 py-3">
-              <WalletCell address={address} />
-            </td>
-            <td className="px-4 py-3 font-mono tabular-nums text-zinc-300">
-              {row.winRatePct.toFixed(1)}%
-            </td>
-            <td className="px-4 py-3 font-mono tabular-nums text-zinc-300">
-              {row.marketsTraded}
-            </td>
-            <td
-              className={cn(
-                "px-4 py-3 font-mono tabular-nums",
-                parsePnl(row) >= 0 ? "text-emerald-300" : "text-rose-300",
-              )}
-            >
+          <GridRow key={row.userId} gridClass={GRID.traders}>
+            <RankCell rank={index + 1} />
+            <WalletCell address={address} />
+            <Cell>{row.winRatePct.toFixed(1)}%</Cell>
+            <Cell>{row.marketsTraded}</Cell>
+            <Cell className={parsePnl(row) >= 0 ? "text-green-400" : "text-red-400"}>
               {formatBnb(parsePnl(row))}
-            </td>
-            <td className="px-4 py-3 font-mono tabular-nums text-zinc-300">
-              {formatScore(row.creatorScore)}
-            </td>
-            <td className="px-4 py-3 text-right">
+            </Cell>
+            <Cell>{formatScore(row.creatorScore)}</Cell>
+            <Cell align="right">
               <ActionsCell address={address} />
-            </td>
-          </tr>
+            </Cell>
+          </GridRow>
         );
       })}
-    </TableShell>
+    </BoardShell>
   );
 }
 
@@ -253,46 +361,37 @@ function CreatorsTable({
   yourRank: ReactNode;
   footer: ReactNode;
 }) {
+  const headers = [
+    "Rank",
+    "Wallet",
+    "Approved Markets",
+    "Volume Generated",
+    "Fees Earned",
+    "Creator Score",
+    "Actions",
+  ];
   return (
-    <TableShell
-      headers={[
-        "Rank",
-        "Wallet",
-        "Approved Markets",
-        "Volume Generated",
-        "Fees Earned",
-        "Creator Score",
-        "Actions",
-      ]}
+    <BoardShell
+      tab="creators"
+      headers={headers}
+      empty={rows.length === 0}
       yourRank={yourRank}
       footer={footer}
     >
       {rows.map((row, index) => (
-        <tr key={row.creatorAddress} className="hover:bg-white/[0.02]">
-          <td className="px-4 py-3">
-            <RankCell rank={index + 1} />
-          </td>
-          <td className="px-4 py-3">
-            <WalletCell address={row.creatorAddress} />
-          </td>
-          <td className="px-4 py-3 font-mono tabular-nums text-zinc-300">
-            {row.marketCount}
-          </td>
-          <td className="px-4 py-3 font-mono tabular-nums text-zinc-300">
-            {compactUsd(row.totalVolumeUsd)}
-          </td>
-          <td className="px-4 py-3 font-mono tabular-nums text-emerald-300">
-            {formatBnb(row.feesEarned)}
-          </td>
-          <td className="px-4 py-3 font-mono tabular-nums text-zinc-100">
-            {formatScore(row.creatorScore)}
-          </td>
-          <td className="px-4 py-3 text-right">
+        <GridRow key={row.creatorAddress} gridClass={GRID.creators}>
+          <RankCell rank={index + 1} />
+          <WalletCell address={row.creatorAddress} />
+          <Cell>{row.marketCount}</Cell>
+          <Cell>{compactUsd(row.totalVolumeUsd)}</Cell>
+          <Cell className="text-green-400">{formatBnb(row.feesEarned)}</Cell>
+          <Cell>{formatScore(row.creatorScore)}</Cell>
+          <Cell align="right">
             <ActionsCell address={row.creatorAddress} />
-          </td>
-        </tr>
+          </Cell>
+        </GridRow>
       ))}
-    </TableShell>
+    </BoardShell>
   );
 }
 
@@ -305,55 +404,43 @@ function AccuracyTable({
   yourRank: ReactNode;
   footer: ReactNode;
 }) {
+  const headers = [
+    "Rank",
+    "Wallet",
+    "Accuracy %",
+    "Total Trades",
+    "Volume",
+    "Profit",
+    "Actions",
+  ];
   return (
-    <TableShell
-      headers={[
-        "Rank",
-        "Wallet",
-        "Accuracy %",
-        "Total Trades",
-        "Volume",
-        "Profit",
-        "Actions",
-      ]}
+    <BoardShell
+      tab="accuracy"
+      headers={headers}
       note="Minimum qualifier: 5 trades"
+      empty={rows.length === 0}
       yourRank={yourRank}
       footer={footer}
     >
       {rows.map((row, index) => {
         const address = row.walletAddress ?? row.userId;
         return (
-          <tr key={row.userId} className="hover:bg-white/[0.02]">
-            <td className="px-4 py-3">
-              <RankCell rank={index + 1} />
-            </td>
-            <td className="px-4 py-3">
-              <WalletCell address={address} />
-            </td>
-            <td className="px-4 py-3 font-mono tabular-nums font-semibold text-zinc-100">
-              {row.winRatePct.toFixed(1)}%
-            </td>
-            <td className="px-4 py-3 font-mono tabular-nums text-zinc-300">
-              {row.tradeCount}
-            </td>
-            <td className="px-4 py-3 font-mono tabular-nums text-zinc-300">
-              {compactUsd(parseVol(row))}
-            </td>
-            <td
-              className={cn(
-                "px-4 py-3 font-mono tabular-nums",
-                parsePnl(row) >= 0 ? "text-emerald-300" : "text-rose-300",
-              )}
-            >
+          <GridRow key={row.userId} gridClass={GRID.accuracy}>
+            <RankCell rank={index + 1} />
+            <WalletCell address={address} />
+            <Cell className="text-white">{row.winRatePct.toFixed(1)}%</Cell>
+            <Cell>{row.tradeCount}</Cell>
+            <Cell>{compactUsd(parseVol(row))}</Cell>
+            <Cell className={parsePnl(row) >= 0 ? "text-green-400" : "text-red-400"}>
               {formatBnb(parsePnl(row))}
-            </td>
-            <td className="px-4 py-3 text-right">
+            </Cell>
+            <Cell align="right">
               <ActionsCell address={address} />
-            </td>
-          </tr>
+            </Cell>
+          </GridRow>
         );
       })}
-    </TableShell>
+    </BoardShell>
   );
 }
 
@@ -366,54 +453,42 @@ function ProfitTable({
   yourRank: ReactNode;
   footer: ReactNode;
 }) {
+  const headers = [
+    "Rank",
+    "Wallet",
+    "Total Profit (BNB)",
+    "Best Single Trade",
+    "Markets Traded",
+    "Win Rate",
+    "Actions",
+  ];
   return (
-    <TableShell
-      headers={[
-        "Rank",
-        "Wallet",
-        "Total Profit (BNB)",
-        "Best Single Trade",
-        "Markets Traded",
-        "Win Rate",
-        "Actions",
-      ]}
+    <BoardShell
+      tab="profit"
+      headers={headers}
+      empty={rows.length === 0}
       yourRank={yourRank}
       footer={footer}
     >
       {rows.map((row, index) => {
         const address = row.walletAddress ?? row.userId;
         return (
-          <tr key={row.userId} className="hover:bg-white/[0.02]">
-            <td className="px-4 py-3">
-              <RankCell rank={index + 1} />
-            </td>
-            <td className="px-4 py-3">
-              <WalletCell address={address} />
-            </td>
-            <td
-              className={cn(
-                "px-4 py-3 font-mono tabular-nums font-semibold",
-                parsePnl(row) >= 0 ? "text-emerald-300" : "text-rose-300",
-              )}
-            >
+          <GridRow key={row.userId} gridClass={GRID.profit}>
+            <RankCell rank={index + 1} />
+            <WalletCell address={address} />
+            <Cell className={parsePnl(row) >= 0 ? "text-green-400" : "text-red-400"}>
               {formatBnb(parsePnl(row))}
-            </td>
-            <td className="px-4 py-3 font-mono tabular-nums text-zinc-300">
-              {compactUsd(row.bestTradeUsd)}
-            </td>
-            <td className="px-4 py-3 font-mono tabular-nums text-zinc-300">
-              {row.marketsTraded}
-            </td>
-            <td className="px-4 py-3 font-mono tabular-nums text-zinc-300">
-              {row.winRatePct.toFixed(1)}%
-            </td>
-            <td className="px-4 py-3 text-right">
+            </Cell>
+            <Cell>{compactUsd(row.bestTradeUsd)}</Cell>
+            <Cell>{row.marketsTraded}</Cell>
+            <Cell>{row.winRatePct.toFixed(1)}%</Cell>
+            <Cell align="right">
               <ActionsCell address={address} />
-            </td>
-          </tr>
+            </Cell>
+          </GridRow>
         );
       })}
-    </TableShell>
+    </BoardShell>
   );
 }
 
@@ -426,17 +501,20 @@ function VolumeTable({
   yourRank: ReactNode;
   footer: ReactNode;
 }) {
+  const headers = [
+    "Rank",
+    "Wallet",
+    "Total Volume",
+    "Trades",
+    "Avg Trade Size",
+    "Active Since",
+    "Actions",
+  ];
   return (
-    <TableShell
-      headers={[
-        "Rank",
-        "Wallet",
-        "Total Volume",
-        "Trades",
-        "Avg Trade Size",
-        "Active Since",
-        "Actions",
-      ]}
+    <BoardShell
+      tab="volume"
+      headers={headers}
+      empty={rows.length === 0}
       yourRank={yourRank}
       footer={footer}
     >
@@ -446,74 +524,20 @@ function VolumeTable({
           row.avgTradeSizeUsd ??
           (row.tradeCount > 0 ? parseVol(row) / row.tradeCount : 0);
         return (
-          <tr key={row.userId} className="hover:bg-white/[0.02]">
-            <td className="px-4 py-3">
-              <RankCell rank={index + 1} />
-            </td>
-            <td className="px-4 py-3">
-              <WalletCell address={address} />
-            </td>
-            <td className="px-4 py-3 font-mono tabular-nums font-semibold text-zinc-100">
-              {compactUsd(parseVol(row))}
-            </td>
-            <td className="px-4 py-3 font-mono tabular-nums text-zinc-300">
-              {row.tradeCount}
-            </td>
-            <td className="px-4 py-3 font-mono tabular-nums text-zinc-300">
-              {compactUsd(avg)}
-            </td>
-            <td className="px-4 py-3 tabular-nums text-zinc-400">
-              {formatActiveSince(row.activeSince)}
-            </td>
-            <td className="px-4 py-3 text-right">
+          <GridRow key={row.userId} gridClass={GRID.volume}>
+            <RankCell rank={index + 1} />
+            <WalletCell address={address} />
+            <Cell className="text-white">{compactUsd(parseVol(row))}</Cell>
+            <Cell>{row.tradeCount}</Cell>
+            <Cell>{compactUsd(avg)}</Cell>
+            <Cell className="text-slate-400">{formatActiveSince(row.activeSince)}</Cell>
+            <Cell align="right">
               <ActionsCell address={address} />
-            </td>
-          </tr>
+            </Cell>
+          </GridRow>
         );
       })}
-    </TableShell>
-  );
-}
-
-function YourRankBar({
-  connected,
-  address,
-  rankLabel,
-  summary,
-  onConnect,
-}: {
-  connected: boolean;
-  address: string | null;
-  rankLabel: string;
-  summary?: string | null;
-  onConnect: () => void;
-}) {
-  return (
-    <div className="sticky bottom-0 border-t border-blue-400/25 bg-blue-600/20 px-4 py-3 backdrop-blur-md">
-      {!connected ? (
-        <button
-          type="button"
-          onClick={onConnect}
-          className="text-sm font-semibold text-blue-100 underline-offset-2 hover:underline"
-        >
-          Connect wallet to see your rank
-        </button>
-      ) : (
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="flex min-w-0 items-center gap-3">
-            {address ? (
-              <WalletCell address={address} />
-            ) : null}
-            <div className="min-w-0">
-              <p className="text-sm font-semibold text-blue-50">{rankLabel}</p>
-              {summary ? (
-                <p className="mt-0.5 text-[12px] text-blue-100/70">{summary}</p>
-              ) : null}
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
+    </BoardShell>
   );
 }
 
@@ -562,7 +586,7 @@ export function LeaderboardPage() {
     : (tradersQuery.data?.total ?? 0);
 
   const yourRankLabel = useMemo(() => {
-    if (!address) return "";
+    if (!address) return "Unranked";
     if (isCreators) {
       const viewer = creatorsQuery.data?.viewer;
       if (viewer?.rank != null) return `Your rank: #${viewer.rank}`;
@@ -570,85 +594,70 @@ export function LeaderboardPage() {
     }
     const viewer = tradersQuery.data?.viewer;
     if (tab === "accuracy" && viewer && !viewer.qualifies) {
-      return "Unranked (need 5+ trades)";
+      return "Unranked";
     }
     if (viewer?.rank != null) return `Your rank: #${viewer.rank}`;
-    if (viewer && viewer.tradeCount > 0 && tab === "accuracy") {
-      return "Unranked (need 5+ trades)";
-    }
     return "Unranked";
   }, [address, isCreators, creatorsQuery.data, tradersQuery.data, tab]);
 
-  const yourRankSummary = useMemo(() => {
-    if (!address) return null;
-    if (isCreators) {
-      const row = creatorsQuery.data?.viewer?.row;
-      if (!row) return null;
-      return `${row.marketCount} markets · ${compactUsd(row.totalVolumeUsd)} vol · ${formatBnb(row.feesEarned)} fees`;
-    }
-    const row = tradersQuery.data?.viewer?.row;
-    if (!row) return null;
-    if (tab === "accuracy") {
-      return `${row.winRatePct.toFixed(1)}% accuracy · ${row.tradeCount} trades · ${compactUsd(parseVol(row))} vol`;
-    }
-    if (tab === "profit") {
-      return `${formatBnb(parsePnl(row))} profit · ${row.marketsTraded} markets · ${row.winRatePct.toFixed(1)}% win rate`;
-    }
-    if (tab === "volume") {
-      const avg =
-        row.avgTradeSizeUsd ??
-        (row.tradeCount > 0 ? parseVol(row) / row.tradeCount : 0);
-      return `${compactUsd(parseVol(row))} vol · ${row.tradeCount} trades · avg ${compactUsd(avg)}`;
-    }
-    return `${row.winRatePct.toFixed(1)}% accuracy · ${row.marketsTraded} markets · ${formatBnb(parsePnl(row))}`;
-  }, [address, isCreators, creatorsQuery.data, tradersQuery.data, tab]);
+  const viewerRank = isCreators
+    ? creatorsQuery.data?.viewer?.rank
+    : tradersQuery.data?.viewer?.rank;
+  const inTop50 = viewerRank != null && viewerRank <= LIMIT;
+  const showYourRank = Boolean(address) && !inTop50;
 
-  const yourRank = (
-    <YourRankBar
-      connected={Boolean(address)}
-      address={address ?? null}
+  const yourRank = showYourRank ? (
+    <YourRankRow
+      gridClass={GRID[tab]}
+      colCount={7}
       rankLabel={yourRankLabel}
-      summary={yourRankSummary}
-      onConnect={() => openConnectModal?.()}
     />
-  );
+  ) : null;
 
   const footer = (
-    <p className="text-[12px] text-zinc-500">
+    <p className="text-xs text-slate-500">
       Showing top {Math.min(LIMIT, isCreators ? creatorRows.length : traderRows.length)} of{" "}
       {total} total {isCreators ? "creators" : "traders"}
     </p>
   );
 
-  const empty = (
-    <div className="overflow-hidden rounded-2xl border border-dashed border-white/[0.1]">
-      <div className="flex min-h-[180px] items-center justify-center bg-white/[0.02] px-6 py-12 text-center">
-        <p className="text-sm font-medium text-zinc-400">No rankings yet for this period</p>
-      </div>
-      {yourRank}
+  const emptyBoard = (
+    <div className="overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--background-card)]">
+      <EmptyState />
+      {showYourRank ? (
+        <YourRankRow gridClass={GRID[tab]} colCount={7} rankLabel={yourRankLabel} />
+      ) : address ? null : (
+        <div className="border-t border-indigo-500/30 bg-[#1a2035] px-6 py-4">
+          <button
+            type="button"
+            onClick={() => openConnectModal?.()}
+            className="text-xs font-medium text-indigo-400 hover:text-indigo-300"
+          >
+            Connect wallet to see your rank
+          </button>
+        </div>
+      )}
     </div>
   );
 
   return (
-    <main className="mx-auto flex max-w-6xl flex-col gap-6 pb-16 pt-10 md:pt-12">
-      <header className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <div className="space-y-1.5">
-          <h1 className="text-[32px] font-bold leading-tight tracking-tight text-white">
-            Leaderboard
-          </h1>
-          <p className="text-[14px] text-zinc-500">Top performers on Orakly</p>
+    <main className="mx-auto flex max-w-6xl flex-col pb-16 pt-10 md:pt-12">
+      <header className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-white">Leaderboard</h1>
+          <p className="mt-1 text-sm text-slate-500">Top performers on Orakly</p>
         </div>
-        <div className="inline-flex shrink-0 rounded-xl border border-white/[0.08] bg-zinc-950/60 p-1">
+        <div className="flex gap-2">
           {PERIODS.map((item) => (
             <button
               key={item.id}
               type="button"
               onClick={() => setPeriod(item.id)}
               className={cn(
-                "rounded-lg px-3 py-1.5 text-[12px] font-semibold transition",
+                "rounded-lg border px-3 py-1.5 text-xs transition-colors",
                 period === item.id
-                  ? "bg-blue-600 text-white"
-                  : "text-zinc-400 hover:text-zinc-200",
+                  ? "border-indigo-500/50 bg-indigo-500/10 text-indigo-400"
+                  : "border-white/10 bg-white/5 text-slate-400 hover:text-white",
               )}
             >
               {item.label}
@@ -657,34 +666,43 @@ export function LeaderboardPage() {
         </div>
       </header>
 
-      <div className="flex flex-wrap gap-2 border-b border-white/[0.06]">
-        {TABS.map((item) => (
-          <button
-            key={item.id}
-            type="button"
-            onClick={() => setTab(item.id)}
-            className={cn(
-              "-mb-px border-b-2 px-3.5 py-2.5 text-sm font-semibold transition",
-              tab === item.id
-                ? "border-blue-500 text-blue-200"
-                : "border-transparent text-zinc-500 hover:border-white/10 hover:text-zinc-300",
-            )}
-          >
-            {item.label}
-          </button>
-        ))}
+      <div
+        className="mb-6 flex w-full gap-1 overflow-x-auto rounded-xl bg-white/5 p-1"
+        role="tablist"
+        aria-label="Leaderboard category"
+      >
+        {TABS.map((item) => {
+          const active = tab === item.id;
+          return (
+            <button
+              key={item.id}
+              type="button"
+              role="tab"
+              aria-selected={active}
+              onClick={() => setTab(item.id)}
+              className={cn(
+                "flex-shrink-0 rounded-lg px-4 py-2 text-sm transition-all",
+                active
+                  ? "bg-white/10 font-medium text-white"
+                  : "text-slate-400 hover:text-white",
+              )}
+            >
+              {item.label}
+            </button>
+          );
+        })}
       </div>
 
       {isLoading ? (
-        <div className="h-72 animate-pulse rounded-2xl bg-zinc-800/80" />
+        <div className="h-72 animate-pulse rounded-2xl border border-[var(--border)] bg-[var(--background-card)]" />
       ) : isCreators ? (
         creatorRows.length === 0 ? (
-          empty
+          emptyBoard
         ) : (
           <CreatorsTable rows={creatorRows} yourRank={yourRank} footer={footer} />
         )
       ) : traderRows.length === 0 ? (
-        empty
+        emptyBoard
       ) : tab === "traders" ? (
         <TradersTable rows={traderRows} yourRank={yourRank} footer={footer} />
       ) : tab === "accuracy" ? (

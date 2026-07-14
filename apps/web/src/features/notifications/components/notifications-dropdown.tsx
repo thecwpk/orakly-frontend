@@ -181,9 +181,9 @@ export function NotificationsDropdown() {
         aria-expanded={open}
         aria-haspopup="dialog"
         onClick={() => setOpen(!open)}
-        className="relative inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-[3px] border border-white/[0.08] bg-white/[0.03] text-zinc-400 transition hover:border-white/[0.11] hover:bg-white/[0.06] hover:text-zinc-100"
+        className="relative inline-flex size-9 shrink-0 items-center justify-center rounded-md text-[#94a3b8] transition-colors hover:bg-white/5 hover:text-white"
       >
-        <Bell className="h-[15px] w-[15px]" strokeWidth={2} />
+        <Bell className="size-[18px]" strokeWidth={2} />
         <AnimatePresence>
           {unreadCount > 0 ? (
             <motion.span
@@ -192,7 +192,7 @@ export function NotificationsDropdown() {
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.6, opacity: 0 }}
               transition={{ type: "spring", stiffness: 500, damping: 22 }}
-              className="absolute right-1 top-1 h-2 w-2 rounded-full bg-red-500 ring-2 ring-[#070709]"
+              className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-red-500 ring-2 ring-[#0f1117]"
               aria-hidden
             />
           ) : null}

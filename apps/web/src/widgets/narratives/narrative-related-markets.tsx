@@ -46,6 +46,7 @@ export function NarrativeRelatedMarkets({ slug }: NarrativeRelatedMarketsProps) 
               variant="default"
               accent={ACCENTS[index % ACCENTS.length]}
               index={index}
+              isLive={market.status === "OPEN"}
             />
           ))}
         </div>

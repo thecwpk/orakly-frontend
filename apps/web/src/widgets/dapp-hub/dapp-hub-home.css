@@ -19,7 +19,7 @@
    * Ticker strip — blend with page canvas so light/dark both feel intentional
    * (fades reference same fill).
    */
-  --mb-ticker-bg: color-mix(in srgb, hsl(var(--background)) 62%, hsl(228 30% 14%) 38%);
+  --mb-ticker-bg: color-mix(in srgb, var(--background) 62%, hsl(228 30% 14%) 38%);
 }
 
 .mb-section-title {

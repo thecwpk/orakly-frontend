@@ -23,7 +23,7 @@ export function HowItWorksAnimated() {
       id="how-it-works"
       className={cn(
         landingSectionBand,
-        "bg-[linear-gradient(185deg,oklch(0.14_0.02_255)_0%,hsl(var(--background))_38%,oklch(0.13_0.018_250)_100%)]",
+        "bg-[linear-gradient(185deg,oklch(0.14_0.02_255)_0%,var(--background)_38%,oklch(0.13_0.018_250)_100%)]",
       )}
     >
       <div

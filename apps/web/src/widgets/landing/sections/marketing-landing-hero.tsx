@@ -20,7 +20,7 @@ export function MarketingLandingHero() {
       id="markets"
       className={cn(
         "relative w-full scroll-mt-28 overflow-hidden",
-        "bg-[radial-gradient(ellipse_120%_70%_at_50%_-10%,oklch(0.32_0.08_270_/_0.35),transparent_55%),linear-gradient(180deg,oklch(0.13_0.025_265)_0%,hsl(var(--background))_70%)]",
+        "bg-[radial-gradient(ellipse_120%_70%_at_50%_-10%,oklch(0.32_0.08_270_/_0.35),transparent_55%),linear-gradient(180deg,oklch(0.13_0.025_265)_0%,var(--background)_70%)]",
       )}
     >
       <div

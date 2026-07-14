@@ -33,10 +33,10 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://orakly-frontend-web
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: dark)", color: "#0c1220" },
+    { media: "(prefers-color-scheme: dark)", color: "#0f1117" },
     { media: "(prefers-color-scheme: light)", color: "#ffffff" },
   ],
-  colorScheme: "dark light",
+  colorScheme: "dark",
   width: "device-width",
   initialScale: 1,
 };
@@ -86,7 +86,8 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={cn("font-sans", inter.variable)}
+      data-theme="dark"
+      className={cn("dark font-sans", inter.variable)}
       suppressHydrationWarning
     >
       <body

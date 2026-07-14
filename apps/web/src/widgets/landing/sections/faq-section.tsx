@@ -35,7 +35,7 @@ export function FaqSection() {
       id="faq"
       className={cn(
         landingSectionBand,
-        "bg-[linear-gradient(180deg,oklch(0.11_0.018_268)_0%,hsl(var(--background))_40%,oklch(0.1_0.015_265)_100%)]",
+        "bg-[linear-gradient(180deg,oklch(0.11_0.018_268)_0%,var(--background)_40%,oklch(0.1_0.015_265)_100%)]",
       )}
     >
       <LandingReveal className={cn(landingBandInner, "relative")}>

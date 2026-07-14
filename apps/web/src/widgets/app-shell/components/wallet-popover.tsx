@@ -9,7 +9,6 @@ import {
   LogOut,
   Settings,
   User,
-  Wallet,
 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
@@ -24,7 +23,7 @@ import { cn } from "@/lib/utils";
 
 export function WalletPopover({
   connectLabel = "Connect Wallet",
-  variant = "default",
+  variant: _variant = "default",
 }: {
   connectLabel?: string;
   variant?: "default" | "hub";
@@ -45,7 +44,7 @@ export function WalletPopover({
             <div
               role="status"
               aria-label="Loading wallet"
-              className="hidden h-9 min-w-[7.5rem] animate-pulse rounded-[10px] border border-white/[0.06] bg-white/[0.04] sm:block"
+              className="h-9 min-w-[7.5rem] animate-pulse rounded-lg border border-white/[0.06] bg-white/[0.04]"
             />
           );
         }
@@ -59,11 +58,10 @@ export function WalletPopover({
               whileHover={connecting ? undefined : { scale: 1.01 }}
               whileTap={connecting ? undefined : { scale: 0.99 }}
               className={cn(
-                "inline-flex h-9 w-full shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-lg px-4 text-sm font-semibold transition-colors",
-                "border border-[#2563eb] bg-[#2563eb] text-white hover:bg-[#1d4ed8]",
-                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563eb]/35",
+                "inline-flex h-9 shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-lg px-4 py-1.5 text-sm font-semibold transition-colors",
+                "bg-[var(--accent)] text-white hover:bg-[var(--accent-hover)]",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]/35",
                 "disabled:cursor-not-allowed disabled:opacity-60",
-                variant === "default" && "sm:w-auto",
               )}
             >
               {connecting ? (
@@ -72,10 +70,7 @@ export function WalletPopover({
                   <span>Connecting</span>
                 </>
               ) : (
-                <>
-                  <Wallet className="h-3.5 w-3.5 shrink-0" strokeWidth={2} />
-                  <span>{connectLabel}</span>
-                </>
+                <span>{connectLabel}</span>
               )}
             </motion.button>
           );
@@ -101,15 +96,13 @@ export function WalletPopover({
                 whileHover={{ scale: 1.01 }}
                 whileTap={{ scale: 0.99 }}
                 className={cn(
-                  "inline-flex h-9 w-full shrink-0 items-center gap-1.5 rounded-[10px] border bg-white/[0.03] px-2.5 pr-2.5 transition sm:w-auto",
+                  "inline-flex h-9 w-full shrink-0 items-center gap-1.5 rounded-full border bg-white/[0.03] px-2.5 pr-2.5 transition sm:w-auto",
                   wrongNetwork
                     ? "border-rose-500/35 bg-rose-500/[0.07]"
                     : "border-white/[0.08] hover:border-white/[0.11] hover:bg-white/[0.06]",
                 )}
               >
-                <span className="flex h-[22px] w-[22px] items-center justify-center rounded-full bg-white/[0.06] font-mono text-[9px] font-semibold uppercase tracking-tight text-emerald-300/95 ring-1 ring-white/[0.08]">
-                  {addr.slice(2, 4)}
-                </span>
+                <span className="size-2 shrink-0 rounded-full bg-emerald-400 ring-2 ring-emerald-400/25" aria-hidden />
                 <span className="font-mono text-[11.5px] font-semibold tracking-tight text-zinc-100">
                   {display}
                 </span>

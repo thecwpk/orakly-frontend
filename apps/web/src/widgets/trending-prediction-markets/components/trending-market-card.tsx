@@ -17,6 +17,8 @@ export type TrendingMarketCardProps = Pick<
   | "className"
   | "chrome"
   | "directoryStyle"
+  | "narrative"
+  | "participants"
 > & {
   accent?: MarketCardAccent;
   variant?: MarketCardVariant;
@@ -33,6 +35,8 @@ export function TrendingMarketCard({
   lastTradeAt,
   variant = "default",
   directoryStyle,
+  narrative,
+  participants,
   className,
 }: TrendingMarketCardProps) {
   return (
@@ -46,6 +50,8 @@ export function TrendingMarketCard({
       lastTradeAt={lastTradeAt}
       variant={variant}
       directoryStyle={directoryStyle}
+      narrative={narrative}
+      participants={participants}
       className={className}
     />
   );

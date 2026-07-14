@@ -25,7 +25,7 @@ export function HowItWorksSimple() {
       id="how-it-works"
       className={cn(
         "relative w-full scroll-mt-28 overflow-hidden",
-        "bg-[linear-gradient(180deg,hsl(var(--background))_0%,oklch(0.13_0.02_265)_50%,hsl(var(--background))_100%)]",
+        "bg-[linear-gradient(180deg,var(--background)_0%,oklch(0.13_0.02_265)_50%,var(--background)_100%)]",
       )}
     >
       <div className={cn(landingRailSection, "relative")}>

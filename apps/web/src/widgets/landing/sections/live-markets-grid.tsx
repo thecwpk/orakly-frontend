@@ -99,7 +99,7 @@ export function LiveMarketsGrid() {
       id="live-markets"
       className={cn(
         landingSectionBand,
-        "bg-[radial-gradient(ellipse_90%_60%_at_100%_-5%,oklch(0.38_0.08_220_/_0.22),transparent_55%),radial-gradient(ellipse_70%_55%_at_0%_105%,oklch(0.24_0.05_265_/_0.16),transparent_58%),linear-gradient(188deg,oklch(0.12_0.028_255),hsl(var(--background))_52%,oklch(0.11_0.022_268))]",
+        "bg-[radial-gradient(ellipse_90%_60%_at_100%_-5%,oklch(0.38_0.08_220_/_0.22),transparent_55%),radial-gradient(ellipse_70%_55%_at_0%_105%,oklch(0.24_0.05_265_/_0.16),transparent_58%),linear-gradient(188deg,oklch(0.12_0.028_255),var(--background)_52%,oklch(0.11_0.022_268))]",
         "before:pointer-events-none before:absolute before:inset-x-0 before:top-0 before:z-[1] before:h-20 before:bg-gradient-to-b before:from-cyan-400/[0.07] before:via-transparent before:to-transparent",
       )}
     >

@@ -30,7 +30,7 @@ export function RoadmapTimeline() {
       id="roadmap"
       className={cn(
         landingSectionBand,
-        "bg-[radial-gradient(ellipse_90%_70%_at_10%_0%,oklch(0.38_0.08_55_/_0.14),transparent_55%),linear-gradient(120deg,oklch(0.14_0.02_25),hsl(var(--background))_45%,oklch(0.12_0.018_35))]",
+        "bg-[radial-gradient(ellipse_90%_70%_at_10%_0%,oklch(0.38_0.08_55_/_0.14),transparent_55%),linear-gradient(120deg,oklch(0.14_0.02_25),var(--background)_45%,oklch(0.12_0.018_35))]",
       )}
     >
       <div

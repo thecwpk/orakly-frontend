@@ -1,3 +1,5 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap");
+
 @import "tailwindcss";
 @config "../tailwind.config.ts";
 
@@ -86,16 +88,22 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
-  /** Semantic page canvas — space-separated H in `:root` / `.dark`; resolves via `hsl(...)`. */
-  --color-foreground: hsl(var(--foreground));
-  --color-background: hsl(var(--background));
+  /** Semantic page canvas — hex tokens on `:root` (dark-first). */
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
+  --color-background-secondary: var(--background-secondary);
+  --color-background-card: var(--background-card);
+  --color-foreground-muted: var(--foreground-muted);
+  --color-border-strong: var(--border-strong);
   --color-yes: var(--yes);
   --color-no: var(--no);
-  --radius-sm: calc(var(--radius) * 0.6);
-  --radius-md: calc(var(--radius) * 0.8);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) * 1.4);
-  --radius-2xl: calc(var(--radius) * 1.8);
+  --color-warning: var(--warning);
+  --color-info: var(--info);
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 18px;
+  --radius-2xl: 24px;
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
 
@@ -118,12 +126,13 @@
 }
 
 :root {
+  color-scheme: dark;
   /* Shell — primary chrome row height (matches marketing nav `h-14`) + ticker row. */
-  --app-topbar-row-h: 4.5rem;
-  --app-topbar-ticker-h: 1.375rem;
-  --app-topbar-h: calc(var(--app-topbar-row-h) + var(--app-topbar-ticker-h));
-  --app-chrome: rgba(12, 28, 52, 0.94);
-  --app-ticker-band: rgba(14, 32, 58, 0.72);
+  --app-topbar-row-h: 3.5rem; /* 56px — fixed top nav */
+  --app-topbar-ticker-h: 0px;
+  --app-topbar-h: var(--app-topbar-row-h);
+  --app-chrome: rgb(15 17 23 / 0.95);
+  --app-ticker-band: rgb(22 27 39 / 0.85);
   --app-border-subtle: rgba(255, 255, 255, 0.065);
   --app-panel: rgba(255, 255, 255, 0.025);
   /**
@@ -134,69 +143,149 @@
   /** Default vertical rhythm between major on-page bands (section separation). */
   --app-section-gap-y: 1.75rem;
 
-  --card: oklch(0.992 0.007 258);
-  --card-foreground: oklch(0.2 0.035 265);
-  --popover: oklch(0.992 0.007 258);
-  --popover-foreground: oklch(0.2 0.035 265);
-  /** Saturated blue — CTAs, links, radial accents (light). */
-  --primary: oklch(0.52 0.22 264);
-  --primary-foreground: oklch(0.99 0 0);
-  --secondary: oklch(0.945 0.012 258);
-  --secondary-foreground: oklch(0.26 0.035 265);
-  --muted: oklch(0.935 0.014 258);
-  --muted-foreground: oklch(0.46 0.028 265);
-  --accent: oklch(0.3 0.03 240);
-  --accent-foreground: oklch(0.96 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.55 0.05 265 / 0.2);
-  --input: oklch(0.55 0.05 265 / 0.26);
-  --ring: oklch(0.52 0.22 264);
+  /* Dark theme as default — crypto-native */
+  --background: #0f1117;
+  --background-secondary: #161b27;
+  --background-card: #1a2035;
+  --foreground: #f1f5f9;
+  --foreground-muted: #94a3b8;
+  --border: #1e293b;
+  --border-strong: #334155;
+
+  /* Brand accent */
+  --accent: #6366f1; /* indigo — Orakly brand */
+  --accent-hover: #4f46e5;
+  --accent-foreground: #f8fafc;
+
+  /* Semantic colors */
+  --yes: #22c55e; /* green */
+  --color-yes: var(--yes);
+  --color-yes-bg: #052e16;
+  --no: #ef4444; /* red */
+  --color-no: var(--no);
+  --color-no-bg: #1c0a0a;
+  --warning: #f59e0b;
+  --color-warning: var(--warning);
+  --info: #3b82f6;
+  --color-info: var(--info);
+
+  /* Typography */
+  --font-sans: "Inter", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", "Fira Code", monospace;
+
+  /* Spacing / radii */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 18px;
+  --radius-2xl: 24px;
+  --radius: 0.625rem;
+
+  /* Shadcn / component surfaces — dark defaults */
+  --card: #1a2035;
+  --card-foreground: #f1f5f9;
+  --popover: #161b27;
+  --popover-foreground: #f1f5f9;
+  --primary: #6366f1;
+  --primary-foreground: #f8fafc;
+  --secondary: #161b27;
+  --secondary-foreground: #f1f5f9;
+  --muted: #161b27;
+  --muted-foreground: #94a3b8;
+  --destructive: oklch(0.704 0.191 22.216);
+  --input: #1e293b;
+  --ring: #6366f1;
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
   --chart-3: oklch(0.439 0 0);
   --chart-4: oklch(0.371 0 0);
   --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.22 0.02 260);
-  --sidebar-foreground: oklch(0.96 0 0);
-  --sidebar-primary: oklch(0.72 0.15 215);
-  --sidebar-primary-foreground: oklch(0.13 0 0);
-  --sidebar-accent: oklch(0.3 0.03 240);
-  --sidebar-accent-foreground: oklch(0.96 0 0);
-  --sidebar-border: oklch(1 0 0 / 12%);
-  --sidebar-ring: oklch(0.72 0.15 215);
+  --sidebar: #161b27;
+  --sidebar-foreground: #f1f5f9;
+  --sidebar-primary: #6366f1;
+  --sidebar-primary-foreground: #f8fafc;
+  --sidebar-accent: #1a2035;
+  --sidebar-accent-foreground: #f1f5f9;
+  --sidebar-border: #1e293b;
+  --sidebar-ring: #6366f1;
+
   /** Legacy — market detail uses inline trade panel; keep ≈ bottom nav only. */
   --mobile-trade-desk-clearance: calc(var(--app-mobile-dock-h, 3.35rem) + 0.25rem);
   /** Default desktop — overridden below `lg` where the bottom dock shows. */
   --app-mobile-dock-h: 0px;
-  /** Brand YES — sparklines, live chips, positive ticks (light). */
-  --yes: #059669;
-  /** Brand NO — downside / NO lane (light). */
-  --no: #e11d48;
   /** Supporting accents — use sparingly (glows, secondary highlights). */
   --accent-violet: #7c3aed;
   --accent-orange-2: #60a5fa;
+  /** Brand YES / NO — already defined above; kept for glow helpers. */
   --glow-yes-soft: color-mix(in srgb, var(--yes) 26%, transparent);
   --glow-primary-soft: color-mix(in srgb, var(--primary) 24%, transparent);
-  /**
-   * Page canvas — single source for `bg-background`, shells, and raw CSS fills.
-   * Light / dark numeric hues requested by design system.
-   */
-  --background: 220 14% 96%;
   /** Resolved fill alias (`background-color: var(--mb-page)`). */
-  --mb-page: hsl(var(--background));
+  --mb-page: var(--background);
   --app-canvas: var(--mb-page);
   /** Hub / meme-bet landing token aliases (raw CSS + `.mb-root`). */
   --mb-border: var(--border);
   --mb-surface: var(--card);
-  --mb-fg: hsl(var(--foreground));
-  --mb-muted: var(--muted-foreground);
+  --mb-fg: var(--foreground);
+  --mb-muted: var(--foreground-muted);
   --mb-accent: var(--primary);
   --mb-accent-fg: var(--primary-foreground);
   --mb-yes: var(--yes);
   --mb-no: var(--no);
-  /** Paired body text for light canvas (required once `--background` is light). */
-  --foreground: 222 47% 11%;
+}
+
+/* Light theme override — only when user explicitly selects light */
+[data-theme="light"],
+.light {
+  color-scheme: light;
+  --background: #ffffff;
+  --background-secondary: #f8fafc;
+  --background-card: #ffffff;
+  --foreground: #0f172a;
+  --foreground-muted: #64748b;
+  --border: #e2e8f0;
+  --border-strong: #cbd5e1;
+
+  --card: #ffffff;
+  --card-foreground: #0f172a;
+  --popover: #ffffff;
+  --popover-foreground: #0f172a;
+  --primary: #4f46e5;
+  --primary-foreground: #f8fafc;
+  --secondary: #f8fafc;
+  --secondary-foreground: #0f172a;
+  --muted: #f8fafc;
+  --muted-foreground: #64748b;
+  --accent: #6366f1;
+  --accent-hover: #4f46e5;
+  --accent-foreground: #f8fafc;
+  --input: #e2e8f0;
+  --destructive: oklch(0.577 0.245 27.325);
+  --ring: #6366f1;
+  --sidebar: #f8fafc;
+  --sidebar-foreground: #0f172a;
+  --sidebar-primary: #4f46e5;
+  --sidebar-primary-foreground: #f8fafc;
+  --sidebar-accent: #f1f5f9;
+  --sidebar-accent-foreground: #0f172a;
+  --sidebar-border: #e2e8f0;
+  --sidebar-ring: #6366f1;
+
+  --color-yes: #16a34a;
+  --color-yes-bg: #dcfce7;
+  --color-no: #dc2626;
+  --color-no-bg: #fee2e2;
+  --yes: #16a34a;
+  --no: #dc2626;
+  --warning: #d97706;
+  --color-warning: var(--warning);
+  --info: #2563eb;
+  --color-info: var(--info);
+
+  --app-chrome: rgb(255 255 255 / 0.92);
+  --app-ticker-band: rgb(248 250 252 / 0.9);
+  --mb-page: var(--background);
+  --mb-fg: var(--foreground);
+  --mb-muted: var(--foreground-muted);
 }
 
 @media (min-width: 640px) {
@@ -231,7 +320,7 @@
 /** Hub home — markets ticker lives in `DappHubPage` (`.mb-ticker`), not under navbar. */
 /** Hub home — align main gutter with topbar (px-3 / px-4 / px-6). */
 .hub-shell-density {
-  --app-topbar-row-h: 4.5rem;
+  --app-topbar-row-h: 3.5rem;
   --app-topbar-ticker-h: 0px;
   --app-topbar-h: var(--app-topbar-row-h);
   --app-page-gutter-x: 0.75rem;
@@ -258,7 +347,7 @@
 
 /** `/discover` marketing directory — same cool radial canvas as hub (no flat black). */
 .marketing-discover {
-  background-color: hsl(var(--background));
+  background-color: var(--background);
 }
 
 .dark .marketing-discover {
@@ -268,51 +357,39 @@
     radial-gradient(ellipse 50% 45% at 4% 20%, hsl(210 42% 20% / 0.18), transparent 48%);
 }
 
+/** next-themes `.dark` — reinforce dark-first `:root` (no light flash on class). */
 .dark {
-  /** Cool blue-slate canvas — not flat black. */
-  --background: 215 42% 11%;
-  --mb-page: hsl(var(--background));
-  --app-canvas: var(--mb-page);
-  --foreground: 210 40% 98%;
-  --card: oklch(0.252 0.042 268);
-  --card-foreground: oklch(0.985 0.005 260);
-  --popover: oklch(0.228 0.038 268);
-  --popover-foreground: oklch(0.985 0.005 260);
-  /** Near-white fills on dark — primary CTAs read as luminous rails. */
-  --primary: oklch(0.985 0.003 260);
-  --primary-foreground: oklch(0.165 0.045 268);
-  --secondary: oklch(0.278 0.035 268);
-  --secondary-foreground: oklch(0.985 0.005 260);
-  --muted: oklch(0.255 0.034 267);
-  --muted-foreground: oklch(0.72 0.018 265);
-  --accent: oklch(0.32 0.04 248);
-  --accent-foreground: oklch(0.985 0 0);
+  color-scheme: dark;
+  --background: #0f1117;
+  --background-secondary: #161b27;
+  --background-card: #1a2035;
+  --foreground: #f1f5f9;
+  --foreground-muted: #94a3b8;
+  --border: #1e293b;
+  --border-strong: #334155;
+  --accent: #6366f1;
+  --accent-hover: #4f46e5;
+  --accent-foreground: #f8fafc;
+  --card: #1a2035;
+  --card-foreground: #f1f5f9;
+  --popover: #161b27;
+  --popover-foreground: #f1f5f9;
+  --primary: #6366f1;
+  --primary-foreground: #f8fafc;
+  --secondary: #161b27;
+  --secondary-foreground: #f1f5f9;
+  --muted: #161b27;
+  --muted-foreground: #94a3b8;
   --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 0.12);
-  --input: oklch(1 0 0 / 0.16);
-  --ring: oklch(0.985 0.003 260);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.22 0.035 268);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.275 0.038 268);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
-  --yes: #3ecf8e;
-  --no: #fb7185;
-  --accent-violet: #a78bfa;
-  --accent-orange-2: #93c5fd;
-  --glow-yes-soft: color-mix(in srgb, var(--yes) 30%, transparent);
-  --glow-primary-soft: color-mix(in srgb, var(--primary) 26%, transparent);
-  /** Trading shell chrome — deep navy blue, not neutral black. */
-  --app-chrome: hsl(215 40% 9% / 0.96);
-  --app-ticker-band: hsl(215 36% 11% / 0.8);
+  --input: #1e293b;
+  --ring: #6366f1;
+  --yes: #22c55e;
+  --no: #ef4444;
+  --mb-page: var(--background);
+  --app-canvas: var(--mb-page);
+  --mb-fg: var(--foreground);
+  --app-chrome: rgb(15 17 23 / 0.95);
+  --app-ticker-band: rgb(22 27 39 / 0.85);
 }
 
 @layer base {
@@ -320,7 +397,11 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    background-color: var(--background);
+    color: var(--foreground);
   }
   html {
     @apply font-sans;
@@ -339,7 +420,7 @@
    * stays readable on top of bloom / glow layers on the landing surface.
    */
   :focus-visible {
-    outline: 2px solid hsl(var(--foreground));
+    outline: 2px solid var(--foreground);
     outline-offset: 3px;
     border-radius: 6px;
   }
@@ -515,7 +596,7 @@
   .marketing-section-slab {
     position: relative;
     background-color: var(--mb-page);
-    color: hsl(var(--foreground));
+    color: var(--foreground);
   }
   .marketing-section-slab::before {
     content: "";
@@ -637,7 +718,7 @@
     transform: translateX(2px);
   }
   .marketing-landing-canvas {
-    background-color: hsl(var(--background));
+    background-color: var(--background);
     background-image:
       radial-gradient(ellipse 120% 75% at 50% -18%, hsl(232 48% 24% / 0.42), transparent 58%),
       radial-gradient(ellipse 55% 50% at 96% 12%, hsl(278 36% 22% / 0.18), transparent 52%),
@@ -646,7 +727,7 @@
   .marketing-how-card {
     position: relative;
     border-radius: 1rem;
-    border: 1px solid hsl(var(--foreground) / 0.1);
+    border: 1px solid color-mix(in srgb, var(--foreground) 10%, transparent);
     background: linear-gradient(165deg, rgb(19 24 40 / 0.96) 0%, rgb(13 18 32 / 0.94) 100%);
     transition:
       border-color 0.2s ease,
@@ -791,19 +872,19 @@
   .glass-panel {
     border-width: 1px;
     border-style: solid;
-    border-color: hsl(var(--foreground) / 0.1);
-    background-color: hsl(var(--background) / 0.33);
-    box-shadow: inset 0 0 0 1px hsl(var(--foreground) / 0.05);
+    border-color: color-mix(in srgb, var(--foreground) 10%, transparent);
+    background-color: color-mix(in srgb, var(--background) 33%, transparent);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--foreground) 5%, transparent);
     backdrop-filter: blur(26px);
   }
   .glass-panel-strong {
     border-width: 1px;
     border-style: solid;
-    border-color: hsl(var(--foreground) / 0.12);
-    background-color: hsl(var(--background) / 0.38);
+    border-color: color-mix(in srgb, var(--foreground) 12%, transparent);
+    background-color: color-mix(in srgb, var(--background) 38%, transparent);
     box-shadow:
       0 10px 36px -10px rgb(0 0 0 / 0.55),
-      inset 0 1px 0 hsl(var(--foreground) / 0.06);
+      inset 0 1px 0 color-mix(in srgb, var(--foreground) 6%, transparent);
     backdrop-filter: blur(42px);
   }
   .neon-edge-cyan {
@@ -1171,4 +1252,66 @@
   --space-5: 24px;
   --space-6: 32px;
   --space-7: 48px;
+}
+
+@keyframes slide-in {
+  from {
+    transform: translateY(-8px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-slide-in {
+  animation: slide-in 0.2s ease-out;
+}
+
+@keyframes activity-flash {
+  0%,
+  40% {
+    background-color: rgb(254 240 138 / 0.05);
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+
+.animate-activity-flash {
+  animation: activity-flash 0.5s ease-out;
+}
+
+/* Gradient text utility */
+.gradient-text {
+  background: linear-gradient(135deg, #6366f1, #8b5cf6, #a855f7);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Scrollbar styling — thin dark scrollbar */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 2px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #475569;
+}
+
+/* Hide scrollbar for horizontal scroll containers */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
 }

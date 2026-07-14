@@ -9,93 +9,109 @@ import {
   Users,
   type LucideIcon,
 } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { BNB_CHAIN_SVG } from "@/shared/constants/brand-logos";
 import { ROUTES } from "@/shared/constants/routes";
 import { useHomeStatsQuery } from "@/shared/api/hooks";
 import type { MarketSentiment } from "@/shared/contracts/hub-home";
 import { cn } from "@/lib/utils";
 import { fmtCount, fmtUsdCompact } from "../lib/format-hub-metrics";
 
+const GRID_PATTERN =
+  'url("data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%23ffffff\' fill-opacity=\'0.02\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")';
+
 function sentimentBadgeClass(sentiment: MarketSentiment): string {
   if (sentiment === "Bullish") {
-    return "bg-emerald-500/15 text-emerald-300 ring-emerald-400/30";
+    return "border-green-500/20 bg-green-500/10 text-green-400";
   }
   if (sentiment === "Neutral") {
-    return "bg-amber-500/15 text-amber-300 ring-amber-400/30";
+    return "border-amber-500/20 bg-amber-500/10 text-amber-400";
   }
-  return "bg-rose-500/15 text-rose-300 ring-rose-400/30";
+  return "border-red-500/20 bg-red-500/10 text-red-400";
 }
 
-function StatCard({
+function sentimentDotClass(sentiment: MarketSentiment): string {
+  if (sentiment === "Bullish") return "bg-green-400";
+  if (sentiment === "Neutral") return "bg-amber-400";
+  return "bg-red-400";
+}
+
+function sentimentIconClass(sentiment: MarketSentiment): string {
+  if (sentiment === "Bullish") return "text-green-400";
+  if (sentiment === "Neutral") return "text-amber-400";
+  return "text-red-400";
+}
+
+function PulseDot() {
+  return (
+    <span className="relative flex size-2" aria-hidden>
+      <span className="absolute inset-0 animate-ping rounded-full bg-emerald-400/70" />
+      <span className="relative size-2 rounded-full bg-emerald-400" />
+    </span>
+  );
+}
+
+function ChainDot({ className }: { className?: string }) {
+  return (
+    <span
+      className={cn("inline-block size-2 shrink-0 rounded-full bg-[#F0B90B]", className)}
+      aria-hidden
+    />
+  );
+}
+
+function StatCell({
   label,
   value,
   icon: Icon,
   iconClass,
-  loading,
-  trailing,
+  valueNode,
 }: {
   label: string;
-  value: string;
+  value?: string;
   icon: LucideIcon;
   iconClass: string;
-  loading?: boolean;
-  trailing?: ReactNode;
+  valueNode?: ReactNode;
 }) {
   return (
-    <div
-      className={cn(
-        "relative rounded-xl border border-[var(--hub-border)] bg-[var(--hub-card)] p-3",
-        "shadow-[0_1px_0_rgba(255,255,255,0.03)_inset]",
+    <div className="relative pr-6">
+      <Icon className={cn("absolute right-0 top-0 size-4", iconClass)} strokeWidth={2} aria-hidden />
+      {valueNode ?? (
+        <p className="text-2xl font-bold leading-none tracking-tight text-white">{value}</p>
       )}
-    >
-      <Icon
-        className={cn("absolute right-3 top-3 size-5", iconClass)}
-        strokeWidth={2}
-        aria-hidden
-      />
-      {loading ? (
-        <div className="hub-skeleton mt-1 h-7 w-20" />
-      ) : (
-        <div className="flex min-h-7 items-center gap-1.5 pr-7">
-          <p className="text-[20px] font-bold leading-none tracking-tight text-[var(--hub-fg)]">
-            {value}
-          </p>
-          {trailing}
-        </div>
-      )}
-      <p className="mt-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--hub-muted)]">
-        {label}
-      </p>
+      <p className="mt-0.5 text-xs uppercase tracking-wider text-slate-500">{label}</p>
     </div>
   );
 }
 
 function MarketPulseSkeleton() {
   return (
-    <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1.5fr_1fr] lg:gap-5">
-      <div className="hub-skeleton h-[22rem] rounded-2xl sm:h-[20rem]" />
-      <div className="grid grid-cols-2 gap-3">
-        {Array.from({ length: 6 }).map((_, i) => (
-          <div key={i} className="hub-skeleton h-[5.25rem] rounded-xl" />
-        ))}
+    <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#1a1f3a] via-[#0f1117] to-[#1a0f2e]">
+      <div
+        className="pointer-events-none absolute inset-0"
+        style={{ backgroundImage: GRID_PATTERN }}
+        aria-hidden
+      />
+      <div className="relative grid grid-cols-1 gap-0 lg:grid-cols-5">
+        <div className="space-y-4 p-8 lg:col-span-3">
+          <div className="h-7 w-56 animate-pulse rounded-full bg-white/5" />
+          <div className="h-3 w-28 animate-pulse rounded bg-white/5" />
+          <div className="h-24 w-40 animate-pulse rounded-lg bg-white/5" />
+          <div className="h-8 w-28 animate-pulse rounded-full bg-white/5" />
+          <div className="mt-6 h-5 w-64 animate-pulse rounded bg-white/5" />
+          <div className="h-5 w-40 animate-pulse rounded bg-white/5" />
+          <div className="mt-8 flex gap-3">
+            <div className="h-10 w-36 animate-pulse rounded-xl bg-white/5" />
+            <div className="h-10 w-36 animate-pulse rounded-xl bg-white/5" />
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-4 border-t border-white/5 p-6 lg:col-span-2 lg:border-l lg:border-t-0">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="h-14 animate-pulse rounded-lg bg-white/5" />
+          ))}
+        </div>
       </div>
     </div>
-  );
-}
-
-function BnbMark({ className }: { className?: string }) {
-  return (
-    <Image
-      src={BNB_CHAIN_SVG}
-      alt=""
-      width={18}
-      height={18}
-      className={cn("inline-block size-[18px] object-contain", className)}
-      unoptimized
-    />
   );
 }
 
@@ -116,133 +132,152 @@ export function MarketPulse() {
   }
 
   const attentionIndex = Math.round(stats?.attentionIndex ?? 0);
-  const sentiment: MarketSentiment = stats?.sentiment ?? "Bearish";
-  const sentimentIconTone =
-    sentiment === "Bullish"
-      ? "text-emerald-400"
-      : sentiment === "Neutral"
-        ? "text-amber-400"
-        : "text-rose-400";
+  const empty = attentionIndex === 0;
+  const sentiment: MarketSentiment = stats?.sentiment ?? "Neutral";
+  const displayIndex = empty ? "—" : String(attentionIndex);
+  const currentMeta = empty ? "—" : (stats?.currentMeta?.trim() || "—");
+  const topChain = empty ? "—" : (stats?.topChain?.trim() || "BNB");
 
   return (
     <section className="hub-section !pt-5 sm:!pt-6" aria-label="Market Pulse">
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-[3fr_2fr] lg:gap-5">
-        {/* Left — Platform Overview (~60%) */}
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-[#1a1f3a] via-[#0f1117] to-[#1a0f2e]">
         <div
-          className={cn(
-            "relative overflow-hidden rounded-2xl p-6",
-            "border border-[var(--hub-border)]",
-            "bg-[linear-gradient(145deg,rgba(30,56,110,0.95)_0%,rgba(16,28,52,0.98)_48%,rgba(12,22,42,1)_100%)]",
-            "shadow-[0_20px_50px_-28px_rgba(0,0,0,0.65)]",
-          )}
-        >
-          <div
-            className="pointer-events-none absolute -right-16 -top-20 size-56 rounded-full bg-[var(--hub-primary)]/20 blur-3xl"
-            aria-hidden
-          />
+          className="pointer-events-none absolute inset-0"
+          style={{ backgroundImage: GRID_PATTERN }}
+          aria-hidden
+        />
 
-          <div className="relative flex items-center justify-between gap-3">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--hub-muted)]">
-              Orakly Attention Market
-            </p>
-            <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-emerald-300">
-              <span className="relative flex size-2">
-                <span className="absolute inset-0 animate-ping rounded-full bg-emerald-400/70" />
-                <span className="relative size-2 rounded-full bg-emerald-400" />
+        <div className="relative grid grid-cols-1 gap-0 lg:grid-cols-5">
+          {/* LEFT — Attention hero */}
+          <div className="p-8 lg:col-span-3">
+            <span className="inline-flex items-center gap-2 rounded-full border border-indigo-500/20 bg-indigo-500/10 px-3 py-1 text-xs text-indigo-400">
+              <PulseDot />
+              LIVE — Crypto Attention Market
+            </span>
+
+            <div className="mt-4">
+              <p className="text-xs uppercase tracking-widest text-slate-400">
+                Attention Index
+              </p>
+              <p className="text-8xl font-black leading-none text-white">{displayIndex}</p>
+              <span
+                className={cn(
+                  "mt-2 inline-flex items-center gap-1.5 rounded-full border px-4 py-1 text-sm font-medium",
+                  empty
+                    ? "border-amber-500/20 bg-amber-500/10 text-amber-400"
+                    : sentimentBadgeClass(sentiment),
+                )}
+              >
+                <span
+                  className={cn(
+                    "size-1.5 rounded-full",
+                    empty ? "bg-amber-400" : sentimentDotClass(sentiment),
+                  )}
+                  aria-hidden
+                />
+                {empty ? "Neutral" : sentiment}
               </span>
-              Live
-            </span>
+            </div>
+
+            <div className="mt-6 space-y-2 text-sm text-slate-400">
+              <p>
+                Current Meta:{" "}
+                <span className="font-semibold text-white">{currentMeta}</span>
+              </p>
+              <p className="inline-flex items-center gap-2">
+                Top Chain:{" "}
+                <span className="inline-flex items-center gap-1.5 font-semibold text-white">
+                  {!empty ? <ChainDot /> : null}
+                  {topChain}
+                </span>
+              </p>
+            </div>
+
+            <div className="mt-8 flex flex-wrap gap-3">
+              <Link
+                href={ROUTES.markets}
+                className="rounded-xl bg-indigo-600 px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-indigo-500"
+              >
+                Explore Markets
+              </Link>
+              <Link
+                href={ROUTES.attention}
+                className="rounded-xl border border-white/10 bg-white/5 px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-white/10"
+              >
+                View Narratives
+              </Link>
+            </div>
+
+            {empty ? (
+              <p className="mt-6 text-xs text-slate-500">
+                Metrics populate after first market trades
+              </p>
+            ) : null}
           </div>
 
-          <div className="relative mt-6">
-            <p className="text-[13px] text-[var(--hub-muted)]">Attention Index</p>
-            <p className="mt-1 text-[72px] font-bold leading-none tracking-tight text-[var(--hub-fg)]">
-              {attentionIndex}
-            </p>
-            <span
-              className={cn(
-                "mt-3 inline-flex rounded-md px-2.5 py-1 text-[12px] font-semibold ring-1",
-                sentimentBadgeClass(sentiment),
-              )}
-            >
-              {sentiment}
-            </span>
+          {/* RIGHT — Stats */}
+          <div className="border-t border-white/5 p-6 lg:col-span-2 lg:border-l lg:border-t-0">
+            <div className="grid grid-cols-2 gap-4">
+              <StatCell
+                label="24H Volume"
+                value={empty ? "—" : fmtUsdCompact(stats?.volume24hUsd ?? 0)}
+                icon={TrendingUp}
+                iconClass="text-green-400"
+              />
+              <StatCell
+                label="Open Interest"
+                value={empty ? "—" : fmtUsdCompact(stats?.openInterest ?? 0)}
+                icon={DollarSign}
+                iconClass="text-blue-400"
+              />
+              <StatCell
+                label="Live Markets"
+                value={empty ? "—" : fmtCount(stats?.liveMarkets ?? 0)}
+                icon={BarChart2}
+                iconClass="text-purple-400"
+              />
+              <StatCell
+                label="Active Traders"
+                value={empty ? "—" : fmtCount(stats?.activeTraders ?? 0)}
+                icon={Users}
+                iconClass="text-orange-400"
+              />
+              <StatCell
+                label="Sentiment"
+                icon={Activity}
+                iconClass={empty ? "text-slate-500" : sentimentIconClass(sentiment)}
+                valueNode={
+                  empty ? (
+                    <p className="text-2xl font-bold text-white">—</p>
+                  ) : (
+                    <span
+                      className={cn(
+                        "inline-flex rounded-full border px-2.5 py-0.5 text-sm font-medium",
+                        sentimentBadgeClass(sentiment),
+                      )}
+                    >
+                      {sentiment}
+                    </span>
+                  )
+                }
+              />
+              <StatCell
+                label="Top Chain"
+                icon={Link2}
+                iconClass="text-amber-400"
+                valueNode={
+                  empty ? (
+                    <p className="text-2xl font-bold text-white">—</p>
+                  ) : (
+                    <p className="inline-flex items-center gap-2 text-2xl font-bold text-white">
+                      <ChainDot />
+                      {topChain}
+                    </p>
+                  )
+                }
+              />
+            </div>
           </div>
-
-          <div className="relative mt-6 space-y-2.5">
-            <p className="text-[16px] font-medium text-[var(--hub-fg)]">
-              <span className="text-[var(--hub-muted)]">Current Meta:</span>{" "}
-              {stats?.currentMeta ?? "—"}
-            </p>
-            <p className="flex items-center gap-2 text-[16px] font-medium text-[var(--hub-fg)]">
-              <span className="text-[var(--hub-muted)]">Top Chain:</span>
-              <BnbMark />
-              <span>{stats?.topChain ?? "BNB"}</span>
-            </p>
-          </div>
-
-          <div className="relative mt-8 flex flex-wrap gap-3">
-            <Link href={ROUTES.markets} className="hub-btn-primary px-5 py-2.5 text-sm">
-              Explore Markets
-            </Link>
-            <Link
-              href={ROUTES.attention}
-              className={cn(
-                "inline-flex items-center justify-center rounded-lg px-5 py-2.5 text-sm font-semibold transition",
-                "border border-[var(--hub-border-strong)] bg-transparent text-[var(--hub-fg)]",
-                "hover:bg-white/[0.04]",
-              )}
-            >
-              View Narratives
-            </Link>
-          </div>
-        </div>
-
-        {/* Right — Quick Stats (~40%) */}
-        <div className="grid grid-cols-2 gap-3 content-start">
-          <StatCard
-            label="24H Volume"
-            value={fmtUsdCompact(stats?.volume24hUsd ?? 0)}
-            icon={TrendingUp}
-            iconClass="text-emerald-400"
-            loading={statsQ.isLoading}
-          />
-          <StatCard
-            label="Open Interest"
-            value={fmtUsdCompact(stats?.openInterest ?? 0)}
-            icon={DollarSign}
-            iconClass="text-sky-400"
-            loading={statsQ.isLoading}
-          />
-          <StatCard
-            label="Live Markets"
-            value={fmtCount(stats?.liveMarkets ?? 0)}
-            icon={BarChart2}
-            iconClass="text-violet-400"
-            loading={statsQ.isLoading}
-          />
-          <StatCard
-            label="Active Traders"
-            value={fmtCount(stats?.activeTraders ?? 0)}
-            icon={Users}
-            iconClass="text-orange-400"
-            loading={statsQ.isLoading}
-          />
-          <StatCard
-            label="Market Sentiment"
-            value={sentiment}
-            icon={Activity}
-            iconClass={sentimentIconTone}
-            loading={statsQ.isLoading}
-          />
-          <StatCard
-            label="Top Chain"
-            value={stats?.topChain ?? "BNB"}
-            icon={Link2}
-            iconClass="text-amber-400"
-            loading={statsQ.isLoading}
-            trailing={<BnbMark className="size-4" />}
-          />
         </div>
       </div>
     </section>

@@ -28,28 +28,28 @@ const MOMENTUM_BADGE: Record<
 > = {
   Growing: {
     label: "↑ Growing",
-    className: "bg-emerald-500/15 text-emerald-300 ring-emerald-400/25",
+    className: "border border-green-500/20 bg-green-500/10 text-green-400",
   },
   Cooling: {
     label: "↓ Cooling",
-    className: "bg-rose-500/15 text-rose-300 ring-rose-400/25",
+    className: "border border-red-500/20 bg-red-500/10 text-red-400",
   },
   Stable: {
     label: "→ Stable",
-    className: "bg-white/[0.06] text-zinc-400 ring-white/[0.08]",
+    className: "border border-white/10 bg-white/5 text-slate-400",
   },
 };
 
 function scoreColor(score: number): string {
-  if (score < 34) return "text-rose-400";
-  if (score < 67) return "text-amber-400";
-  return "text-emerald-400";
+  if (score >= 67) return "text-green-400";
+  if (score >= 34) return "text-amber-400";
+  return "text-red-400";
 }
 
 function scoreBarColor(score: number): string {
-  if (score < 34) return "bg-rose-400";
-  if (score < 67) return "bg-amber-400";
-  return "bg-emerald-400";
+  if (score >= 67) return "bg-green-400";
+  if (score >= 34) return "bg-amber-400";
+  return "bg-red-400";
 }
 
 function momentumPct(current: number, prev: number): number {
@@ -84,27 +84,13 @@ function sortNarratives(
   }
 }
 
-function LaunchingPlaceholder() {
+function NarrativeSkeletonCard() {
   return (
-    <div
-      className={cn(
-        "relative min-w-[220px] max-w-[220px] overflow-hidden rounded-2xl border border-[var(--hub-border)] p-4",
-        "bg-[var(--hub-card)]",
-      )}
-    >
-      <div
-        className="pointer-events-none absolute inset-0 animate-pulse bg-[linear-gradient(110deg,transparent_20%,rgba(96,165,250,0.12)_45%,transparent_70%)] bg-[length:200%_100%]"
-        aria-hidden
-      />
-      <div className="relative space-y-3">
-        <div className="hub-skeleton h-4 w-24" />
-        <div className="hub-skeleton h-10 w-16" />
-        <div className="hub-skeleton h-1 w-full" />
-        <div className="hub-skeleton h-6 w-14" />
-        <p className="pt-2 text-center text-[12px] font-medium text-[var(--hub-muted)]">
-          Launching soon
-        </p>
-      </div>
+    <div className="min-w-[200px] max-w-[200px] animate-pulse rounded-2xl border border-white/5 bg-white/[0.02] p-4">
+      <div className="mb-4 h-3 w-24 rounded bg-white/10" />
+      <div className="mb-3 h-10 w-12 rounded bg-white/10" />
+      <div className="mb-2 h-2 w-full rounded bg-white/5" />
+      <div className="h-2 w-20 rounded bg-white/5" />
     </div>
   );
 }
@@ -114,21 +100,25 @@ function NarrativeCard({ item }: { item: AttentionDashboardItem }) {
   const score = Math.round(item.attentionScore);
   const pct = momentumPct(item.attentionScore, item.scorePrev24h);
   const pctPositive = pct >= 0;
+  const href = `/narratives/${encodeURIComponent(item.narrativeSlug)}`;
 
   return (
-    <article
+    <Link
+      href={href}
       className={cn(
-        "group flex min-w-[220px] max-w-[220px] cursor-pointer flex-col rounded-2xl border border-[var(--hub-border)] bg-[var(--hub-card)] p-4",
-        "transition duration-200 hover:-translate-y-0.5 hover:border-[var(--hub-primary)] hover:shadow-lg hover:shadow-[var(--hub-primary-glow)]",
+        "group flex min-w-[200px] max-w-[200px] cursor-pointer flex-col rounded-2xl border border-white/5 p-4",
+        "bg-gradient-to-b from-[var(--background-card)] to-[#0f1117]",
+        "transition-all duration-200",
+        "hover:border-indigo-500/30 hover:shadow-lg hover:shadow-indigo-500/5",
       )}
     >
       <div className="flex items-start justify-between gap-2">
-        <h3 className="min-w-0 truncate text-[15px] font-semibold text-[var(--hub-fg)]">
+        <h3 className="min-w-0 truncate text-sm font-semibold text-white">
           {item.narrativeName}
         </h3>
         <span
           className={cn(
-            "shrink-0 rounded-md px-1.5 py-0.5 text-[10px] font-semibold ring-1",
+            "shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium",
             badge.className,
           )}
         >
@@ -136,14 +126,14 @@ function NarrativeCard({ item }: { item: AttentionDashboardItem }) {
         </span>
       </div>
 
-      <div className="mt-4">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--hub-muted)]">
+      <div className="mt-3">
+        <p className="text-[10px] uppercase tracking-widest text-slate-500">
           Attention
         </p>
-        <p className={cn("mt-1 text-[40px] font-bold leading-none tabular-nums", scoreColor(score))}>
+        <p className={cn("text-4xl font-black leading-none tabular-nums", scoreColor(score))}>
           {score}
         </p>
-        <div className="mt-2 h-1 w-full overflow-hidden rounded-full bg-black/30">
+        <div className="mt-1 h-1 w-full overflow-hidden rounded-full bg-white/5">
           <div
             className={cn("h-full rounded-full transition-all", scoreBarColor(score))}
             style={{ width: `${Math.min(100, Math.max(0, score))}%` }}
@@ -151,19 +141,19 @@ function NarrativeCard({ item }: { item: AttentionDashboardItem }) {
         </div>
       </div>
 
-      <div className="mt-4">
-        <p className="text-[11px] text-[var(--hub-muted)]">Conviction</p>
-        <p className="mt-0.5 text-[20px] font-bold tabular-nums text-[var(--hub-fg)]">
+      <div className="mt-3 flex items-center justify-between gap-2">
+        <span className="text-[10px] text-slate-500">CONVICTION</span>
+        <span className="text-sm font-bold tabular-nums text-slate-300">
           {Math.round(item.convictionScore)}
-        </p>
+        </span>
       </div>
 
-      <div className="mt-3 flex items-center justify-between gap-2 text-[12px]">
-        <span className="text-[var(--hub-muted)]">Momentum</span>
+      <div className="mt-1 flex items-center justify-between gap-2">
+        <span className="text-[10px] text-slate-500">MOMENTUM</span>
         <span
           className={cn(
-            "font-semibold tabular-nums",
-            pctPositive ? "text-emerald-400" : "text-rose-400",
+            "text-sm font-bold tabular-nums",
+            pctPositive ? "text-green-400" : "text-red-400",
           )}
         >
           {pctPositive ? "+" : ""}
@@ -171,23 +161,28 @@ function NarrativeCard({ item }: { item: AttentionDashboardItem }) {
         </span>
       </div>
 
-      <div className="mt-3 flex items-center justify-between gap-2 border-t border-[var(--hub-border)] pt-3 text-[11px] text-[var(--hub-muted)]">
-        <span>Markets: {item.activeMarkets}</span>
-        <span>Volume: {fmtUsdCompact(item.volume24hUsd)}</span>
+      <div className="mt-3 flex items-center justify-between gap-2 border-t border-white/5 pt-3">
+        <span className="text-[11px] text-slate-500">
+          Markets:{" "}
+          <span className="font-medium text-slate-300">{item.activeMarkets}</span>
+        </span>
+        <span className="text-[11px] text-slate-500">
+          Vol:{" "}
+          <span className="font-medium text-slate-300">
+            {fmtUsdCompact(item.volume24hUsd)}
+          </span>
+        </span>
       </div>
 
-      <Link
-        href={`/narratives/${encodeURIComponent(item.narrativeSlug)}`}
+      <span
         className={cn(
-          "mt-3 inline-flex w-full items-center justify-center rounded-lg border border-[var(--hub-border)] px-3 py-2",
-          "text-[12px] font-semibold text-[var(--hub-fg)] transition",
-          "hover:border-[var(--hub-primary)] hover:bg-white/[0.04]",
+          "mt-3 block w-full rounded-lg py-1.5 text-center text-xs text-indigo-400",
+          "transition-colors group-hover:bg-indigo-500/10 group-hover:text-indigo-300",
         )}
-        onClick={(e) => e.stopPropagation()}
       >
         View Narrative →
-      </Link>
-    </article>
+      </span>
+    </Link>
   );
 }
 
@@ -206,12 +201,8 @@ export function TrendingNarratives() {
 
   const rows = useMemo(() => {
     const data = query.data?.data ?? [];
-    // Treat mock-only payloads as empty for the "Launching soon" empty state.
     const real = data.filter((row) => !row._isMock);
     const source = real.length > 0 ? real : data;
-    // If API only returned mocks because DB was empty, still show them unless
-    // the user wants "Launching soon" for true empty. Spec: empty = no narratives.
-    // Mock rows from the API mean "no DB data" — use Launching soon for that.
     if (data.length > 0 && data.every((row) => row._isMock)) {
       return [];
     }
@@ -219,17 +210,14 @@ export function TrendingNarratives() {
   }, [query.data, sort]);
 
   const showEmpty = !query.isLoading && rows.length === 0;
+  const showSkeletons = query.isLoading && rows.length === 0;
 
   return (
     <section className="hub-section" aria-label="Trending Narratives">
       <div className="mb-4 flex flex-col gap-3 sm:mb-5 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h2 className="text-[20px] font-semibold tracking-tight text-[var(--hub-fg)]">
-            Trending Narratives
-          </h2>
-          <p className="mt-1 block text-[13px] text-[var(--hub-muted)]">
-            Where attention is flowing right now
-          </p>
+          <h2 className="text-xl font-bold text-white">Trending Narratives</h2>
+          <p className="mt-0.5 text-sm text-slate-500">Where attention is flowing</p>
         </div>
 
         <label className="relative inline-flex shrink-0 items-center">
@@ -238,9 +226,9 @@ export function TrendingNarratives() {
             value={sort}
             onChange={(e) => setSort(e.target.value as SortKey)}
             className={cn(
-              "appearance-none rounded-lg border border-[var(--hub-border)] bg-[var(--hub-card)]",
-              "py-2 pl-3 pr-9 text-[13px] font-medium text-[var(--hub-fg)]",
-              "focus:outline-none focus:ring-2 focus:ring-[var(--hub-primary)]/30",
+              "appearance-none rounded-lg border border-white/10 bg-white/5",
+              "py-1.5 pl-3 pr-8 text-sm text-slate-300",
+              "focus:outline-none focus:ring-2 focus:ring-indigo-500/30",
             )}
           >
             {SORT_OPTIONS.map((opt) => (
@@ -250,7 +238,7 @@ export function TrendingNarratives() {
             ))}
           </select>
           <ChevronDown
-            className="pointer-events-none absolute right-2.5 size-3.5 text-[var(--hub-muted)]"
+            className="pointer-events-none absolute right-2.5 size-3.5 text-slate-500"
             aria-hidden
           />
         </label>
@@ -262,19 +250,18 @@ export function TrendingNarratives() {
           "[scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
         )}
       >
-        {query.isLoading && rows.length === 0
+        {showSkeletons || showEmpty
           ? Array.from({ length: 4 }).map((_, i) => (
-              <div
-                key={i}
-                className="hub-skeleton min-h-[280px] min-w-[220px] max-w-[220px] rounded-2xl"
-              />
+              <NarrativeSkeletonCard key={i} />
             ))
-          : showEmpty
-            ? Array.from({ length: 4 }).map((_, i) => (
-                <LaunchingPlaceholder key={i} />
-              ))
-            : rows.map((item) => <NarrativeCard key={item.id} item={item} />)}
+          : rows.map((item) => <NarrativeCard key={item.id} item={item} />)}
       </div>
+
+      {showEmpty ? (
+        <p className="mt-2 text-center text-xs text-slate-600">
+          Narrative data loads after first market activity
+        </p>
+      ) : null}
     </section>
   );
 }

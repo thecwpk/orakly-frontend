@@ -33,7 +33,7 @@ export function WhyOraklyMerged() {
       id="why"
       className={cn(
         landingSectionBand,
-        "bg-[radial-gradient(ellipse_80%_60%_at_100%_0%,oklch(0.22_0.04_285_/_0.35),transparent_55%),linear-gradient(188deg,oklch(0.08_0.02_275),hsl(var(--background))_50%,oklch(0.1_0.025_270))]",
+        "bg-[radial-gradient(ellipse_80%_60%_at_100%_0%,oklch(0.22_0.04_285_/_0.35),transparent_55%),linear-gradient(188deg,oklch(0.08_0.02_275),var(--background)_50%,oklch(0.1_0.025_270))]",
       )}
     >
       <div
@@ -62,7 +62,7 @@ export function WhyOraklyMerged() {
           {whyOraklyBridgeColumns.map((col) => (
             <div
               key={col.title}
-              className="bg-[color-mix(in_oklch,hsl(var(--background))_92%,var(--card)_8%)] px-4 py-4 sm:px-5 sm:py-5"
+              className="bg-[color-mix(in_oklch,var(--background)_92%,var(--card)_8%)] px-4 py-4 sm:px-5 sm:py-5"
             >
               <p className={landingEyebrowAccent}>{col.title}</p>
               <ul className="mt-3 space-y-2 text-sm leading-relaxed text-muted-foreground">

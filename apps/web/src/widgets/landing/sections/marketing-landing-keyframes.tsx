@@ -146,7 +146,7 @@ export function MarketingLandingKeyframes() {
         align-items: center;
         gap: 6px;
         font-size: 12px;
-        color: hsl(var(--foreground));
+        color: var(--foreground);
         font-weight: 600;
         letter-spacing: 0.01em;
         z-index: 3;
@@ -166,11 +166,11 @@ export function MarketingLandingKeyframes() {
         flex-direction: column;
         gap: 1px;
         white-space: nowrap;
-        color: hsl(var(--foreground) / 0.95);
+        color: color-mix(in srgb, var(--foreground) 95%, transparent);
         text-shadow: 0 0 12px rgba(0, 0, 0, 0.45);
         padding: 1px 4px;
         border-radius: 6px;
-        background: color-mix(in oklch, hsl(var(--background)) 52%, transparent);
+        background: color-mix(in oklch, var(--background) 52%, transparent);
         border: 1px solid rgba(255, 255, 255, 0.06);
         box-shadow: 0 8px 24px -18px rgba(0, 0, 0, 0.8);
       }

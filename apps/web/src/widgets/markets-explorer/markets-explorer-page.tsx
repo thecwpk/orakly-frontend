@@ -1,30 +1,16 @@
 "use client";
 
-import { formatCompactUsd } from "@orakly/utils";
 import { useQuery } from "@tanstack/react-query";
 import { Search } from "lucide-react";
-import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-  type KeyboardEvent,
-  type MouseEvent,
-} from "react";
-import { useOpenTradeModal } from "@/features/trading";
-import { WatchlistStar } from "@/features/watchlist";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { MarketCard } from "@/features/markets/components/market-card";
+import { MarketCardSkeleton } from "@/features/markets/components/market-card-skeleton";
 import { cn } from "@/lib/utils";
 import { fetchAttentionDashboard } from "@/shared/api/fetchers/attention-dashboard";
 import { fetchMarketsExplorer } from "@/shared/api/fetchers/markets-explorer";
 import { queryKeys } from "@/shared/api/query-keys";
-import { ROUTES } from "@/shared/constants/routes";
-import type {
-  MarketsExplorerRowDto,
-  MarketsExplorerSort,
-} from "@/shared/contracts/markets-explorer";
-import { marketToTradeModal } from "@/widgets/dapp-hub/lib/open-hub-trade";
+import type { MarketsExplorerSort } from "@/shared/contracts/markets-explorer";
 
 const PAGE_SIZE = 20;
 const DEBOUNCE_MS = 400;
@@ -54,43 +40,6 @@ const SORTS: { id: MarketsExplorerSort; label: string }[] = [
   { id: "ending", label: "Ending Soon" },
   { id: "discussed", label: "Most Discussed" },
 ];
-
-function shortenAddress(addr: string): string {
-  if (addr.length < 12) return addr;
-  return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
-}
-
-function truncate(text: string, max = 60): string {
-  const t = text.trim();
-  if (t.length <= max) return t;
-  return `${t.slice(0, max - 1)}…`;
-}
-
-function narrativeSlug(name: string): string {
-  return name
-    .trim()
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-|-$/g, "");
-}
-
-function formatEndsAt(iso: string | null | undefined): {
-  label: string;
-  expired: boolean;
-} {
-  if (!iso) return { label: "—", expired: false };
-  const ms = new Date(iso).getTime() - Date.now();
-  if (!Number.isFinite(ms) || ms <= 0) {
-    return { label: "Expired", expired: true };
-  }
-  const totalMin = Math.floor(ms / 60_000);
-  const days = Math.floor(totalMin / (60 * 24));
-  const hours = Math.floor((totalMin % (60 * 24)) / 60);
-  if (days > 0) return { label: `${days}d ${hours}h`, expired: false };
-  const mins = totalMin % 60;
-  if (hours > 0) return { label: `${hours}h ${mins}m`, expired: false };
-  return { label: `${Math.max(1, mins)}m`, expired: false };
-}
 
 type FilterState = {
   q: string;
@@ -235,145 +184,6 @@ function Pagination({
         Next
       </button>
     </div>
-  );
-}
-
-function MarketTableRow({ market }: { market: MarketsExplorerRowDto }) {
-  const router = useRouter();
-  const openTrade = useOpenTradeModal();
-  const yesPct = Math.round(Math.max(0, Math.min(1, market.probability)) * 100);
-  const ends = formatEndsAt(market.closesAt);
-  const deployed = Boolean(market.onChainAddress?.trim());
-  const href = ROUTES.market(market.slug);
-  const narrative = market.narrative?.trim() || null;
-  const creator = market.creatorAddress?.trim() || null;
-
-  function onRowClick() {
-    router.push(href);
-  }
-
-  function onRowKey(e: KeyboardEvent) {
-    if (e.key === "Enter" || e.key === " ") {
-      e.preventDefault();
-      router.push(href);
-    }
-  }
-
-  function onTrade(e: MouseEvent) {
-    e.stopPropagation();
-    if (!deployed) return;
-    openTrade(marketToTradeModal(market));
-  }
-
-  return (
-    <tr
-      role="link"
-      tabIndex={0}
-      onClick={onRowClick}
-      onKeyDown={onRowKey}
-      className="cursor-pointer border-b border-white/[0.06] transition hover:bg-white/[0.04]"
-    >
-      <td className="max-w-[280px] px-3 py-3">
-        <Link
-          href={href}
-          onClick={(e) => e.stopPropagation()}
-          className="block text-[13px] font-medium text-zinc-100 hover:text-blue-300"
-        >
-          {truncate(market.title || market.slug, 60)}
-        </Link>
-        <span className="mt-1 inline-flex rounded-md bg-white/[0.06] px-1.5 py-0.5 text-[10px] font-medium text-zinc-400 ring-1 ring-white/[0.08]">
-          {market.category || "Other"}
-        </span>
-      </td>
-      <td className="px-3 py-3">
-        {narrative ? (
-          <Link
-            href={`/narratives/${encodeURIComponent(narrativeSlug(narrative))}`}
-            onClick={(e) => e.stopPropagation()}
-            className="inline-flex rounded-full bg-white/[0.06] px-2.5 py-0.5 text-[11px] font-medium text-zinc-300 ring-1 ring-white/10 hover:bg-white/[0.1]"
-          >
-            {narrative}
-          </Link>
-        ) : (
-          <span className="text-[13px] text-zinc-500">—</span>
-        )}
-      </td>
-      <td className="px-3 py-3">
-        <div className="flex items-center gap-2">
-          <span className="text-[13px] font-bold text-emerald-400">{yesPct}%</span>
-          <span className="h-1.5 w-[60px] overflow-hidden rounded-full bg-white/10">
-            <span
-              className="block h-full rounded-full bg-emerald-500"
-              style={{ width: `${yesPct}%` }}
-            />
-          </span>
-        </div>
-      </td>
-      <td className="px-3 py-3 font-mono text-[13px] tabular-nums text-zinc-200">
-        {formatCompactUsd(market.volumeUsd ?? 0)}
-      </td>
-      <td className="px-3 py-3 font-mono text-[13px] tabular-nums text-zinc-200">
-        {formatCompactUsd(market.liquidityUsd ?? 0)}
-      </td>
-      <td className="px-3 py-3 font-mono text-[13px] tabular-nums text-zinc-300">
-        {market.participants}
-      </td>
-      <td
-        className={cn(
-          "px-3 py-3 text-[13px] tabular-nums",
-          ends.expired ? "font-medium text-rose-400" : "text-zinc-300",
-        )}
-      >
-        {ends.label}
-      </td>
-      <td className="px-3 py-3">
-        {creator ? (
-          <Link
-            href={ROUTES.traderProfile(creator)}
-            onClick={(e) => e.stopPropagation()}
-            className="font-mono text-[12px] text-zinc-300 hover:text-blue-300"
-          >
-            {shortenAddress(creator)}
-          </Link>
-        ) : (
-          <span className="text-[13px] text-zinc-400">Admin</span>
-        )}
-      </td>
-      <td className="px-2 py-3">
-        <WatchlistStar id={market.id} size="xs" />
-      </td>
-      <td className="px-3 py-3">
-        <button
-          type="button"
-          disabled={!deployed}
-          onClick={onTrade}
-          className={cn(
-            "rounded-lg px-3 py-1.5 text-[12px] font-semibold transition",
-            deployed
-              ? "bg-blue-600 text-white hover:bg-blue-500"
-              : "cursor-not-allowed bg-zinc-700/60 text-zinc-500",
-          )}
-        >
-          Trade
-        </button>
-      </td>
-    </tr>
-  );
-}
-
-function SkeletonRows() {
-  return (
-    <>
-      {Array.from({ length: 10 }).map((_, i) => (
-        <tr key={i} className="border-b border-white/[0.06]">
-          {Array.from({ length: 10 }).map((__, j) => (
-            <td key={j} className="px-3 py-3">
-              <div className="h-4 animate-pulse rounded bg-zinc-800/80" />
-            </td>
-          ))}
-        </tr>
-      ))}
-    </>
   );
 }
 
@@ -705,47 +515,40 @@ export function MarketsExplorerPage() {
         })}
       </div>
 
-      {/* Table */}
-      <div className="overflow-x-auto rounded-xl border border-white/[0.08]">
-        <table className="w-full min-w-[960px] border-collapse text-left">
-          <thead>
-            <tr className="border-b border-white/[0.08] bg-white/[0.03] text-[11px] font-semibold uppercase tracking-wider text-zinc-500">
-              <th className="px-3 py-2.5">Market</th>
-              <th className="px-3 py-2.5">Narrative</th>
-              <th className="px-3 py-2.5">Probability</th>
-              <th className="px-3 py-2.5">Volume</th>
-              <th className="px-3 py-2.5">Liquidity</th>
-              <th className="px-3 py-2.5">Participants</th>
-              <th className="px-3 py-2.5">Ends</th>
-              <th className="px-3 py-2.5">Creator</th>
-              <th className="w-10 px-2 py-2.5" aria-label="Watchlist" />
-              <th className="px-3 py-2.5">Trade</th>
-            </tr>
-          </thead>
-          <tbody>
-            {loading ? (
-              <SkeletonRows />
-            ) : markets.length === 0 ? (
-              <tr>
-                <td colSpan={10} className="px-4 py-16 text-center">
-                  <p className="text-[15px] text-zinc-400">
-                    No markets found matching your filters.
-                  </p>
-                  <button
-                    type="button"
-                    onClick={resetFilters}
-                    className="mt-4 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-500"
-                  >
-                    Reset filters
-                  </button>
-                </td>
-              </tr>
-            ) : (
-              markets.map((m) => <MarketTableRow key={m.id} market={m} />)
-            )}
-          </tbody>
-        </table>
-      </div>
+      {/* Card grid */}
+      {loading ? (
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <MarketCardSkeleton key={i} index={i} />
+          ))}
+        </div>
+      ) : markets.length === 0 ? (
+        <div className="rounded-2xl border border-dashed border-white/10 px-4 py-16 text-center">
+          <p className="text-[15px] text-zinc-400">
+            No markets found matching your filters.
+          </p>
+          <button
+            type="button"
+            onClick={resetFilters}
+            className="mt-4 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-500"
+          >
+            Reset filters
+          </button>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          {markets.map((m, index) => (
+            <MarketCard
+              key={m.id}
+              market={m}
+              index={index}
+              isLive={m.status === "OPEN"}
+              narrative={m.narrative}
+              participants={m.participants}
+            />
+          ))}
+        </div>
+      )}
 
       {/* Pagination */}
       {!loading && total > 0 ? (

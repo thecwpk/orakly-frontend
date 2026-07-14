@@ -31,7 +31,7 @@ export function TrustStrip() {
       id="trust"
       className={cn(
         landingSectionBand,
-        "bg-[radial-gradient(ellipse_90%_70%_at_50%_0%,oklch(0.34_0.09_215_/_0.28),transparent_55%),radial-gradient(ellipse_60%_50%_at_100%_80%,oklch(0.28_0.06_265_/_0.18),transparent_52%),linear-gradient(188deg,oklch(0.15_0.04_252)_0%,hsl(var(--background))_48%,oklch(0.14_0.035_258)_100%)]",
+        "bg-[radial-gradient(ellipse_90%_70%_at_50%_0%,oklch(0.34_0.09_215_/_0.28),transparent_55%),radial-gradient(ellipse_60%_50%_at_100%_80%,oklch(0.28_0.06_265_/_0.18),transparent_52%),linear-gradient(188deg,oklch(0.15_0.04_252)_0%,var(--background)_48%,oklch(0.14_0.035_258)_100%)]",
       )}
     >
       <div
