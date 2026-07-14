@@ -1,10 +1,13 @@
 "use client";
 
+import Link from "next/link";
 import { toast } from "sonner";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useConnectModal } from "@rainbow-me/rainbowkit";
 import type { CommunitySuggestion } from "@/shared/contracts/community-suggestion";
 import { voteCommunitySuggestion } from "@/shared/api/fetchers/community-suggestions";
-import { queryKeys } from "@/shared/api/query-keys";
+import { ROUTES } from "@/shared/constants/routes";
+import { timeAgo } from "@/widgets/profile/lib/format";
 import { cn } from "@/lib/utils";
 
 function shortenAddress(address: string): string {
@@ -30,10 +33,10 @@ function StatusBadge({ status }: { status: string }) {
   return (
     <span
       className={cn(
-        "inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold capitalize ring-1",
-        isApproved && "bg-emerald-500/15 text-emerald-300 ring-emerald-400/25",
-        isRejected && "bg-rose-500/15 text-rose-300 ring-rose-400/25",
-        !isApproved && !isRejected && "bg-zinc-500/15 text-zinc-300 ring-white/10",
+        "inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold capitalize",
+        isApproved && "bg-emerald-500/15 text-emerald-300 ring-1 ring-emerald-400/25",
+        isRejected && "bg-rose-500/15 text-rose-300 ring-1 ring-rose-400/25",
+        !isApproved && !isRejected && "bg-zinc-500/15 text-zinc-300 ring-1 ring-white/10",
       )}
     >
       {isApproved ? "Approved" : isRejected ? "Rejected" : "Pending"}
@@ -44,7 +47,7 @@ function StatusBadge({ status }: { status: string }) {
 type CommunitySuggestionCardProps = {
   suggestion: CommunitySuggestion;
   walletAddress: string | null;
-  queryKey: ReturnType<typeof queryKeys.markets.communitySuggestions>;
+  queryKey: readonly unknown[];
 };
 
 export function CommunitySuggestionCard({
@@ -53,10 +56,12 @@ export function CommunitySuggestionCard({
   queryKey,
 }: CommunitySuggestionCardProps) {
   const qc = useQueryClient();
+  const { openConnectModal } = useConnectModal();
   const normalizedWallet = walletAddress?.toLowerCase() ?? null;
   const hasVoted =
     normalizedWallet != null &&
     suggestion.voterAddresses.some((addr) => addr.toLowerCase() === normalizedWallet);
+  const isRejected = suggestion.status.toLowerCase() === "rejected";
 
   const voteMutation = useMutation({
     mutationFn: () => voteCommunitySuggestion(suggestion.id),
@@ -103,32 +108,62 @@ export function CommunitySuggestionCard({
     },
   });
 
-  const submitter = suggestion.creatorAddress
-    ? shortenAddress(suggestion.creatorAddress)
-    : "Anonymous";
+  const creator = suggestion.creatorAddress?.trim() || null;
+  const narrative = suggestion.narrative?.trim() || null;
 
   return (
-    <article className="glass-panel-strong rounded-2xl p-4 ring-1 ring-white/[0.06]">
-      <p className="text-base font-medium text-zinc-100">{suggestion.question}</p>
+    <article className="rounded-2xl border border-white/[0.08] bg-zinc-950/40 p-5">
+      <p className="text-[16px] font-semibold leading-snug text-zinc-100">
+        {suggestion.question}
+      </p>
 
-      <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-zinc-500">
+      {suggestion.description?.trim() ? (
+        <p className="mt-2 line-clamp-3 text-[13px] leading-relaxed text-zinc-500">
+          {suggestion.description}
+        </p>
+      ) : null}
+
+      <div className="mt-3 flex flex-wrap items-center gap-2 text-[12px] text-zinc-500">
         <span className="rounded-full bg-white/[0.05] px-2.5 py-0.5 font-medium text-zinc-300 ring-1 ring-white/[0.06]">
           {formatCategory(suggestion.category)}
         </span>
-        <span className="font-mono tabular-nums">{submitter}</span>
+        {narrative ? (
+          <span className="rounded-full bg-blue-500/10 px-2.5 py-0.5 font-medium text-blue-200 ring-1 ring-blue-400/20">
+            {narrative}
+          </span>
+        ) : null}
+        {creator ? (
+          <Link
+            href={ROUTES.traderProfile(creator)}
+            className="font-mono tabular-nums text-zinc-400 transition hover:text-zinc-200"
+            onClick={(e) => e.stopPropagation()}
+          >
+            by {shortenAddress(creator)}
+          </Link>
+        ) : (
+          <span className="font-mono tabular-nums">by Anonymous</span>
+        )}
+        <span aria-hidden>·</span>
+        <span className="tabular-nums">{timeAgo(suggestion.createdAt)} ago</span>
       </div>
 
-      <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-white/[0.06] pt-3">
-        <span className="text-sm font-semibold tabular-nums text-zinc-300">
-          {suggestion.voteCount} {suggestion.voteCount === 1 ? "vote" : "votes"}
-        </span>
+      {suggestion.resolutionSource?.trim() ? (
+        <p className="mt-2 text-[12px] text-zinc-500">
+          Resolves via: {suggestion.resolutionSource}
+        </p>
+      ) : null}
 
-        <div className="flex items-center gap-2">
+      <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-white/[0.06] pt-3">
+        <div className="flex items-center gap-3">
+          <span className="text-2xl font-bold tabular-nums text-zinc-100">
+            {suggestion.voteCount}
+          </span>
           <button
             type="button"
             disabled={voteMutation.isPending}
             onClick={() => {
               if (!normalizedWallet) {
+                openConnectModal?.();
                 toast.message("Connect your wallet to vote");
                 return;
               }
@@ -137,15 +172,20 @@ export function CommunitySuggestionCard({
             className={cn(
               "rounded-lg px-3 py-1.5 text-sm font-semibold transition ring-1",
               hasVoted
-                ? "bg-cyan-500/20 text-cyan-100 ring-cyan-400/30"
+                ? "bg-blue-500/20 text-blue-100 ring-blue-400/30"
                 : "bg-white/[0.03] text-zinc-200 ring-white/[0.08] hover:bg-white/[0.06]",
             )}
           >
-            {hasVoted ? "Voted" : "Vote"}
+            {hasVoted ? "✓ Voted" : "Vote ↑"}
           </button>
-          <StatusBadge status={suggestion.status} />
         </div>
+
+        <StatusBadge status={suggestion.status} />
       </div>
+
+      {isRejected && suggestion.rejectionReason?.trim() ? (
+        <p className="mt-3 text-[13px] italic text-rose-400">{suggestion.rejectionReason}</p>
+      ) : null}
     </article>
   );
 }

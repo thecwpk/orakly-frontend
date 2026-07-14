@@ -12,6 +12,7 @@ import {
   marketRecordToDeployInput,
   type DeployableMarketRecord,
 } from "../lib/market-to-deploy-input";
+import { formatChainTradeError } from "../lib/format-trade-error";
 import { useDeployOnChainMarket } from "./use-deploy-on-chain-market";
 
 export type LinkMarketOnChainInput = DeployableMarketRecord & {
@@ -55,7 +56,7 @@ export function useLinkMarketOnChain() {
       }
     },
     onError: (e) => {
-      if (e instanceof Error) toast.error(e.message);
+      if (e instanceof Error) toast.error(formatChainTradeError(e));
     },
   });
 }

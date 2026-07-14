@@ -1,24 +1,120 @@
 import { MarketStatus } from "@prisma/client";
 import { prisma } from "@orakly/database";
-import type { HomeStatsPayload } from "@/shared/contracts/hub-home";
+import type { HomeStatsPayload, MarketSentiment } from "@/shared/contracts/hub-home";
+
+function sentimentFromIndex(attentionIndex: number): MarketSentiment {
+  if (attentionIndex >= 70) return "Bullish";
+  if (attentionIndex >= 40) return "Neutral";
+  return "Bearish";
+}
+
+function toNum(value: unknown): number {
+  const n = Number(value);
+  return Number.isFinite(n) ? n : 0;
+}
 
 export async function getHomeStats(): Promise<HomeStatsPayload> {
   const since24h = new Date(Date.now() - 24 * 60 * 60 * 1000);
 
-  const [activeNarratives, liveMarkets, volumeAgg, attentionUpdates24h] =
-    await Promise.all([
-      prisma.attentionScore.count({
-        where: { score: { gt: 50 } },
-      }),
-      prisma.market.count({ where: { status: MarketStatus.OPEN } }),
-      prisma.market.aggregate({
-        where: { status: MarketStatus.OPEN },
-        _sum: { volume24hUsd: true },
-      }),
-      prisma.attentionScore.count({
-        where: { updatedAt: { gte: since24h } },
-      }),
-    ]);
+  const [
+    topAttention,
+    liveMarkets,
+    volumeAgg,
+    openInterestAgg,
+    attentionUpdates24h,
+    activeNarratives,
+    recentTrades,
+  ] = await Promise.all([
+    prisma.attentionScore.findMany({
+      orderBy: { score: "desc" },
+      take: 5,
+      select: {
+        score: true,
+        narrativeName: true,
+        narrative: true,
+      },
+    }),
+    prisma.market.count({ where: { status: MarketStatus.OPEN } }),
+    prisma.market.aggregate({
+      _sum: { volume24hUsd: true },
+    }),
+    prisma.market.aggregate({
+      where: { status: MarketStatus.OPEN },
+      _sum: { collateralPoolUsd: true },
+    }),
+    prisma.attentionScore.count({
+      where: { updatedAt: { gte: since24h } },
+    }),
+    prisma.attentionScore.count({
+      where: { score: { gt: 50 } },
+    }),
+    prisma.trade.findMany({
+      where: { executedAt: { gte: since24h } },
+      select: {
+        buyer: { select: { walletAddress: true } },
+        seller: { select: { walletAddress: true } },
+      },
+      take: 8_000,
+    }),
+  ]);
+
+  const attentionIndex =
+    topAttention.length === 0
+      ? 0
+      : Math.round(
+          (topAttention.reduce((sum, row) => sum + toNum(row.score), 0) /
+            topAttention.length) *
+            10,
+        ) / 10;
+
+  const topRow = topAttention[0];
+  const currentMeta =
+    topRow?.narrativeName?.trim() ||
+    topRow?.narrative?.trim() ||
+    "—";
+
+  const wallets = new Set<string>();
+  for (const trade of recentTrades) {
+    const buyer = trade.buyer.walletAddress?.toLowerCase();
+    const seller = trade.seller.walletAddress?.toLowerCase();
+    if (buyer) wallets.add(buyer);
+    if (seller) wallets.add(seller);
+  }
+
+  /** Prefer mark-to-market position value; fall back to collateral pools. */
+  let openInterest = toNum(openInterestAgg._sum.collateralPoolUsd);
+  try {
+    const positions = await prisma.position.findMany({
+      where: { market: { status: MarketStatus.OPEN } },
+      select: {
+        quantity: true,
+        side: true,
+        avgEntryPrice: true,
+        market: {
+          select: {
+            yesPrice: true,
+            noPrice: true,
+            probability: true,
+          },
+        },
+      },
+      take: 20_000,
+    });
+    if (positions.length > 0) {
+      openInterest = positions.reduce((sum, p) => {
+        const qty = toNum(p.quantity);
+        const yes = toNum(p.market.probability ?? p.market.yesPrice);
+        const no = toNum(p.market.noPrice) || (yes > 0 ? 1 - yes : 0.5);
+        const mark =
+          p.side === "YES"
+            ? yes || toNum(p.avgEntryPrice) || 0.5
+            : no || toNum(p.avgEntryPrice) || 0.5;
+        return sum + qty * mark;
+      }, 0);
+    }
+  } catch {
+    /* keep collateral fallback */
+  }
 
   const narrativeFallback =
     activeNarratives === 0
@@ -26,9 +122,15 @@ export async function getHomeStats(): Promise<HomeStatsPayload> {
       : activeNarratives;
 
   return {
-    activeNarratives: narrativeFallback,
+    attentionIndex,
+    sentiment: sentimentFromIndex(attentionIndex),
+    currentMeta,
+    topChain: "BNB",
+    volume24hUsd: toNum(volumeAgg._sum.volume24hUsd),
+    openInterest: Math.round(openInterest * 100) / 100,
     liveMarkets,
-    volume24hUsd: Number(volumeAgg._sum.volume24hUsd ?? 0),
+    activeTraders: wallets.size,
+    activeNarratives: narrativeFallback,
     attentionUpdates24h,
   };
 }

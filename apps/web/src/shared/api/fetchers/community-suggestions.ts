@@ -11,6 +11,7 @@ export type FetchCommunitySuggestionsParams = {
   status?: string;
   sort?: CommunitySuggestionSort;
   address?: string;
+  limit?: number;
 };
 
 function buildSuggestionsUrl(params: FetchCommunitySuggestionsParams): string {
@@ -18,6 +19,7 @@ function buildSuggestionsUrl(params: FetchCommunitySuggestionsParams): string {
   if (params.status) sp.set("status", params.status);
   if (params.sort) sp.set("sort", params.sort);
   if (params.address) sp.set("address", params.address);
+  if (params.limit != null) sp.set("limit", String(params.limit));
   const qs = sp.toString();
   return `/api/v1/suggestions${qs ? `?${qs}` : ""}`;
 }

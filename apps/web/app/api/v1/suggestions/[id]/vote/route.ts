@@ -2,6 +2,10 @@ import { revalidateTag } from "next/cache";
 import { NextResponse } from "next/server";
 import { API_ERROR_CODES } from "../../../_lib/errors";
 import { err, ok } from "../../../_lib/response";
+import {
+  createVoteMilestoneNotification,
+  crossedVoteMilestone,
+} from "@/server/notifications/create-notification";
 import { resolveWalletSessionFromCookies } from "@/server/wallet-auth/resolve-wallet-session";
 import { toggleSuggestionVote } from "@/server/suggestions/community-suggestions";
 
@@ -20,8 +24,24 @@ export async function POST(_req: Request, ctx: RouteCtx) {
 
   try {
     const result = await toggleSuggestionVote(id, session.address);
+
+    if (result.hasVoted) {
+      const milestone = crossedVoteMilestone(result.previousVoteCount, result.voteCount);
+      if (milestone != null && result.creatorAddress) {
+        await createVoteMilestoneNotification({
+          walletAddress: result.creatorAddress,
+          suggestionId: result.suggestionId,
+          voteCount: milestone,
+          question: result.question,
+        });
+      }
+    }
+
     revalidateTag("hub-suggestions");
-    return NextResponse.json(ok(result), { headers: { "Cache-Control": "no-store" } });
+    return NextResponse.json(
+      ok({ voteCount: result.voteCount, hasVoted: result.hasVoted }),
+      { headers: { "Cache-Control": "no-store" } },
+    );
   } catch (e) {
     if (e instanceof Error && e.message === "SUGGESTION_NOT_FOUND") {
       return NextResponse.json(err(API_ERROR_CODES.NOT_FOUND, "Suggestion not found"), {

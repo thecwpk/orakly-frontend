@@ -37,6 +37,7 @@ const MOCK_ROWS: Omit<AttentionDashboardItem, "id" | "lastUpdated" | "_isMock">[
     uniqueTraders: 340,
     liquidity: 890_000,
     openInterest: 2_100_000,
+    scorePrev24h: 61,
   },
   {
     narrativeSlug: "memes",
@@ -49,6 +50,7 @@ const MOCK_ROWS: Omit<AttentionDashboardItem, "id" | "lastUpdated" | "_isMock">[
     uniqueTraders: 512,
     liquidity: 420_000,
     openInterest: 760_000,
+    scorePrev24h: 66,
   },
   {
     narrativeSlug: "base",
@@ -61,6 +63,7 @@ const MOCK_ROWS: Omit<AttentionDashboardItem, "id" | "lastUpdated" | "_isMock">[
     uniqueTraders: 198,
     liquidity: 610_000,
     openInterest: 1_050_000,
+    scorePrev24h: 54,
   },
   {
     narrativeSlug: "solana",
@@ -73,6 +76,7 @@ const MOCK_ROWS: Omit<AttentionDashboardItem, "id" | "lastUpdated" | "_isMock">[
     uniqueTraders: 221,
     liquidity: 540_000,
     openInterest: 980_000,
+    scorePrev24h: 58,
   },
   {
     narrativeSlug: "rwa",
@@ -85,6 +89,7 @@ const MOCK_ROWS: Omit<AttentionDashboardItem, "id" | "lastUpdated" | "_isMock">[
     uniqueTraders: 87,
     liquidity: 280_000,
     openInterest: 410_000,
+    scorePrev24h: 46,
   },
   {
     narrativeSlug: "defi",
@@ -97,6 +102,7 @@ const MOCK_ROWS: Omit<AttentionDashboardItem, "id" | "lastUpdated" | "_isMock">[
     uniqueTraders: 156,
     liquidity: 470_000,
     openInterest: 830_000,
+    scorePrev24h: 50,
   },
 ];
 

@@ -152,7 +152,7 @@ function MarketsListRowImpl({ market, rank, isLive }: MarketsListRowProps) {
 
           {/* watchlist */}
           <div onClick={(e) => e.preventDefault()}>
-            <WatchlistStar slug={market.slug} size="xs" />
+            <WatchlistStar id={market.id} size="xs" />
           </div>
 
           {/* closes + cta */}

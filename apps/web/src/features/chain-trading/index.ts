@@ -24,6 +24,7 @@ export {
   useLinkMarketOnChain,
   useChainCollateralBalance,
   useChainWalletPositions,
+  useClaimWinnings,
   type ChainTradeBuyArgs,
   type OptimisticChainTradeBody,
 } from "./hooks";

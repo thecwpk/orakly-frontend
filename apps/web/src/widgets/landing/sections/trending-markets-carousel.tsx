@@ -224,7 +224,7 @@ export function TrendingMarketsCarousel() {
                   openInNewTab
                 />
                 <div className="absolute right-2.5 top-2.5">
-                  <WatchlistStar slug={market.slug} size="xs" />
+                  <WatchlistStar id={market.id} size="xs" />
                 </div>
               </div>
             ))}

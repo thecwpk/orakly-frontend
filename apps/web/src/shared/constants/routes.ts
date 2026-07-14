@@ -10,16 +10,28 @@ export const ROUTES = {
   landing: "/landing",
   /** Trading hub home — attention terminal, narrative wars, opportunities. */
   dapp: "/dapp",
+  DAPP: "/dapp",
   /** Attention dashboard — narrative momentum & matchups. */
   attention: "/attention",
+  /** Narratives page (same as `attention`). */
+  narratives: "/attention",
+  /** Frozen top-nav alias — Narratives. */
+  NARRATIVES: "/attention",
   /** Head-to-head narrative comparison tool. */
   narrativeWars: "/narrative-wars",
+  NARRATIVE_WARS: "/narrative-wars",
+  /** Frozen top-nav alias — Wars. */
+  wars: "/narrative-wars",
+  WARS: "/narrative-wars",
   /** Live markets directory (marketing shell). */
   discover: "/discover",
   /** Primary exploration surface — dense grid, filters, infinite scroll. */
   markets: "/markets",
+  MARKETS: "/markets",
   market: (slug: string) => `/markets/${slug}`,
+  MARKET_DETAIL: (slug: string) => `/markets/${slug}`,
   marketCreate: "/markets/create",
+  MARKETS_CREATE: "/markets/create",
   /** @deprecated Use `marketsTrending` — `/trending` redirects there. */
   trending: "/trending",
   /** Live tape sort — pins recent fills to the top (`/markets?live=1`). */
@@ -28,23 +40,38 @@ export const ROUTES = {
   marketsBrowse: "/markets",
   /** Community market submissions and voting. */
   marketsCommunity: "/markets/community",
+  MARKETS_COMMUNITY: "/markets/community",
+  /** Frozen top-nav alias — Community. */
+  community: "/markets/community",
+  COMMUNITY: "/markets/community",
   /**
    * Polymarket-style “Breaking” hub — OPEN markets with fresh live signals (`filter=breaking` on API).
    * Implemented as dedicated route so it is not rewritten by `/markets` canonical `trending` redirect.
    */
   marketsBreaking: "/markets/breaking",
+  /** Route redirects to Portfolio (watchlist lives on Portfolio Section 9). */
   watchlist: "/watchlist",
+  WATCHLIST: "/watchlist",
+  /** Deep-link target for watchlist section after `/watchlist` redirect. */
+  portfolioWatchlist: "/portfolio#watchlist",
   portfolio: "/portfolio",
+  PORTFOLIO: "/portfolio",
   /** Signed-in user overview (not operator admin). */
   userDashboard: "/dashboard",
   activity: "/activity",
   /** Historical attention, volume, and resolved-market analytics. */
   analytics: "/analytics",
+  ANALYTICS: "/analytics",
   leaderboard: "/leaderboard",
+  /** Frozen top-nav alias — Leaderboard. */
+  LEADERBOARD: "/leaderboard",
   wallet: "/wallet",
   profile: "/profile",
+  PROFILE: (address: string) => `/profile/${encodeURIComponent(address)}`,
   traderProfile: (address: string) =>
     `/profile/${encodeURIComponent(address)}`,
+  narrativeDetail: (slug: string) => `/narratives/${encodeURIComponent(slug)}`,
+  NARRATIVE_DETAIL: (slug: string) => `/narratives/${encodeURIComponent(slug)}`,
 
   /* Settings (nested layout) */
   settings: "/settings",
@@ -62,9 +89,12 @@ export const ROUTES = {
 
   /* Operator console — own admin layout */
   adminLogin: "/admin/login",
+  ADMIN: "/admin",
   adminDashboard: "/admin/dashboard",
   adminMarkets: "/admin/markets",
+  ADMIN_MARKETS: "/admin/markets",
   adminConfig: "/admin/config",
+  ADMIN_CONFIG: "/admin/config",
 
   /* Legacy → permanent redirect to /activity */
   pulse: "/pulse",

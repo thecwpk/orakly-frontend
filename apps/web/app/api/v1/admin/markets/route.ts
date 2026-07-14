@@ -9,17 +9,24 @@ import {
   adminCreateMarket,
   adminRecordMarketCreatedActivity,
 } from "@/server/admin/market-admin.service";
+import { readDefaultCreatorRewardPercent } from "@/server/suggestions/community-suggestions";
 import { writeAdminAudit } from "@/server/admin/audit";
 import { ok } from "../../_lib/response";
 import { adminJsonError } from "../_lib/admin-http";
 import { triggerMetricsRefresh } from "@/server/analytics/trigger-refresh";
 
+const ADMIN_CATEGORY_KEYS = ["meme", "defi", "layer1", "layer2", "ai", "other"] as const;
+
 const createSchema = z.object({
-  title: z.string().min(4).max(512),
-  slug: z.string().min(2).max(180),
+  title: z.string().min(10).max(512),
+  slug: z.string().min(2).max(180).optional(),
   description: z.string().max(8000).optional().nullable(),
   categoryId: z.string().uuid().optional().nullable(),
+  adminCategory: z.enum(ADMIN_CATEGORY_KEYS).optional().nullable(),
   narrative: z.string().min(2).max(64).optional().nullable(),
+  resolutionSource: z.string().min(2).max(512).optional().nullable(),
+  creatorRewardPercent: z.number().min(0).max(20).optional(),
+  minimumBetBnb: z.number().min(0.001).max(100).optional(),
   opensAt: z.string().datetime().optional().nullable(),
   closesAt: z.string().datetime(),
   takerFeeBps: z.number().int().min(0).max(500).optional(),
@@ -29,6 +36,15 @@ const createSchema = z.object({
   onChainAddress: z.string().regex(/^0x[a-fA-F0-9]{40}$/).optional().nullable(),
   chainId: z.number().int().positive().optional().nullable(),
 });
+
+function slugifyTitle(raw: string): string {
+  return raw
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 160);
+}
 
 export async function GET(req: NextRequest) {
   try {
@@ -59,6 +75,10 @@ export async function GET(req: NextRequest) {
         createdAt: true,
         onChainAddress: true,
         chainId: true,
+        narrative: true,
+        resolutionSource: true,
+        creatorRewardPercent: true,
+        generationMeta: true,
         category: { select: { id: true, name: true, slug: true } },
       },
     });
@@ -81,19 +101,33 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const slug = parsed.data.slug?.trim() || slugifyTitle(parsed.data.title);
+    if (!slug) {
+      return NextResponse.json(
+        { ok: false, error: { code: "VALIDATION", message: "Could not derive slug from title" } },
+        { status: 400 },
+      );
+    }
+
+    const defaultReward = await readDefaultCreatorRewardPercent();
+
     const market = await adminCreateMarket({
       title: parsed.data.title,
-      slug: parsed.data.slug,
+      slug,
       description: parsed.data.description ?? null,
       categoryId: parsed.data.categoryId ?? null,
+      adminCategory: parsed.data.adminCategory ?? null,
       narrative: parsed.data.narrative ?? null,
+      resolutionSource: parsed.data.resolutionSource ?? null,
+      creatorRewardPercent: parsed.data.creatorRewardPercent ?? defaultReward,
+      minimumBetBnb: parsed.data.minimumBetBnb ?? 0.01,
       creatorId: ctx.userId,
       opensAt: parsed.data.opensAt ? new Date(parsed.data.opensAt) : null,
       closesAt: new Date(parsed.data.closesAt),
       takerFeeBps: parsed.data.takerFeeBps,
       liquidityUsd: parsed.data.liquidityUsd,
       initialProbability: parsed.data.initialProbability,
-      status: parsed.data.status,
+      status: parsed.data.onChainAddress ? parsed.data.status : MarketStatus.DRAFT,
       onChainAddress: parsed.data.onChainAddress ?? null,
       chainId: parsed.data.chainId ?? null,
     });

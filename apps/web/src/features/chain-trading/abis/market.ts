@@ -118,6 +118,13 @@ export const marketAbi: Abi = [
     ],
   },
   {
+    type: "function",
+    name: "claimWinnings",
+    stateMutability: "nonpayable",
+    inputs: [],
+    outputs: [],
+  },
+  {
     type: "event",
     name: "MarketResolved",
     inputs: [{ name: "assertedOutcomeId", type: "bytes32", indexed: false }],

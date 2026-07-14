@@ -17,6 +17,7 @@ export type CommunitySuggestion = {
   feesEarned: number;
   rejectionReason: string | null;
   resolutionSource: string | null;
+  resolvesAt: string | null;
   submitterId: string | null;
   marketId: string | null;
   marketSlug: string | null;
@@ -31,6 +32,8 @@ export type CreateCommunitySuggestionInput = {
   category: string;
   description?: string;
   resolutionSource?: string;
+  narrative?: string;
+  resolvesAt?: string;
 };
 
 export type VoteCommunitySuggestionResult = {

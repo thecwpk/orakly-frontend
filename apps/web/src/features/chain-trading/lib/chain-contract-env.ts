@@ -11,6 +11,10 @@ export function bscTestnetTxUrl(txHash: string): string {
   return `https://testnet.bscscan.com/tx/${txHash}`;
 }
 
+export function bscTestnetAddressUrl(address: string): string {
+  return `https://testnet.bscscan.com/address/${address}`;
+}
+
 export function getCollateralAddress(): Address | null {
   const raw = chainPublicEnv.collateralAddress;
   if (!raw) return null;

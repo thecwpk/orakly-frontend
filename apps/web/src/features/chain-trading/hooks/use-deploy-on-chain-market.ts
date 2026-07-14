@@ -18,7 +18,6 @@ import {
   isChainEnvConfigured,
   chainEnvConfigErrorMessage,
 } from "../lib/chain-contract-env";
-import { formatChainTradeError } from "../lib/format-trade-error";
 import { parseMarketCreatedAddress } from "../lib/parse-market-created";
 
 export type DeployOnChainMarketInput = {
@@ -162,9 +161,6 @@ export function useDeployOnChainMarket() {
       }
 
       return { marketAddress, txHash: hash, chainId: testBnbChain.id };
-    },
-    onError: (e) => {
-      toast.error(formatChainTradeError(e));
     },
   });
 }

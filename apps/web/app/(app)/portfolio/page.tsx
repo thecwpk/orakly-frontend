@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
-import { PortfolioDashboardPage } from "@/widgets/portfolio-dashboard/portfolio-dashboard-page";
+import { PortfolioPage } from "@/widgets/portfolio/portfolio-page";
 
 export const metadata: Metadata = {
   title: "Portfolio — Orakly",
   description:
-    "Equity, PnL, positions, win rate, and trade history for the active session.",
+    "Your positions, PnL, pending claims, trading history, watchlist, and creator earnings.",
 };
 
-export default function PortfolioPage() {
-  return <PortfolioDashboardPage />;
+export default function PortfolioRoute() {
+  return <PortfolioPage />;
 }

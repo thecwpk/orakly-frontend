@@ -19,6 +19,8 @@ export type ProfileTradeRow = {
   side: "YES" | "NO";
   amountUsd: number;
   status: ProfileTradeStatus;
+  /** On-chain tx hash when available. */
+  txHash: string | null;
 };
 
 export type TraderProfilePayload = {

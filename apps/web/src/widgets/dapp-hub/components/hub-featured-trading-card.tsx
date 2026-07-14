@@ -244,7 +244,7 @@ export function HubFeaturedTradingCard({
           </div>
           <div className="flex shrink-0 items-center gap-0.5 self-start pt-0.5">
             <HubSpotlightShareButton slug={market.slug} />
-            <WatchlistStar slug={market.slug} size="sm" className="rounded-md bg-transparent ring-0" />
+            <WatchlistStar id={market.id} size="sm" className="rounded-md bg-transparent ring-0" />
           </div>
         </header>
 

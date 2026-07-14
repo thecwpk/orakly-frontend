@@ -3,7 +3,7 @@
 import { motion } from "framer-motion";
 import { Star } from "lucide-react";
 import type { MouseEvent } from "react";
-import { useWatchlistStore } from "../store/use-watchlist-store";
+import { useWatchlist } from "../hooks/use-watchlist";
 import { cn } from "@/lib/utils";
 
 type Size = "xs" | "sm" | "md";
@@ -15,49 +15,59 @@ const SIZE_MAP: Record<Size, { btn: string; icon: string }> = {
 };
 
 /**
- * Toggle a market in/out of the user's watchlist. Drop into market cards,
- * the market details header, leaderboard rows, etc. Stops propagation so it
- * never accidentally navigates a wrapping `<Link>`.
+ * Toggle a market in/out of the user's watchlist (localStorage market IDs).
+ * Stops propagation so wrapping card/link clicks are not triggered.
  */
 export function WatchlistStar({
+  id,
+  /** @deprecated Prefer `id` — accepted only if `id` missing. */
   slug,
   size = "sm",
   className,
+  absolute,
 }: {
-  slug: string;
+  id?: string;
+  slug?: string;
   size?: Size;
   className?: string;
+  /** Absolute top-right for card overlays. */
+  absolute?: boolean;
 }) {
-  const isStarred = useWatchlistStore((s) => s.slugs.includes(slug));
-  const toggle = useWatchlistStore((s) => s.toggle);
+  const marketId = (id ?? slug ?? "").trim();
+  const { isWatchlisted, toggleWatchlist } = useWatchlist();
+  const isStarred = marketId ? isWatchlisted(marketId) : false;
   const sizing = SIZE_MAP[size];
 
   const onClick = (e: MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
     e.preventDefault();
-    toggle(slug);
+    if (!marketId) return;
+    toggleWatchlist(marketId);
   };
 
   return (
     <motion.button
       type="button"
       onClick={onClick}
+      disabled={!marketId}
       aria-pressed={isStarred}
-      aria-label={isStarred ? "Remove from watchlist" : "Add to watchlist"}
-      title={isStarred ? "In watchlist" : "Add to watchlist"}
+      aria-label={isStarred ? "Remove from watchlist" : "Save to watchlist"}
+      title={isStarred ? "Remove from watchlist" : "Save to watchlist"}
       whileTap={{ scale: 0.85 }}
       className={cn(
         "inline-flex shrink-0 items-center justify-center rounded-md ring-1 transition",
         sizing.btn,
+        absolute && "absolute right-2 top-2 z-20",
         isStarred
           ? "bg-amber-400/15 text-amber-300 ring-amber-300/30 hover:bg-amber-400/20"
-          : "bg-white/[0.03] text-zinc-500 ring-white/[0.06] hover:bg-white/[0.07] hover:text-zinc-200",
+          : "bg-black/40 text-zinc-400 ring-white/[0.08] backdrop-blur-sm hover:bg-black/55 hover:text-zinc-100",
         className,
       )}
     >
       <Star
         className={cn(sizing.icon, "transition-transform")}
-        fill={isStarred ? "currentColor" : "none"}
+        fill={isStarred ? "#facc15" : "none"}
+        stroke={isStarred ? "#facc15" : "currentColor"}
         strokeWidth={isStarred ? 0 : 2}
       />
     </motion.button>

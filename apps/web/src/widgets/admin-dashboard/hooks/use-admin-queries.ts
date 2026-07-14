@@ -28,9 +28,14 @@ export type AdminMarketRow = {
   description?: string | null;
   status: string;
   takerFeeBps?: number;
+  volumeTotalUsd?: string | number;
   closesAt: string;
   onChainAddress?: string | null;
   chainId?: number | null;
+  narrative?: string | null;
+  resolutionSource?: string | null;
+  creatorRewardPercent?: number;
+  generationMeta?: { adminCategory?: string; minimumBetBnb?: number } | null;
   category: { id: string; name: string; slug: string } | null;
 };
 

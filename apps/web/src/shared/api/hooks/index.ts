@@ -27,6 +27,7 @@ export { useDiscoveryNewsQuery } from "./use-discovery-news-query";
 export { usePortfolioQuery } from "./usePortfolioQuery";
 export { useWalletBalanceQuery } from "./useWalletBalanceQuery";
 export { useNotificationsQuery } from "./useNotificationsQuery";
+export { useWalletNotificationsQuery } from "./useWalletNotificationsQuery";
 export { useLedgerQuery } from "./useLedgerQuery";
 export { useTradesInfiniteQuery } from "./useTradesInfiniteQuery";
 export { useMarketBySlugQuery } from "./useMarketBySlugQuery";

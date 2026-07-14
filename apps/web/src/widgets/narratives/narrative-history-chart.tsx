@@ -1,9 +1,8 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
 import {
   CartesianGrid,
+  Legend,
   Line,
   LineChart,
   ResponsiveContainer,
@@ -11,21 +10,18 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { useQuery } from "@tanstack/react-query";
+import { useMemo, useState } from "react";
 import { fetchAttentionHistory } from "@/shared/api/fetchers/narrative-detail";
 import { queryKeys } from "@/shared/api/query-keys";
 import type { AttentionHistoryPeriod } from "@/shared/contracts/attention-history";
 import { cn } from "@/lib/utils";
 
-const PERIODS: AttentionHistoryPeriod[] = ["24h", "7d", "30d"];
-
-const TICK_STYLE = { fill: "#6b7280", fontSize: 10 } as const;
-const GRID_STROKE = "rgba(0,0,0,0.08)";
-const TOOLTIP_STYLE = {
-  background: "rgba(255,255,255,0.98)",
-  border: "1px solid rgba(0,0,0,0.08)",
-  borderRadius: "10px",
-  fontSize: "12px",
-} as const;
+const PERIODS: { id: AttentionHistoryPeriod; label: string }[] = [
+  { id: "24h", label: "24H" },
+  { id: "7d", label: "7D" },
+  { id: "30d", label: "30D" },
+];
 
 function formatAxisDate(iso: string, period: AttentionHistoryPeriod): string {
   const d = new Date(iso);
@@ -36,11 +32,7 @@ function formatAxisDate(iso: string, period: AttentionHistoryPeriod): string {
   return d.toLocaleDateString(undefined, { month: "short", day: "numeric" });
 }
 
-type NarrativeHistoryChartProps = {
-  slug: string;
-};
-
-export function NarrativeHistoryChart({ slug }: NarrativeHistoryChartProps) {
+export function NarrativeHistoryChart({ slug }: { slug: string }) {
   const [period, setPeriod] = useState<AttentionHistoryPeriod>("7d");
 
   const { data, isLoading, isFetching } = useQuery({
@@ -63,51 +55,58 @@ export function NarrativeHistoryChart({ slug }: NarrativeHistoryChartProps) {
   return (
     <section className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500">
-          Historical scores
-        </h2>
-        <div className="inline-flex rounded-lg border border-gray-200 bg-gray-50 p-0.5">
+        <h2 className="text-[18px] font-semibold text-zinc-100">Attention History</h2>
+        <div className="flex flex-wrap gap-1.5">
           {PERIODS.map((p) => (
             <button
-              key={p}
+              key={p.id}
               type="button"
-              onClick={() => setPeriod(p)}
+              onClick={() => setPeriod(p.id)}
               className={cn(
-                "rounded-md px-3 py-1.5 text-xs font-semibold transition-colors",
-                period === p
-                  ? "bg-white text-gray-900 shadow-sm"
-                  : "text-gray-500 hover:text-gray-800",
+                "rounded-full px-3 py-1 text-[12px] font-semibold transition",
+                period === p.id
+                  ? "bg-blue-600 text-white"
+                  : "text-zinc-400 ring-1 ring-white/10 hover:bg-white/[0.05]",
               )}
             >
-              {p}
+              {p.label}
             </button>
           ))}
         </div>
       </div>
 
       {showSkeleton ? (
-        <div className="h-[280px] animate-pulse rounded-xl bg-gray-200" />
+        <div className="h-[280px] animate-pulse rounded-xl bg-zinc-800/60" />
+      ) : chartData.length === 0 ? (
+        <p className="flex h-[280px] items-center justify-center text-[14px] text-zinc-500">
+          No history yet
+        </p>
       ) : (
-        <div className="h-[280px] w-full rounded-xl border border-gray-200 bg-white p-3">
+        <div className="h-[280px] w-full">
           <ResponsiveContainer width="100%" height={280}>
             <LineChart data={chartData} margin={{ top: 8, right: 12, left: 0, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 6" stroke={GRID_STROKE} vertical={false} />
+              <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
               <XAxis
                 dataKey="label"
-                tick={TICK_STYLE}
+                tick={{ fill: "#8b9cb3", fontSize: 11 }}
                 axisLine={false}
                 tickLine={false}
                 minTickGap={24}
               />
               <YAxis
                 domain={[0, 100]}
-                tick={TICK_STYLE}
+                tick={{ fill: "#8b9cb3", fontSize: 11 }}
                 axisLine={false}
                 tickLine={false}
-                width={32}
+                width={36}
               />
               <Tooltip
-                contentStyle={TOOLTIP_STYLE}
+                contentStyle={{
+                  background: "#0f172a",
+                  border: "1px solid rgba(255,255,255,0.1)",
+                  borderRadius: 12,
+                  fontSize: 12,
+                }}
                 labelFormatter={(_, payload) => {
                   const row = payload?.[0]?.payload as { date?: string } | undefined;
                   return row?.date ? new Date(row.date).toLocaleString() : "";
@@ -117,23 +116,24 @@ export function NarrativeHistoryChart({ slug }: NarrativeHistoryChartProps) {
                   name === "attentionScore" ? "Attention" : "Conviction",
                 ]}
               />
+              <Legend />
               <Line
                 type="monotone"
                 dataKey="attentionScore"
-                name="attentionScore"
+                name="Attention"
                 stroke="#3b82f6"
                 strokeWidth={2}
                 dot={false}
-                activeDot={{ r: 3 }}
+                isAnimationActive={false}
               />
               <Line
                 type="monotone"
                 dataKey="convictionScore"
-                name="convictionScore"
+                name="Conviction"
                 stroke="#a855f7"
                 strokeWidth={2}
                 dot={false}
-                activeDot={{ r: 3 }}
+                isAnimationActive={false}
               />
             </LineChart>
           </ResponsiveContainer>

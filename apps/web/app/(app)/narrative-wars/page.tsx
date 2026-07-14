@@ -4,26 +4,26 @@ import { NarrativeWarsClient } from "@/widgets/narrative-wars/narrative-wars-cli
 
 export const metadata: Metadata = {
   title: "Narrative Wars — Orakly",
-  description: "Head-to-head comparison of crypto narrative attention, conviction, and markets.",
+  description: "Compare two crypto narratives head-to-head.",
 };
 
 function NarrativeWarsFallback() {
   return (
     <div className="space-y-8">
-      <div className="h-20 animate-pulse rounded-xl bg-zinc-800/80" />
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-[1fr_auto_1fr]">
-        <div className="h-11 animate-pulse rounded-xl bg-zinc-800/80" />
-        <div className="hidden h-8 w-12 animate-pulse rounded bg-zinc-800/80 sm:block" />
-        <div className="h-11 animate-pulse rounded-xl bg-zinc-800/80" />
+      <div className="h-16 animate-pulse rounded-xl bg-zinc-800/80" />
+      <div className="flex justify-center gap-6">
+        <div className="h-12 w-48 animate-pulse rounded-xl bg-zinc-800/80" />
+        <div className="h-8 w-12 animate-pulse rounded bg-zinc-800/80" />
+        <div className="h-12 w-48 animate-pulse rounded-xl bg-zinc-800/80" />
       </div>
-      <div className="h-64 animate-pulse rounded-2xl bg-zinc-800/80" />
+      <div className="h-72 animate-pulse rounded-2xl bg-zinc-800/80" />
     </div>
   );
 }
 
 export default function NarrativeWarsPage() {
   return (
-    <main className="mx-auto flex max-w-6xl flex-col gap-6 pb-s64 pt-s48 md:pt-s56">
+    <main className="mx-auto w-full max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
       <Suspense fallback={<NarrativeWarsFallback />}>
         <NarrativeWarsClient />
       </Suspense>

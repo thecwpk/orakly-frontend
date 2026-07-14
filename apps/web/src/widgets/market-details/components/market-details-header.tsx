@@ -198,7 +198,7 @@ function MarketDetailsHeaderInner({
         <div className="ml-auto flex flex-shrink-0 items-center gap-1">
           <MarketIdPill value={tradeMarketId} />
           <ShareButton slug={market.slug} />
-          <WatchlistStar slug={market.slug} size="sm" />
+          <WatchlistStar id={market.id} size="sm" />
         </div>
       </div>
 

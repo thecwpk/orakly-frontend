@@ -8,4 +8,7 @@ export type {
   Notification,
   NotificationFilter,
   NotificationKind,
+  AppNotification,
+  AppNotificationType,
 } from "./types";
+export { NotificationsDropdown } from "./components/notifications-dropdown";

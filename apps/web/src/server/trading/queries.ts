@@ -143,6 +143,7 @@ export async function listUserTrades(input: {
       feeBuyerUsd: true,
       feeSellerUsd: true,
       executedAt: true,
+      externalRef: true,
     },
   });
 
@@ -164,6 +165,7 @@ export async function listUserTrades(input: {
       notionalUsd: t.notionalUsd.toFixed(),
       feeBuyerUsd: t.feeBuyerUsd.toFixed(),
       feeSellerUsd: t.feeSellerUsd.toFixed(),
+      externalRef: t.externalRef,
       side:
         t.buyerId === input.userId ? ("BUY" as const) : ("SELL" as const),
     })),

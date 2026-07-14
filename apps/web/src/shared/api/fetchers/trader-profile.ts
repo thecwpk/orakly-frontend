@@ -16,13 +16,15 @@ export async function fetchTraderProfile(
 
 export async function fetchTraderProfileTrades(
   address: string,
-  params: { take?: number; cursor?: string | null } = {},
-): Promise<ProfileTradesPage> {
+  params: { take?: number; cursor?: string | null; limit?: number; page?: number } = {},
+): Promise<ProfileTradesPage & { page?: number; hasMore?: boolean }> {
   const sp = new URLSearchParams();
-  if (params.take != null) sp.set("take", String(params.take));
+  if (params.limit != null) sp.set("limit", String(params.limit));
+  else if (params.take != null) sp.set("take", String(params.take));
+  if (params.page != null) sp.set("page", String(params.page));
   if (params.cursor) sp.set("cursor", params.cursor);
   const qs = sp.toString();
-  const res = await apiClient.request<ProfileTradesPage>(
+  const res = await apiClient.request<ProfileTradesPage & { page?: number; hasMore?: boolean }>(
     `/api/v1/profile/${encodeURIComponent(address)}/trades${qs ? `?${qs}` : ""}`,
   );
   return unwrapApiResult(res);

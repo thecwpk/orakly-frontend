@@ -7,48 +7,96 @@ import {
   ExternalLink,
   Filter,
   Link2,
-  Pause,
-  Play,
   Plus,
   RefreshCw,
   Search,
-  Square,
   X,
 } from "lucide-react";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useAccount, useChainId } from "wagmi";
-import { useLinkMarketOnChain } from "@/features/chain-trading/hooks/use-link-market-on-chain";
-import { invalidateMarketsFeed } from "@/shared/api/invalidate";
-import { isChainEnvConfigured, chainEnvConfigErrorMessage } from "@/features/chain-trading/lib/chain-contract-env";
-import { testBnbChain } from "@/providers/web3/chains";
+import { formatCompactUsd } from "@orakly/utils";
+import { useDeployAdminMarket } from "@/features/chain-trading/hooks/use-deploy-admin-market";
+import { bscTestnetAddressUrl } from "@/features/chain-trading/lib/chain-contract-env";
 import { cn } from "@/lib/utils";
 import { adminApi } from "../lib/admin-api";
 import {
+  ADMIN_MARKET_CATEGORIES,
+} from "../components/create-market-dialog";
+import {
   adminMarketsKey,
   adminOverviewKey,
-  useAdminCategoriesQuery,
   useAdminMarketsQuery,
   type AdminMarketRow,
 } from "../hooks/use-admin-queries";
 import { Section, TabShell } from "../components/tab-shell";
-import { StatusPill } from "../components/status-pill";
 import { ConfirmDialog } from "../components/confirm-dialog";
 import { CreateMarketDialog } from "../components/create-market-dialog";
 import { EmptyState } from "../components/empty-state";
-import { shortId } from "../lib/format";
 
 const STATUS_FILTERS = ["ALL", "OPEN", "DRAFT", "PAUSED", "CLOSED", "RESOLVED"] as const;
 type StatusFilter = (typeof STATUS_FILTERS)[number];
 
 type ResolveTarget = { id: string; title: string; outcome: "YES" | "NO" } | null;
-type ModerateTarget = { id: string; title: string; status: string } | null;
+
+type LifecycleKey = "db_only" | "live" | "resolved" | "paused";
+
+const LIFECYCLE_BADGE: Record<
+  LifecycleKey,
+  { label: string; ring: string; bg: string; text: string }
+> = {
+  db_only: {
+    label: "DB Only — Not Tradeable",
+    ring: "ring-amber-400/30",
+    bg: "bg-amber-500/10",
+    text: "text-amber-200",
+  },
+  live: {
+    label: "Live On-Chain",
+    ring: "ring-emerald-400/30",
+    bg: "bg-emerald-500/10",
+    text: "text-emerald-200",
+  },
+  resolved: {
+    label: "Resolved",
+    ring: "ring-zinc-400/30",
+    bg: "bg-zinc-500/10",
+    text: "text-[var(--hub-muted)]",
+  },
+  paused: {
+    label: "Paused",
+    ring: "ring-rose-400/30",
+    bg: "bg-rose-500/10",
+    text: "text-rose-200",
+  },
+};
+
+const CATEGORY_LABELS = Object.fromEntries(
+  ADMIN_MARKET_CATEGORIES.map((c) => [c.value, c.label]),
+) as Record<string, string>;
+
+function marketLifecycle(market: AdminMarketRow): LifecycleKey {
+  if (market.status === "RESOLVED") return "resolved";
+  if (market.status === "PAUSED") return "paused";
+  if (market.onChainAddress && market.status === "OPEN") return "live";
+  return "db_only";
+}
+
+function marketCategoryLabel(market: AdminMarketRow): string {
+  const adminKey = market.generationMeta?.adminCategory;
+  if (adminKey && CATEGORY_LABELS[adminKey]) return CATEGORY_LABELS[adminKey];
+  return market.category?.name ?? "—";
+}
+
+function formatVolumeUsd(raw: string | number | undefined): string {
+  const n = typeof raw === "string" ? Number.parseFloat(raw) : (raw ?? 0);
+  if (!Number.isFinite(n) || n <= 0) return "—";
+  return formatCompactUsd(n);
+}
 
 export function AdminMarketsTab({
   canCreate,
-  canModerate,
   canResolve,
 }: {
   canCreate: boolean;
@@ -59,32 +107,10 @@ export function AdminMarketsTab({
   const [query, setQuery] = useState("");
   const [showCreate, setShowCreate] = useState(false);
   const [resolveTarget, setResolveTarget] = useState<ResolveTarget>(null);
-  const [moderateTarget, setModerateTarget] = useState<ModerateTarget>(null);
-  const [bulkDeploying, setBulkDeploying] = useState(false);
 
   const marketsQ = useAdminMarketsQuery(filter, true);
-  const categoriesQ = useAdminCategoriesQuery(canCreate);
-  const { address } = useAccount();
-  const chainId = useChainId();
-  const linkOnChain = useLinkMarketOnChain();
-
+  const deployMarket = useDeployAdminMarket();
   const qc = useQueryClient();
-
-  const moderateMutation = useMutation({
-    mutationFn: async (vars: { id: string; status: string }) =>
-      adminApi(`/markets/${vars.id}`, {
-        method: "PATCH",
-        json: { status: vars.status },
-      }),
-    onSuccess: () => {
-      toast.success("Market updated");
-      void qc.invalidateQueries({ queryKey: ["admin", "markets"] });
-      void qc.invalidateQueries({ queryKey: adminOverviewKey });
-      setModerateTarget(null);
-    },
-    onError: (e: unknown) =>
-      toast.error(e instanceof Error ? e.message : "Update failed"),
-  });
 
   const resolveMutation = useMutation({
     mutationFn: async (vars: { id: string; outcome: "YES" | "NO" }) =>
@@ -111,7 +137,7 @@ export function AdminMarketsTab({
         m.title.toLowerCase().includes(q) ||
         m.slug.toLowerCase().includes(q) ||
         m.id.toLowerCase().includes(q) ||
-        (m.category?.name.toLowerCase().includes(q) ?? false),
+        marketCategoryLabel(m).toLowerCase().includes(q),
     );
   }, [marketsQ.data, query]);
 
@@ -126,67 +152,6 @@ export function AdminMarketsTab({
     );
   }, [marketsQ.data]);
 
-  const offChainMarkets = useMemo(
-    () => (marketsQ.data ?? []).filter((m) => !m.onChainAddress),
-    [marketsQ.data],
-  );
-
-  const deployAllOffChain = async () => {
-    if (!canCreate) return;
-    if (!address) {
-      toast.error("Connect the factory-owner wallet in MetaMask.");
-      return;
-    }
-    if (chainId !== testBnbChain.id) {
-      toast.error("Switch MetaMask to BNB Smart Chain Testnet (chain 97).");
-      return;
-    }
-    if (!isChainEnvConfigured()) {
-      toast.error(chainEnvConfigErrorMessage() || "On-chain env missing.");
-      return;
-    }
-    if (offChainMarkets.length === 0) {
-      toast.message("All visible markets are already on-chain.");
-      return;
-    }
-
-    setBulkDeploying(true);
-    let ok = 0;
-    let fail = 0;
-    for (const m of offChainMarkets) {
-      try {
-        toast.message(`Deploying (${ok + fail + 1}/${offChainMarkets.length})…`, {
-          description: m.title.slice(0, 72),
-        });
-        await linkOnChain.mutateAsync({
-          id: m.id,
-          slug: m.slug,
-          title: m.title,
-          description: m.description,
-          closesAt: m.closesAt,
-          takerFeeBps: m.takerFeeBps,
-          status: m.status,
-          category: m.category,
-        });
-        ok += 1;
-      } catch {
-        fail += 1;
-        toast.error(`Stopped bulk deploy after failure on “${m.title.slice(0, 48)}”.`);
-        break;
-      }
-    }
-    setBulkDeploying(false);
-    void qc.invalidateQueries({ queryKey: ["admin", "markets"] });
-    void qc.invalidateQueries({ queryKey: adminMarketsKey(filter, 120) });
-    void qc.invalidateQueries({ queryKey: adminOverviewKey });
-    invalidateMarketsFeed(qc);
-    if (ok > 0) {
-      toast.success(`Linked ${ok} market${ok === 1 ? "" : "s"} on-chain`, {
-        description: fail > 0 ? `${fail} failed` : undefined,
-      });
-    }
-  };
-
   const reload = () => {
     void marketsQ.refetch();
     void qc.invalidateQueries({ queryKey: adminMarketsKey(filter, 120) });
@@ -196,7 +161,7 @@ export function AdminMarketsTab({
     <TabShell
       eyebrow="Lifecycle"
       title="Markets"
-      description="Search the catalogue, moderate listings, and resolve outcomes. Every action is audit-logged."
+      description="Create markets in the database, then deploy on BSC testnet to enable trading."
       actions={
         <>
           <button
@@ -211,38 +176,20 @@ export function AdminMarketsTab({
             Refresh
           </button>
           {canCreate ? (
-            <>
-              {offChainMarkets.length > 0 ? (
-                <button
-                  type="button"
-                  onClick={() => void deployAllOffChain()}
-                  disabled={bulkDeploying || linkOnChain.isPending}
-                  className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--hub-bg-subtle)] px-2.5 py-1.5 text-[12px] font-semibold text-[var(--hub-fg)] ring-1 ring-[var(--hub-border)] transition hover:bg-[var(--hub-card-hover)] disabled:opacity-50"
-                >
-                  <Link2
-                    className={cn(
-                      "h-3.5 w-3.5",
-                      (bulkDeploying || linkOnChain.isPending) && "animate-pulse",
-                    )}
-                  />
-                  Deploy all off-chain ({offChainMarkets.length})
-                </button>
-              ) : null}
-              <button
-                type="button"
-                onClick={() => setShowCreate(true)}
-                className="inline-flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-[var(--hub-primary)] to-cyan-600 px-3 py-1.5 text-[12px] font-bold text-white shadow-[0_8px_30px_-8px_rgba(167,139,250,0.6)] ring-1 ring-[var(--hub-border-strong)] transition hover:brightness-110"
-              >
-                <Plus className="h-3.5 w-3.5" />
-                New market
-              </button>
-            </>
+            <button
+              type="button"
+              onClick={() => setShowCreate(true)}
+              className="inline-flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-[var(--hub-primary)] to-cyan-600 px-3 py-1.5 text-[12px] font-bold text-white shadow-[0_8px_30px_-8px_rgba(167,139,250,0.6)] ring-1 ring-[var(--hub-border-strong)] transition hover:brightness-110"
+            >
+              <Plus className="h-3.5 w-3.5" />
+              Create Market
+            </button>
           ) : null}
         </>
       }
     >
       <div className="flex flex-wrap items-center gap-2">
-        <div className="relative flex-1 min-w-[220px]">
+        <div className="relative min-w-[220px] flex-1">
           <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[var(--hub-muted)]" />
           <input
             value={query}
@@ -331,19 +278,20 @@ export function AdminMarketsTab({
                     className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--hub-primary-soft)] px-3 py-1.5 text-[12px] font-bold text-[var(--hub-primary-bright)] ring-1 ring-[var(--hub-border-strong)] transition hover:bg-violet-500/25"
                   >
                     <Plus className="h-3.5 w-3.5" />
-                    Create market
+                    Create Market
                   </button>
                 ) : null
               }
             />
           ) : (
-            <table className="w-full min-w-[820px] border-collapse text-left text-[12.5px]">
+            <table className="w-full min-w-[960px] border-collapse text-left text-[12.5px]">
               <thead className="bg-[var(--hub-bg-subtle)]/95 text-[10px] font-bold uppercase tracking-[0.15em] text-[var(--hub-muted)] backdrop-blur">
                 <tr>
-                  <th scope="col" className="px-3 py-2.5">Market</th>
-                  <th scope="col" className="px-3 py-2.5">Status</th>
+                  <th scope="col" className="px-3 py-2.5">Question</th>
                   <th scope="col" className="px-3 py-2.5">Category</th>
-                  <th scope="col" className="px-3 py-2.5">Chain</th>
+                  <th scope="col" className="px-3 py-2.5">Status</th>
+                  <th scope="col" className="px-3 py-2.5">On-Chain Address</th>
+                  <th scope="col" className="px-3 py-2.5">Volume</th>
                   <th scope="col" className="px-3 py-2.5 text-right">Actions</th>
                 </tr>
               </thead>
@@ -357,19 +305,19 @@ export function AdminMarketsTab({
                       key={m.id}
                       market={m}
                       canCreate={canCreate}
-                      canModerate={canModerate}
                       canResolve={canResolve}
-                      linkBusy={linkOnChain.isPending || bulkDeploying}
+                      deployBusy={deployMarket.isPending}
                       onDeploy={() =>
-                        linkOnChain.mutate({
+                        deployMarket.mutate({
                           id: m.id,
                           slug: m.slug,
                           title: m.title,
+                          resolutionSource: m.resolutionSource,
                           description: m.description,
                           closesAt: m.closesAt,
                           takerFeeBps: m.takerFeeBps,
-                          status: m.status,
                           category: m.category,
+                          adminCategory: m.generationMeta?.adminCategory,
                         })
                       }
                       onResolveYes={() =>
@@ -377,9 +325,6 @@ export function AdminMarketsTab({
                       }
                       onResolveNo={() =>
                         setResolveTarget({ id: m.id, title: m.title, outcome: "NO" })
-                      }
-                      onModerate={(status) =>
-                        setModerateTarget({ id: m.id, title: m.title, status })
                       }
                     />
                   ))}
@@ -390,11 +335,7 @@ export function AdminMarketsTab({
         </div>
       </Section>
 
-      <CreateMarketDialog
-        open={showCreate}
-        onOpenChange={setShowCreate}
-        categories={categoriesQ.data ?? []}
-      />
+      <CreateMarketDialog open={showCreate} onOpenChange={setShowCreate} />
 
       <ConfirmDialog
         open={!!resolveTarget}
@@ -404,8 +345,7 @@ export function AdminMarketsTab({
         description={
           <span>
             Resolution is <span className="font-semibold text-white">irreversible</span>.
-            Settlement engine will pay out winners, rebate losers&apos; open orders,
-            and emit on-chain events.
+            Settlement engine will pay out winners and close the market.
           </span>
         }
         confirmLabel={`Resolve ${resolveTarget?.outcome}`}
@@ -418,37 +358,6 @@ export function AdminMarketsTab({
           });
         }}
       />
-
-      <ConfirmDialog
-        open={!!moderateTarget}
-        onOpenChange={(o) => (!o ? setModerateTarget(null) : null)}
-        tone={moderateTarget?.status === "CLOSED" ? "danger" : "warning"}
-        title={`Set status to ${moderateTarget?.status ?? ""}`}
-        description={
-          <span>
-            “{moderateTarget?.title}” will move to{" "}
-            <span className="font-semibold text-white">{moderateTarget?.status}</span>.
-            {moderateTarget?.status === "PAUSED"
-              ? " Trading is suspended; existing orders remain on book."
-              : null}
-            {moderateTarget?.status === "CLOSED"
-              ? " Trading stops permanently. Pair this with a resolution shortly."
-              : null}
-            {moderateTarget?.status === "OPEN"
-              ? " Trading resumes immediately."
-              : null}
-          </span>
-        }
-        confirmLabel={`Set ${moderateTarget?.status}`}
-        busy={moderateMutation.isPending}
-        onConfirm={() => {
-          if (!moderateTarget) return;
-          moderateMutation.mutate({
-            id: moderateTarget.id,
-            status: moderateTarget.status,
-          });
-        }}
-      />
     </TabShell>
   );
 }
@@ -456,25 +365,24 @@ export function AdminMarketsTab({
 function MarketRow({
   market,
   canCreate,
-  canModerate,
   canResolve,
-  linkBusy,
+  deployBusy,
   onDeploy,
   onResolveYes,
   onResolveNo,
-  onModerate,
 }: {
   market: AdminMarketRow;
   canCreate: boolean;
-  canModerate: boolean;
   canResolve: boolean;
-  linkBusy: boolean;
+  deployBusy: boolean;
   onDeploy: () => void;
   onResolveYes: () => void;
   onResolveNo: () => void;
-  onModerate: (status: string) => void;
 }) {
+  const lifecycle = marketLifecycle(market);
+  const badge = LIFECYCLE_BADGE[lifecycle];
   const onChain = Boolean(market.onChainAddress);
+
   return (
     <motion.tr
       layout="position"
@@ -484,95 +392,88 @@ function MarketRow({
       transition={{ duration: 0.18 }}
       className="hover:bg-[var(--hub-card-hover)]"
     >
-      <td className="max-w-[260px] px-3 py-2">
+      <td className="max-w-[280px] px-3 py-2">
         <p className="line-clamp-2 font-medium text-[var(--hub-fg)]">{market.title}</p>
-        <div className="mt-0.5 flex items-center gap-1.5">
-          <Link
-            href={`/markets/${market.slug}`}
-            target="_blank"
-            rel="noreferrer"
-            className="inline-flex items-center gap-1 truncate font-mono text-[10.5px] text-[var(--hub-muted)] hover:text-[var(--hub-primary-bright)]"
-          >
-            {market.slug}
-            <ExternalLink className="h-2.5 w-2.5" />
-          </Link>
-          <span className="text-[var(--hub-border)]">·</span>
-          <span className="font-mono text-[10px] text-[var(--hub-muted)]">{shortId(market.id)}</span>
-        </div>
       </td>
+      <td className="px-3 py-2 text-[var(--hub-muted)]">{marketCategoryLabel(market)}</td>
       <td className="px-3 py-2">
-        <StatusPill status={market.status} />
-      </td>
-      <td className="px-3 py-2 text-[var(--hub-muted)]">
-        {market.category?.name ?? <span className="text-[var(--hub-muted)]">—</span>}
+        <span
+          className={cn(
+            "inline-flex items-center rounded-md px-2 py-0.5 text-[10px] font-semibold ring-1",
+            badge.bg,
+            badge.text,
+            badge.ring,
+          )}
+        >
+          {badge.label}
+        </span>
       </td>
       <td className="px-3 py-2">
         {onChain ? (
-          <span className="inline-flex items-center gap-1 rounded-md bg-emerald-500/10 px-2 py-0.5 font-mono text-[10px] text-emerald-200 ring-1 ring-emerald-400/25">
-            <CheckCircle2 className="h-3 w-3" />
-            {market.onChainAddress?.slice(0, 8)}…
-          </span>
+          <a
+            href={bscTestnetAddressUrl(market.onChainAddress!)}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center gap-1 font-mono text-[10.5px] text-emerald-200 hover:text-emerald-100"
+          >
+            {market.onChainAddress!.slice(0, 8)}…{market.onChainAddress!.slice(-4)}
+            <ExternalLink className="h-3 w-3" />
+          </a>
         ) : (
-          <span className="rounded-md bg-amber-500/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-200 ring-1 ring-amber-400/25">
-            Off-chain
-          </span>
+          <span className="text-[10.5px] text-[var(--hub-muted)]">—</span>
         )}
+      </td>
+      <td className="px-3 py-2 font-mono text-[11px] tabular-nums">
+        {formatVolumeUsd(market.volumeTotalUsd)}
       </td>
       <td className="px-3 py-2">
         <div className="flex flex-wrap items-center justify-end gap-1">
-          {canCreate && !onChain ? (
+          {lifecycle === "db_only" && canCreate ? (
             <ActionButton
-              tone="violet"
+              tone="amber"
               icon={Link2}
               onClick={onDeploy}
-              label="Deploy"
-              disabled={linkBusy}
+              label="Deploy On-Chain"
+              disabled={deployBusy}
             />
           ) : null}
-          {canModerate ? (
-            <>
-              {market.status !== "OPEN" ? (
-                <ActionButton
-                  tone="emerald"
-                  icon={Play}
-                  onClick={() => onModerate("OPEN")}
-                  label="Open"
-                />
-              ) : null}
-              {market.status === "OPEN" ? (
-                <ActionButton
-                  tone="amber"
-                  icon={Pause}
-                  onClick={() => onModerate("PAUSED")}
-                  label="Pause"
-                />
-              ) : null}
-              {market.status !== "CLOSED" && market.status !== "RESOLVED" ? (
-                <ActionButton
-                  tone="rose"
-                  icon={Square}
-                  onClick={() => onModerate("CLOSED")}
-                  label="Close"
-                />
-              ) : null}
-            </>
-          ) : null}
-          {canResolve &&
-          (market.status === "OPEN" || market.status === "CLOSED") ? (
+          {lifecycle === "live" && canResolve ? (
             <>
               <ActionButton
                 tone="emerald"
                 icon={CheckCircle2}
                 onClick={onResolveYes}
-                label="YES"
+                label="Resolve YES"
               />
               <ActionButton
                 tone="rose"
                 icon={X}
                 onClick={onResolveNo}
-                label="NO"
+                label="Resolve NO"
               />
+              {onChain ? (
+                <a
+                  href={bscTestnetAddressUrl(market.onChainAddress!)}
+                  target="_blank"
+                  rel="noreferrer"
+                  aria-label="View on BSCScan"
+                  className="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-[var(--hub-bg-subtle)] text-[var(--hub-muted)] ring-1 ring-[var(--hub-border)] transition hover:bg-[var(--hub-card-hover)] hover:text-[var(--hub-fg)]"
+                >
+                  <ExternalLink className="h-3.5 w-3.5" />
+                </a>
+              ) : null}
             </>
+          ) : null}
+          {lifecycle === "resolved" ? (
+            <Link
+              href={`/markets/${market.slug}`}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-1 rounded-lg bg-[var(--hub-bg-subtle)] px-2 py-1 text-[10.5px] font-bold uppercase tracking-wider text-[var(--hub-fg)] ring-1 ring-[var(--hub-border)] transition hover:bg-[var(--hub-card-hover)]"
+            >
+              View
+              <ExternalLink className="h-3 w-3" />
+            </Link>
           ) : null}
         </div>
       </td>
@@ -587,8 +488,8 @@ function ActionButton({
   label,
   disabled,
 }: {
-  tone: "emerald" | "amber" | "rose" | "violet";
-  icon: typeof Play;
+  tone: "emerald" | "amber" | "rose";
+  icon: typeof CheckCircle2;
   onClick: () => void;
   label: string;
   disabled?: boolean;
@@ -597,7 +498,6 @@ function ActionButton({
     emerald: "bg-emerald-500/12 text-emerald-200 ring-emerald-400/25 hover:bg-emerald-500/20",
     amber: "bg-amber-500/12 text-amber-200 ring-amber-400/25 hover:bg-amber-500/20",
     rose: "bg-rose-500/12 text-rose-200 ring-rose-400/25 hover:bg-rose-500/20",
-    violet: "bg-[var(--hub-primary-soft)] text-[var(--hub-primary-bright)] ring-[var(--hub-border)] hover:bg-violet-500/20",
   } as const;
   return (
     <button

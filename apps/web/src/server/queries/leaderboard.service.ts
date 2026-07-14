@@ -1,6 +1,10 @@
 import { prisma } from "@orakly/database";
 import { MarketStatus, MarketSuggestionStatus, OutcomeSide } from "@prisma/client";
 import { ensurePlatformLiquidityUserId } from "../trading/platform-user";
+import { narrativeMarketWhere } from "./narrative-markets";
+
+export type LeaderboardPeriod = "all" | "month" | "week";
+export type LeaderboardWindow = "24h" | "7d" | "30d" | "all";
 
 export type TraderLeaderboardRow = {
   userId: string;
@@ -13,18 +17,60 @@ export type TraderLeaderboardRow = {
   tradeCount: number;
   bestTradeUsd: number;
   marketsTraded: number;
+  avgTradeSizeUsd: number;
+  activeSince: string | null;
+  /** Present when wallet also has approved creator markets. */
+  creatorScore: number | null;
 };
 
-export type TraderLeaderboardSort = "volume" | "winRate" | "pnl";
+export type TraderLeaderboardSort =
+  | "volume"
+  | "winRate"
+  | "pnl"
+  | "accuracy"
+  | "profit";
+
+export type TraderLeaderboardViewer = {
+  rank: number | null;
+  qualifies: boolean;
+  tradeCount: number;
+  row: TraderLeaderboardRow | null;
+};
+
+export type TraderLeaderboardResult = {
+  rows: TraderLeaderboardRow[];
+  total: number;
+  viewer: TraderLeaderboardViewer | null;
+};
+
+function normalizeTraderSort(sort: TraderLeaderboardSort | string): "volume" | "winRate" | "pnl" {
+  if (sort === "accuracy" || sort === "winRate") return "winRate";
+  if (sort === "profit" || sort === "pnl") return "pnl";
+  return "volume";
+}
+
+export function periodToWindow(
+  period?: string | null,
+  window?: string | null,
+): LeaderboardWindow {
+  const p = period?.trim().toLowerCase();
+  if (p === "week") return "7d";
+  if (p === "month") return "30d";
+  if (p === "all") return "all";
+
+  const w = window?.trim().toLowerCase();
+  if (w === "24h" || w === "7d" || w === "30d" || w === "all") return w;
+  return "all";
+}
 
 function sortTraderRows(
   rows: TraderLeaderboardRow[],
-  sort: TraderLeaderboardSort,
+  sort: "volume" | "winRate" | "pnl",
 ): TraderLeaderboardRow[] {
   const sorted = [...rows];
   switch (sort) {
     case "winRate":
-      return sorted.sort((a, b) => b.winRatePct - a.winRatePct);
+      return sorted.sort((a, b) => b.winRatePct - a.winRatePct || b.tradeCount - a.tradeCount);
     case "pnl":
       return sorted.sort(
         (a, b) => Number.parseFloat(b.pnlUsd) - Number.parseFloat(a.pnlUsd),
@@ -32,12 +78,13 @@ function sortTraderRows(
     case "volume":
     default:
       return sorted.sort(
-        (a, b) => Number.parseFloat(b.totalVolumeUsd) - Number.parseFloat(a.totalVolumeUsd),
+        (a, b) =>
+          Number.parseFloat(b.totalVolumeUsd) - Number.parseFloat(a.totalVolumeUsd),
       );
   }
 }
 
-function windowStart(window: "24h" | "7d" | "30d" | "all"): Date | null {
+function windowStart(window: LeaderboardWindow): Date | null {
   if (window === "all") return null;
   const now = Date.now();
   const ms =
@@ -49,26 +96,58 @@ function windowStart(window: "24h" | "7d" | "30d" | "all"): Date | null {
   return new Date(now - ms);
 }
 
+function computeCreatorScore(stats: CreatorFeesAggregate): number {
+  return Number(
+    (
+      stats.marketCount * 100 +
+      Math.sqrt(Math.max(0, stats.totalVolumeUsd)) * 2 +
+      stats.feesEarned * 10
+    ).toFixed(2),
+  );
+}
+
 export async function getTraderLeaderboard(input?: {
-  window?: "24h" | "7d" | "30d" | "all";
+  window?: LeaderboardWindow;
+  period?: LeaderboardPeriod | string;
   take?: number;
-  sort?: TraderLeaderboardSort;
+  sort?: TraderLeaderboardSort | string;
   minTrades?: number;
-}): Promise<TraderLeaderboardRow[]> {
-  const window = input?.window ?? "all";
+  narrative?: string;
+  address?: string;
+}): Promise<TraderLeaderboardResult> {
+  const window = periodToWindow(input?.period, input?.window);
   const take = Math.min(200, Math.max(1, input?.take ?? 50));
-  const sort = input?.sort ?? "volume";
+  const sort = normalizeTraderSort(input?.sort ?? "volume");
   const minTrades = Math.max(0, input?.minTrades ?? 0);
   const since = windowStart(window);
   const platformUserId = await ensurePlatformLiquidityUserId();
+  const viewerAddress = input?.address?.trim().toLowerCase() || null;
+
+  let narrativeMarketIds: string[] | undefined;
+  const narrative = input?.narrative?.trim();
+  if (narrative) {
+    const markets = await prisma.market.findMany({
+      where: narrativeMarketWhere(narrative),
+      select: { id: true },
+      take: 500,
+    });
+    narrativeMarketIds = markets.map((m) => m.id);
+    if (narrativeMarketIds.length === 0) {
+      return { rows: [], total: 0, viewer: null };
+    }
+  }
 
   const trades = await prisma.trade.findMany({
-    where: since ? { executedAt: { gte: since } } : undefined,
+    where: {
+      ...(since ? { executedAt: { gte: since } } : {}),
+      ...(narrativeMarketIds ? { marketId: { in: narrativeMarketIds } } : {}),
+    },
     select: {
       buyerId: true,
       sellerId: true,
       notionalUsd: true,
       marketId: true,
+      executedAt: true,
     },
   });
 
@@ -76,6 +155,7 @@ export async function getTraderLeaderboard(input?: {
   const tradeCountByUser = new Map<string, number>();
   const bestTradeByUser = new Map<string, number>();
   const marketsByUser = new Map<string, Set<string>>();
+  const firstTradeByUser = new Map<string, Date>();
 
   for (const t of trades) {
     const notional = Number(t.notionalUsd);
@@ -90,13 +170,26 @@ export async function getTraderLeaderboard(input?: {
       const markets = marketsByUser.get(userId) ?? new Set<string>();
       markets.add(t.marketId);
       marketsByUser.set(userId, markets);
+
+      const prev = firstTradeByUser.get(userId);
+      if (!prev || t.executedAt < prev) {
+        firstTradeByUser.set(userId, t.executedAt);
+      }
     }
   }
 
   const userIds = [...volumeByUser.keys()];
-  if (userIds.length === 0) return [];
+  if (userIds.length === 0) {
+    return {
+      rows: [],
+      total: 0,
+      viewer: viewerAddress
+        ? { rank: null, qualifies: false, tradeCount: 0, row: null }
+        : null,
+    };
+  }
 
-  const [users, portfolios, resolvedMarkets] = await Promise.all([
+  const [users, portfolios, resolvedMarkets, creatorFees] = await Promise.all([
     prisma.user.findMany({
       where: { id: { in: userIds } },
       select: { id: true, displayName: true, walletAddress: true },
@@ -106,12 +199,17 @@ export async function getTraderLeaderboard(input?: {
       select: { userId: true, realizedPnlUsd: true },
     }),
     prisma.market.findMany({
-      where: { status: MarketStatus.RESOLVED, resolvedOutcome: { not: null } },
+      where: {
+        status: MarketStatus.RESOLVED,
+        resolvedOutcome: { not: null },
+        ...(narrativeMarketIds ? { id: { in: narrativeMarketIds } } : {}),
+      },
       select: {
         id: true,
         resolvedOutcome: true,
       },
     }),
+    buildCreatorFeesMap(narrative),
   ]);
 
   const portfolioByUser = new Map(
@@ -154,18 +252,29 @@ export async function getTraderLeaderboard(input?: {
     const stats = winStats.get(userId) ?? { wins: 0, total: 0 };
     const winRatePct =
       stats.total > 0 ? Number(((stats.wins / stats.total) * 100).toFixed(2)) : 0;
+    const volume = volumeByUser.get(userId) ?? 0;
+    const tradeCount = tradeCountByUser.get(userId) ?? 0;
+    const wallet = user?.walletAddress?.toLowerCase() ?? null;
+    const creatorAgg = wallet ? creatorFees.get(wallet) : undefined;
+    const firstTrade = firstTradeByUser.get(userId);
 
     return {
       userId,
       displayName: user?.displayName ?? null,
       walletAddress: user?.walletAddress ?? null,
-      totalVolumeUsd: (volumeByUser.get(userId) ?? 0).toFixed(2),
+      totalVolumeUsd: volume.toFixed(2),
       winRatePct,
       pnlUsd: (portfolioByUser.get(userId) ?? 0).toString(),
       resolvedMarkets: stats.total,
-      tradeCount: tradeCountByUser.get(userId) ?? 0,
+      tradeCount,
       bestTradeUsd: bestTradeByUser.get(userId) ?? 0,
       marketsTraded: marketsByUser.get(userId)?.size ?? 0,
+      avgTradeSizeUsd: tradeCount > 0 ? Number((volume / tradeCount).toFixed(2)) : 0,
+      activeSince: firstTrade?.toISOString() ?? null,
+      creatorScore:
+        creatorAgg && creatorAgg.marketCount > 0
+          ? computeCreatorScore(creatorAgg)
+          : null,
     };
   });
 
@@ -174,14 +283,56 @@ export async function getTraderLeaderboard(input?: {
       ? rows.filter((row) => row.tradeCount >= minTrades)
       : rows;
 
-  return sortTraderRows(filtered, sort).slice(0, take);
+  const sorted = sortTraderRows(filtered, sort);
+  const total = sorted.length;
+  const paged = sorted.slice(0, take);
+
+  let viewer: TraderLeaderboardViewer | null = null;
+  if (viewerAddress) {
+    const index = sorted.findIndex(
+      (row) => row.walletAddress?.toLowerCase() === viewerAddress,
+    );
+    if (index >= 0) {
+      viewer = {
+        rank: index + 1,
+        qualifies: true,
+        tradeCount: sorted[index]!.tradeCount,
+        row: sorted[index]!,
+      };
+    } else {
+      const raw = rows.find(
+        (row) => row.walletAddress?.toLowerCase() === viewerAddress,
+      );
+      viewer = {
+        rank: null,
+        qualifies: false,
+        tradeCount: raw?.tradeCount ?? 0,
+        row: raw ?? null,
+      };
+    }
+  }
+
+  return { rows: paged, total, viewer };
 }
+
+export type CreatorLeaderboardSort = "fees" | "score" | "volume";
 
 export type CreatorLeaderboardRow = {
   creatorAddress: string;
   marketCount: number;
   totalVolumeUsd: number;
   feesEarned: number;
+  /** Weighted score: markets + volume + fees. */
+  creatorScore: number;
+};
+
+export type CreatorLeaderboardResult = {
+  rows: CreatorLeaderboardRow[];
+  total: number;
+  viewer: {
+    rank: number | null;
+    row: CreatorLeaderboardRow | null;
+  } | null;
 };
 
 type CreatorFeesAggregate = {
@@ -190,9 +341,20 @@ type CreatorFeesAggregate = {
   feesEarned: number;
 };
 
-export async function buildCreatorFeesMap(): Promise<Map<string, CreatorFeesAggregate>> {
+export async function buildCreatorFeesMap(
+  narrative?: string,
+  since?: Date | null,
+): Promise<Map<string, CreatorFeesAggregate>> {
+  const narrativeFilter = narrative?.trim()
+    ? narrativeMarketWhere(narrative.trim())
+    : undefined;
+
   const markets = await prisma.market.findMany({
-    where: { creatorAddress: { not: null } },
+    where: {
+      creatorAddress: { not: null },
+      ...(narrativeFilter ?? {}),
+      ...(since ? { createdAt: { gte: since } } : {}),
+    },
     select: {
       creatorAddress: true,
       volumeTotalUsd: true,
@@ -225,21 +387,68 @@ export async function buildCreatorFeesMap(): Promise<Map<string, CreatorFeesAggr
   return byCreator;
 }
 
+function sortCreatorRows(
+  rows: CreatorLeaderboardRow[],
+  sort: CreatorLeaderboardSort,
+): CreatorLeaderboardRow[] {
+  const sorted = [...rows];
+  switch (sort) {
+    case "volume":
+      return sorted.sort((a, b) => b.totalVolumeUsd - a.totalVolumeUsd);
+    case "score":
+      return sorted.sort(
+        (a, b) => b.creatorScore - a.creatorScore || b.feesEarned - a.feesEarned,
+      );
+    case "fees":
+    default:
+      return sorted.sort(
+        (a, b) => b.feesEarned - a.feesEarned || b.creatorScore - a.creatorScore,
+      );
+  }
+}
+
 export async function getCreatorLeaderboard(input?: {
   limit?: number;
-}): Promise<CreatorLeaderboardRow[]> {
+  narrative?: string;
+  period?: LeaderboardPeriod | string;
+  window?: LeaderboardWindow | string;
+  sort?: CreatorLeaderboardSort | string;
+  address?: string;
+}): Promise<CreatorLeaderboardResult> {
   const limit = Math.min(200, Math.max(1, input?.limit ?? 50));
-  const byCreator = await buildCreatorFeesMap();
+  const window = periodToWindow(input?.period, input?.window);
+  const since = windowStart(window);
+  const sortRaw = input?.sort?.trim().toLowerCase();
+  const sort: CreatorLeaderboardSort =
+    sortRaw === "volume" || sortRaw === "score" || sortRaw === "fees"
+      ? sortRaw
+      : "fees";
+  const viewerAddress = input?.address?.trim().toLowerCase() || null;
 
-  return [...byCreator.entries()]
-    .map(([creatorAddress, stats]) => ({
-      creatorAddress,
-      marketCount: stats.marketCount,
-      totalVolumeUsd: Number(stats.totalVolumeUsd.toFixed(2)),
-      feesEarned: Number(stats.feesEarned.toFixed(2)),
-    }))
-    .sort((a, b) => b.feesEarned - a.feesEarned)
-    .slice(0, limit);
+  const byCreator = await buildCreatorFeesMap(input?.narrative, since);
+
+  const all = [...byCreator.entries()].map(([creatorAddress, stats]) => ({
+    creatorAddress,
+    marketCount: stats.marketCount,
+    totalVolumeUsd: Number(stats.totalVolumeUsd.toFixed(2)),
+    feesEarned: Number(stats.feesEarned.toFixed(2)),
+    creatorScore: computeCreatorScore(stats),
+  }));
+
+  const sorted = sortCreatorRows(all, sort);
+  const total = sorted.length;
+  const rows = sorted.slice(0, limit);
+
+  let viewer: CreatorLeaderboardResult["viewer"] = null;
+  if (viewerAddress) {
+    const index = sorted.findIndex((row) => row.creatorAddress === viewerAddress);
+    viewer =
+      index >= 0
+        ? { rank: index + 1, row: sorted[index]! }
+        : { rank: null, row: null };
+  }
+
+  return { rows, total, viewer };
 }
 
 export type CreatorProfileMarket = {

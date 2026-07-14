@@ -20,31 +20,54 @@ export function formatCount(value: number): string {
   return String(value);
 }
 
-type ScoreCellProps = {
+const GAUGE_C = 2 * Math.PI * 18;
+
+function scoreStroke(score: number): string {
+  if (score <= 33) return "#f87171";
+  if (score <= 66) return "#fbbf24";
+  return "#34d399";
+}
+
+/** Mini circular gauge matching AttentionScoreCard feel. */
+export function ScoreGaugeCell({
+  score,
+  winner,
+}: {
   score: number;
   winner: boolean;
-  barClassName?: string;
-};
-
-export function ScoreCell({ score, winner, barClassName = "bg-cyan-400" }: ScoreCellProps) {
-  const clamped = Math.min(100, Math.max(0, Math.round(score)));
+}) {
+  const value = Math.min(100, Math.max(0, Math.round(score)));
+  const dash = (value / 100) * GAUGE_C;
+  const stroke = scoreStroke(value);
 
   return (
-    <div className="space-y-2">
+    <div className="flex items-center gap-3">
+      <div className="relative h-12 w-12 shrink-0">
+        <svg viewBox="0 0 48 48" className="h-full w-full -rotate-90" aria-hidden>
+          <circle cx="24" cy="24" r="18" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="5" />
+          <circle
+            cx="24"
+            cy="24"
+            r="18"
+            fill="none"
+            stroke={stroke}
+            strokeWidth="5"
+            strokeLinecap="round"
+            strokeDasharray={`${dash} ${GAUGE_C}`}
+          />
+        </svg>
+        <span className="absolute inset-0 flex items-center justify-center text-[11px] font-bold text-zinc-100">
+          {value}
+        </span>
+      </div>
       <span
         className={cn(
-          "font-mono text-lg tabular-nums text-zinc-100",
-          winner && "font-bold text-emerald-300",
+          "font-mono text-[18px] tabular-nums text-zinc-200",
+          winner && "font-bold text-emerald-400",
         )}
       >
-        {clamped}
+        {value}
       </span>
-      <div className="h-2 overflow-hidden rounded-full bg-white/[0.08]">
-        <div
-          className={cn("h-full rounded-full transition-all", barClassName)}
-          style={{ width: `${clamped}%` }}
-        />
-      </div>
     </div>
   );
 }
@@ -55,18 +78,16 @@ const MOMENTUM_STYLES = {
   Stable: "bg-zinc-500/15 text-zinc-300 ring-white/10",
 } as const;
 
-type MomentumBadgeProps = {
+export function MomentumBadge({
+  momentum,
+}: {
   momentum: keyof typeof MOMENTUM_STYLES;
-  winner?: boolean;
-};
-
-export function MomentumBadge({ momentum, winner }: MomentumBadgeProps) {
+}) {
   return (
     <span
       className={cn(
         "inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ring-1",
         MOMENTUM_STYLES[momentum],
-        winner && "ring-2 ring-emerald-400/40",
       )}
     >
       {momentum}
@@ -74,48 +95,43 @@ export function MomentumBadge({ momentum, winner }: MomentumBadgeProps) {
   );
 }
 
-const MOMENTUM_RANK = { Growing: 3, Stable: 2, Cooling: 1 } as const;
-
-export function compareMomentum(
-  left: keyof typeof MOMENTUM_RANK,
-  right: keyof typeof MOMENTUM_RANK,
-): "left" | "right" | "tie" {
-  const l = MOMENTUM_RANK[left];
-  const r = MOMENTUM_RANK[right];
-  if (l > r) return "left";
-  if (r > l) return "right";
-  return "tie";
-}
-
 type TrendSparklineProps = {
   data: AttentionHistoryPoint[];
   loading?: boolean;
+  stroke?: string;
 };
 
-function TrendSparklineInner({ data, loading }: TrendSparklineProps) {
+function TrendSparklineInner({
+  data,
+  loading,
+  stroke = "#60a5fa",
+}: TrendSparklineProps) {
   if (loading) {
-    return <div className="h-[60px] animate-pulse rounded-lg bg-zinc-800/80" />;
+    return <div className="h-[50px] w-full animate-pulse rounded-lg bg-zinc-800/80" />;
   }
 
   const chartData =
     data.length > 0
-      ? data.map((point, index) => ({ ...point, index }))
+      ? data.map((point, index) => ({
+          index,
+          attentionScore: point.attentionScore,
+        }))
       : [
           { index: 0, attentionScore: 0 },
           { index: 1, attentionScore: 0 },
         ];
 
   return (
-    <div className="h-[60px] w-full">
-      <ResponsiveContainer width="100%" height={60}>
-        <LineChart data={chartData} margin={{ top: 4, right: 4, left: 4, bottom: 4 }}>
+    <div className="h-[50px] w-full">
+      <ResponsiveContainer width="100%" height={50}>
+        <LineChart data={chartData} margin={{ top: 4, right: 2, left: 2, bottom: 4 }}>
           <Line
             type="monotone"
             dataKey="attentionScore"
-            stroke="#22d3ee"
+            stroke={stroke}
             strokeWidth={2}
             dot={false}
-            isAnimationActive={chartData.length < 40}
+            isAnimationActive={false}
           />
         </LineChart>
       </ResponsiveContainer>
@@ -134,9 +150,9 @@ export function numericWinner(
   return "tie";
 }
 
-export function winnerCellClass(side: "left" | "right", winner: "left" | "right" | "tie") {
+export function winnerTextClass(side: "left" | "right", winner: "left" | "right" | "tie") {
   return cn(
-    "rounded-lg p-3",
-    winner === side && "bg-emerald-500/10 ring-1 ring-emerald-400/20",
+    "text-zinc-200",
+    winner === side && "font-bold text-emerald-400",
   );
 }

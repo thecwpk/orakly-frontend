@@ -29,6 +29,7 @@ export type CommunitySuggestionDto = {
   feesEarned: number;
   rejectionReason: string | null;
   resolutionSource: string | null;
+  resolvesAt: string | null;
   submitterId: string | null;
   marketId: string | null;
   marketSlug: string | null;
@@ -51,6 +52,7 @@ const suggestionSelect = {
   feesEarned: true,
   rejectionReason: true,
   triggerReason: true,
+  resolvesAt: true,
   submitterId: true,
   marketId: true,
   createdAt: true,
@@ -83,6 +85,7 @@ export function serializeSuggestion(row: SuggestionRow): CommunitySuggestionDto 
     feesEarned: row.feesEarned,
     rejectionReason: row.rejectionReason,
     resolutionSource: row.triggerReason,
+    resolvesAt: row.resolvesAt?.toISOString() ?? null,
     submitterId: row.submitterId,
     marketId: row.marketId,
     marketSlug: row.market?.slug ?? null,
@@ -104,6 +107,7 @@ export async function listCommunitySuggestions(input: {
   status: SuggestionStatusFilter;
   sort: SuggestionSort;
   address?: string;
+  limit?: number;
 }): Promise<CommunitySuggestionDto[]> {
   const where: Prisma.MarketSuggestionWhereInput = {};
 
@@ -126,10 +130,12 @@ export async function listCommunitySuggestions(input: {
       ? [{ createdAt: "desc" }]
       : [{ voteCount: "desc" }, { createdAt: "desc" }];
 
+  const take = Math.min(Math.max(input.limit ?? 100, 1), 100);
+
   const rows = await prisma.marketSuggestion.findMany({
     where,
     orderBy,
-    take: 100,
+    take,
     select: suggestionSelect,
   });
 
@@ -150,20 +156,31 @@ export async function createCommunitySuggestion(input: {
   category: string;
   description?: string;
   resolutionSource?: string;
+  narrative?: string;
+  resolvesAt?: Date | string | null;
 }) {
   await ensureSubmitterWallet(input.userId, input.walletAddress);
+
+  const resolvesAt =
+    input.resolvesAt instanceof Date
+      ? input.resolvesAt
+      : typeof input.resolvesAt === "string" && input.resolvesAt.trim()
+        ? new Date(input.resolvesAt)
+        : null;
 
   const row = await prisma.marketSuggestion.create({
     data: {
       title: input.question.trim(),
       description: input.description?.trim() || null,
       category: input.category.trim(),
-      narrative: input.category.trim(),
+      narrative: input.narrative?.trim() || input.category.trim(),
       submitterId: input.userId,
       status: MarketSuggestionStatus.PENDING,
       voteCount: 0,
       voterAddresses: [],
       triggerReason: input.resolutionSource?.trim() || "Community submission",
+      resolvesAt:
+        resolvesAt && Number.isFinite(resolvesAt.getTime()) ? resolvesAt : null,
     },
     select: suggestionSelect,
   });
@@ -177,13 +194,21 @@ export async function toggleSuggestionVote(suggestionId: string, walletAddress: 
   return prisma.$transaction(async (tx) => {
     const suggestion = await tx.marketSuggestion.findUnique({
       where: { id: suggestionId },
-      select: { id: true, voteCount: true, voterAddresses: true },
+      select: {
+        id: true,
+        title: true,
+        voteCount: true,
+        voterAddresses: true,
+        submitter: { select: { id: true, walletAddress: true } },
+      },
     });
 
     if (!suggestion) {
       throw new Error("SUGGESTION_NOT_FOUND");
     }
 
+    const previousVoteCount = suggestion.voteCount;
+    const creatorAddress = suggestion.submitter?.walletAddress?.toLowerCase() ?? null;
     const alreadyVoted = suggestion.voterAddresses.some(
       (addr) => addr.toLowerCase() === normalized,
     );
@@ -202,7 +227,14 @@ export async function toggleSuggestionVote(suggestionId: string, walletAddress: 
         },
       });
 
-      return { voteCount: nextCount, hasVoted: false };
+      return {
+        voteCount: nextCount,
+        hasVoted: false,
+        previousVoteCount,
+        suggestionId: suggestion.id,
+        question: suggestion.title,
+        creatorAddress,
+      };
     }
 
     const nextCount = suggestion.voteCount + 1;
@@ -214,7 +246,14 @@ export async function toggleSuggestionVote(suggestionId: string, walletAddress: 
       },
     });
 
-    return { voteCount: nextCount, hasVoted: true };
+    return {
+      voteCount: nextCount,
+      hasVoted: true,
+      previousVoteCount,
+      suggestionId: suggestion.id,
+      question: suggestion.title,
+      creatorAddress,
+    };
   });
 }
 

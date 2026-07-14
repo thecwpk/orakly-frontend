@@ -3,10 +3,12 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
-import { Swords } from "lucide-react";
+import { toast } from "sonner";
 import { fetchAttentionDashboard } from "@/shared/api/fetchers/attention-dashboard";
 import { queryKeys } from "@/shared/api/query-keys";
 import { ROUTES } from "@/shared/constants/routes";
+import { SUGGESTED_BATTLES } from "@/widgets/dapp-hub/lib/narrative-war-pairs";
+import { cn } from "@/lib/utils";
 import {
   NarrativeWarsComparisonTable,
   NarrativeWarsMarkets,
@@ -15,48 +17,74 @@ import {
 const DASHBOARD_LIMIT = 50;
 
 const SELECT_CLASS =
-  "w-full rounded-xl border-0 bg-[#08080d] px-3 py-2.5 text-[13px] font-medium text-zinc-100 ring-1 ring-white/[0.1] transition focus:outline-none focus:ring-cyan-400/40";
+  "w-full max-w-sm rounded-xl border border-white/10 bg-zinc-900/80 px-3 py-3 text-[14px] font-medium text-zinc-100 outline-none focus:border-blue-500/50";
 
 function NarrativeSelect({
   id,
+  label,
   value,
   onChange,
   options,
   disabledSlug,
 }: {
   id: string;
+  label: string;
   value: string;
   onChange: (slug: string) => void;
   options: { slug: string; name: string }[];
   disabledSlug?: string;
 }) {
   return (
-    <select
-      id={id}
-      value={value}
-      onChange={(event) => onChange(event.target.value)}
-      className={SELECT_CLASS}
-    >
-      <option value="">Select narrative…</option>
-      {options.map((option) => (
-        <option
-          key={option.slug}
-          value={option.slug}
-          disabled={disabledSlug === option.slug}
-        >
-          {option.name}
-        </option>
-      ))}
-    </select>
+    <label className="flex w-full max-w-sm flex-col gap-1.5">
+      <span className="sr-only">{label}</span>
+      <select
+        id={id}
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        className={SELECT_CLASS}
+        aria-label={label}
+      >
+        <option value="">Select narrative…</option>
+        {options.map((option) => (
+          <option
+            key={option.slug}
+            value={option.slug}
+            disabled={disabledSlug === option.slug}
+          >
+            {option.name}
+          </option>
+        ))}
+      </select>
+    </label>
   );
+}
+
+function findSlug(
+  options: { slug: string; name: string }[],
+  nameOrSlug: string,
+): string {
+  const key = nameOrSlug.trim().toLowerCase();
+  const bySlug = options.find((o) => o.slug.toLowerCase() === key);
+  if (bySlug) return bySlug.slug;
+  const byName = options.find((o) => o.name.toLowerCase() === key);
+  return byName?.slug ?? key;
 }
 
 export function NarrativeWarsClient() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const [leftSlug, setLeftSlug] = useState(() => searchParams.get("left") ?? "");
-  const [rightSlug, setRightSlug] = useState(() => searchParams.get("right") ?? "");
+  const urlLeft = searchParams.get("left") ?? "";
+  const urlRight = searchParams.get("right") ?? "";
+
+  const [leftSlug, setLeftSlug] = useState(urlLeft);
+  const [rightSlug, setRightSlug] = useState(urlRight);
+  const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    setLeftSlug(urlLeft);
+    setRightSlug(urlRight);
+  }, [urlLeft, urlRight]);
 
   const syncUrl = useCallback(
     (left: string, right: string) => {
@@ -64,9 +92,13 @@ export function NarrativeWarsClient() {
       if (left) params.set("left", left);
       if (right) params.set("right", right);
       const qs = params.toString();
-      router.replace(qs ? `${ROUTES.narrativeWars}?${qs}` : ROUTES.narrativeWars, {
-        scroll: false,
-      });
+      const next = qs ? `${ROUTES.narrativeWars}?${qs}` : ROUTES.narrativeWars;
+      const current =
+        typeof window !== "undefined"
+          ? `${window.location.pathname}${window.location.search}`
+          : "";
+      if (current === next) return;
+      router.replace(next, { scroll: false });
     },
     [router],
   );
@@ -107,58 +139,91 @@ export function NarrativeWarsClient() {
 
   const bothSelected = Boolean(leftSlug && rightSlug && leftNarrative && rightNarrative);
 
+  function pickBattle(leftName: string, rightName: string) {
+    const left = findSlug(narrativeOptions, leftName);
+    const right = findSlug(narrativeOptions, rightName);
+    setLeftSlug(left);
+    setRightSlug(right);
+  }
+
+  async function shareBattle() {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      setCopied(true);
+      toast.success("Copied!");
+      window.setTimeout(() => setCopied(false), 2000);
+    } catch {
+      toast.error("Unable to copy link");
+    }
+  }
+
   return (
     <div className="space-y-8">
-      <header className="border-b border-white/[0.06] pb-r24">
-        <p className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.22em] text-cyan-400/90">
-          <Swords className="h-3 w-3" aria-hidden />
-          Head-to-head
-        </p>
-        <h1 className="mt-1.5 text-balance text-2xl font-semibold tracking-tight text-white sm:text-[1.75rem]">
+      <header>
+        <h1 className="text-[32px] font-bold tracking-tight text-zinc-50">
           Narrative Wars
         </h1>
-        <p className="mt-1.5 max-w-2xl text-[12.5px] text-zinc-500">
-          Compare attention, conviction, and market depth across crypto narratives.
+        <p className="mt-1 text-[15px] text-zinc-400">
+          Compare two narratives head-to-head
         </p>
       </header>
 
-      <div className="glass-panel-strong space-y-4 rounded-2xl p-4 ring-1 ring-white/[0.06]">
-        <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-zinc-500">
-          Pick two narratives
+      {/* Selector row */}
+      <div className="flex flex-col items-center justify-center gap-4 sm:flex-row sm:gap-6">
+        <NarrativeSelect
+          id="narrative-wars-left"
+          label="Left narrative"
+          value={leftSlug}
+          onChange={setLeftSlug}
+          options={narrativeOptions}
+          disabledSlug={rightSlug || undefined}
+        />
+        <p
+          className="text-[32px] font-bold tracking-tight text-zinc-500"
+          aria-hidden
+        >
+          VS
         </p>
-        <div className="grid grid-cols-1 items-center gap-4 sm:grid-cols-[1fr_auto_1fr]">
-          <NarrativeSelect
-            id="narrative-wars-left"
-            value={leftSlug}
-            onChange={setLeftSlug}
-            options={narrativeOptions}
-            disabledSlug={rightSlug || undefined}
-          />
-          <p
-            className="text-center text-xl font-bold tracking-[0.2em] text-cyan-300/90"
-            aria-hidden
-          >
-            VS
-          </p>
-          <NarrativeSelect
-            id="narrative-wars-right"
-            value={rightSlug}
-            onChange={setRightSlug}
-            options={narrativeOptions}
-            disabledSlug={leftSlug || undefined}
-          />
-        </div>
+        <NarrativeSelect
+          id="narrative-wars-right"
+          label="Right narrative"
+          value={rightSlug}
+          onChange={setRightSlug}
+          options={narrativeOptions}
+          disabledSlug={leftSlug || undefined}
+        />
       </div>
 
       {!bothSelected ? (
-        <div className="flex min-h-[280px] flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-white/[0.1] bg-white/[0.02] px-6 py-16 text-center">
-          <Swords className="h-8 w-8 text-zinc-600" aria-hidden />
-          <p className="text-[14px] font-medium text-zinc-300">Select two narratives to compare</p>
-          <p className="max-w-sm text-[12px] text-zinc-500">
-            Choose from {narrativeOptions.length || "…"} tracked narratives to see scores,
-            momentum, and top markets side by side.
-          </p>
-        </div>
+        <section className="space-y-4">
+          <div className="text-center">
+            <p className="text-[15px] font-medium text-zinc-300">Suggested battles</p>
+            <p className="mt-1 text-[13px] text-zinc-500">
+              Pick a pair to start comparing — or use the dropdowns above.
+            </p>
+          </div>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            {SUGGESTED_BATTLES.map((battle) => (
+              <button
+                key={battle.id}
+                type="button"
+                onClick={() => pickBattle(battle.leftSlug, battle.rightSlug)}
+                className={cn(
+                  "rounded-2xl border border-white/[0.08] bg-zinc-950/50 p-5 text-left transition",
+                  "hover:scale-[1.02] hover:border-white/20 hover:shadow-lg",
+                )}
+              >
+                <p className="text-[11px] font-semibold uppercase tracking-wider text-zinc-500">
+                  Suggested
+                </p>
+                <p className="mt-2 text-[18px] font-bold text-zinc-50">
+                  {battle.leftName}{" "}
+                  <span className="text-zinc-500">vs</span> {battle.rightName}
+                </p>
+              </button>
+            ))}
+          </div>
+        </section>
       ) : (
         <>
           <NarrativeWarsComparisonTable
@@ -167,12 +232,23 @@ export function NarrativeWarsClient() {
             leftSlug={leftSlug}
             rightSlug={rightSlug}
           />
+
           <NarrativeWarsMarkets
             leftSlug={leftSlug}
             rightSlug={rightSlug}
             leftName={leftNarrative!.narrativeName}
             rightName={rightNarrative!.narrativeName}
           />
+
+          <div className="flex justify-center">
+            <button
+              type="button"
+              onClick={() => void shareBattle()}
+              className="rounded-xl bg-blue-600 px-5 py-2.5 text-[14px] font-semibold text-white transition hover:bg-blue-500"
+            >
+              {copied ? "Copied!" : "Share This Battle"}
+            </button>
+          </div>
         </>
       )}
     </div>

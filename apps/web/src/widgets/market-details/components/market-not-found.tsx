@@ -23,7 +23,7 @@ export function MarketNotFound({ slug }: { slug: string }) {
           Back to hub
         </PrefetchLink>
         <PrefetchLink
-          href={ROUTES.discover}
+          href={ROUTES.markets}
           className="rounded-md border border-border px-4 py-2 text-sm font-medium text-foreground"
         >
           Browse markets

@@ -14,6 +14,9 @@ export interface AttentionScoreCardProps {
   liquidity: number;
   openInterest: number;
   onClick?: () => void;
+  className?: string;
+  /** Stretch gauges + chips across the full container width. */
+  fullWidth?: boolean;
 }
 
 const GAUGE_CIRCUMFERENCE = 201;
@@ -145,6 +148,8 @@ export function AttentionScoreCard({
   liquidity,
   openInterest,
   onClick,
+  className,
+  fullWidth,
 }: AttentionScoreCardProps) {
   const momentumStyle = MOMENTUM_STYLES[momentum];
 
@@ -153,7 +158,9 @@ export function AttentionScoreCard({
       data-narrative-slug={narrativeSlug}
       className={cn(
         "rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition-shadow",
+        fullWidth && "w-full p-5 sm:p-6",
         onClick && "cursor-pointer hover:shadow-md",
+        className,
       )}
       onClick={onClick}
       onKeyDown={
@@ -170,7 +177,14 @@ export function AttentionScoreCard({
       tabIndex={onClick ? 0 : undefined}
     >
       <div className="flex items-start justify-between gap-3">
-        <h3 className="text-base font-semibold text-gray-900">{narrativeName}</h3>
+        <h3
+          className={cn(
+            "font-semibold text-gray-900",
+            fullWidth ? "text-lg sm:text-xl" : "text-base",
+          )}
+        >
+          {narrativeName}
+        </h3>
         <span
           className={cn(
             "inline-flex shrink-0 items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold",
@@ -182,12 +196,22 @@ export function AttentionScoreCard({
         </span>
       </div>
 
-      <div className="mt-4 flex items-center justify-around gap-4">
+      <div
+        className={cn(
+          "mt-4 flex items-center justify-around gap-4",
+          fullWidth && "sm:justify-center sm:gap-16",
+        )}
+      >
         <ScoreGauge label="Attention" score={attentionScore} />
         <ScoreGauge label="Conviction" score={convictionScore} />
       </div>
 
-      <div className="mt-4 flex flex-wrap gap-2">
+      <div
+        className={cn(
+          "mt-4 flex flex-wrap gap-2",
+          fullWidth && "sm:grid sm:grid-cols-5 sm:gap-3",
+        )}
+      >
         <StatChip label="Volume" value={formatUsdCompact(volume24hUsd)} />
         <StatChip label="Markets" value={String(activeMarkets)} />
         <StatChip label="Traders" value={String(uniqueTraders)} />

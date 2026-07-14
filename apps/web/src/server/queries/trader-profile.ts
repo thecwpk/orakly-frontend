@@ -47,6 +47,7 @@ export type ProfileTradeDto = {
   side: "YES" | "NO";
   amountUsd: number;
   status: "open" | "won" | "lost";
+  txHash: string | null;
 };
 
 export type TraderProfileDto = {
@@ -87,7 +88,8 @@ export async function getTraderProfileByAddress(
     select: { id: true, displayName: true, walletAddress: true, createdAt: true },
   });
 
-  const leaderboard = await getTraderLeaderboard({ window: "all", take: 500 });
+  const leaderboardResult = await getTraderLeaderboard({ window: "all", take: 500 });
+  const leaderboard = leaderboardResult.rows;
   const row = user
     ? leaderboard.find((entry) => entry.userId === user.id) ??
       leaderboard.find(
@@ -148,6 +150,8 @@ export async function getTraderProfileByAddress(
 
     trades = tradePage.trades.map((trade) => {
       const market = marketById.get(trade.marketId);
+      const ref = trade.externalRef?.trim() ?? "";
+      const txHash = /^0x[a-fA-F0-9]{64}$/.test(ref) ? ref : null;
       return {
         id: trade.id,
         at:
@@ -164,6 +168,7 @@ export async function getTraderProfileByAddress(
           trade.outcome,
           market?.resolvedOutcome ?? null,
         ),
+        txHash,
       };
     });
 
@@ -258,6 +263,8 @@ export async function getTraderProfileTrades(
   return {
     trades: tradePage.trades.map((trade) => {
       const market = marketById.get(trade.marketId);
+      const ref = trade.externalRef?.trim() ?? "";
+      const txHash = /^0x[a-fA-F0-9]{64}$/.test(ref) ? ref : null;
       return {
         id: trade.id,
         at:
@@ -274,6 +281,7 @@ export async function getTraderProfileTrades(
           trade.outcome,
           market?.resolvedOutcome ?? null,
         ),
+        txHash,
       };
     }),
     nextCursor: tradePage.nextCursor,

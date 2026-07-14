@@ -76,6 +76,13 @@ enum ActivityType {
   POSITION_OPENED
   POSITION_CLOSED
   ADMIN_ACTION
+  NARRATIVE_COMMENT
+  /// Wallet-targeted notification kinds (see notifications dropdown).
+  SETTLEMENT
+  APPROVAL
+  VOTE_MILESTONE
+  REWARD
+  MARKET_CLOSING
 }
 
 enum IngestionRunStatus {
@@ -146,6 +153,7 @@ model User {
 
   marketSuggestionsSubmitted MarketSuggestion[] @relation("SuggestionSubmitter")
   suggestionVotes            MarketSuggestionVote[]
+  marketComments             MarketComment[]
 
   walletAuthSessions WalletAuthSession[]
 
@@ -419,6 +427,7 @@ model Market {
   trades         Trade[]
   positions      Position[]
   activities     Activity[]
+  comments       MarketComment[]
   transactions   Transaction[] @relation("MarketTransactions")
   ledgerEntries  LedgerEntry[]
   platformFees   PlatformFee[]
@@ -450,6 +459,23 @@ model Market {
   @@index([createdAt(sort: Desc)])
   @@index([status, externalMomentumScore(sort: Desc)])
   @@index([status, signalLastSeenAt(sort: Desc)])
+}
+
+/// Flat discussion thread on a market detail page.
+model MarketComment {
+  id        String   @id @default(uuid()) @db.Uuid
+  createdAt DateTime @default(now())
+
+  marketId String @db.Uuid
+  market   Market @relation(fields: [marketId], references: [id], onDelete: Cascade)
+
+  userId String @db.Uuid
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  body String @db.Text
+
+  @@index([marketId, createdAt(sort: Desc)])
+  @@index([userId, createdAt(sort: Desc)])
 }
 
 /// Sparse YES mid snapshots for 24h mover ranking. Pruned by cron.
@@ -727,6 +753,9 @@ model Activity {
   tradeId String? @db.Uuid
   trade   Trade?  @relation(fields: [tradeId], references: [id], onDelete: SetNull)
 
+  /// Wallet-targeted notifications unread state.
+  isRead Boolean @default(false) @map("is_read")
+
   /// Public label + structured fields for UI
   title   String?
   payload Json @db.JsonB
@@ -735,6 +764,7 @@ model Activity {
   @@index([userId, createdAt(sort: Desc)])
   @@index([type, createdAt(sort: Desc)])
   @@index([createdAt(sort: Desc)])
+  @@index([userId, isRead, createdAt(sort: Desc)])
 }
 
 // ---------------------------------------------------------------------------
@@ -842,6 +872,7 @@ model MarketSuggestion {
   creatorRewardPercent Float    @default(0)
   feesEarned           Float    @default(0)
   rejectionReason      String?
+  resolvesAt           DateTime? @map("resolves_at")
 
   submitterId String? @map("submitter_id") @db.Uuid
   submitter   User?   @relation("SuggestionSubmitter", fields: [submitterId], references: [id], onDelete: SetNull)

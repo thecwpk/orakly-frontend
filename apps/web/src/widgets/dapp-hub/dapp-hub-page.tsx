@@ -1,19 +1,25 @@
 "use client";
 
-import { HubFeedChrome } from "./components/hub-feed-chrome";
-import { HubFeedHero } from "./components/hub-feed-hero";
-import { HubMarketFeedGrid } from "./components/hub-market-feed-grid";
+import { CommunityDiscovery } from "./sections/community-discovery";
+import { LiveMarkets } from "./sections/live-markets";
+import { MarketActivity } from "./sections/market-activity";
+import { MarketPulse } from "./sections/market-pulse";
+import { TrendingNarratives } from "./sections/trending-narratives";
 import "./hub-design-tokens.css";
 
-/** Trading hub — hero spotlight + Polymarket-style market feed. */
+/** DApp hub — Pulse → Narratives → Markets → Activity → Discovery. */
 export function DappHubPage() {
   return (
-    <div className="hub-root w-full min-w-0">
-      <HubFeedChrome />
-      <HubFeedHero />
-      <div className="hub-container hub-feed-body pb-20 sm:pb-24">
-        <HubMarketFeedGrid />
-      </div>
+    <div className="hub-root mx-auto max-w-7xl space-y-0 px-4 py-6">
+      <MarketPulse />
+      <hr className="my-8 border-[var(--hub-border)]" />
+      <TrendingNarratives />
+      <hr className="my-8 border-[var(--hub-border)]" />
+      <LiveMarkets />
+      <hr className="my-8 border-[var(--hub-border)]" />
+      <MarketActivity />
+      <hr className="my-8 border-[var(--hub-border)]" />
+      <CommunityDiscovery />
     </div>
   );
 }

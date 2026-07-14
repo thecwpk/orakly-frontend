@@ -63,6 +63,11 @@ export const queryKeys = {
         filter?.narrative ?? "all",
         filter?.breaking ? "breaking" : "all",
       ] as const,
+    liveMarkets: (sort: string, limit: number) =>
+      [...hubRoot(), "liveMarkets", sort, limit] as const,
+    communityDiscovery: (sort: string, limit: number) =>
+      [...hubRoot(), "communityDiscovery", sort, limit] as const,
+    topCreators: (limit: number) => [...hubRoot(), "topCreators", limit] as const,
     topics: () => [...hubRoot(), "topics"] as const,
     categories: () => [...hubRoot(), "categories"] as const,
     suggestions: (take: number) => [...hubRoot(), "suggestions", take] as const,
@@ -89,6 +94,9 @@ export const queryKeys = {
     root: marketsRoot,
     /** GET /api/v1/markets — feed / featured list (directory `lane=directory`). */
     feed: () => [...marketsRoot(), "feed"] as const,
+    /** Paginated Markets explorer search. */
+    explorer: (paramsKey: string) =>
+      [...marketsRoot(), "explorer", paramsKey] as const,
     /**
      * Scoped hub/directory slices — `GET /api/v1/markets?scope&lane&…`.
      * Invalidate via prefix `[...marketsRoot(), "feedScoped"]`.
@@ -197,7 +205,8 @@ export const queryKeys = {
         windowKey,
         sort ?? "default",
       ] as const,
-    creators: () => [...leaderboardRoot(), "creators"] as const,
+    creators: (limit?: number) =>
+      [...leaderboardRoot(), "creators", limit ?? "all"] as const,
   },
 
   profile: {
@@ -223,6 +232,9 @@ export const queryKeys = {
     /** Notifications panel. */
     notifications: (userId: string) =>
       [...activityRoot(), "notifications", userId] as const,
+    /** Wallet-scoped notifications dropdown (`GET /api/v1/notifications`). */
+    walletNotifications: (walletAddress: string) =>
+      [...activityRoot(), "wallet-notifications", walletAddress.toLowerCase()] as const,
   },
 
   categories: {

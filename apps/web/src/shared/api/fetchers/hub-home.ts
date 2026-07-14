@@ -16,7 +16,7 @@ export async function fetchAttentionDashboard(): Promise<AttentionNarrativeRow[]
 }
 
 export async function fetchHomeStats(): Promise<HomeStatsPayload> {
-  const res = await apiClient.request<HomeStatsPayload>("/api/v1/home/stats");
+  const res = await apiClient.request<HomeStatsPayload>("/api/v1/hub/home/stats");
   return unwrapApiResult(res);
 }
 

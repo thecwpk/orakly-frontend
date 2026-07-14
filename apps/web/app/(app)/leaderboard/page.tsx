@@ -3,8 +3,7 @@ import { LeaderboardPage } from "@/widgets/leaderboard/leaderboard-page";
 
 export const metadata: Metadata = {
   title: "Leaderboard — Orakly",
-  description:
-    "Top traders ranked by realized PnL, volume, and win rate across rolling time windows.",
+  description: "Top traders and creators ranked by volume, accuracy, profit, and fees on Orakly.",
 };
 
 export default function LeaderboardRoute() {

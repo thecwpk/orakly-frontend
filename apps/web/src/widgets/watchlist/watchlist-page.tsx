@@ -9,8 +9,8 @@ import { TrendingMarketCard } from "@/widgets/trending-prediction-markets/compon
 import { useMarketsFeedQuery } from "@/shared/api/hooks";
 import { ROUTES } from "@/shared/constants/routes";
 import {
-  WatchlistStar,
   selectWatchlistCount,
+  useWatchlist,
   useWatchlistStore,
 } from "@/features/watchlist";
 
@@ -41,34 +41,34 @@ function EmptyState() {
   );
 }
 
-function MissingStarred({ slugs }: { slugs: string[] }) {
-  if (slugs.length === 0) return null;
+function MissingStarred({ ids }: { ids: string[] }) {
+  if (ids.length === 0) return null;
   return (
     <div className="rounded-lg border border-[var(--hub-border)] bg-[var(--hub-bg-subtle)] px-3 py-2 text-[11.5px] text-[var(--hub-muted)]">
-      <span className="font-medium text-[var(--hub-fg)]">{slugs.length}</span>{" "}
+      <span className="font-medium text-[var(--hub-fg)]">{ids.length}</span>{" "}
       starred markets aren&apos;t currently in the live feed (likely closed or paused).
     </div>
   );
 }
 
 export function WatchlistPage() {
-  const slugs = useWatchlistStore((s) => s.slugs);
+  const { watchlist } = useWatchlist();
   const count = useWatchlistStore(selectWatchlistCount);
   const clear = useWatchlistStore((s) => s.clear);
   const { data, isLoading } = useMarketsFeedQuery();
 
-  const { matched, missingSlugs } = useMemo(() => {
-    if (!data) return { matched: [] as Market[], missingSlugs: [] as string[] };
-    const bySlug = new Map(data.map((m) => [m.slug, m] as const));
+  const { matched, missingIds } = useMemo(() => {
+    if (!data) return { matched: [] as Market[], missingIds: [] as string[] };
+    const byId = new Map(data.map((m) => [m.id, m] as const));
     const ordered: Market[] = [];
     const missing: string[] = [];
-    for (const slug of slugs) {
-      const m = bySlug.get(slug);
+    for (const id of watchlist) {
+      const m = byId.get(id);
       if (m) ordered.push(m);
-      else missing.push(slug);
+      else missing.push(id);
     }
-    return { matched: ordered, missingSlugs: missing };
-  }, [data, slugs]);
+    return { matched: ordered, missingIds: missing };
+  }, [data, watchlist]);
 
   return (
     <main className="hub-container hub-root max-w-[90rem] pb-s48 pt-r24 sm:pb-s64 sm:pt-s40">
@@ -133,7 +133,6 @@ export function WatchlistPage() {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -8 }}
                     transition={{ duration: 0.25 }}
-                    className="relative"
                   >
                     <TrendingMarketCard
                       market={m}
@@ -142,14 +141,11 @@ export function WatchlistPage() {
                       chrome="subtle"
                       variant="compact"
                     />
-                    <div className="absolute right-2 top-2 z-10">
-                      <WatchlistStar slug={m.slug} size="xs" />
-                    </div>
                   </motion.div>
                 ))}
               </motion.div>
             ) : null}
-            <MissingStarred slugs={missingSlugs} />
+            <MissingStarred ids={missingIds} />
           </div>
         )}
       </div>

@@ -7,6 +7,7 @@ import { ok } from "../../../_lib/response";
 import { requireAdminPermission } from "@/server/admin/admin-session";
 import { adminJsonError } from "../../../admin/_lib/admin-http";
 import { triggerMetricsRefresh } from "@/server/analytics/trigger-refresh";
+import { createApprovalNotification } from "@/server/notifications/create-notification";
 import { approveCommunitySuggestion } from "@/server/suggestions/community-suggestions";
 
 const bodySchema = z.object({
@@ -34,6 +35,14 @@ export async function POST(req: NextRequest, ctx: RouteCtx) {
     }
 
     const market = await approveCommunitySuggestion(id, creatorRewardPercent);
+
+    await createApprovalNotification({
+      walletAddress: market.creatorAddress,
+      suggestionId: id,
+      marketId: market.id,
+      marketTitle: market.title,
+      marketSlug: market.slug,
+    });
 
     void triggerMetricsRefresh({
       marketId: market.id,

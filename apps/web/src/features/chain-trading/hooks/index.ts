@@ -13,3 +13,4 @@ export { useOnChainTradePreview } from "./use-on-chain-trade-preview";
 export { useLinkMarketOnChain } from "./use-link-market-on-chain";
 export { useChainCollateralBalance } from "./use-chain-collateral-balance";
 export { useChainWalletPositions } from "./use-chain-wallet-positions";
+export { useClaimWinnings } from "./use-claim-winnings";

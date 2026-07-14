@@ -27,7 +27,7 @@ export type NavItem = {
   trendingTape?: boolean;
   /** Hub home `/dapp` exact match. */
   hubHome?: boolean;
-  /** Attention dashboard `/attention`. */
+  /** Attention / Narratives dashboard `/attention`. */
   attentionAnchor?: boolean;
   /** Historical analytics `/analytics`. */
   analyticsAnchor?: boolean;
@@ -37,6 +37,8 @@ export type NavItem = {
   communityAnchor?: boolean;
   /** Leaderboard `/leaderboard`. */
   leaderboardAnchor?: boolean;
+  /** Portfolio `/portfolio`. */
+  portfolioAnchor?: boolean;
   /** Optional small badge text (static — e.g. "New"). */
   badge?: string;
   /** Live counter — optional badge on rich nav variants. */
@@ -50,7 +52,7 @@ export type NavItem = {
 };
 
 export type NavGroup = {
-  id: "rail" | "discover" | "markets";
+  id: "rail" | "discover" | "markets" | "primary";
   label?: string;
   items: NavItem[];
 };
@@ -89,7 +91,7 @@ export function isMarketsExplorerNavActive(pathname: string | null): boolean {
   return pathname.startsWith("/markets/");
 }
 
-/** Full Markets browse — directory + detail pages. */
+/** Full Markets browse — directory + detail pages (excludes Community). */
 export function isMarketsBrowseActive(
   pathname: string | null,
   searchParams: Pick<URLSearchParams, "get"> | null | undefined,
@@ -99,7 +101,11 @@ export function isMarketsBrowseActive(
   if (pathname === ROUTES.attention || pathname.startsWith(`${ROUTES.attention}/`)) return false;
   if (pathname === ROUTES.analytics || pathname.startsWith(`${ROUTES.analytics}/`)) return false;
   if (pathname === ROUTES.narrativeWars || pathname.startsWith(`${ROUTES.narrativeWars}/`)) return false;
-  if (pathname === ROUTES.marketsCommunity) return false;
+  if (pathname === ROUTES.marketsCommunity || pathname.startsWith(`${ROUTES.marketsCommunity}/`)) {
+    return false;
+  }
+  if (pathname === ROUTES.leaderboard || pathname.startsWith(`${ROUTES.leaderboard}/`)) return false;
+  if (pathname === ROUTES.portfolio || pathname.startsWith(`${ROUTES.portfolio}/`)) return false;
   if (pathname.startsWith("/markets/") && pathname !== "/markets") return true;
   if (pathname === "/markets") return !liveTapeQueryOn(searchParams);
   if (pathname === ROUTES.discover || pathname.startsWith(`${ROUTES.discover}/`)) return true;
@@ -140,6 +146,11 @@ export function isLeaderboardActive(pathname: string | null): boolean {
   return pathname === ROUTES.leaderboard || pathname.startsWith(`${ROUTES.leaderboard}/`);
 }
 
+export function isPortfolioActive(pathname: string | null): boolean {
+  if (!pathname) return false;
+  return pathname === ROUTES.portfolio || pathname.startsWith(`${ROUTES.portfolio}/`);
+}
+
 export function resolvePrimaryNavActive(
   pathname: string | null,
   item: Pick<
@@ -154,6 +165,7 @@ export function resolvePrimaryNavActive(
     | "narrativeWarsAnchor"
     | "communityAnchor"
     | "leaderboardAnchor"
+    | "portfolioAnchor"
   >,
   searchParams?: Pick<URLSearchParams, "get"> | null,
 ): boolean {
@@ -162,6 +174,7 @@ export function resolvePrimaryNavActive(
   if (item.narrativeWarsAnchor) return isNarrativeWarsActive(pathname);
   if (item.communityAnchor) return isCommunityMarketsActive(pathname);
   if (item.leaderboardAnchor) return isLeaderboardActive(pathname);
+  if (item.portfolioAnchor) return isPortfolioActive(pathname);
   if (item.hubHome) return isHubHomeActive(pathname) && !isAttentionAnchorActive(pathname);
   if (item.trendingTape) return isTrendingTapeActive(pathname, searchParams);
   if (item.marketsBrowse) return isMarketsBrowseActive(pathname, searchParams);
@@ -181,9 +194,61 @@ export function isPathActive(
 }
 
 /**
+ * Frozen top-nav primary links (exact order). Used by AppTopbar + mobile drawer.
+ */
+export const TOP_NAV_ITEMS: readonly NavItem[] = [
+  {
+    href: ROUTES.marketsBrowse,
+    label: "Markets",
+    icon: LayoutGrid,
+    marketsBrowse: true,
+    shortcut: "g m",
+  },
+  {
+    href: ROUTES.NARRATIVES,
+    label: "Narratives",
+    icon: Brain,
+    attentionAnchor: true,
+    shortcut: "g n",
+  },
+  {
+    href: ROUTES.WARS,
+    label: "Wars",
+    icon: Swords,
+    narrativeWarsAnchor: true,
+    shortcut: "g w",
+  },
+  {
+    href: ROUTES.COMMUNITY,
+    label: "Community",
+    icon: Users,
+    communityAnchor: true,
+    shortcut: "g c",
+  },
+  {
+    href: ROUTES.LEADERBOARD,
+    label: "Leaderboard",
+    icon: Trophy,
+    leaderboardAnchor: true,
+    shortcut: "g l",
+  },
+  {
+    href: ROUTES.portfolio,
+    label: "Portfolio",
+    icon: Briefcase,
+    portfolioAnchor: true,
+    shortcut: "g p",
+  },
+] as const;
+
+/**
  * Primary destinations for `g` chord shortcuts + mobile dock.
  */
 export const NAV_GROUPS: readonly NavGroup[] = [
+  {
+    id: "primary",
+    items: [...TOP_NAV_ITEMS],
+  },
   {
     id: "rail",
     items: [
@@ -195,63 +260,11 @@ export const NAV_GROUPS: readonly NavGroup[] = [
         shortcut: "g h",
       },
       {
-        href: ROUTES.marketsBrowse,
-        label: "Market",
-        icon: LayoutGrid,
-        marketsBrowse: true,
-        shortcut: "g m",
-      },
-      {
-        href: ROUTES.attention,
-        label: "Attention",
-        icon: Brain,
-        attentionAnchor: true,
-        shortcut: "g a",
-      },
-      {
         href: ROUTES.analytics,
         label: "Analytics",
         icon: LineChart,
         analyticsAnchor: true,
         shortcut: "g y",
-      },
-      {
-        href: ROUTES.portfolio,
-        label: "Portfolio",
-        icon: Briefcase,
-        shortcut: "g p",
-      },
-    ],
-  },
-  {
-    id: "discover",
-    label: "Discover",
-    items: [
-      {
-        href: ROUTES.narrativeWars,
-        label: "Narrative Wars",
-        icon: Swords,
-        narrativeWarsAnchor: true,
-        shortcut: "g w",
-      },
-      {
-        href: ROUTES.leaderboard,
-        label: "Leaderboard",
-        icon: Trophy,
-        leaderboardAnchor: true,
-        shortcut: "g l",
-      },
-    ],
-  },
-  {
-    id: "markets",
-    label: "Markets",
-    items: [
-      {
-        href: ROUTES.marketsCommunity,
-        label: "Community",
-        icon: Users,
-        communityAnchor: true,
       },
     ],
   },
@@ -287,6 +300,7 @@ export const MOBILE_DOCK_ITEMS: readonly NavItem[] = [
     href: ROUTES.portfolio,
     label: "Portfolio",
     icon: Briefcase,
+    portfolioAnchor: true,
   },
   {
     href: ROUTES.profile,

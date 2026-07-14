@@ -12,6 +12,8 @@ export type AttentionDashboardItem = {
   uniqueTraders: number;
   liquidity: number;
   openInterest: number;
+  /** Prior attention score (~24h) — used for momentum % delta. */
+  scorePrev24h: number;
   lastUpdated: string;
   _isMock?: true;
 };

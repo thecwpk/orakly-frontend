@@ -26,9 +26,15 @@ export type HubHomeBundle = {
 
 export const EMPTY_HUB_HOME_BUNDLE: HubHomeBundle = {
   stats: {
-    activeNarratives: 0,
-    liveMarkets: 0,
+    attentionIndex: 0,
+    sentiment: "Bearish",
+    currentMeta: "—",
+    topChain: "BNB",
     volume24hUsd: 0,
+    openInterest: 0,
+    liveMarkets: 0,
+    activeTraders: 0,
+    activeNarratives: 0,
     attentionUpdates24h: 0,
   },
   attention: [],

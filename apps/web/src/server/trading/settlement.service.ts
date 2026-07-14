@@ -7,6 +7,10 @@ import {
 } from "@prisma/client";
 import { prisma } from "@orakly/database";
 import {
+  createRewardNotification,
+  createSettlementNotification,
+} from "../notifications/create-notification";
+import {
   BPS_DENOMINATOR,
   D0,
   D1,
@@ -95,6 +99,12 @@ export async function resolveMarket(
         D0,
       );
 
+      const winnerPayouts: Array<{
+        userId: string;
+        walletAddress: string | null;
+        amount: number;
+      }> = [];
+
       await tx.market.update({
         where: { id: input.marketId },
         data: {
@@ -166,6 +176,12 @@ export async function resolveMarket(
               },
             },
           });
+
+          winnerPayouts.push({
+            userId: uid,
+            walletAddress: pos.portfolio.user.walletAddress,
+            amount: Number(payout.toFixed(8)),
+          });
         }
       } else {
         platformCreditUsd = pool;
@@ -216,6 +232,32 @@ export async function resolveMarket(
           },
         },
       });
+
+      for (const winner of winnerPayouts) {
+        await createSettlementNotification({
+          db: tx,
+          userId: winner.userId,
+          walletAddress: winner.walletAddress,
+          marketId: input.marketId,
+          marketTitle: market.title,
+          marketSlug: market.slug,
+          amountBnb: winner.amount,
+        });
+      }
+
+      const creatorRewardPct = market.creatorRewardPercent ?? 0;
+      const creatorFees =
+        (Number(market.volumeTotalUsd) * creatorRewardPct) / 100;
+      if (market.creatorAddress && creatorFees > 0) {
+        await createRewardNotification({
+          db: tx,
+          walletAddress: market.creatorAddress,
+          marketId: input.marketId,
+          marketTitle: market.title,
+          marketSlug: market.slug,
+          amountBnb: Number(creatorFees.toFixed(8)),
+        });
+      }
 
       return {
         marketId: input.marketId,

@@ -12,12 +12,27 @@ function slugify(raw: string): string {
     .slice(0, 160);
 }
 
+/** Admin create form category → DB category slug */
+export const ADMIN_MARKET_CATEGORY_SLUGS: Record<string, string> = {
+  meme: "meme-coins",
+  defi: "crypto",
+  layer1: "ecosystems",
+  layer2: "ecosystems",
+  ai: "tech",
+  other: "crypto-narratives",
+};
+
 export type AdminCreateMarketInput = {
   title: string;
   slug: string;
   description?: string | null;
   categoryId?: string | null;
+  /** Form category key (meme | defi | …) stored in generationMeta for display */
+  adminCategory?: string | null;
   narrative?: string | null;
+  resolutionSource?: string | null;
+  creatorRewardPercent?: number;
+  minimumBetBnb?: number;
   creatorId?: string | null;
   opensAt?: Date | null;
   closesAt: Date;
@@ -28,6 +43,22 @@ export type AdminCreateMarketInput = {
   onChainAddress?: string | null;
   chainId?: number | null;
 };
+
+async function resolveCategoryIdForAdminKey(
+  adminCategory: string | null | undefined,
+  explicitCategoryId: string | null | undefined,
+): Promise<string | null> {
+  if (explicitCategoryId) return explicitCategoryId;
+  const key = adminCategory?.trim().toLowerCase();
+  if (!key) return null;
+  const slug = ADMIN_MARKET_CATEGORY_SLUGS[key];
+  if (!slug) return null;
+  const row = await prisma.category.findUnique({
+    where: { slug },
+    select: { id: true },
+  });
+  return row?.id ?? null;
+}
 
 export async function adminCreateMarket(input: AdminCreateMarketInput) {
   const slug = slugify(input.slug);
@@ -45,14 +76,35 @@ export async function adminCreateMarket(input: AdminCreateMarketInput) {
       ? clampPrice(toDec(input.initialProbability))
       : new Prisma.Decimal("0.5");
 
+  const categoryId = await resolveCategoryIdForAdminKey(
+    input.adminCategory,
+    input.categoryId,
+  );
+
+  const generationMeta =
+    input.adminCategory || input.minimumBetBnb != null
+      ? {
+          ...(input.adminCategory ? { adminCategory: input.adminCategory } : {}),
+          ...(input.minimumBetBnb != null
+            ? { minimumBetBnb: input.minimumBetBnb }
+            : {}),
+        }
+      : undefined;
+
   const market = await prisma.market.create({
     data: {
       title: input.title.trim(),
       slug,
       description: input.description?.trim() || null,
-      categoryId: input.categoryId ?? null,
+      categoryId,
+      narrative: input.narrative?.trim() || null,
+      resolutionSource: input.resolutionSource?.trim() || null,
+      creatorRewardPercent: input.creatorRewardPercent ?? 0,
       creatorId: input.creatorId ?? null,
-      status: input.status ?? MarketStatus.DRAFT,
+      status:
+        input.onChainAddress
+          ? (input.status ?? MarketStatus.OPEN)
+          : MarketStatus.DRAFT,
       opensAt: input.opensAt ?? new Date(),
       closesAt: input.closesAt,
       yesPrice: mid,
@@ -64,6 +116,7 @@ export async function adminCreateMarket(input: AdminCreateMarketInput) {
       collateralPoolUsd: toDec(0),
       onChainAddress: input.onChainAddress?.toLowerCase() ?? null,
       chainId: input.chainId ?? null,
+      ...(generationMeta ? { generationMeta } : {}),
     },
   });
 

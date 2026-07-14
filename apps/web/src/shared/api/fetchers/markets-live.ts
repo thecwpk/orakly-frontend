@@ -4,6 +4,11 @@ import type {
   NarrativeTradeSide,
   UiTradeDirection,
 } from "@/shared/trading/narrative-trade-side";
+import type {
+  MarketDetailDto,
+  MarketOddsChartPoint,
+  MarketOddsPeriod,
+} from "@/shared/contracts/market-detail";
 import { unwrapApiResult } from "../unwrap";
 
 export type MarketOddsDto = {
@@ -45,9 +50,9 @@ export type MarketOddsHistoryPointDto = {
   recordedAt: string;
 };
 
-export async function fetchMarketBySlug(slug: string): Promise<Market> {
+export async function fetchMarketBySlug(slug: string): Promise<MarketDetailDto> {
   const enc = encodeURIComponent(slug);
-  const res = await apiClient.request<Market>(`/api/v1/markets/by-slug/${enc}`);
+  const res = await apiClient.request<MarketDetailDto>(`/api/v1/markets/by-slug/${enc}`);
   return unwrapApiResult(res);
 }
 
@@ -64,6 +69,16 @@ export async function fetchMarketVolumeWindowBySlug(
 export async function fetchMarketOdds(marketId: string): Promise<MarketOddsDto> {
   const res = await apiClient.request<MarketOddsDto>(
     `/api/v1/markets/${marketId}/odds`,
+  );
+  return unwrapApiResult(res);
+}
+
+export async function fetchMarketOddsChart(
+  marketId: string,
+  period: MarketOddsPeriod,
+): Promise<MarketOddsChartPoint[]> {
+  const res = await apiClient.request<MarketOddsChartPoint[]>(
+    `/api/v1/markets/${marketId}/odds?period=${encodeURIComponent(period)}`,
   );
   return unwrapApiResult(res);
 }
@@ -109,3 +124,5 @@ export async function fetchMarketQuote(
   );
   return unwrapApiResult(res);
 }
+
+export type { Market };

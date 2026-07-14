@@ -365,9 +365,18 @@ function MarketCardImpl({
             : isFeatured
               ? "p-3 sm:p-3.5"
               : "p-2.5",
+        !hideWatchlist && "pr-9",
         className,
       )}
     >
+      {!hideWatchlist ? (
+        <WatchlistStar
+          id={market.id}
+          size="xs"
+          absolute
+          className="shadow-sm"
+        />
+      ) : null}
       {/* Layered depth: top sheen */}
       <div
         aria-hidden
@@ -514,7 +523,6 @@ function MarketCardImpl({
                   </>
                 ) : null}
               </div>
-              {!hideWatchlist ? <WatchlistStar slug={market.slug} size="xs" /> : null}
             </div>
           </div>
         ) : (
@@ -547,7 +555,7 @@ function MarketCardImpl({
                 ) : null}
               </div>
 
-              <div className="flex shrink-0 items-start gap-1.5 pl-1">
+              <div className="flex shrink-0 items-start gap-1.5 pl-1 pr-8">
                 <div className="rounded-md bg-[var(--hub-bg-subtle)] py-0.5 pl-1 pr-0.5 ring-1 ring-[var(--hub-border)]">
                   <Sparkline
                     data={sparkData}
@@ -560,7 +568,6 @@ function MarketCardImpl({
                     ariaLabel={`Probability sparkline for ${market.title}`}
                   />
                 </div>
-                {!hideWatchlist ? <WatchlistStar slug={market.slug} size="xs" /> : null}
               </div>
             </header>
 

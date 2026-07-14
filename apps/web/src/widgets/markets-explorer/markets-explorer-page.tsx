@@ -1,429 +1,765 @@
 "use client";
 
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { Activity, Loader2, Plus, RefreshCw } from "lucide-react";
+import { formatCompactUsd } from "@orakly/utils";
+import { useQuery } from "@tanstack/react-query";
+import { Search } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useMemo, useRef } from "react";
-import { useQueryClient } from "@tanstack/react-query";
-import { MARKET_CATEGORIES } from "@/features/markets/lib/categories";
-import { useMarketsFilterStore } from "@/features/markets/store/use-markets-filter-store";
-import { useExplorerMarketsFeedQuery } from "@/shared/api/hooks/useExplorerMarketsFeedQuery";
-import { useMarketsFeedScopedQuery } from "@/shared/api/hooks";
-import { invalidateMarketsFeed } from "@/shared/api/invalidate";
-import { appStickyToolbarBleedStyle } from "@/shared/constants/page-layout";
-import { ROUTES } from "@/shared/constants/routes";
-import { useInfiniteScroll, usePagedSlice } from "@/shared/hooks/use-infinite-scroll";
-import { Container, Section, Stack } from "@/shared/ui";
-import { useLiveMarketStatus } from "@/widgets/trending-prediction-markets/lib/use-live-market-status";
+import { useRouter, useSearchParams } from "next/navigation";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  type KeyboardEvent,
+  type MouseEvent,
+} from "react";
+import { useOpenTradeModal } from "@/features/trading";
+import { WatchlistStar } from "@/features/watchlist";
 import { cn } from "@/lib/utils";
-import { MarketsCategoryRail } from "./components/markets-category-rail";
-import { MarketsExplorerDiscoveryStrip } from "./components/markets-explorer-discovery-strip";
-import { MarketsExplorerGrid, MarketsExplorerGridSkeleton } from "./components/markets-explorer-grid";
-import { MarketsExplorerSidebar } from "./components/markets-explorer-sidebar";
-import { MarketsHotNarrativesRail } from "./components/markets-hot-narratives-rail";
-import { MarketsListRow } from "./components/markets-list-row";
-import { MarketsListSkeleton } from "./components/markets-list-skeleton";
-import { MarketsToolbar } from "./components/markets-toolbar";
-import { filterMarkets, sortMarkets } from "./lib/filter-and-sort";
-import { useUrlFiltersSync } from "./lib/use-url-filters-sync";
+import { fetchAttentionDashboard } from "@/shared/api/fetchers/attention-dashboard";
+import { fetchMarketsExplorer } from "@/shared/api/fetchers/markets-explorer";
+import { queryKeys } from "@/shared/api/query-keys";
+import { ROUTES } from "@/shared/constants/routes";
+import type {
+  MarketsExplorerRowDto,
+  MarketsExplorerSort,
+} from "@/shared/contracts/markets-explorer";
+import { marketToTradeModal } from "@/widgets/dapp-hub/lib/open-hub-trade";
 
-const PAGE_SIZE = 30;
+const PAGE_SIZE = 20;
+const DEBOUNCE_MS = 400;
 
-export function MarketsExplorerPage() {
-  useUrlFiltersSync();
-  const reduceMotion = useReducedMotion();
+const CATEGORIES = [
+  { value: "", label: "All Categories" },
+  { value: "Meme", label: "Meme" },
+  { value: "DeFi", label: "DeFi" },
+  { value: "Layer1", label: "Layer1" },
+  { value: "Layer2", label: "Layer2" },
+  { value: "AI", label: "AI" },
+  { value: "Other", label: "Other" },
+] as const;
 
-  const qc = useQueryClient();
-  const explorerFeed = useMarketsFilterStore((s) => s.explorerFeed);
-  const directoryQ = useExplorerMarketsFeedQuery(explorerFeed !== "cross_hot");
-  const crossHotQ = useMarketsFeedScopedQuery({
-    scope: "full",
-    lane: "list",
-    filter: "cross_hot",
-    take: 120,
-    enabled: explorerFeed === "cross_hot",
-  });
+const STATUSES = [
+  { value: "", label: "All" },
+  { value: "OPEN", label: "Open" },
+  { value: "RESOLVED", label: "Resolved" },
+  { value: "PENDING", label: "Pending" },
+  { value: "PAUSED", label: "Paused" },
+] as const;
 
-  const activeFeed = explorerFeed === "cross_hot" ? crossHotQ : directoryQ;
-  const { data, isPending, isFetching, isError, refetch, dataUpdatedAt } = activeFeed;
-  const feedLoading = isPending && !data;
+const SORTS: { id: MarketsExplorerSort; label: string }[] = [
+  { id: "trending", label: "Trending" },
+  { id: "volume", label: "Highest Volume" },
+  { id: "newest", label: "Newest" },
+  { id: "ending", label: "Ending Soon" },
+  { id: "discussed", label: "Most Discussed" },
+];
 
-  const search = useMarketsFilterStore((s) => s.searchTerm);
-  const category = useMarketsFilterStore((s) => s.category);
-  const sort = useMarketsFilterStore((s) => s.sort);
-  const trendingOnly = useMarketsFilterStore((s) => s.trendingOnly);
-  const minLiquidityUsd = useMarketsFilterStore((s) => s.minLiquidityUsd);
-  const minVolumeUsd = useMarketsFilterStore((s) => s.minVolumeUsd);
-  const viewMode = useMarketsFilterStore((s) => s.viewMode);
-  const reset = useMarketsFilterStore((s) => s.reset);
-  const setExplorerFeed = useMarketsFilterStore((s) => s.setExplorerFeed);
-
-  const all = useMemo(() => data ?? [], [data]);
-
-  const allIds = useMemo(() => all.map((m) => m.id), [all]);
-  const { liveSet } = useLiveMarketStatus(allIds);
-
-  const hotNarratives = useMemo(() => {
-    return [...all]
-      .filter((m) => m.status === "OPEN")
-      .sort((a, b) => (b.volumeUsd ?? 0) - (a.volumeUsd ?? 0))
-      .slice(0, 14);
-  }, [all]);
-
-  const filterBase = useMemo(
-    () =>
-      ({
-        searchTerm: search,
-        minLiquidityUsd,
-        minVolumeUsd,
-      }) as const,
-    [search, minLiquidityUsd, minVolumeUsd],
-  );
-
-  // ── Per-category counts respect search + trending toggle so the rail
-  // ── reflects the dataset the user is currently zoomed into.
-  const counts = useMemo(() => {
-    const next: Record<string, number> = {};
-    for (const cat of MARKET_CATEGORIES) {
-      next[cat.slug] = filterMarkets(all, {
-        ...filterBase,
-        category: cat.slug,
-      }).length;
-    }
-    return next;
-  }, [all, filterBase]);
-
-  const totalForAll = useMemo(
-    () =>
-      filterMarkets(all, {
-        ...filterBase,
-        category: "all",
-      }).length,
-    [all, filterBase],
-  );
-
-  const ranked = useMemo(() => {
-    const filtered = filterMarkets(all, {
-      ...filterBase,
-      category,
-    });
-    return sortMarkets(filtered, sort, {
-      preferLive: trendingOnly,
-      liveSet,
-    });
-  }, [all, filterBase, category, sort, trendingOnly, liveSet]);
-
-  const sidebarMovers = useMemo(() => {
-    return [...ranked]
-      .filter((m) => m.status === "OPEN")
-      .sort((a, b) => (b.volumeUsd ?? 0) - (a.volumeUsd ?? 0))
-      .slice(0, 8);
-  }, [ranked]);
-
-  // ── Infinite scroll slicing.
-  const { visible, hasMore, loadMore } = usePagedSlice(ranked, PAGE_SIZE);
-
-  const { sentinelRef } = useInfiniteScroll<HTMLDivElement>({
-    hasMore,
-    onLoadMore: loadMore,
-    disabled: feedLoading,
-  });
-
-  // Scroll to top when filters change — skip the first hydration pass from URL/store.
-  const skipScrollRef = useRef(true);
-  useEffect(() => {
-    if (skipScrollRef.current) {
-      skipScrollRef.current = false;
-      return;
-    }
-    if (typeof window !== "undefined") {
-      window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
-    }
-  }, [search, category, sort, trendingOnly, minLiquidityUsd, minVolumeUsd, explorerFeed]);
-
-  const updatedAtLabel = useMemo(() => {
-    if (!dataUpdatedAt) return null;
-    const ms = Date.now() - dataUpdatedAt;
-    if (ms < 1000) return "now";
-    if (ms < 60_000) return `${Math.floor(ms / 1000)}s ago`;
-    return `${Math.floor(ms / 60_000)}m ago`;
-  }, [dataUpdatedAt]);
-
-  const onRefresh = () => invalidateMarketsFeed(qc);
-
-  const liveCount = useMemo(
-    () => visible.filter((m) => liveSet.has(m.id)).length,
-    [visible, liveSet],
-  );
-
-  const rankedLiveCount = useMemo(
-    () => ranked.filter((m) => liveSet.has(m.id)).length,
-    [ranked, liveSet],
-  );
-
-  const empty = !feedLoading && !isError && ranked.length === 0;
-  const showingCount = visible.length;
-  const totalCount = ranked.length;
-
-  const gridAnimKey = `${explorerFeed}|${search}|${category}|${sort}|${trendingOnly}|${minLiquidityUsd}|${minVolumeUsd}|${viewMode}`;
-
-  return (
-    <Section spacing="tight" width="2xl">
-      <Stack gap="lg">
-        {/* ──────────────────────────────── header */}
-        <header className="flex flex-col gap-r16 border-b border-[var(--hub-border)] pb-r16 lg:flex-row lg:items-center lg:justify-between">
-          <div className="min-w-0">
-            <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-              <h1 className="text-balance text-lg font-semibold tracking-tight text-[var(--hub-fg)] sm:text-xl">
-                Market
-              </h1>
-              {updatedAtLabel ? (
-                <span className="font-mono text-[10px] text-[var(--hub-muted)]">
-                  feed · updated {updatedAtLabel}
-                </span>
-              ) : (
-                <span className="font-mono text-[10px] text-[var(--hub-muted)]/80">live explorer</span>
-              )}
-            </div>
-          </div>
-
-          <div className="flex shrink-0 items-center gap-r16">
-            <button
-              type="button"
-              onClick={onRefresh}
-              disabled={isFetching}
-              aria-label="Refresh markets"
-              className={cn(
-                "inline-flex h-8 w-8 items-center justify-center rounded-md bg-[var(--hub-bg-subtle)] text-[var(--hub-muted)] ring-1 ring-[var(--hub-border)] transition",
-                "hover:bg-[var(--hub-primary-soft)] hover:text-[var(--hub-fg)]",
-                "disabled:cursor-not-allowed disabled:opacity-60",
-              )}
-            >
-              <RefreshCw
-                className={cn("h-3.5 w-3.5", isFetching && "animate-spin")}
-              />
-            </button>
-            <Link
-              href={ROUTES.marketCreate}
-              className="inline-flex h-9 items-center gap-1 rounded-lg bg-[var(--hub-primary-soft)] px-3 text-[11.5px] font-semibold text-[var(--hub-fg)] ring-1 ring-[var(--hub-border-strong)] transition hover:bg-[var(--hub-primary)]/25"
-            >
-              <Plus className="h-3.5 w-3.5" />
-              Create market
-            </Link>
-          </div>
-        </header>
-
-        {explorerFeed === "cross_hot" ?
-          <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-[var(--hub-border-strong)] bg-[var(--hub-primary-soft)] px-4 py-3 text-[12px] text-[var(--hub-fg)]">
-            <span>
-              Showing <strong className="font-semibold">cross-hot</strong> — crypto-linked momentum from the
-              server-ranked feed. Category and search still refine this slice.
-            </span>
-            <button
-              type="button"
-              className="shrink-0 rounded-md bg-[var(--hub-card)] px-3 py-1.5 text-[11px] font-semibold ring-1 ring-[var(--hub-border)] transition hover:bg-[var(--hub-card-hover)]"
-              onClick={() => setExplorerFeed(null)}
-            >
-              Full directory
-            </button>
-          </div>
-        : null}
-
-        <div className="xl:hidden">
-          <MarketsHotNarrativesRail markets={hotNarratives} />
-        </div>
-
-        <div className="flex flex-col gap-r24 xl:flex-row xl:items-start xl:gap-r24">
-          <div className="flex min-w-0 flex-1 flex-col gap-r16">
-            {/* ──────────────────────────────── sticky toolbar + sentiment */}
-            <div
-              style={appStickyToolbarBleedStyle}
-              className={cn(
-                "sticky top-[var(--app-topbar-h)] z-30 border-b border-[var(--hub-border)] bg-[var(--hub-chrome)]/95 backdrop-blur-md supports-[backdrop-filter]:backdrop-blur-xl",
-              )}
-            >
-              <Stack gap="xs" className="py-r16">
-                <MarketsToolbar
-                  totalCount={totalCount}
-                  visibleCount={showingCount}
-                  liveCount={liveCount}
-                  isLoading={feedLoading}
-                />
-                <MarketsCategoryRail counts={counts} total={totalForAll} isLoading={feedLoading} />
-                <MarketsExplorerDiscoveryStrip
-                  lensMarkets={ranked}
-                  totalLoaded={all.length}
-                  liveCount={rankedLiveCount}
-                  updatedLabel={updatedAtLabel}
-                  isFetching={isFetching}
-                  isLoading={feedLoading}
-                />
-              </Stack>
-            </div>
-
-            {/* ──────────────────────────────── content */}
-            {isError ? (
-              <ErrorPanel onRetry={() => void refetch()} />
-            ) : feedLoading ? (
-              viewMode === "grid" ? (
-                <MarketsExplorerGridSkeleton count={12} />
-              ) : (
-                <MarketsListSkeleton count={10} />
-              )
-            ) : empty ? (
-              <EmptyState
-                onClear={reset}
-                hasFilters={
-                  search.length > 0 ||
-                  category !== "all" ||
-                  trendingOnly ||
-                  minLiquidityUsd > 0 ||
-                  minVolumeUsd > 0 ||
-                  Boolean(explorerFeed)
-                }
-              />
-            ) : viewMode === "grid" ? (
-              <motion.div
-                key={gridAnimKey}
-                initial={reduceMotion ? false : { opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={reduceMotion ? { duration: 0 } : { duration: 0.2 }}
-              >
-                <MarketsExplorerGrid markets={visible} />
-              </motion.div>
-            ) : (
-              <ListContainer>
-                <AnimatePresence initial={false}>
-                  {visible.map((m, i) => (
-                    <MarketsListRow
-                      key={m.id}
-                      market={m}
-                      rank={i + 1}
-                      isLive={liveSet.has(m.id)}
-                    />
-                  ))}
-                </AnimatePresence>
-              </ListContainer>
-            )}
-
-            {/* sentinel + load more affordance */}
-            {!isError && !feedLoading && !empty ? (
-              <div className="flex flex-col items-center gap-r8 pb-r8 pt-r8">
-                {hasMore ? (
-                  <>
-                    <button
-                      type="button"
-                      onClick={() => loadMore()}
-                      className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--hub-bg-subtle)] px-3 py-1.5 text-[12px] font-medium text-[var(--hub-fg)] ring-1 ring-[var(--hub-border)] transition hover:bg-[var(--hub-primary-soft)]"
-                    >
-                      <Loader2 className="h-3.5 w-3.5 opacity-70" />
-                      Load more · {totalCount - showingCount} remaining
-                    </button>
-                    {/* Auto-loading sentinel — when this scrolls into view, the next page fires. */}
-                    <div ref={sentinelRef} aria-hidden className="h-1 w-full" />
-                  </>
-                ) : (
-                  <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-[var(--hub-muted)]">
-                    — End of list ·{" "}
-                    <span className="text-[var(--hub-fg)]">{totalCount}</span> markets —
-                  </p>
-                )}
-              </div>
-            ) : null}
-          </div>
-
-          <MarketsExplorerSidebar
-            marketsIndex={all}
-            narrativeHot={hotNarratives.slice(0, 10)}
-            movers={sidebarMovers}
-          />
-        </div>
-      </Stack>
-    </Section>
-  );
+function shortenAddress(addr: string): string {
+  if (addr.length < 12) return addr;
+  return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
 }
 
-// ──────────────────────────────────────────────────────────────────────────
-// helpers
+function truncate(text: string, max = 60): string {
+  const t = text.trim();
+  if (t.length <= max) return t;
+  return `${t.slice(0, max - 1)}…`;
+}
 
-function ListContainer({ children }: { children: React.ReactNode }) {
+function narrativeSlug(name: string): string {
+  return name
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+}
+
+function formatEndsAt(iso: string | null | undefined): {
+  label: string;
+  expired: boolean;
+} {
+  if (!iso) return { label: "—", expired: false };
+  const ms = new Date(iso).getTime() - Date.now();
+  if (!Number.isFinite(ms) || ms <= 0) {
+    return { label: "Expired", expired: true };
+  }
+  const totalMin = Math.floor(ms / 60_000);
+  const days = Math.floor(totalMin / (60 * 24));
+  const hours = Math.floor((totalMin % (60 * 24)) / 60);
+  if (days > 0) return { label: `${days}d ${hours}h`, expired: false };
+  const mins = totalMin % 60;
+  if (hours > 0) return { label: `${hours}h ${mins}m`, expired: false };
+  return { label: `${Math.max(1, mins)}m`, expired: false };
+}
+
+type FilterState = {
+  q: string;
+  category: string;
+  status: string;
+  narrative: string;
+  creator: string;
+  dateFrom: string;
+  dateTo: string;
+  minVolume: string;
+  maxVolume: string;
+  minProbability: string;
+  maxProbability: string;
+  sort: MarketsExplorerSort;
+  page: number;
+};
+
+function filtersFromSearchParams(sp: URLSearchParams): FilterState {
+  const sortRaw = sp.get("sort")?.trim() ?? "trending";
+  const sort = (
+    SORTS.some((s) => s.id === sortRaw) ? sortRaw : "trending"
+  ) as MarketsExplorerSort;
+  const pageRaw = Number.parseInt(sp.get("page") ?? "1", 10);
+  return {
+    q: sp.get("q") ?? "",
+    category: sp.get("category") ?? "",
+    status: sp.get("status") ?? "",
+    narrative: sp.get("narrative") ?? "",
+    creator: sp.get("creator") ?? "",
+    dateFrom: sp.get("dateFrom") ?? "",
+    dateTo: sp.get("dateTo") ?? "",
+    minVolume: sp.get("minVolume") ?? "",
+    maxVolume: sp.get("maxVolume") ?? "",
+    minProbability: sp.get("minProbability") ?? "0",
+    maxProbability: sp.get("maxProbability") ?? "100",
+    sort,
+    page: Number.isFinite(pageRaw) && pageRaw > 0 ? pageRaw : 1,
+  };
+}
+
+function buildQueryString(f: FilterState): string {
+  const sp = new URLSearchParams();
+  sp.set("page", String(f.page));
+  sp.set("limit", String(PAGE_SIZE));
+  sp.set("sort", f.sort);
+  if (f.q.trim()) sp.set("q", f.q.trim());
+  if (f.category) sp.set("category", f.category);
+  if (f.status) sp.set("status", f.status);
+  if (f.narrative) sp.set("narrative", f.narrative);
+  if (f.creator.trim()) sp.set("creator", f.creator.trim());
+  if (f.dateFrom) sp.set("dateFrom", f.dateFrom);
+  if (f.dateTo) sp.set("dateTo", f.dateTo);
+  if (f.minVolume !== "") sp.set("minVolume", f.minVolume);
+  if (f.maxVolume !== "") sp.set("maxVolume", f.maxVolume);
+  const minP = f.minProbability === "" ? "0" : f.minProbability;
+  const maxP = f.maxProbability === "" ? "100" : f.maxProbability;
+  if (minP !== "0") sp.set("minProbability", minP);
+  if (maxP !== "100") sp.set("maxProbability", maxP);
+  return sp.toString();
+}
+
+function defaultFilters(): FilterState {
+  return {
+    q: "",
+    category: "",
+    status: "",
+    narrative: "",
+    creator: "",
+    dateFrom: "",
+    dateTo: "",
+    minVolume: "",
+    maxVolume: "",
+    minProbability: "0",
+    maxProbability: "100",
+    sort: "trending",
+    page: 1,
+  };
+}
+
+function Pagination({
+  page,
+  totalPages,
+  onPage,
+}: {
+  page: number;
+  totalPages: number;
+  onPage: (p: number) => void;
+}) {
+  const pages = useMemo(() => {
+    const out: (number | "…")[] = [];
+    if (totalPages <= 7) {
+      for (let i = 1; i <= totalPages; i++) out.push(i);
+      return out;
+    }
+    out.push(1);
+    if (page > 3) out.push("…");
+    const start = Math.max(2, page - 1);
+    const end = Math.min(totalPages - 1, page + 1);
+    for (let i = start; i <= end; i++) out.push(i);
+    if (page < totalPages - 2) out.push("…");
+    out.push(totalPages);
+    return out;
+  }, [page, totalPages]);
+
   return (
-    <div className="overflow-hidden rounded-lg border border-[var(--hub-border)] bg-[var(--hub-bg-subtle)]">
-      <div className="overflow-x-auto">
-        <div className="min-w-[880px]">
-          <div className="grid items-center gap-r8 border-b border-[var(--hub-border)] px-r8 py-r16 text-[9px] font-semibold uppercase tracking-[0.16em] text-[var(--hub-muted)] [grid-template-columns:34px_minmax(0,1fr)_minmax(0,11rem)_5.5rem_5rem_4.5rem_2.25rem_5rem]">
-            <span>#</span>
-            <span>Market</span>
-            <span>Probability</span>
-            <span>7d</span>
-            <span className="text-right">Vol</span>
-            <span className="hidden text-right md:block">Liq</span>
-            <span />
-            <span className="text-right">Closes</span>
-          </div>
-          {children}
-        </div>
-      </div>
+    <div className="flex flex-wrap items-center justify-center gap-1.5">
+      <button
+        type="button"
+        disabled={page <= 1}
+        onClick={() => onPage(page - 1)}
+        className="rounded-lg px-3 py-1.5 text-[13px] font-medium text-zinc-300 ring-1 ring-white/10 transition enabled:hover:bg-white/[0.06] disabled:opacity-40"
+      >
+        Previous
+      </button>
+      {pages.map((p, i) =>
+        p === "…" ? (
+          <span key={`e-${i}`} className="px-1 text-zinc-500">
+            …
+          </span>
+        ) : (
+          <button
+            key={p}
+            type="button"
+            onClick={() => onPage(p)}
+            className={cn(
+              "min-w-8 rounded-lg px-2.5 py-1.5 text-[13px] font-semibold transition",
+              p === page
+                ? "bg-blue-600 text-white"
+                : "text-zinc-300 ring-1 ring-white/10 hover:bg-white/[0.06]",
+            )}
+          >
+            {p}
+          </button>
+        ),
+      )}
+      <button
+        type="button"
+        disabled={page >= totalPages}
+        onClick={() => onPage(page + 1)}
+        className="rounded-lg px-3 py-1.5 text-[13px] font-medium text-zinc-300 ring-1 ring-white/10 transition enabled:hover:bg-white/[0.06] disabled:opacity-40"
+      >
+        Next
+      </button>
     </div>
   );
 }
 
-function ErrorPanel({ onRetry }: { onRetry: () => void }) {
+function MarketTableRow({ market }: { market: MarketsExplorerRowDto }) {
+  const router = useRouter();
+  const openTrade = useOpenTradeModal();
+  const yesPct = Math.round(Math.max(0, Math.min(1, market.probability)) * 100);
+  const ends = formatEndsAt(market.closesAt);
+  const deployed = Boolean(market.onChainAddress?.trim());
+  const href = ROUTES.market(market.slug);
+  const narrative = market.narrative?.trim() || null;
+  const creator = market.creatorAddress?.trim() || null;
+
+  function onRowClick() {
+    router.push(href);
+  }
+
+  function onRowKey(e: KeyboardEvent) {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      router.push(href);
+    }
+  }
+
+  function onTrade(e: MouseEvent) {
+    e.stopPropagation();
+    if (!deployed) return;
+    openTrade(marketToTradeModal(market));
+  }
+
   return (
-    <Container width="md">
-      <div className="flex flex-col items-center gap-r16 rounded-xl bg-rose-500/[0.06] px-r16 py-s48 text-center ring-1 ring-rose-400/20">
-        <Activity className="h-5 w-5 text-rose-300" />
-        <p className="text-[13px] font-medium text-[var(--hub-fg)]">
-          Couldn&apos;t load markets
-        </p>
-        <p className="max-w-sm text-[12px] text-[var(--hub-muted)]">
-          The feed might be temporarily unreachable. Retry now or check your
-          connection.
-        </p>
+    <tr
+      role="link"
+      tabIndex={0}
+      onClick={onRowClick}
+      onKeyDown={onRowKey}
+      className="cursor-pointer border-b border-white/[0.06] transition hover:bg-white/[0.04]"
+    >
+      <td className="max-w-[280px] px-3 py-3">
+        <Link
+          href={href}
+          onClick={(e) => e.stopPropagation()}
+          className="block text-[13px] font-medium text-zinc-100 hover:text-blue-300"
+        >
+          {truncate(market.title || market.slug, 60)}
+        </Link>
+        <span className="mt-1 inline-flex rounded-md bg-white/[0.06] px-1.5 py-0.5 text-[10px] font-medium text-zinc-400 ring-1 ring-white/[0.08]">
+          {market.category || "Other"}
+        </span>
+      </td>
+      <td className="px-3 py-3">
+        {narrative ? (
+          <Link
+            href={`/narratives/${encodeURIComponent(narrativeSlug(narrative))}`}
+            onClick={(e) => e.stopPropagation()}
+            className="inline-flex rounded-full bg-white/[0.06] px-2.5 py-0.5 text-[11px] font-medium text-zinc-300 ring-1 ring-white/10 hover:bg-white/[0.1]"
+          >
+            {narrative}
+          </Link>
+        ) : (
+          <span className="text-[13px] text-zinc-500">—</span>
+        )}
+      </td>
+      <td className="px-3 py-3">
+        <div className="flex items-center gap-2">
+          <span className="text-[13px] font-bold text-emerald-400">{yesPct}%</span>
+          <span className="h-1.5 w-[60px] overflow-hidden rounded-full bg-white/10">
+            <span
+              className="block h-full rounded-full bg-emerald-500"
+              style={{ width: `${yesPct}%` }}
+            />
+          </span>
+        </div>
+      </td>
+      <td className="px-3 py-3 font-mono text-[13px] tabular-nums text-zinc-200">
+        {formatCompactUsd(market.volumeUsd ?? 0)}
+      </td>
+      <td className="px-3 py-3 font-mono text-[13px] tabular-nums text-zinc-200">
+        {formatCompactUsd(market.liquidityUsd ?? 0)}
+      </td>
+      <td className="px-3 py-3 font-mono text-[13px] tabular-nums text-zinc-300">
+        {market.participants}
+      </td>
+      <td
+        className={cn(
+          "px-3 py-3 text-[13px] tabular-nums",
+          ends.expired ? "font-medium text-rose-400" : "text-zinc-300",
+        )}
+      >
+        {ends.label}
+      </td>
+      <td className="px-3 py-3">
+        {creator ? (
+          <Link
+            href={ROUTES.traderProfile(creator)}
+            onClick={(e) => e.stopPropagation()}
+            className="font-mono text-[12px] text-zinc-300 hover:text-blue-300"
+          >
+            {shortenAddress(creator)}
+          </Link>
+        ) : (
+          <span className="text-[13px] text-zinc-400">Admin</span>
+        )}
+      </td>
+      <td className="px-2 py-3">
+        <WatchlistStar id={market.id} size="xs" />
+      </td>
+      <td className="px-3 py-3">
         <button
           type="button"
-          onClick={onRetry}
-          className="hub-btn-secondary px-3 py-1.5 text-[12px]"
+          disabled={!deployed}
+          onClick={onTrade}
+          className={cn(
+            "rounded-lg px-3 py-1.5 text-[12px] font-semibold transition",
+            deployed
+              ? "bg-blue-600 text-white hover:bg-blue-500"
+              : "cursor-not-allowed bg-zinc-700/60 text-zinc-500",
+          )}
         >
-          Retry
+          Trade
         </button>
-      </div>
-    </Container>
+      </td>
+    </tr>
   );
 }
 
-function EmptyState({
-  hasFilters,
-  onClear,
-}: {
-  hasFilters: boolean;
-  onClear: () => void;
-}) {
+function SkeletonRows() {
   return (
-    <div className="flex flex-col items-center gap-r16 rounded-lg border border-[var(--hub-border)] bg-[var(--hub-bg-subtle)] px-r16 py-s56 text-center">
-      <p className="text-[12px] font-medium text-[var(--hub-fg)]">
-        No markets match filters.
-      </p>
-      <p className="max-w-md text-[11px] leading-snug text-[var(--hub-muted)]">
-        Clear search, category, live-first toggle, or liquidity/volume floors.
-      </p>
-      {hasFilters ? (
+    <>
+      {Array.from({ length: 10 }).map((_, i) => (
+        <tr key={i} className="border-b border-white/[0.06]">
+          {Array.from({ length: 10 }).map((__, j) => (
+            <td key={j} className="px-3 py-3">
+              <div className="h-4 animate-pulse rounded bg-zinc-800/80" />
+            </td>
+          ))}
+        </tr>
+      ))}
+    </>
+  );
+}
+
+export function MarketsExplorerPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const urlFilters = useMemo(
+    () => filtersFromSearchParams(searchParams),
+    [searchParams],
+  );
+
+  const [searchInput, setSearchInput] = useState(urlFilters.q);
+  const [creatorInput, setCreatorInput] = useState(urlFilters.creator);
+  const [local, setLocal] = useState<FilterState>(urlFilters);
+
+  useEffect(() => {
+    setSearchInput(urlFilters.q);
+    setCreatorInput(urlFilters.creator);
+    setLocal(urlFilters);
+  }, [urlFilters]);
+
+  const pushFilters = useCallback(
+    (next: FilterState) => {
+      const qs = buildQueryString(next);
+      router.replace(`/markets?${qs}`, { scroll: false });
+    },
+    [router],
+  );
+
+  useEffect(() => {
+    const handle = window.setTimeout(() => {
+      if (searchInput === urlFilters.q) return;
+      pushFilters({ ...urlFilters, q: searchInput, page: 1 });
+    }, DEBOUNCE_MS);
+    return () => window.clearTimeout(handle);
+  }, [searchInput, urlFilters, pushFilters]);
+
+  useEffect(() => {
+    const handle = window.setTimeout(() => {
+      if (creatorInput === urlFilters.creator) return;
+      pushFilters({ ...urlFilters, creator: creatorInput, page: 1 });
+    }, DEBOUNCE_MS);
+    return () => window.clearTimeout(handle);
+  }, [creatorInput, urlFilters, pushFilters]);
+
+  const patch = useCallback(
+    (partial: Partial<FilterState>) => {
+      const next = { ...urlFilters, ...partial, page: partial.page ?? 1 };
+      if (partial.page != null) next.page = partial.page;
+      setLocal(next);
+      pushFilters(next);
+    },
+    [urlFilters, pushFilters],
+  );
+
+  const resetFilters = useCallback(() => {
+    setSearchInput("");
+    setCreatorInput("");
+    const next = defaultFilters();
+    setLocal(next);
+    pushFilters(next);
+  }, [pushFilters]);
+
+  const queryParams = useMemo(
+    () => ({
+      q: urlFilters.q.trim() || undefined,
+      category: urlFilters.category || undefined,
+      status: urlFilters.status || undefined,
+      narrative: urlFilters.narrative || undefined,
+      creator: urlFilters.creator.trim() || undefined,
+      dateFrom: urlFilters.dateFrom || undefined,
+      dateTo: urlFilters.dateTo || undefined,
+      minVolume: urlFilters.minVolume !== "" ? Number(urlFilters.minVolume) : undefined,
+      maxVolume: urlFilters.maxVolume !== "" ? Number(urlFilters.maxVolume) : undefined,
+      minProbability:
+        urlFilters.minProbability !== "" && urlFilters.minProbability !== "0"
+          ? Number(urlFilters.minProbability)
+          : urlFilters.minProbability === "0"
+            ? 0
+            : undefined,
+      maxProbability:
+        urlFilters.maxProbability !== "" && urlFilters.maxProbability !== "100"
+          ? Number(urlFilters.maxProbability)
+          : undefined,
+      sort: urlFilters.sort,
+      page: urlFilters.page,
+      limit: PAGE_SIZE,
+    }),
+    [urlFilters],
+  );
+
+  const paramsKey = useMemo(() => JSON.stringify(queryParams), [queryParams]);
+
+  const marketsQuery = useQuery({
+    queryKey: queryKeys.markets.explorer(paramsKey),
+    queryFn: () => fetchMarketsExplorer(queryParams),
+    staleTime: 15_000,
+    placeholderData: (prev) => prev,
+  });
+
+  const narrativesQuery = useQuery({
+    queryKey: queryKeys.hub.attentionDashboard(50),
+    queryFn: () => fetchAttentionDashboard(50),
+    staleTime: 60_000,
+  });
+
+  const narrativeOptions = useMemo(() => {
+    const items = narrativesQuery.data?.data ?? [];
+    const names = [
+      ...new Set(
+        items
+          .map((r) => r.narrativeName?.trim())
+          .filter((n): n is string => Boolean(n)),
+      ),
+    ].sort((a, b) => a.localeCompare(b));
+    return names;
+  }, [narrativesQuery.data]);
+
+  const result = marketsQuery.data;
+  const markets = result?.markets ?? [];
+  const total = result?.total ?? 0;
+  const page = result?.page ?? urlFilters.page;
+  const totalPages = result?.totalPages ?? 1;
+  const loading = marketsQuery.isLoading && !result;
+
+  const from = total === 0 ? 0 : (page - 1) * PAGE_SIZE + 1;
+  const to = Math.min(page * PAGE_SIZE, total);
+
+  const selectClass =
+    "rounded-lg border border-white/10 bg-zinc-900/80 px-2.5 py-2 text-[13px] text-zinc-200 outline-none focus:border-blue-500/50";
+  const inputClass =
+    "rounded-lg border border-white/10 bg-zinc-900/80 px-2.5 py-2 text-[13px] text-zinc-200 outline-none placeholder:text-zinc-500 focus:border-blue-500/50";
+
+  return (
+    <div className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6">
+      <header className="mb-5">
+        <h1 className="text-[32px] font-bold tracking-tight text-zinc-50">Markets</h1>
+        <p className="mt-1 text-[15px] text-zinc-400">Every prediction market on Orakly</p>
+      </header>
+
+      {/* Search */}
+      <div className="relative mb-4">
+        <Search
+          className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-zinc-500"
+          aria-hidden
+        />
+        <input
+          type="search"
+          value={searchInput}
+          onChange={(e) => setSearchInput(e.target.value)}
+          placeholder="Search markets..."
+          className="w-full rounded-xl border border-white/10 bg-zinc-900/80 py-3 pl-10 pr-4 text-[15px] text-zinc-100 outline-none placeholder:text-zinc-500 focus:border-blue-500/50"
+          aria-label="Search markets"
+        />
+      </div>
+
+      {/* Filters */}
+      <div className="mb-3 flex flex-wrap items-end gap-3">
+        <label className="flex flex-col gap-1 text-[11px] font-medium text-zinc-500">
+          Category
+          <select
+            className={selectClass}
+            value={local.category}
+            onChange={(e) => patch({ category: e.target.value })}
+          >
+            {CATEGORIES.map((c) => (
+              <option key={c.value || "all"} value={c.value}>
+                {c.label}
+              </option>
+            ))}
+          </select>
+        </label>
+
+        <label className="flex flex-col gap-1 text-[11px] font-medium text-zinc-500">
+          Status
+          <select
+            className={selectClass}
+            value={local.status}
+            onChange={(e) => patch({ status: e.target.value })}
+          >
+            {STATUSES.map((s) => (
+              <option key={s.value || "all"} value={s.value}>
+                {s.label}
+              </option>
+            ))}
+          </select>
+        </label>
+
+        <label className="flex flex-col gap-1 text-[11px] font-medium text-zinc-500">
+          Narrative
+          <select
+            className={cn(selectClass, "min-w-[140px]")}
+            value={local.narrative}
+            onChange={(e) => patch({ narrative: e.target.value })}
+          >
+            <option value="">All Narratives</option>
+            {narrativeOptions.map((name) => (
+              <option key={name} value={name}>
+                {name}
+              </option>
+            ))}
+          </select>
+        </label>
+
+        <label className="flex min-w-[160px] flex-1 flex-col gap-1 text-[11px] font-medium text-zinc-500">
+          Creator
+          <input
+            type="text"
+            value={creatorInput}
+            onChange={(e) => setCreatorInput(e.target.value)}
+            placeholder="Creator address..."
+            className={inputClass}
+          />
+        </label>
+
+        <label className="flex flex-col gap-1 text-[11px] font-medium text-zinc-500">
+          From
+          <input
+            type="date"
+            value={local.dateFrom}
+            onChange={(e) => patch({ dateFrom: e.target.value })}
+            className={inputClass}
+          />
+        </label>
+
+        <label className="flex flex-col gap-1 text-[11px] font-medium text-zinc-500">
+          To
+          <input
+            type="date"
+            value={local.dateTo}
+            onChange={(e) => patch({ dateTo: e.target.value })}
+            className={inputClass}
+          />
+        </label>
+
+        <label className="flex flex-col gap-1 text-[11px] font-medium text-zinc-500">
+          Min $
+          <input
+            type="number"
+            min={0}
+            value={local.minVolume}
+            onChange={(e) => patch({ minVolume: e.target.value })}
+            placeholder="0"
+            className={cn(inputClass, "w-24")}
+          />
+        </label>
+
+        <label className="flex flex-col gap-1 text-[11px] font-medium text-zinc-500">
+          Max $
+          <input
+            type="number"
+            min={0}
+            value={local.maxVolume}
+            onChange={(e) => patch({ maxVolume: e.target.value })}
+            placeholder="—"
+            className={cn(inputClass, "w-24")}
+          />
+        </label>
+
+        <div className="flex min-w-[200px] flex-1 flex-col gap-1 text-[11px] font-medium text-zinc-500">
+          <span>
+            Probability ({local.minProbability || 0}% — {local.maxProbability || 100}%)
+          </span>
+          <div className="flex items-center gap-2">
+            <input
+              type="range"
+              min={0}
+              max={100}
+              value={Number(local.minProbability) || 0}
+              onChange={(e) => {
+                const min = Number(e.target.value);
+                const max = Number(local.maxProbability) || 100;
+                patch({
+                  minProbability: String(min),
+                  maxProbability: String(Math.max(min, max)),
+                });
+              }}
+              className="w-full accent-blue-500"
+              aria-label="Minimum yes probability"
+            />
+            <input
+              type="range"
+              min={0}
+              max={100}
+              value={Number(local.maxProbability) || 100}
+              onChange={(e) => {
+                const max = Number(e.target.value);
+                const min = Number(local.minProbability) || 0;
+                patch({
+                  maxProbability: String(max),
+                  minProbability: String(Math.min(min, max)),
+                });
+              }}
+              className="w-full accent-blue-500"
+              aria-label="Maximum yes probability"
+            />
+          </div>
+        </div>
+
         <button
           type="button"
-          onClick={onClear}
-          className="rounded-md bg-[var(--hub-primary-soft)] px-3 py-1.5 text-[12px] font-medium text-[var(--hub-fg)] ring-1 ring-[var(--hub-border)] transition hover:bg-[var(--hub-primary)]/25"
+          onClick={resetFilters}
+          className="mb-0.5 text-[13px] font-medium text-blue-400 underline-offset-2 hover:underline"
         >
           Reset filters
         </button>
-      ) : (
-        <Link
-          href={ROUTES.marketCreate}
-          className="inline-flex items-center gap-1.5 rounded-md bg-[var(--hub-primary-soft)] px-3 py-1.5 text-[12px] font-semibold text-[var(--hub-primary-bright)] ring-1 ring-[var(--hub-border-strong)] transition hover:bg-[var(--hub-primary)]/25"
-        >
-          <Plus className="h-3.5 w-3.5" />
-          Create the first market
-        </Link>
-      )}
+      </div>
+
+      {/* Sort */}
+      <div className="mb-4 flex flex-wrap gap-2" role="group" aria-label="Sort markets">
+        {SORTS.map((s) => {
+          const active = urlFilters.sort === s.id;
+          return (
+            <button
+              key={s.id}
+              type="button"
+              onClick={() => patch({ sort: s.id })}
+              className={cn(
+                "rounded-full px-3.5 py-1.5 text-[13px] font-medium transition",
+                active
+                  ? "bg-blue-600 text-white"
+                  : "text-zinc-400 ring-1 ring-white/10 hover:bg-white/[0.06] hover:text-zinc-200",
+              )}
+            >
+              {s.label}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Table */}
+      <div className="overflow-x-auto rounded-xl border border-white/[0.08]">
+        <table className="w-full min-w-[960px] border-collapse text-left">
+          <thead>
+            <tr className="border-b border-white/[0.08] bg-white/[0.03] text-[11px] font-semibold uppercase tracking-wider text-zinc-500">
+              <th className="px-3 py-2.5">Market</th>
+              <th className="px-3 py-2.5">Narrative</th>
+              <th className="px-3 py-2.5">Probability</th>
+              <th className="px-3 py-2.5">Volume</th>
+              <th className="px-3 py-2.5">Liquidity</th>
+              <th className="px-3 py-2.5">Participants</th>
+              <th className="px-3 py-2.5">Ends</th>
+              <th className="px-3 py-2.5">Creator</th>
+              <th className="w-10 px-2 py-2.5" aria-label="Watchlist" />
+              <th className="px-3 py-2.5">Trade</th>
+            </tr>
+          </thead>
+          <tbody>
+            {loading ? (
+              <SkeletonRows />
+            ) : markets.length === 0 ? (
+              <tr>
+                <td colSpan={10} className="px-4 py-16 text-center">
+                  <p className="text-[15px] text-zinc-400">
+                    No markets found matching your filters.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={resetFilters}
+                    className="mt-4 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-500"
+                  >
+                    Reset filters
+                  </button>
+                </td>
+              </tr>
+            ) : (
+              markets.map((m) => <MarketTableRow key={m.id} market={m} />)
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Pagination */}
+      {!loading && total > 0 ? (
+        <div className="mt-5 flex flex-col items-center gap-3 sm:flex-row sm:justify-between">
+          <p className="text-[13px] text-zinc-500">
+            Showing {from}-{to} of {total} markets
+          </p>
+          <Pagination
+            page={page}
+            totalPages={totalPages}
+            onPage={(p) => patch({ page: p })}
+          />
+        </div>
+      ) : null}
     </div>
   );
 }

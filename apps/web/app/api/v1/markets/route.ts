@@ -10,6 +10,11 @@ import {
   type MarketsListLaneFilter,
   type MarketsTrendingLane,
 } from "@/server/queries/markets-feed-scoped";
+import {
+  isMarketsExplorerRequest,
+  listMarketsExplorer,
+  parseMarketsExplorerParams,
+} from "@/server/queries/markets-explorer";
 import { err, ok } from "../_lib/response";
 import { MarketsFeedDatabaseError } from "@/server/queries/markets-feed-scoped";
 import { scheduleMarketsStaleRefresh } from "@/server/vercel-worker/stale-refresh";
@@ -68,11 +73,29 @@ function parseTake(scope: MarketsFeedScope, lane: MarketsFeedLane, raw: string |
   return n;
 }
 
-/** GET /api/v1/markets — supports hub lanes + directory; defaults preserve legacy clients. */
+/** GET /api/v1/markets — explorer search, live hub, narrative, or feed lanes. */
 export async function GET(req: NextRequest) {
   const sp = req.nextUrl.searchParams;
   const narrative = sp.get("narrative")?.trim();
 
+  /** Paginated Markets explorer: `?page=1&limit=20&q=&category=&…`. */
+  if (isMarketsExplorerRequest(sp)) {
+    try {
+      const params = parseMarketsExplorerParams(sp);
+      const data = await listMarketsExplorer(params);
+      scheduleMarketsStaleRefresh();
+      return NextResponse.json(ok(data), {
+        headers: {
+          "Cache-Control": "public, s-maxage=15, stale-while-revalidate=45",
+        },
+      });
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
+      return NextResponse.json(err("MARKETS_UNAVAILABLE", message), { status: 503 });
+    }
+  }
+
+  /** Narrative markets — must run before live `sort=` branch so `?narrative=&sort=volume` works. */
   if (narrative) {
     const limitParam = Number.parseInt(sp.get("limit") ?? sp.get("take") ?? "20", 10);
     const take =
@@ -85,6 +108,36 @@ export async function GET(req: NextRequest) {
       return NextResponse.json(ok(data), {
         headers: {
           "Cache-Control": "public, s-maxage=45, stale-while-revalidate=180",
+        },
+      });
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
+      return NextResponse.json(err("MARKETS_UNAVAILABLE", message), { status: 503 });
+    }
+  }
+
+  /** Live Markets hub section: `?status=OPEN&limit=6&sort=trending|volume|newest|ending`. */
+  const sortParam = sp.get("sort")?.trim();
+  if (
+    sortParam === "trending" ||
+    sortParam === "volume" ||
+    sortParam === "newest" ||
+    sortParam === "ending"
+  ) {
+    const limitRaw = Number.parseInt(sp.get("limit") ?? sp.get("take") ?? "6", 10);
+    const limit =
+      Number.isFinite(limitRaw) && limitRaw > 0 ? Math.min(limitRaw, 24) : 6;
+    try {
+      const { getLiveMarkets } = await import("@/server/queries/live-markets");
+      const data = await getLiveMarkets({
+        sort: sortParam,
+        status: sp.get("status"),
+        limit,
+      });
+      scheduleMarketsStaleRefresh();
+      return NextResponse.json(ok(data), {
+        headers: {
+          "Cache-Control": "public, s-maxage=15, stale-while-revalidate=45",
         },
       });
     } catch (e) {

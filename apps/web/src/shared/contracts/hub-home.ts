@@ -10,10 +10,23 @@ export type AttentionNarrativeRow = {
   previousScore: number | null;
 };
 
+export type MarketSentiment = "Bullish" | "Neutral" | "Bearish";
+
 export type HomeStatsPayload = {
-  activeNarratives: number;
-  liveMarkets: number;
+  /** Average of top-5 AttentionScore.score values (0 if empty). */
+  attentionIndex: number;
+  sentiment: MarketSentiment;
+  /** Highest-attention narrative name. */
+  currentMeta: string;
+  /** Primary chain for the desk — hardcoded BNB for now. */
+  topChain: string;
   volume24hUsd: number;
+  openInterest: number;
+  liveMarkets: number;
+  activeTraders: number;
+  /** @deprecated Prefer attention-derived fields — kept for older hub tiles. */
+  activeNarratives: number;
+  /** @deprecated Prefer attentionIndex — kept for older hub tiles. */
   attentionUpdates24h: number;
 };
 

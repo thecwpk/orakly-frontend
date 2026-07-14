@@ -2,6 +2,7 @@
 
 import { Suspense, type ReactNode } from "react";
 import { usePathname } from "next/navigation";
+import { GlobalSearch } from "@/features/search";
 import { TradeModal } from "@/features/trading";
 import { cn } from "@/lib/utils";
 import { SocketProvider } from "@/providers";
@@ -54,6 +55,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         </Suspense>
 
         <TradeModal />
+        <GlobalSearch />
       </div>
       </NavigationPendingProvider>
     </SocketProvider>

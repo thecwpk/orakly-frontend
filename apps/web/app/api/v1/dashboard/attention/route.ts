@@ -57,6 +57,7 @@ function mockAttentionRows(): AttentionDashboardItem[] {
       uniqueTraders: 340,
       liquidity: 890_000,
       openInterest: 2_100_000,
+      scorePrev24h: 61,
     },
     {
       narrativeSlug: "memes",
@@ -69,6 +70,7 @@ function mockAttentionRows(): AttentionDashboardItem[] {
       uniqueTraders: 512,
       liquidity: 420_000,
       openInterest: 760_000,
+      scorePrev24h: 66,
     },
     {
       narrativeSlug: "base",
@@ -81,6 +83,7 @@ function mockAttentionRows(): AttentionDashboardItem[] {
       uniqueTraders: 198,
       liquidity: 610_000,
       openInterest: 1_050_000,
+      scorePrev24h: 54,
     },
     {
       narrativeSlug: "solana",
@@ -93,6 +96,7 @@ function mockAttentionRows(): AttentionDashboardItem[] {
       uniqueTraders: 221,
       liquidity: 540_000,
       openInterest: 980_000,
+      scorePrev24h: 58,
     },
     {
       narrativeSlug: "rwa",
@@ -105,6 +109,7 @@ function mockAttentionRows(): AttentionDashboardItem[] {
       uniqueTraders: 87,
       liquidity: 280_000,
       openInterest: 410_000,
+      scorePrev24h: 46,
     },
     {
       narrativeSlug: "defi",
@@ -117,6 +122,7 @@ function mockAttentionRows(): AttentionDashboardItem[] {
       uniqueTraders: 156,
       liquidity: 470_000,
       openInterest: 830_000,
+      scorePrev24h: 50,
     },
   ];
 
@@ -141,17 +147,19 @@ function mapRow(row: {
   uniqueTraders: number;
   liquidity: number;
   openInterest: number;
+  scorePrev24h: number;
   updatedAt: Date;
 }): AttentionDashboardItem {
   const narrativeSlug = slugKey(row.narrativeSlug, row.narrative);
   const narrativeName =
     row.narrativeName.trim().length > 0 ? row.narrativeName.trim() : row.narrative;
+  const attentionScore = clampScore(Number(row.score));
 
   return {
     id: row.id,
     narrativeSlug,
     narrativeName,
-    attentionScore: clampScore(Number(row.score)),
+    attentionScore,
     convictionScore: clampScore(row.convictionScore),
     momentum: normalizeMomentum(row.momentum),
     volume24hUsd: row.volume24hUsd,
@@ -159,6 +167,10 @@ function mapRow(row: {
     uniqueTraders: row.uniqueTraders,
     liquidity: row.liquidity,
     openInterest: row.openInterest,
+    scorePrev24h:
+      Number.isFinite(row.scorePrev24h) && row.scorePrev24h > 0
+        ? row.scorePrev24h
+        : attentionScore * 0.92,
     lastUpdated: row.updatedAt.toISOString(),
   };
 }

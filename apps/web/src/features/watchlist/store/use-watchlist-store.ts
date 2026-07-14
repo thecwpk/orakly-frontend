@@ -1,59 +1,85 @@
 "use client";
 
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
+import {
+  readWatchlistIds,
+  subscribeWatchlist,
+  writeWatchlistIds,
+} from "../lib/watchlist-storage";
 
 type WatchlistStore = {
-  /** Source of truth: ordered list of starred market slugs (most recently added first). */
+  /** Ordered list of starred market IDs (most recently added first). */
+  ids: string[];
+  /** @deprecated Use `ids` — kept as alias while migrating slug callers. */
   slugs: string[];
 
-  add: (slug: string) => void;
-  remove: (slug: string) => void;
-  toggle: (slug: string) => void;
+  add: (id: string) => void;
+  remove: (id: string) => void;
+  toggle: (id: string) => void;
   clear: () => void;
+  hydrate: () => void;
 };
 
-export const useWatchlistStore = create<WatchlistStore>()(
-  persist(
-    (set) => ({
-      slugs: [],
+function syncFromStorage(): string[] {
+  return readWatchlistIds();
+}
 
-      add: (slug) =>
-        set((s) => {
-          if (!slug) return s;
-          if (s.slugs.includes(slug)) return s;
-          return { slugs: [slug, ...s.slugs].slice(0, 200) };
-        }),
+export const useWatchlistStore = create<WatchlistStore>((set, get) => ({
+  ids: [],
+  slugs: [],
 
-      remove: (slug) =>
-        set((s) => ({ slugs: s.slugs.filter((x) => x !== slug) })),
+  hydrate: () => {
+    const ids = syncFromStorage();
+    set({ ids, slugs: ids });
+  },
 
-      toggle: (slug) =>
-        set((s) => {
-          if (!slug) return s;
-          if (s.slugs.includes(slug)) {
-            return { slugs: s.slugs.filter((x) => x !== slug) };
-          }
-          return { slugs: [slug, ...s.slugs].slice(0, 200) };
-        }),
+  add: (id) => {
+    const trimmed = id?.trim();
+    if (!trimmed) return;
+    if (get().ids.includes(trimmed)) return;
+    const ids = [trimmed, ...get().ids].slice(0, 200);
+    writeWatchlistIds(ids);
+    set({ ids, slugs: ids });
+  },
 
-      clear: () => set({ slugs: [] }),
-    }),
-    {
-      name: "orakly:watchlist",
-      version: 1,
-      partialize: (s) => ({ slugs: s.slugs }),
-    },
-  ),
-);
+  remove: (id) => {
+    const trimmed = id?.trim();
+    if (!trimmed) return;
+    const ids = get().ids.filter((x) => x !== trimmed);
+    writeWatchlistIds(ids);
+    set({ ids, slugs: ids });
+  },
+
+  toggle: (id) => {
+    const trimmed = id?.trim();
+    if (!trimmed) return;
+    if (get().ids.includes(trimmed)) {
+      get().remove(trimmed);
+    } else {
+      get().add(trimmed);
+    }
+  },
+
+  clear: () => {
+    writeWatchlistIds([]);
+    set({ ids: [], slugs: [] });
+  },
+}));
+
+if (typeof window !== "undefined") {
+  useWatchlistStore.getState().hydrate();
+  subscribeWatchlist(() => {
+    const ids = readWatchlistIds();
+    useWatchlistStore.setState({ ids, slugs: ids });
+  });
+}
 
 export const selectWatchlistSet = (s: WatchlistStore): ReadonlySet<string> =>
-  new Set(s.slugs);
-export const selectWatchlistCount = (s: WatchlistStore): number =>
-  s.slugs.length;
+  new Set(s.ids);
 
-/** Stable selector returning whether `slug` is starred. */
-export function makeIsStarredSelector(slug: string | undefined) {
-  return (s: WatchlistStore): boolean =>
-    Boolean(slug) && s.slugs.includes(slug as string);
+export const selectWatchlistCount = (s: WatchlistStore): number => s.ids.length;
+
+/** Stable selector returning whether `id` is starred. */
+export function makeIsStarredSelector(id: string | undefined) {
+  return (s: WatchlistStore): boolean => Boolean(id) && s.ids.includes(id as string);
 }
