@@ -10,11 +10,23 @@ const globalForPrisma = globalThis as unknown as {
  * See https://pris.ly/d/prisma7-client-config
  */
 function createPrismaClient() {
-  const connectionString =
-    process.env.DATABASE_URL ??
-    "postgresql://127.0.0.1:5432/postgres";
+  const connectionString = process.env.DATABASE_URL?.trim() || "";
 
-  const adapter = new PrismaPg(connectionString);
+  // Empty/missing DATABASE_URL makes `pg` default to 127.0.0.1:5432 — never allow that in production.
+  if (!connectionString) {
+    if (process.env.VERCEL || process.env.NODE_ENV === "production") {
+      throw new Error(
+        "DATABASE_URL is missing or empty. Set your Railway/Postgres URL in Vercel → Settings → Environment Variables (Production), then redeploy.",
+      );
+    }
+    console.warn(
+      "[@orakly/database] DATABASE_URL unset — using local postgres fallback (dev only)",
+    );
+  }
+
+  const adapter = new PrismaPg(
+    connectionString || "postgresql://127.0.0.1:5432/postgres",
+  );
 
   return new PrismaClient({
     adapter,

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@orakly/database";
-import { ok, err } from "../../_lib/response";
+import { ok } from "../../_lib/response";
 
 type MomentumLabel = "Growing" | "Cooling" | "Stable";
 
@@ -221,7 +221,30 @@ export async function GET(request: Request) {
       headers: { "Cache-Control": "public, s-maxage=60, stale-while-revalidate=120" },
     });
   } catch (e) {
+    // DB unreachable / misconfigured (e.g. missing DATABASE_URL on Vercel) —
+    // still serve mock narratives so the hub desk stays reviewable.
     const message = e instanceof Error ? e.message : String(e);
-    return NextResponse.json(err("ATTENTION_UNAVAILABLE", message), { status: 503 });
+    console.error("[attention] falling back to mock rows:", message);
+    const items = mockAttentionRows();
+    const limitParam = Number.parseInt(
+      new URL(request.url).searchParams.get("limit") ?? "20",
+      10,
+    );
+    const limit =
+      Number.isFinite(limitParam) && limitParam > 0
+        ? Math.min(limitParam, 100)
+        : 20;
+    const data = items.slice(0, limit);
+    const payload: AttentionDashboardPayload = {
+      data,
+      total: items.length,
+      updatedAt: new Date().toISOString(),
+    };
+    return NextResponse.json(ok(payload), {
+      headers: {
+        "Cache-Control": "public, s-maxage=30, stale-while-revalidate=60",
+        "X-Orakly-Attention-Fallback": "mock",
+      },
+    });
   }
 }

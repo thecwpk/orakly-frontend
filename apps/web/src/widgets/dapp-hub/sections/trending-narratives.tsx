@@ -203,11 +203,17 @@ export function TrendingNarratives() {
   });
 
   const resolved = useMemo(() => {
-    if (query.isError) return { rows: [] as AttentionDashboardItem[], source: "api" as const };
     if (query.isLoading && !query.data) {
       return { rows: [] as AttentionDashboardItem[], source: "api" as const };
     }
-    return ResolveRows(query.data?.data);
+    // API error or empty → demo desk (never leave the section blank).
+    if (query.isError || !query.data) {
+      return {
+        rows: [...TRENDING_NARRATIVES_DEMO],
+        source: "demo" as const,
+      };
+    }
+    return ResolveRows(query.data.data);
   }, [query.data, query.isError, query.isLoading]);
 
   const rows = useMemo(
@@ -216,7 +222,7 @@ export function TrendingNarratives() {
   );
 
   const showSkeletons = query.isLoading && !query.data && !query.isError;
-  const showError = query.isError && rows.length === 0;
+  const showError = false;
 
   return (
     <section className="hub-section" aria-label="Trending Narratives">
