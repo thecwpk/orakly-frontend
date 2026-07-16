@@ -1,16 +1,18 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, type MouseEvent } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { formatCompactUsd } from "@orakly/utils";
 import { apiClient } from "@/api/client/http-client";
-import { MarketCard } from "@/features/markets/components/market-card";
 import { cn } from "@/lib/utils";
 import { ROUTES } from "@/shared/constants/routes";
 import { queryKeys } from "@/shared/api/query-keys";
 import { unwrapApiResult } from "@/shared/api/unwrap";
 import type { LiveMarketCardDto } from "@/shared/contracts/live-markets";
+import { getDemoLiveMarkets } from "../lib/live-markets-demo";
 
 type LiveTab = "trending" | "volume" | "newest" | "ending";
 
@@ -36,86 +38,180 @@ async function fetchLiveMarkets(
   return unwrapApiResult(res);
 }
 
+function shortenCreator(raw: string): string {
+  const t = raw.trim();
+  if (!t) return "Anonymous";
+  if (t.startsWith("0x") && t.length >= 12) {
+    return `${t.slice(0, 6)}…${t.slice(-4)}`;
+  }
+  return t.length > 18 ? `${t.slice(0, 16)}…` : t;
+}
+
+function endsInLabel(iso: string): { label: string; urgent: boolean } {
+  const ms = new Date(iso).getTime() - Date.now();
+  if (!Number.isFinite(ms)) return { label: "—", urgent: false };
+  if (ms <= 0) return { label: "Ended", urgent: true };
+  const urgent = ms < 24 * 60 * 60 * 1000;
+  const totalMin = Math.floor(ms / 60_000);
+  const days = Math.floor(totalMin / (60 * 24));
+  const hours = Math.floor((totalMin % (60 * 24)) / 60);
+  const mins = totalMin % 60;
+  if (days > 0) return { label: `${days}d ${hours}h`, urgent };
+  if (hours > 0) return { label: `${hours}h ${mins}m`, urgent };
+  return { label: `${Math.max(1, mins)}m`, urgent };
+}
+
 function LiveMarketSkeleton() {
   return (
-    <div className="animate-pulse overflow-hidden rounded-2xl border border-white/5 bg-[var(--background-card)]">
-      <div className="h-20 w-full bg-white/5" />
-      <div className="space-y-3 p-4">
-        <div className="space-y-2">
-          <div className="h-3.5 w-[90%] rounded bg-white/10" />
-          <div className="h-3.5 w-[60%] rounded bg-white/5" />
-        </div>
-        <div className="h-4 w-20 rounded bg-white/5" />
-        <div className="space-y-2">
-          <div className="h-3 w-full rounded bg-white/5" />
-          <div className="h-1.5 w-full rounded-full bg-white/5" />
-          <div className="h-3 w-full rounded bg-white/5" />
-        </div>
-        <div className="flex gap-3 pt-1">
-          <div className="h-3 w-12 rounded bg-white/5" />
-          <div className="h-3 w-12 rounded bg-white/5" />
-          <div className="h-3 w-16 rounded bg-white/5" />
-        </div>
-        <div className="grid grid-cols-2 gap-2 pt-1">
-          <div className="h-9 rounded-lg bg-white/5" />
-          <div className="h-9 rounded-lg bg-white/5" />
-        </div>
+    <div className="hub-dapp-skel-card">
+      <div className="hub-dapp-skel mb-3 h-4 w-[92%]" />
+      <div className="hub-dapp-skel mb-3 h-4 w-[58%]" />
+      <div className="mb-3 flex gap-2">
+        <div className="hub-dapp-skel h-5 w-16 rounded-md" />
+        <div className="hub-dapp-skel h-5 w-20 rounded-md" />
       </div>
+      <div className="hub-dapp-skel mb-2 h-2.5 w-20" />
+      <div className="hub-dapp-skel mb-4 h-2 w-full rounded-full" />
+      <div className="mb-4 grid grid-cols-3 gap-2">
+        <div className="hub-dapp-skel h-10 rounded-md" />
+        <div className="hub-dapp-skel h-10 rounded-md" />
+        <div className="hub-dapp-skel h-10 rounded-md" />
+      </div>
+      <div className="hub-dapp-skel h-10 w-full rounded-lg" />
     </div>
   );
 }
 
-function LiveMarketsEmpty() {
-  return (
-    <div className="col-span-full">
-      <div className="rounded-2xl border border-dashed border-white/10 p-12 text-center">
-        <div className="mb-4 text-4xl" aria-hidden>
-          🚀
-        </div>
-        <p className="text-lg font-semibold text-white">Markets launching soon</p>
-        <p className="mx-auto mt-2 max-w-sm text-sm text-slate-500">
-          The first markets are being prepared. Check back shortly or submit a community idea.
-        </p>
-        <div className="mt-6 flex justify-center gap-3">
-          <Link
-            href={ROUTES.marketsCommunity}
-            className="rounded-xl bg-indigo-600 px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-500"
-          >
-            Submit Market Idea
-          </Link>
-          <Link
-            href={ROUTES.markets}
-            className="rounded-xl border border-white/10 bg-white/5 px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-white/10"
-          >
-            Browse All Markets
-          </Link>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/** Hub Live Markets card — Polymarket redesign via shared `MarketCard`. */
-export function LiveMarketCard({
+/** Hub Live Markets card — all review fields + Trade → detail. */
+export function HubLiveMarketCard({
   market,
   index = 0,
 }: {
   market: LiveMarketCardDto;
   index?: number;
 }) {
+  const router = useRouter();
+  const yesPct = Math.round(
+    Math.max(0, Math.min(1, market.probability ?? 0.5)) * 100,
+  );
+  const noPct = 100 - yesPct;
+  const ends = endsInLabel(market.closesAt);
+  const detailHref = ROUTES.market(market.slug);
+  const creator = market.creatorAddress?.trim() || market.creatorDisplayName?.trim() || null;
+  const narrative = market.narrative?.trim() || null;
+  const participants = Math.max(0, Math.round(market.participants ?? 0));
+
+  const go = (e?: MouseEvent) => {
+    e?.stopPropagation();
+    router.push(detailHref);
+  };
+
   return (
-    <motion.div
+    <motion.article
       initial={{ opacity: 0, y: 4 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1], delay: index * 0.05 }}
+      transition={{ duration: 0.24, delay: index * 0.04 }}
+      role="link"
+      tabIndex={0}
+      onClick={() => go()}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          go();
+        }
+      }}
+      className="hub-dapp-card hub-dapp-card--interactive cursor-pointer"
     >
-      <MarketCard
-        market={market}
-        isLive={market.status === "OPEN"}
-        narrative={market.narrative}
-        participants={market.participants}
-      />
-    </motion.div>
+      <div className="flex items-start justify-between gap-2">
+        <h3 className="hub-dapp-market-title">{market.title}</h3>
+        <span
+          className={cn(
+            "hub-dapp-market-chip shrink-0 tabular-nums",
+            ends.urgent &&
+              "border-rose-400/30 bg-rose-500/15 text-rose-300",
+          )}
+        >
+          Ends {ends.label}
+        </span>
+      </div>
+
+      <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
+        {narrative ? (
+          <span className="hub-dapp-market-chip hub-dapp-market-chip--accent">
+            {narrative}
+          </span>
+        ) : (
+          <span className="hub-dapp-market-chip">
+            {market.category || "Market"}
+          </span>
+        )}
+        {creator ? (
+          <span className="hub-dapp-market-chip font-mono" title={creator}>
+            by {shortenCreator(creator)}
+          </span>
+        ) : null}
+      </div>
+
+      <div className="mt-4 space-y-2">
+        <div className="flex items-end justify-between gap-2">
+          <span className="hub-dapp-stat-label">Probability</span>
+          <span className="hub-dapp-prob-pill">{yesPct}% YES</span>
+        </div>
+        <div className="hub-dapp-prob-track" aria-hidden>
+          <div
+            className="hub-dapp-prob-fill--yes"
+            style={{ width: `${yesPct}%` }}
+          />
+          <div
+            className="hub-dapp-prob-fill--no"
+            style={{ width: `${noPct}%` }}
+          />
+        </div>
+        <div className="flex justify-between gap-2 text-[11px]">
+          <span className="hub-dapp-stat-label !normal-case !tracking-normal">
+            YES{" "}
+            <span className="hub-dapp-move-up font-semibold tabular-nums">
+              {yesPct}%
+            </span>
+          </span>
+          <span className="hub-dapp-stat-label !normal-case !tracking-normal">
+            NO{" "}
+            <span className="hub-dapp-move-down font-semibold tabular-nums">
+              {noPct}%
+            </span>
+          </span>
+        </div>
+      </div>
+
+      <div className="hub-dapp-market-stats">
+        <div>
+          <span className="hub-dapp-stat-label">Volume</span>
+          <span className="hub-dapp-stat-value hub-dapp-stat-value--sm mt-1">
+            {formatCompactUsd(market.volumeUsd ?? 0)}
+          </span>
+        </div>
+        <div>
+          <span className="hub-dapp-stat-label">Liquidity</span>
+          <span className="hub-dapp-stat-value hub-dapp-stat-value--sm mt-1">
+            {formatCompactUsd(market.liquidityUsd ?? 0)}
+          </span>
+        </div>
+        <div>
+          <span className="hub-dapp-stat-label">Traders</span>
+          <span className="hub-dapp-stat-value hub-dapp-stat-value--sm mt-1">
+            {participants.toLocaleString()}
+          </span>
+        </div>
+      </div>
+
+      <button
+        type="button"
+        onClick={(e) => go(e)}
+        className="hub-dapp-cta hub-dapp-cta--solid mt-4"
+      >
+        Trade
+      </button>
+    </motion.article>
   );
 }
 
@@ -130,11 +226,25 @@ export function LiveMarkets() {
     queryFn: () => fetchLiveMarkets(tab, 6),
     staleTime: 10_000,
     refetchInterval: 15_000,
+    retry: 1,
   });
 
-  const markets = useMemo(() => (query.data ?? []).slice(0, 6), [query.data]);
-  const loading = query.isLoading && markets.length === 0;
-  const empty = !loading && markets.length === 0;
+  const { markets, source } = useMemo(() => {
+    const api = query.data ?? [];
+    if (query.isLoading && !query.data) {
+      return { markets: [] as LiveMarketCardDto[], source: "loading" as const };
+    }
+    if (api.length > 0) {
+      return { markets: api.slice(0, 6), source: "api" as const };
+    }
+    // Empty / error → demo desk sorted for the active tab (≥6 cards).
+    return {
+      markets: getDemoLiveMarkets(tab, 6),
+      source: "demo" as const,
+    };
+  }, [query.data, query.isLoading, tab]);
+
+  const loading = query.isLoading && !query.data;
 
   return (
     <section className="hub-section" aria-label="Live Markets">
@@ -145,12 +255,19 @@ export function LiveMarkets() {
             Active prediction markets on BSC Testnet
           </p>
         </div>
-        <Link
-          href={ROUTES.markets}
-          className="text-sm font-medium text-indigo-400 transition hover:text-indigo-300"
-        >
-          View All →
-        </Link>
+        <div className="flex items-center gap-3">
+          {source === "demo" && !loading ? (
+            <span className="rounded border border-white/10 bg-white/5 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-slate-500">
+              Demo markets
+            </span>
+          ) : null}
+          <Link
+            href={ROUTES.markets}
+            className="text-sm font-medium text-indigo-400 transition hover:text-indigo-300"
+          >
+            View All →
+          </Link>
+        </div>
       </div>
 
       <div
@@ -180,17 +297,16 @@ export function LiveMarkets() {
         })}
       </div>
 
-      <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-        {loading ? (
-          Array.from({ length: 6 }).map((_, i) => <LiveMarketSkeleton key={i} />)
-        ) : empty ? (
-          <LiveMarketsEmpty />
-        ) : (
-          markets.map((market, index) => (
-            <LiveMarketCard key={market.id} market={market} index={index} />
-          ))
-        )}
+      <div className="hub-dapp-grid-markets mt-4">
+        {loading
+          ? Array.from({ length: 6 }).map((_, i) => <LiveMarketSkeleton key={i} />)
+          : markets.map((market, index) => (
+              <HubLiveMarketCard key={`${tab}-${market.id}`} market={market} index={index} />
+            ))}
       </div>
     </section>
   );
 }
+
+/** @deprecated Prefer HubLiveMarketCard — kept for accidental imports. */
+export { HubLiveMarketCard as LiveMarketCard };

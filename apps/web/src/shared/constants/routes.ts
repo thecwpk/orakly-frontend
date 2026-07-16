@@ -13,10 +13,10 @@ export const ROUTES = {
   DAPP: "/dapp",
   /** Attention dashboard — narrative momentum & matchups. */
   attention: "/attention",
-  /** Narratives page (same as `attention`). */
-  narratives: "/attention",
+  /** Narratives desk — Market Pulse CTA + primary nav target. */
+  narratives: "/narratives",
   /** Frozen top-nav alias — Narratives. */
-  NARRATIVES: "/attention",
+  NARRATIVES: "/narratives",
   /** Head-to-head narrative comparison tool. */
   narrativeWars: "/narrative-wars",
   NARRATIVE_WARS: "/narrative-wars",

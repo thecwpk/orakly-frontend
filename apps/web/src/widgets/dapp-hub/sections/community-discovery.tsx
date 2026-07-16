@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { ReactNode } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 import { useAccount } from "wagmi";
 import { cn } from "@/lib/utils";
@@ -14,13 +15,14 @@ import { fetchCreatorLeaderboard } from "@/shared/api/fetchers/leaderboard";
 import { queryKeys } from "@/shared/api/query-keys";
 import { ROUTES } from "@/shared/constants/routes";
 import type { CommunitySuggestion } from "@/shared/contracts/community-suggestion";
+import { SubmitMarketModal } from "@/widgets/community-markets/submit-market-modal";
 
 const LIMIT = 3;
 const REFETCH_MS = 60_000;
 
 function shortenAddress(addr: string): string {
   if (addr.length < 12) return addr;
-  return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
+  return `${addr.slice(0, 6)}…${addr.slice(-4)}`;
 }
 
 function formatCategory(category: string): string {
@@ -32,11 +34,8 @@ function formatCategory(category: string): string {
     .join(" ");
 }
 
-function formatFeesBnb(fees: number): string {
-  if (!Number.isFinite(fees) || fees <= 0) return "0 BNB";
-  if (fees >= 1000) return `${(fees / 1000).toFixed(1)}k BNB`;
-  if (fees >= 100) return `${Math.round(fees)} BNB`;
-  return `${fees.toFixed(2)} BNB`;
+function formatCount(n: number): string {
+  return Math.max(0, Math.floor(n)).toLocaleString("en-US");
 }
 
 function avatarColorFromAddress(addr: string): string {
@@ -60,10 +59,8 @@ function ColumnCard({
   footer?: ReactNode;
 }) {
   return (
-    <div className="rounded-2xl border border-[var(--border)] bg-[var(--background-card)] p-5">
-      <h3 className="mb-4 text-xs font-semibold uppercase tracking-widest text-slate-400">
-        {title}
-      </h3>
+    <div className="hub-dapp-column">
+      <h3 className="hub-dapp-column-title">{title}</h3>
       {children}
       {footer}
     </div>
@@ -71,19 +68,22 @@ function ColumnCard({
 }
 
 function EmptyColumn({ label = "No submissions yet" }: { label?: string }) {
-  return <p className="py-8 text-center text-xs text-slate-600">{label}</p>;
+  return <p className="py-8 text-center text-xs text-[var(--hub-muted)]">{label}</p>;
 }
 
 function ColumnSkeleton() {
   return (
     <div className="space-y-3">
       {Array.from({ length: 3 }).map((_, i) => (
-        <div key={i} className="animate-pulse space-y-2 border-b border-white/5 pb-3 last:border-0">
-          <div className="h-3.5 w-full rounded bg-white/10" />
-          <div className="h-3 w-2/3 rounded bg-white/5" />
-          <div className="flex justify-between">
-            <div className="h-6 w-16 rounded bg-white/10" />
-            <div className="h-6 w-14 rounded bg-white/5" />
+        <div
+          key={i}
+          className="space-y-2 border-b border-[var(--hub-border)] pb-3 last:border-0"
+        >
+          <div className="hub-dapp-skel h-3.5 w-full" />
+          <div className="hub-dapp-skel h-3 w-2/3" />
+          <div className="flex justify-between gap-2">
+            <div className="hub-dapp-skel h-7 w-16 rounded-md" />
+            <div className="hub-dapp-skel h-7 w-14 rounded-md" />
           </div>
         </div>
       ))}
@@ -151,18 +151,28 @@ function MostVotedItem({
     onSettled: () => {
       void qc.invalidateQueries({ queryKey: queryKeys.hub.communityDiscovery("votes", LIMIT) });
       void qc.invalidateQueries({ queryKey: queryKeys.hub.communityDiscovery("newest", LIMIT) });
+      void qc.invalidateQueries({
+        queryKey: [...queryKeys.hub.communityDiscovery("newest", LIMIT), "approved"],
+      });
     },
   });
 
+  const title = suggestion.question || suggestion.title;
+
   return (
-    <div className={cn(!isLast && "mb-3 border-b border-white/5 pb-3")}>
-      <p className="mb-2 line-clamp-2 text-sm font-medium text-slate-200">
-        {suggestion.question}
-      </p>
+    <div
+      className={cn(
+        "hub-dapp-suggest-row",
+        isLast && "hub-dapp-suggest-row--last",
+      )}
+    >
+      <p className="hub-dapp-suggest-title">{title}</p>
       <div className="flex items-center justify-between gap-2">
-        <p className="flex items-baseline">
-          <span className="text-xl font-black text-white">{suggestion.voteCount}</span>
-          <span className="ml-1 text-xs text-slate-500">votes</span>
+        <p className="flex items-baseline gap-1.5">
+          <span className="hub-dapp-suggest-vote-val">
+            {formatCount(suggestion.voteCount)}
+          </span>
+          <span className="hub-dapp-suggest-vote-label">votes</span>
         </p>
         <button
           type="button"
@@ -175,55 +185,80 @@ function MostVotedItem({
             voteMutation.mutate();
           }}
           className={cn(
-            "shrink-0 rounded-lg px-3 py-1 text-xs transition-colors",
+            "shrink-0 rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors",
             hasVoted
-              ? "border border-indigo-500/40 bg-indigo-500/20 text-indigo-300"
-              : "border border-indigo-500/30 text-indigo-400 hover:bg-indigo-500/10",
+              ? "border border-[var(--hub-primary)]/40 bg-[var(--hub-primary-soft)] text-[var(--hub-primary-bright)]"
+              : "border border-[var(--hub-border)] text-[var(--hub-primary-bright)] hover:bg-[var(--hub-primary-soft)]",
           )}
         >
-          {hasVoted ? "✓ Voted" : "↑ Vote"}
+          {hasVoted ? "✓ Voted" : "Vote"}
         </button>
       </div>
     </div>
   );
 }
 
-function NewestItem({
+function SuggestionListItem({
   suggestion,
   isLast,
+  showVotes,
 }: {
   suggestion: CommunitySuggestion;
   isLast?: boolean;
+  showVotes?: boolean;
 }) {
+  const title = suggestion.question || suggestion.title;
   const submitter = suggestion.creatorAddress
     ? `by ${shortenAddress(suggestion.creatorAddress)}`
     : "by Anonymous";
+  const marketHref = suggestion.marketSlug
+    ? ROUTES.market(suggestion.marketSlug)
+    : null;
 
-  return (
-    <div className={cn(!isLast && "mb-3 border-b border-white/5 pb-3")}>
-      <p className="mb-2 line-clamp-2 text-sm font-medium text-slate-200">
-        {suggestion.question}
-      </p>
+  const body = (
+    <div
+      className={cn(
+        "hub-dapp-suggest-row",
+        isLast && "hub-dapp-suggest-row--last",
+      )}
+    >
+      <p className="hub-dapp-suggest-title">{title}</p>
       <div className="flex flex-wrap items-center gap-2">
-        <span className="rounded bg-white/5 px-2 py-0.5 text-[10px] text-slate-400">
+        <span className="hub-dapp-market-chip">
           {formatCategory(suggestion.category)}
         </span>
-        <span className="font-mono text-xs text-slate-500">{submitter}</span>
-        <span className="text-xs text-slate-500">{suggestion.voteCount} votes</span>
+        <span className="font-mono text-xs text-[var(--hub-muted)]">{submitter}</span>
+        {showVotes ? (
+          <span className="hub-dapp-stat-value hub-dapp-stat-value--sm !inline text-[var(--hub-muted)]">
+            {formatCount(suggestion.voteCount)} votes
+          </span>
+        ) : null}
       </div>
     </div>
   );
+
+  if (marketHref) {
+    return (
+      <Link href={marketHref} className="hub-dapp-suggest-row--link">
+        {body}
+      </Link>
+    );
+  }
+  return body;
 }
 
 /**
- * Section 5 — Community Discovery: suggestions + top creators.
+ * Section 5 — Community Discovery: suggestions + top creators + submit form.
  */
 export function CommunityDiscovery() {
   const { address } = useAccount();
   const walletAddress = address ?? null;
+  const qc = useQueryClient();
+  const [submitOpen, setSubmitOpen] = useState(false);
 
   const mostVotedKey = queryKeys.hub.communityDiscovery("votes", LIMIT);
   const newestKey = queryKeys.hub.communityDiscovery("newest", LIMIT);
+  const approvedKey = [...queryKeys.hub.communityDiscovery("newest", LIMIT), "approved"] as const;
 
   const mostVotedQuery = useQuery({
     queryKey: mostVotedKey,
@@ -241,6 +276,14 @@ export function CommunityDiscovery() {
     refetchInterval: REFETCH_MS,
   });
 
+  const approvedQuery = useQuery({
+    queryKey: approvedKey,
+    queryFn: () =>
+      fetchCommunitySuggestions({ status: "approved", sort: "newest", limit: LIMIT }),
+    staleTime: 30_000,
+    refetchInterval: REFETCH_MS,
+  });
+
   const creatorsQuery = useQuery({
     queryKey: queryKeys.hub.topCreators(LIMIT),
     queryFn: () => fetchCreatorLeaderboard(LIMIT),
@@ -250,7 +293,16 @@ export function CommunityDiscovery() {
 
   const mostVoted = (mostVotedQuery.data ?? []).slice(0, LIMIT);
   const newest = (newestQuery.data ?? []).slice(0, LIMIT);
+  const approved = (approvedQuery.data ?? []).slice(0, LIMIT);
   const creators = (creatorsQuery.data ?? []).slice(0, LIMIT);
+
+  const openSubmit = () => setSubmitOpen(true);
+
+  const onSubmitSuccess = () => {
+    void qc.invalidateQueries({ queryKey: mostVotedKey });
+    void qc.invalidateQueries({ queryKey: newestKey });
+    void qc.invalidateQueries({ queryKey: approvedKey });
+  };
 
   return (
     <section className="hub-section" aria-label="Community Discovery">
@@ -261,22 +313,23 @@ export function CommunityDiscovery() {
             Markets the community wants to see
           </p>
         </div>
-        <Link
-          href={ROUTES.marketsCommunity}
-          className="inline-flex shrink-0 items-center justify-center rounded-xl bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-500"
+        <button
+          type="button"
+          onClick={openSubmit}
+          className="hub-dapp-cta hub-dapp-cta--solid !mt-0 !w-auto shrink-0 px-4"
         >
           Submit Market →
-        </Link>
+        </button>
       </div>
 
-      <div className="mt-4 grid grid-cols-1 gap-6 md:grid-cols-3">
-        {/* Column 1 — Most Voted */}
+      <div className="hub-dapp-grid-community mt-4">
+        {/* Most Voted Suggestions */}
         <ColumnCard
-          title="🔥 Most Voted"
+          title="🔥 Most Voted Suggestions"
           footer={
             <Link
               href={ROUTES.marketsCommunity}
-              className="mt-4 block text-xs text-slate-500 transition-colors hover:text-slate-300"
+              className="mt-4 block text-xs text-[var(--hub-muted)] transition-colors hover:text-[var(--hub-fg)]"
             >
               View all →
             </Link>
@@ -299,13 +352,13 @@ export function CommunityDiscovery() {
           )}
         </ColumnCard>
 
-        {/* Column 2 — Just Submitted */}
+        {/* Newest Suggestions (spec name — was "Just Submitted") */}
         <ColumnCard
-          title="🆕 Just Submitted"
+          title="🆕 Newest Suggestions"
           footer={
             <Link
               href={ROUTES.marketsCommunity}
-              className="mt-4 block text-xs text-slate-500 transition-colors hover:text-slate-300"
+              className="mt-4 block text-xs text-[var(--hub-muted)] transition-colors hover:text-[var(--hub-fg)]"
             >
               View all →
             </Link>
@@ -317,20 +370,52 @@ export function CommunityDiscovery() {
             <EmptyColumn />
           ) : (
             newest.map((s, i) => (
-              <NewestItem key={s.id} suggestion={s} isLast={i === newest.length - 1} />
+              <SuggestionListItem
+                key={s.id}
+                suggestion={s}
+                showVotes
+                isLast={i === newest.length - 1}
+              />
             ))
           )}
         </ColumnCard>
 
-        {/* Column 3 — Top Creators */}
+        {/* Recently Approved Suggestions — distinct from newest */}
+        <ColumnCard
+          title="✅ Recently Approved"
+          footer={
+            <Link
+              href={ROUTES.marketsCommunity}
+              className="mt-4 block text-xs text-[var(--hub-muted)] transition-colors hover:text-[var(--hub-fg)]"
+            >
+              View all →
+            </Link>
+          }
+        >
+          {approvedQuery.isLoading && approved.length === 0 ? (
+            <ColumnSkeleton />
+          ) : approved.length === 0 ? (
+            <EmptyColumn label="No approved suggestions yet" />
+          ) : (
+            approved.map((s, i) => (
+              <SuggestionListItem
+                key={s.id}
+                suggestion={s}
+                isLast={i === approved.length - 1}
+              />
+            ))
+          )}
+        </ColumnCard>
+
+        {/* Top Creators */}
         <ColumnCard
           title="🏆 Top Creators"
           footer={
             <Link
               href={ROUTES.LEADERBOARD}
-              className="mt-4 block text-xs text-slate-500 transition-colors hover:text-slate-300"
+              className="mt-4 block text-xs text-[var(--hub-muted)] transition-colors hover:text-[var(--hub-fg)]"
             >
-              View all →
+              Full leaderboard →
             </Link>
           }
         >
@@ -343,11 +428,11 @@ export function CommunityDiscovery() {
               <div
                 key={creator.creatorAddress}
                 className={cn(
-                  "flex items-center gap-3",
-                  index < creators.length - 1 && "mb-3 border-b border-white/5 pb-3",
+                  "hub-dapp-suggest-row flex items-center gap-3 !border-b-[var(--hub-border)]",
+                  index === creators.length - 1 && "hub-dapp-suggest-row--last",
                 )}
               >
-                <span className="w-6 shrink-0 text-lg font-black text-slate-600">
+                <span className="w-6 shrink-0 text-lg font-black tabular-nums text-[var(--hub-muted)]">
                   {index + 1}
                 </span>
                 <span
@@ -360,37 +445,48 @@ export function CommunityDiscovery() {
                 <div className="min-w-0 flex-1">
                   <Link
                     href={ROUTES.traderProfile(creator.creatorAddress)}
-                    className="block truncate font-mono text-sm text-slate-300 hover:text-white"
+                    className="block truncate font-mono text-sm text-[var(--hub-fg)] transition hover:text-[var(--hub-primary-bright)]"
                   >
                     {shortenAddress(creator.creatorAddress)}
                   </Link>
-                  <p className="text-xs text-slate-500">
-                    {creator.marketCount} market{creator.marketCount === 1 ? "" : "s"}
+                  <p className="mt-0.5">
+                    <span className="hub-dapp-stat-value hub-dapp-stat-value--sm !inline">
+                      {formatCount(creator.marketCount)}
+                    </span>{" "}
+                    <span className="hub-dapp-stat-label !inline !normal-case !tracking-normal">
+                      market{creator.marketCount === 1 ? "" : "s"} created
+                    </span>
                   </p>
                 </div>
-                <span className="shrink-0 text-xs font-medium text-green-400">
-                  {formatFeesBnb(creator.feesEarned)}
-                </span>
               </div>
             ))
           )}
         </ColumnCard>
       </div>
 
-      <div className="mt-6 flex flex-col gap-4 rounded-2xl border border-indigo-500/20 bg-gradient-to-r from-indigo-900/30 to-purple-900/30 p-6 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <p className="text-lg font-semibold text-white">Have an idea for a market?</p>
-          <p className="mt-1 text-sm text-slate-400">
+      <div className="hub-dapp-banner">
+        <div className="min-w-0">
+          <p className="text-lg font-semibold text-[var(--hub-fg)]">
+            Have an idea for a market?
+          </p>
+          <p className="mt-1 text-sm text-[var(--hub-muted)]">
             Submit it. If the community votes it up, it goes live.
           </p>
         </div>
-        <Link
-          href={ROUTES.marketsCommunity}
-          className="inline-flex shrink-0 items-center justify-center rounded-xl bg-white px-6 py-2.5 text-sm font-medium text-gray-900 transition-colors hover:bg-gray-100"
+        <button
+          type="button"
+          onClick={openSubmit}
+          className="hub-dapp-cta hub-dapp-cta--solid !mt-0 shrink-0 px-6 sm:!w-auto"
         >
           Submit Market Idea
-        </Link>
+        </button>
       </div>
+
+      <SubmitMarketModal
+        open={submitOpen}
+        onOpenChange={setSubmitOpen}
+        onSuccess={onSubmitSuccess}
+      />
     </section>
   );
 }

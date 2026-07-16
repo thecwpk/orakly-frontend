@@ -69,7 +69,10 @@ export async function runGlobalSearch(input: {
   const wantMarkets = input.types.has("markets");
   const wantNarratives = input.types.has("narratives");
   const wantCreators = input.types.has("creators");
-  const wantWallets = input.types.has("wallets") && looksLikeWalletQuery(q);
+  // Partial hex or full address — avoid matching every wallet on 1–2 char typing.
+  const wantWallets =
+    input.types.has("wallets") &&
+    (looksLikeWalletQuery(q) || (q.length >= 4 && /[0-9a-fx]/i.test(q)));
 
   const [markets, narratives, creators, wallets] = await Promise.all([
     wantMarkets ? searchMarkets(q) : Promise.resolve([]),

@@ -3,15 +3,17 @@
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
-import { ChevronDown } from "lucide-react";
+import { ArrowDown, ArrowUp, ChevronDown, RefreshCw } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { fetchAttentionDashboard } from "@/shared/api/fetchers/attention-dashboard";
 import { queryKeys } from "@/shared/api/query-keys";
+import { ROUTES } from "@/shared/constants/routes";
 import type {
   AttentionDashboardItem,
   AttentionMomentum,
 } from "@/shared/contracts/attention-dashboard";
 import { fmtUsdCompact } from "../lib/format-hub-metrics";
+import { TRENDING_NARRATIVES_DEMO } from "../lib/trending-narratives-demo";
 
 type SortKey = "trending" | "growing" | "volume" | "newest";
 
@@ -22,40 +24,28 @@ const SORT_OPTIONS: { value: SortKey; label: string }[] = [
   { value: "newest", label: "Newest" },
 ];
 
-const MOMENTUM_BADGE: Record<
-  AttentionMomentum,
-  { label: string; className: string }
-> = {
-  Growing: {
-    label: "↑ Growing",
-    className: "border border-green-500/20 bg-green-500/10 text-green-400",
-  },
-  Cooling: {
-    label: "↓ Cooling",
-    className: "border border-red-500/20 bg-red-500/10 text-red-400",
-  },
-  Stable: {
-    label: "→ Stable",
-    className: "border border-white/10 bg-white/5 text-slate-400",
-  },
-};
-
-function scoreColor(score: number): string {
-  if (score >= 67) return "text-green-400";
-  if (score >= 34) return "text-amber-400";
-  return "text-red-400";
+function scoreValueClass(score: number): string {
+  if (score >= 67) return "hub-dapp-move-up";
+  if (score >= 34) return "text-amber-300";
+  return "hub-dapp-move-down";
 }
 
-function scoreBarColor(score: number): string {
-  if (score >= 67) return "bg-green-400";
-  if (score >= 34) return "bg-amber-400";
-  return "bg-red-400";
+function scoreFillClass(score: number): string {
+  if (score >= 67) return "hub-dapp-score-fill--high";
+  if (score >= 34) return "hub-dapp-score-fill--mid";
+  return "hub-dapp-score-fill--low";
 }
 
-function momentumPct(current: number, prev: number): number {
+export function momentumPct(current: number, prev: number): number {
   if (!Number.isFinite(current)) return 0;
   if (!Number.isFinite(prev) || prev <= 0) return 0;
   return Number((((current - prev) / prev) * 100).toFixed(1));
+}
+
+function growingRank(momentum: AttentionMomentum): number {
+  if (momentum === "Growing") return 2;
+  if (momentum === "Stable") return 1;
+  return 0;
 }
 
 function sortNarratives(
@@ -66,9 +56,11 @@ function sortNarratives(
   switch (sort) {
     case "growing":
       return next.sort((a, b) => {
-        const aG = a.momentum === "Growing" ? 1 : 0;
-        const bG = b.momentum === "Growing" ? 1 : 0;
-        if (bG !== aG) return bG - aG;
+        const rank = growingRank(b.momentum) - growingRank(a.momentum);
+        if (rank !== 0) return rank;
+        const pctA = momentumPct(a.attentionScore, a.scorePrev24h);
+        const pctB = momentumPct(b.attentionScore, b.scorePrev24h);
+        if (pctB !== pctA) return pctB - pctA;
         return b.attentionScore - a.attentionScore;
       });
     case "volume":
@@ -84,133 +76,147 @@ function sortNarratives(
   }
 }
 
+function fmtVolume(n: number): string {
+  if (!Number.isFinite(n) || n <= 0) return "$0";
+  const compact = fmtUsdCompact(n);
+  return compact === "—" ? `$${Math.round(n).toLocaleString()}` : compact;
+}
+
 function NarrativeSkeletonCard() {
   return (
-    <div className="min-w-[200px] max-w-[200px] animate-pulse rounded-2xl border border-white/5 bg-white/[0.02] p-4">
-      <div className="mb-4 h-3 w-24 rounded bg-white/10" />
-      <div className="mb-3 h-10 w-12 rounded bg-white/10" />
-      <div className="mb-2 h-2 w-full rounded bg-white/5" />
-      <div className="h-2 w-20 rounded bg-white/5" />
+    <div className="hub-dapp-skel-card hub-dapp-narrative">
+      <div className="hub-dapp-skel mb-4 h-3.5 w-28" />
+      <div className="hub-dapp-skel mb-2 h-2.5 w-16" />
+      <div className="hub-dapp-skel mb-3 h-10 w-14" />
+      <div className="hub-dapp-skel mb-4 h-1.5 w-full rounded-full" />
+      <div className="hub-dapp-skel mb-2 h-3 w-full" />
+      <div className="hub-dapp-skel mb-2 h-3 w-4/5" />
+      <div className="hub-dapp-skel mt-3 h-9 w-full rounded-lg" />
     </div>
   );
 }
 
 function NarrativeCard({ item }: { item: AttentionDashboardItem }) {
-  const badge = MOMENTUM_BADGE[item.momentum];
   const score = Math.round(item.attentionScore);
+  const conviction = Math.round(item.convictionScore);
   const pct = momentumPct(item.attentionScore, item.scorePrev24h);
-  const pctPositive = pct >= 0;
-  const href = `/narratives/${encodeURIComponent(item.narrativeSlug)}`;
+  const positive = pct >= 0;
+  const href = ROUTES.narrativeDetail(item.narrativeSlug);
 
   return (
-    <Link
-      href={href}
-      className={cn(
-        "group flex min-w-[200px] max-w-[200px] cursor-pointer flex-col rounded-2xl border border-white/5 p-4",
-        "bg-gradient-to-b from-[var(--background-card)] to-[#0f1117]",
-        "transition-all duration-200",
-        "hover:border-indigo-500/30 hover:shadow-lg hover:shadow-indigo-500/5",
-      )}
-    >
-      <div className="flex items-start justify-between gap-2">
-        <h3 className="min-w-0 truncate text-sm font-semibold text-white">
-          {item.narrativeName}
-        </h3>
-        <span
+    <article className="hub-dapp-card hub-dapp-card--interactive hub-dapp-narrative">
+      <h3 className="hub-dapp-narrative-title">{item.narrativeName}</h3>
+
+      <div className="mt-3.5">
+        <span className="hub-dapp-stat-label">Attention</span>
+        <p
           className={cn(
-            "shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium",
-            badge.className,
+            "hub-dapp-stat-value hub-dapp-stat-value--lg mt-1",
+            scoreValueClass(score),
           )}
         >
-          {badge.label}
-        </span>
-      </div>
-
-      <div className="mt-3">
-        <p className="text-[10px] uppercase tracking-widest text-slate-500">
-          Attention
-        </p>
-        <p className={cn("text-4xl font-black leading-none tabular-nums", scoreColor(score))}>
           {score}
         </p>
-        <div className="mt-1 h-1 w-full overflow-hidden rounded-full bg-white/5">
+        <div className="hub-dapp-score-track mt-2">
           <div
-            className={cn("h-full rounded-full transition-all", scoreBarColor(score))}
+            className={cn("hub-dapp-score-fill", scoreFillClass(score))}
             style={{ width: `${Math.min(100, Math.max(0, score))}%` }}
           />
         </div>
       </div>
 
-      <div className="mt-3 flex items-center justify-between gap-2">
-        <span className="text-[10px] text-slate-500">CONVICTION</span>
-        <span className="text-sm font-bold tabular-nums text-slate-300">
-          {Math.round(item.convictionScore)}
-        </span>
-      </div>
-
-      <div className="mt-1 flex items-center justify-between gap-2">
-        <span className="text-[10px] text-slate-500">MOMENTUM</span>
-        <span
-          className={cn(
-            "text-sm font-bold tabular-nums",
-            pctPositive ? "text-green-400" : "text-red-400",
-          )}
-        >
-          {pctPositive ? "+" : ""}
-          {pct}%
-        </span>
-      </div>
-
-      <div className="mt-3 flex items-center justify-between gap-2 border-t border-white/5 pt-3">
-        <span className="text-[11px] text-slate-500">
-          Markets:{" "}
-          <span className="font-medium text-slate-300">{item.activeMarkets}</span>
-        </span>
-        <span className="text-[11px] text-slate-500">
-          Vol:{" "}
-          <span className="font-medium text-slate-300">
-            {fmtUsdCompact(item.volume24hUsd)}
+      <div className="hub-dapp-narrative-meta">
+        <div className="hub-dapp-narrative-row">
+          <span className="hub-dapp-stat-label">Conviction</span>
+          <span className="hub-dapp-stat-value hub-dapp-stat-value--md">
+            {conviction}
           </span>
-        </span>
+        </div>
+        <div className="hub-dapp-narrative-row">
+          <span className="hub-dapp-stat-label">Momentum</span>
+          <span
+            className={cn(
+              "inline-flex items-center gap-0.5 hub-dapp-stat-value hub-dapp-stat-value--md",
+              positive ? "hub-dapp-move-up" : "hub-dapp-move-down",
+            )}
+          >
+            {positive ? (
+              <ArrowUp className="size-3.5 shrink-0" aria-hidden />
+            ) : (
+              <ArrowDown className="size-3.5 shrink-0" aria-hidden />
+            )}
+            {positive ? "+" : ""}
+            {pct}%
+          </span>
+        </div>
       </div>
 
-      <span
-        className={cn(
-          "mt-3 block w-full rounded-lg py-1.5 text-center text-xs text-indigo-400",
-          "transition-colors group-hover:bg-indigo-500/10 group-hover:text-indigo-300",
-        )}
-      >
-        View Narrative →
-      </span>
-    </Link>
+      <div className="hub-dapp-narrative-foot">
+        <div className="hub-dapp-narrative-row">
+          <span className="hub-dapp-stat-label">Markets</span>
+          <span className="hub-dapp-stat-value hub-dapp-stat-value--sm">
+            {item.activeMarkets}
+          </span>
+        </div>
+        <div className="hub-dapp-narrative-row">
+          <span className="hub-dapp-stat-label">Volume</span>
+          <span className="hub-dapp-stat-value hub-dapp-stat-value--sm">
+            {fmtVolume(item.volume24hUsd)}
+          </span>
+        </div>
+      </div>
+
+      <Link href={href} className="hub-dapp-cta">
+        View Narrative
+      </Link>
+    </article>
   );
 }
 
+function ResolveRows(
+  payload: AttentionDashboardItem[] | undefined,
+): { rows: AttentionDashboardItem[]; source: "api" | "demo" } {
+  const data = payload ?? [];
+  const real = data.filter((row) => !row._isMock);
+  if (real.length > 0) {
+    return { rows: real.slice(0, 12), source: "api" };
+  }
+  // Empty API or server-only mock rows → client demo desk (richer, sortable).
+  return {
+    rows: [...TRENDING_NARRATIVES_DEMO],
+    source: "demo",
+  };
+}
+
 /**
- * Section 2 — Trending Narratives: horizontal cards of attention flow.
+ * Section 2 — Trending Narratives: attention cards + working sort controls.
  */
 export function TrendingNarratives() {
   const [sort, setSort] = useState<SortKey>("trending");
 
   const query = useQuery({
-    queryKey: queryKeys.hub.attentionDashboard(8),
-    queryFn: () => fetchAttentionDashboard(8),
+    queryKey: queryKeys.hub.attentionDashboard(12),
+    queryFn: () => fetchAttentionDashboard(12),
     staleTime: 20_000,
     refetchInterval: 30_000,
+    retry: 1,
   });
 
-  const rows = useMemo(() => {
-    const data = query.data?.data ?? [];
-    const real = data.filter((row) => !row._isMock);
-    const source = real.length > 0 ? real : data;
-    if (data.length > 0 && data.every((row) => row._isMock)) {
-      return [];
+  const resolved = useMemo(() => {
+    if (query.isError) return { rows: [] as AttentionDashboardItem[], source: "api" as const };
+    if (query.isLoading && !query.data) {
+      return { rows: [] as AttentionDashboardItem[], source: "api" as const };
     }
-    return sortNarratives(source.slice(0, 8), sort);
-  }, [query.data, sort]);
+    return ResolveRows(query.data?.data);
+  }, [query.data, query.isError, query.isLoading]);
 
-  const showEmpty = !query.isLoading && rows.length === 0;
-  const showSkeletons = query.isLoading && rows.length === 0;
+  const rows = useMemo(
+    () => sortNarratives(resolved.rows, sort),
+    [resolved.rows, sort],
+  );
+
+  const showSkeletons = query.isLoading && !query.data && !query.isError;
+  const showError = query.isError && rows.length === 0;
 
   return (
     <section className="hub-section" aria-label="Trending Narratives">
@@ -220,48 +226,65 @@ export function TrendingNarratives() {
           <p className="mt-0.5 text-sm text-slate-500">Where attention is flowing</p>
         </div>
 
-        <label className="relative inline-flex shrink-0 items-center">
-          <span className="sr-only">Sort narratives</span>
-          <select
-            value={sort}
-            onChange={(e) => setSort(e.target.value as SortKey)}
-            className={cn(
-              "appearance-none rounded-lg border border-white/10 bg-white/5",
-              "py-1.5 pl-3 pr-8 text-sm text-slate-300",
-              "focus:outline-none focus:ring-2 focus:ring-indigo-500/30",
-            )}
+        <div className="flex flex-wrap items-center gap-2">
+          {resolved.source === "demo" && !showError && !showSkeletons ? (
+            <span className="rounded border border-white/10 bg-white/5 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-slate-500">
+              Demo narratives
+            </span>
+          ) : null}
+          <label className="relative inline-flex shrink-0 items-center">
+            <span className="sr-only">Sort narratives</span>
+            <select
+              value={sort}
+              onChange={(e) => setSort(e.target.value as SortKey)}
+              disabled={showSkeletons || showError}
+              className={cn(
+                "appearance-none rounded-lg border border-white/10 bg-white/5",
+                "py-1.5 pl-3 pr-8 text-sm text-slate-300",
+                "focus:outline-none focus:ring-2 focus:ring-indigo-500/30",
+                "disabled:cursor-not-allowed disabled:opacity-50",
+              )}
+            >
+              {SORT_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
+            <ChevronDown
+              className="pointer-events-none absolute right-2.5 size-3.5 text-slate-500"
+              aria-hidden
+            />
+          </label>
+        </div>
+      </div>
+
+      {showError ? (
+        <div className="rounded-2xl border border-dashed border-rose-400/30 bg-rose-500/5 px-6 py-10 text-center">
+          <p className="text-sm font-semibold text-white">Couldn’t load narratives</p>
+          <p className="mx-auto mt-1 max-w-sm text-xs text-slate-500">
+            {query.error instanceof Error
+              ? query.error.message
+              : "The attention feed is unavailable."}
+          </p>
+          <button
+            type="button"
+            onClick={() => void query.refetch()}
+            className="mt-4 inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-white transition hover:bg-white/10"
           >
-            {SORT_OPTIONS.map((opt) => (
-              <option key={opt.value} value={opt.value}>
-                {opt.label}
-              </option>
-            ))}
-          </select>
-          <ChevronDown
-            className="pointer-events-none absolute right-2.5 size-3.5 text-slate-500"
-            aria-hidden
-          />
-        </label>
-      </div>
-
-      <div
-        className={cn(
-          "flex gap-4 overflow-x-auto pb-3",
-          "[scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
-        )}
-      >
-        {showSkeletons || showEmpty
-          ? Array.from({ length: 4 }).map((_, i) => (
-              <NarrativeSkeletonCard key={i} />
-            ))
-          : rows.map((item) => <NarrativeCard key={item.id} item={item} />)}
-      </div>
-
-      {showEmpty ? (
-        <p className="mt-2 text-center text-xs text-slate-600">
-          Narrative data loads after first market activity
-        </p>
-      ) : null}
+            <RefreshCw className="size-3.5" aria-hidden />
+            Retry
+          </button>
+        </div>
+      ) : (
+        <div className="hub-dapp-rail">
+          {showSkeletons
+            ? Array.from({ length: 6 }).map((_, i) => (
+                <NarrativeSkeletonCard key={i} />
+              ))
+            : rows.map((item) => <NarrativeCard key={item.id} item={item} />)}
+        </div>
+      )}
     </section>
   );
 }

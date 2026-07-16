@@ -14,15 +14,20 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useAccount } from "wagmi";
 import { useQueryClient } from "@tanstack/react-query";
 import { cn } from "@/lib/utils";
+import { ROUTES } from "@/shared/constants/routes";
 import { useWalletNotificationsQuery } from "@/shared/api/hooks";
 import { markWalletNotificationsRead } from "@/shared/api/fetchers/wallet-notifications";
 import { queryKeys } from "@/shared/api/query-keys";
 import { useNotificationsStore } from "../store/use-notifications-store";
 import type { AppNotification, AppNotificationType } from "../types";
+import {
+  buildDemoNotifications,
+  isDemoNotificationId,
+} from "../lib/demo-notifications";
 import { usePortfolioRealtimeTick } from "@/websocket/hooks/usePortfolioRealtimeTick";
 import {
   getFeedGeneration,
@@ -66,6 +71,16 @@ const TYPE_META: Record<
   },
 };
 
+/** Frozen nav group order + labels. */
+const GROUP_ORDER: { type: AppNotificationType; label: string }[] = [
+  { type: "SETTLEMENT", label: "Settlements" },
+  { type: "APPROVAL", label: "Approvals" },
+  { type: "VOTE", label: "Votes" },
+  { type: "REWARD", label: "Rewards" },
+  { type: "MARKET_CLOSING", label: "Market Closing" },
+  { type: "NEW_MARKET", label: "New Markets" },
+];
+
 function formatRelative(at: string): string {
   const ms = Date.now() - new Date(at).getTime();
   const s = Math.max(0, Math.floor(ms / 1000));
@@ -76,6 +91,13 @@ function formatRelative(at: string): string {
   if (h < 24) return `${h}h ago`;
   const d = Math.floor(h / 24);
   return `${d}d ago`;
+}
+
+function groupNotifications(items: AppNotification[]) {
+  return GROUP_ORDER.map((g) => ({
+    ...g,
+    items: items.filter((n) => n.type === g.type),
+  })).filter((g) => g.items.length > 0);
 }
 
 /**
@@ -106,12 +128,35 @@ export function NotificationsDropdown() {
   const portfolioTick = usePortfolioRealtimeTick(tradingUserId);
 
   useEffect(() => {
-    if (!notificationsQ.data) return;
+    if (!walletAddress) return;
+    if (notificationsQ.isLoading) return;
+
+    const apiRows = notificationsQ.data?.notifications ?? [];
+    if (apiRows.length > 0) {
+      setAppNotifications(apiRows, notificationsQ.data?.unreadCount);
+      return;
+    }
+
+    // Keep local demo inbox (incl. read state) across empty-API refetches.
+    const current = useNotificationsStore.getState().items;
+    if (
+      current.length > 0 &&
+      current.every((n) => isDemoNotificationId(n.id))
+    ) {
+      return;
+    }
+
+    const demo = buildDemoNotifications();
     setAppNotifications(
-      notificationsQ.data.notifications,
-      notificationsQ.data.unreadCount,
+      demo,
+      demo.reduce((acc, n) => acc + (n.read ? 0 : 1), 0),
     );
-  }, [notificationsQ.data, setAppNotifications]);
+  }, [
+    walletAddress,
+    notificationsQ.isLoading,
+    notificationsQ.data,
+    setAppNotifications,
+  ]);
 
   useEffect(() => {
     if (!walletAddress || portfolioTick === 0) return;
@@ -148,14 +193,32 @@ export function NotificationsDropdown() {
     };
   }, [open, setOpen]);
 
+  const groups = useMemo(() => groupNotifications(items), [items]);
+
   async function markRead(ids: string[], markAll = false) {
     if (!walletAddress) return;
+
     if (markAll) markAllLocal();
     else ids.forEach((id) => markReadLocal(id));
+
+    const apiIds = ids.filter((id) => !isDemoNotificationId(id));
+    const onlyDemo =
+      !markAll && ids.length > 0 && apiIds.length === 0;
+    if (onlyDemo) return;
+
+    // Skip API when inbox is entirely demo (no server rows).
+    if (
+      markAll &&
+      items.length > 0 &&
+      items.every((n) => isDemoNotificationId(n.id))
+    ) {
+      return;
+    }
+
     try {
       const result = await markWalletNotificationsRead({
         walletAddress,
-        ids,
+        ids: markAll ? [] : apiIds,
         markAll,
       });
       setUnreadCount(result.unreadCount);
@@ -258,50 +321,71 @@ export function NotificationsDropdown() {
                     You&apos;re all caught up
                   </p>
                   <p className="text-[11px] text-zinc-500">
-                    Settlements, approvals, and rewards will show up here.
+                    Settlements, approvals, votes, rewards, and closing
+                    markets will show up here.
                   </p>
                 </div>
               ) : (
-                <ul className="divide-y divide-white/[0.04] py-1">
-                  {items.map((n) => {
-                    const meta = TYPE_META[n.type];
-                    const Icon = meta.icon;
-                    return (
-                      <li key={n.id}>
-                        <button
-                          type="button"
-                          onClick={() => onRowClick(n)}
-                          className={cn(
-                            "flex w-full items-start gap-2.5 px-3 py-2.5 text-left transition hover:bg-white/[0.04]",
-                            !n.read && "bg-white/[0.015]",
-                          )}
-                        >
-                          <span className="mt-1.5 flex w-2 shrink-0 justify-center">
-                            {!n.read ? (
-                              <span className="h-1.5 w-1.5 rounded-full bg-sky-400 shadow-[0_0_6px_rgba(56,189,248,0.55)]" />
-                            ) : null}
-                          </span>
-                          <span
-                            className={cn(
-                              "flex size-9 shrink-0 items-center justify-center rounded-full ring-1",
-                              meta.circleClass,
-                            )}
-                          >
-                            <Icon className={cn("size-4", meta.iconClass)} />
-                          </span>
-                          <span className="min-w-0 flex-1 pt-0.5">
-                            <span className="block text-[13px] leading-snug text-zinc-100">
-                              {n.message}
-                            </span>
-                            <span className="mt-1 block text-[11px] text-zinc-500">
-                              {formatRelative(n.at)}
-                            </span>
-                          </span>
-                        </button>
-                      </li>
-                    );
-                  })}
-                </ul>
+                <div className="py-1">
+                  {groups.map((group) => (
+                    <section key={group.type} className="pb-1">
+                      <p className="sticky top-0 z-[1] bg-[#12141c]/95 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-zinc-500 backdrop-blur-sm">
+                        {group.label}
+                      </p>
+                      <ul>
+                        {group.items.map((n) => {
+                          const meta = TYPE_META[n.type];
+                          const Icon = meta.icon;
+                          return (
+                            <li key={n.id}>
+                              <button
+                                type="button"
+                                onClick={() => onRowClick(n)}
+                                className={cn(
+                                  "flex w-full items-start gap-2.5 px-3 py-2.5 text-left transition hover:bg-white/[0.04]",
+                                  !n.read
+                                    ? "bg-sky-500/[0.06] ring-1 ring-inset ring-sky-400/10"
+                                    : "opacity-70",
+                                )}
+                              >
+                                <span className="mt-1.5 flex w-2 shrink-0 justify-center">
+                                  {!n.read ? (
+                                    <span className="h-1.5 w-1.5 rounded-full bg-sky-400 shadow-[0_0_6px_rgba(56,189,248,0.55)]" />
+                                  ) : null}
+                                </span>
+                                <span
+                                  className={cn(
+                                    "flex size-9 shrink-0 items-center justify-center rounded-full ring-1",
+                                    meta.circleClass,
+                                  )}
+                                >
+                                  <Icon
+                                    className={cn("size-4", meta.iconClass)}
+                                  />
+                                </span>
+                                <span className="min-w-0 flex-1 pt-0.5">
+                                  <span
+                                    className={cn(
+                                      "block text-[13px] leading-snug",
+                                      !n.read
+                                        ? "font-medium text-zinc-50"
+                                        : "text-zinc-400",
+                                    )}
+                                  >
+                                    {n.message}
+                                  </span>
+                                  <span className="mt-1 block text-[11px] text-zinc-500">
+                                    {formatRelative(n.at)}
+                                  </span>
+                                </span>
+                              </button>
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    </section>
+                  ))}
+                </div>
               )}
             </div>
 
@@ -310,8 +394,8 @@ export function NotificationsDropdown() {
                 type="button"
                 disabled={!connected}
                 onClick={() => {
-                  void markRead([], true);
                   setOpen(false);
+                  router.push(ROUTES.settingsNotifications);
                 }}
                 className="w-full text-center text-[12px] font-medium text-zinc-400 transition hover:text-zinc-200 disabled:opacity-40"
               >

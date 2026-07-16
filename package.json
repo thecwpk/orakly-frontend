@@ -5,6 +5,7 @@
   "workspaces": ["apps/*", "packages/*"],
   "scripts": {
     "db:generate": "npm run db:generate --workspace=@orakly/database && node ./scripts/sync-prisma-client.mjs",
+    "seed:demo": "npm run seed:demo --workspace=@orakly/database",
     "bootstrap:dev": "npm run bootstrap:dev --workspace=web",
     "verify:vercel": "npm run verify:vercel --workspace=web",
     "postinstall": "node ./scripts/sync-prisma-client.mjs",

@@ -99,6 +99,11 @@ export function isMarketsBrowseActive(
   if (!pathname) return false;
   if (pathname === ROUTES.dapp || pathname.startsWith(`${ROUTES.dapp}/`)) return false;
   if (pathname === ROUTES.attention || pathname.startsWith(`${ROUTES.attention}/`)) return false;
+  if (pathname === ROUTES.narratives || pathname.startsWith(`${ROUTES.narratives}/`)) {
+    // Keep narrative detail `/narratives/[slug]` out of Markets browse highlight —
+    // except root `/narratives` is the Narratives desk (same as attention).
+    return false;
+  }
   if (pathname === ROUTES.analytics || pathname.startsWith(`${ROUTES.analytics}/`)) return false;
   if (pathname === ROUTES.narrativeWars || pathname.startsWith(`${ROUTES.narrativeWars}/`)) return false;
   if (pathname === ROUTES.marketsCommunity || pathname.startsWith(`${ROUTES.marketsCommunity}/`)) {
@@ -119,11 +124,21 @@ export function isHubHomeActive(pathname: string | null): boolean {
 
 export function isAttentionAnchorActive(pathname?: string | null): boolean {
   if (pathname) {
-    return pathname === ROUTES.attention || pathname.startsWith(`${ROUTES.attention}/`);
+    return (
+      pathname === ROUTES.attention ||
+      pathname.startsWith(`${ROUTES.attention}/`) ||
+      pathname === ROUTES.narratives ||
+      pathname.startsWith(`${ROUTES.narratives}/`)
+    );
   }
   if (typeof window === "undefined") return false;
   const p = window.location.pathname;
-  return p === ROUTES.attention || p.startsWith(`${ROUTES.attention}/`);
+  return (
+    p === ROUTES.attention ||
+    p.startsWith(`${ROUTES.attention}/`) ||
+    p === ROUTES.narratives ||
+    p.startsWith(`${ROUTES.narratives}/`)
+  );
 }
 
 export function isAnalyticsActive(pathname: string | null): boolean {

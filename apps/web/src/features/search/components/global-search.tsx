@@ -72,10 +72,6 @@ const EMPTY: SearchPayload = {
   wallets: [],
 };
 
-function looksLikeWallet(q: string): boolean {
-  return q.startsWith("0x") && q.length >= 10;
-}
-
 function truncate(text: string, max: number): string {
   if (text.length <= max) return text;
   return `${text.slice(0, max - 1)}…`;
@@ -180,9 +176,7 @@ export function GlobalSearch() {
 
     let cancelled = false;
     setLoading(true);
-    const types = looksLikeWallet(q)
-      ? "markets,narratives,creators,wallets"
-      : "markets,narratives,creators";
+    const types = "markets,narratives,creators,wallets";
 
     void (async () => {
       const res = await apiClient.request<SearchPayload>(
@@ -269,12 +263,15 @@ export function GlobalSearch() {
 
   const q = query.trim();
   const showEmptyState = !q;
+  const pendingSearch = Boolean(q) && debounced.trim() !== q;
+  const searching = loading || pendingSearch;
   const hasResults =
     results.markets.length > 0 ||
     results.narratives.length > 0 ||
     results.creators.length > 0 ||
     results.wallets.length > 0;
-  const showNoResults = Boolean(q) && !loading && debounced.trim() === q && !hasResults;
+  const showNoResults =
+    Boolean(q) && !searching && debounced.trim() === q && !hasResults;
 
   return (
     <AnimatePresence>
@@ -379,7 +376,7 @@ export function GlobalSearch() {
                     Start typing to search markets, narratives, creators, and wallets.
                   </p>
                 )
-              ) : loading ? (
+              ) : searching ? (
                 <div className="space-y-5">
                   <div>
                     <SectionLabel>Markets</SectionLabel>
@@ -391,6 +388,10 @@ export function GlobalSearch() {
                   </div>
                   <div>
                     <SectionLabel>Creators</SectionLabel>
+                    <SkeletonRows count={2} />
+                  </div>
+                  <div>
+                    <SectionLabel>Wallets</SectionLabel>
                     <SkeletonRows count={2} />
                   </div>
                 </div>
@@ -434,7 +435,9 @@ export function GlobalSearch() {
                           <li key={n.slug}>
                             <button
                               type="button"
-                              onClick={() => navigate(`/narratives/${n.slug}`)}
+                              onClick={() =>
+                                navigate(ROUTES.narrativeDetail(n.slug))
+                              }
                               className="flex w-full items-center gap-2 rounded-xl px-2.5 py-2.5 text-left transition hover:bg-white/[0.05]"
                             >
                               <TrendingUp className="size-4 shrink-0 text-cyan-300/90" />
