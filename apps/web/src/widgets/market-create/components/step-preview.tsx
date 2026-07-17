@@ -6,9 +6,9 @@ import { findCategory } from "@/features/markets/lib/categories";
 import { PreviewCard } from "./preview-card";
 
 function formatDateTime(iso: string): string {
-  if (!iso) return "—";
+  if (!iso) return "N/A";
   const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return "—";
+  if (Number.isNaN(d.getTime())) return "N/A";
   return d.toLocaleString(undefined, {
     dateStyle: "medium",
     timeStyle: "short",
@@ -39,10 +39,10 @@ export function StepPreview() {
       <div className="rounded-xl border border-white/10 bg-black/20">
         <dl className="divide-y divide-white/[0.06]">
           {[
-            ["Slug", `/markets/${draft.slug || "—"}`, true],
+            ["Slug", `/markets/${draft.slug || "your-slug"}`, true],
             ["Category", cat?.name ?? draft.category, false],
             ["Resolution", draft.source.toLowerCase(), false],
-            ["Source URL", draft.sourceUrl || "—", true],
+            ["Source URL", draft.sourceUrl || "Not set", true],
             ["Opens", formatDateTime(draft.opensAt), false],
             ["Closes", formatDateTime(draft.closesAt), false],
             ["Liquidity seed", formatCompactUsd(draft.liquiditySeedUsd), false],

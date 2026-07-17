@@ -9,7 +9,7 @@ import { ROUTES, marketsExplorerFeedUrl } from "@/shared/constants/routes";
 import { useHydrationSafeReducedMotion } from "@/lib/use-hydration-safe-reduced-motion";
 
 function fmtUsdToday(n: number): string {
-  if (!Number.isFinite(n) || n <= 0) return "—";
+  if (!Number.isFinite(n) || n <= 0) return "N/A";
   if (n >= 1_000_000) return `$${(n / 1_000_000).toFixed(n >= 10_000_000 ? 0 : 1)}M today`;
   if (n >= 10_000) return `$${(n / 1_000).toFixed(0)}k today`;
   return `$${Math.round(n).toLocaleString()} today`;

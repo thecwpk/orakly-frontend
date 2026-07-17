@@ -8,9 +8,9 @@ import { useCreateMarketStore } from "@/features/markets/store/use-create-market
 import { cn } from "@/lib/utils";
 
 function relTime(iso: string): string {
-  if (!iso) return "—";
+  if (!iso) return "N/A";
   const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return "—";
+  if (Number.isNaN(d.getTime())) return "N/A";
   const diffMs = d.getTime() - Date.now();
   const hours = Math.round(diffMs / 3600_000);
   if (Math.abs(hours) < 48) return `${hours >= 0 ? "in" : ""} ${Math.abs(hours)}h`;
@@ -64,12 +64,12 @@ export function SummaryRail({
           )}
         </p>
         <p className="font-mono text-[10px] text-zinc-600">
-          /markets/{draft.slug || "—"}
+          /markets/{draft.slug || "your-slug"}
         </p>
       </div>
 
       <dl className="grid grid-cols-2 gap-2">
-        <SummaryStat label="Category" value={cat?.name ?? "—"} />
+        <SummaryStat label="Category" value={cat?.name ?? "N/A"} />
         <SummaryStat label="Source" value={draft.source.toLowerCase()} mono />
         <SummaryStat
           label="Liquidity"

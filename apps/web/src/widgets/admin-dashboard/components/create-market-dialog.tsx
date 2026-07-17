@@ -155,10 +155,10 @@ export function CreateMarketDialog({
     }
     if (!isFutureDate(state.resolutionDate)) out.resolutionDate = "Must be in the future";
     if (state.creatorRewardPercent < 0 || state.creatorRewardPercent > 20) {
-      out.creatorRewardPercent = "0–20%";
+      out.creatorRewardPercent = "0 to 20%";
     }
     if (state.minimumBetBnb < 0.001 || state.minimumBetBnb > 100) {
-      out.minimumBetBnb = "0.001 – 100 BNB";
+      out.minimumBetBnb = "0.001 to 100 BNB";
     }
     return out;
   }, [state]);
@@ -198,7 +198,7 @@ export function CreateMarketDialog({
                 id="create-market-dialog-desc"
                 className="mt-0.5 text-[12px] leading-relaxed text-[var(--hub-muted)]"
               >
-                Step 1 — saves to the database only. Deploy on-chain from the markets table
+                Step 1 saves to the database only. Deploy on-chain from the markets table
                 when ready.
               </p>
             </div>
@@ -219,7 +219,7 @@ export function CreateMarketDialog({
                 </p>
                 <p className="text-[12px] text-emerald-200/80">
                   The listing appears in the table with status{" "}
-                  <span className="font-semibold">DB Only — Not Tradeable</span>.
+                  <span className="font-semibold">DB Only: Not Tradeable</span>.
                 </p>
               </div>
               <button

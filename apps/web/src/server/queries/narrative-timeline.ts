@@ -59,7 +59,7 @@ export async function getNarrativeTimeline(
         id: `attn-${m.id}`,
         at: m.createdAt.toISOString(),
         kind: "ATTENTION_MILESTONE",
-        description: `Attention milestone — score reached ${Math.round(attention)} on ${m.title}`,
+        description: `Attention milestone: score reached ${Math.round(attention)} on ${m.title}`,
       });
     }
   }

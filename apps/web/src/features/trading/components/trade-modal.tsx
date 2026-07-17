@@ -96,7 +96,7 @@ export function TradeModal() {
             setChainTxHash(res.txHash);
             setPhase("result");
             toast.success("On-chain trade confirmed", {
-              description: `${draft.direction} ${draft.outcome} — tx ${res.txHash.slice(0, 10)}…`,
+              description: `${draft.direction} ${draft.outcome}. Transaction ${res.txHash.slice(0, 10)}…`,
             });
 
             if (!market?.tradeMarketId || !composed) return;

@@ -273,7 +273,7 @@ const MARKETS: readonly SeedMarket[] = [
   },
   {
     slug: "uefa-champs-real-madrid-2027",
-    title: "Real Madrid wins the UEFA Champions League in the 2026–27 season?",
+    title: "Real Madrid wins the UEFA Champions League in the 2026-27 season?",
     categorySlug: "sports",
     volumeTotalUsd: 5_600_000,
     volume24hUsd: 670_000,

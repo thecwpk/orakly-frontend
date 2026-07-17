@@ -155,7 +155,7 @@ function ConnectedWalletCardInner({ authedAddress }: Props) {
               value={chain?.name ?? "Unknown"}
               status={isCorrectChain ? "ok" : "warn"}
             />
-            <RowKV label="Chain ID" value={chainId != null ? String(chainId) : "—"} mono />
+            <RowKV label="Chain ID" value={chainId != null ? String(chainId) : "N/A"} mono />
             <RowKV
               label="Session"
               value={sessionMatchesWallet ? "Authenticated" : "Not signed"}

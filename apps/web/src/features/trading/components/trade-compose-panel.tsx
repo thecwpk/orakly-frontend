@@ -326,7 +326,7 @@ function TradeComposePanelInner({
       : wrongChain
         ? "Switch your wallet to BNB Smart Chain Testnet to continue."
       : market.status !== "OPEN"
-        ? `This market is ${market.status.toLowerCase()} — trading is unavailable.`
+        ? `This market is ${market.status.toLowerCase()}. Trading is unavailable.`
         : quoteFailed
           ? "Unable to load a trade quote. Check your network connection and try again."
           : exceedsBalance
@@ -519,7 +519,7 @@ function TradeComposePanelInner({
                     : "Connect wallet"
                   : portfolio.isLoading
                     ? "…"
-                    : "—"}
+                    : "N/A"}
             </span>
           </span>
         </div>

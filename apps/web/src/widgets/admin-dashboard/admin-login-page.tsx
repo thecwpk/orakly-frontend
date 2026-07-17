@@ -66,7 +66,7 @@ export function AdminLoginPage() {
             <h1 className="text-lg font-semibold text-[var(--hub-fg)]">Operator access</h1>
             <p className="text-[13px] text-[var(--hub-muted)]">
               {walletOperator
-                ? "Wallet recognized — retry sign-in below."
+                ? "Wallet recognized. Retry sign-in below."
                 : "Connect an admin wallet or use a bootstrap token."}
             </p>
           </div>

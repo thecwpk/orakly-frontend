@@ -3,7 +3,7 @@ import { Suspense } from "react";
 import { MarketingDiscoverPage } from "@/widgets/marketing-discover";
 
 export const metadata: Metadata = {
-  title: "Discover markets — Orakly",
+  title: "Discover markets: Orakly",
   description:
     "Browse live prediction markets with hub-style lanes, category filters, and real headlines from trusted publishers (Google News RSS; optional NewsAPI).",
 };

@@ -5,6 +5,7 @@ import { useMemo, useState, type ReactNode } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useAccount } from "wagmi";
 import { useConnectModal } from "@rainbow-me/rainbowkit";
+import { Medal, Trophy } from "lucide-react";
 import { compactUsd, shortAddress } from "@/features/leaderboard/lib/format";
 import { cn } from "@/lib/utils";
 import {
@@ -68,20 +69,20 @@ function formatBnb(n: number): string {
 }
 
 function formatScore(score: number | null | undefined): string {
-  if (score == null || !Number.isFinite(score)) return "—";
+  if (score == null || !Number.isFinite(score)) return "N/A";
   if (score >= 1_000) return `${(score / 1_000).toFixed(1)}k`;
   return score.toFixed(score >= 10 ? 0 : 1);
 }
 
 function formatActiveSince(iso: string | null | undefined): string {
-  if (!iso) return "—";
+  if (!iso) return "N/A";
   try {
     return new Intl.DateTimeFormat(undefined, {
       month: "short",
       year: "numeric",
     }).format(new Date(iso));
   } catch {
-    return "—";
+    return "N/A";
   }
 }
 
@@ -108,21 +109,21 @@ function RankCell({ rank }: { rank: number }) {
   if (rank === 1) {
     return (
       <span className="inline-flex items-center gap-1 text-lg font-black text-amber-400">
-        1 <span aria-hidden>🥇</span>
+        1 <Medal className="size-4" aria-hidden />
       </span>
     );
   }
   if (rank === 2) {
     return (
       <span className="inline-flex items-center gap-1 font-black text-slate-300">
-        2 <span aria-hidden>🥈</span>
+        2 <Medal className="size-4" aria-hidden />
       </span>
     );
   }
   if (rank === 3) {
     return (
       <span className="inline-flex items-center gap-1 font-black text-amber-600">
-        3 <span aria-hidden>🥉</span>
+        3 <Medal className="size-4" aria-hidden />
       </span>
     );
   }
@@ -222,10 +223,8 @@ function GridRow({
 function EmptyState() {
   return (
     <div className="py-20 text-center">
-      <div className="mb-4 text-5xl" aria-hidden>
-        🏆
-      </div>
-      <p className="text-lg font-semibold text-white">No rankings yet</p>
+      <Trophy className="mx-auto mb-4 size-12 text-amber-400" aria-hidden />
+      <p className="text-lg font-semibold text-white">No rankings yet.</p>
       <p className="mx-auto mt-2 max-w-xs text-sm text-slate-500">
         Rankings appear after the first trades are placed on live markets.
       </p>
@@ -253,7 +252,7 @@ function YourRankRow({
       <span className="text-xs font-medium text-indigo-400">{rankLabel}</span>
       {Array.from({ length: dashCols }).map((_, i) => (
         <span key={i} className="text-sm text-slate-600">
-          —
+          N/A
         </span>
       ))}
     </div>
@@ -645,7 +644,9 @@ export function LeaderboardPage() {
       <header className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <h1 className="text-3xl font-bold text-white">Leaderboard</h1>
-          <p className="mt-1 text-sm text-slate-500">Top performers on Orakly</p>
+          <p className="mt-1 text-sm text-slate-500">
+            Top traders and creators ranked by performance on Orakly.
+          </p>
         </div>
         <div className="flex gap-2">
           {PERIODS.map((item) => (

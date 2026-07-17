@@ -26,7 +26,7 @@ const UUID_RE =
 const PM_BLUE = "#2797FF";
 
 function fmtUsdShort(n: number): string {
-  if (!Number.isFinite(n) || n <= 0) return "—";
+  if (!Number.isFinite(n) || n <= 0) return "N/A";
   if (n >= 1_000_000) return `$${(n / 1_000_000).toFixed(2)}M`;
   if (n >= 10_000) return `$${(n / 1_000).toFixed(1)}k`;
   return `$${Math.round(n).toLocaleString()}`;
@@ -34,7 +34,7 @@ function fmtUsdShort(n: number): string {
 
 function fmtEndsLong(iso: string): string {
   const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return "—";
+  if (Number.isNaN(d.getTime())) return "N/A";
   return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 }
 
@@ -122,7 +122,7 @@ function HubSpotlightShareButton({ slug }: { slug: string }) {
 
 function InlineProbabilityMove({ deltaPct }: { deltaPct: number | null }) {
   if (deltaPct === null) {
-    return <span className="text-[13px] font-semibold tabular-nums text-muted-foreground">—</span>;
+    return <span className="text-[13px] font-semibold tabular-nums text-muted-foreground">N/A</span>;
   }
   const up = deltaPct > 0;
   const flat = deltaPct === 0;
@@ -281,7 +281,7 @@ export function HubFeaturedTradingCard({
                   title={
                     tradingLocked
                       ? `View market · ${market.status.toLowerCase()}`
-                      : "Open market — YES side"
+                      : "Open market: YES side"
                   }
                   className={cn(
                     "flex h-9 min-h-9 items-center justify-center rounded-lg px-2.5 text-[13px] font-semibold text-white shadow-sm transition-all",
@@ -296,7 +296,7 @@ export function HubFeaturedTradingCard({
                   title={
                     tradingLocked
                       ? `View market · ${market.status.toLowerCase()}`
-                      : "Open market — NO side"
+                      : "Open market: NO side"
                   }
                   className={cn(
                     "flex h-9 min-h-9 items-center justify-center rounded-lg px-2.5 text-[13px] font-semibold text-white shadow-sm transition-all",

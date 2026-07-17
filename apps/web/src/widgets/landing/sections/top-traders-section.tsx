@@ -24,7 +24,7 @@ export function TopTradersSection() {
       id="top-traders"
       eyebrow="Leaderboard"
       title="Top traders"
-      description="Risk-adjusted leaderboard snapshot — anonymized handles for demo skin."
+      description="Risk-adjusted leaderboard snapshot with anonymized handles for demo skin."
       action={
         <span className="flex items-center gap-1.5 rounded-full bg-amber-500/10 px-3 py-1 text-[11px] font-medium text-amber-300 ring-1 ring-amber-400/25">
           <Medal className="h-3.5 w-3.5" />

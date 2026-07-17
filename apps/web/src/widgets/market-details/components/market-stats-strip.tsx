@@ -38,7 +38,7 @@ export function buildMarketDetailStatCells(
     { label: "Liquidity", value: formatCompactUsd(liq), mono: true },
     {
       label: "Collateral",
-      value: coll != null ? formatCompactUsd(coll) : "—",
+      value: coll != null ? formatCompactUsd(coll) : "N/A",
       mono: true,
     },
     { label: "24h volume", value: formatCompactUsd(v24), mono: true },

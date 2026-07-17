@@ -37,7 +37,7 @@ export function useChainTradeBuy() {
       const contract = args.marketAddress ?? getChainMarketTradeAddress();
       if (!contract) {
         throw new Error(
-          "On-chain trading disabled — set NEXT_PUBLIC_CHAIN_MARKET_TRADE_ADDRESS or marketAddress",
+          "On-chain trading disabled. Set NEXT_PUBLIC_CHAIN_MARKET_TRADE_ADDRESS or marketAddress",
         );
       }
 

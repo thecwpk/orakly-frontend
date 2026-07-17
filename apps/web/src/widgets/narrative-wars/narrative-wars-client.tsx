@@ -35,8 +35,7 @@ function NarrativeSelect({
   disabledSlug?: string;
 }) {
   return (
-    <label className="flex w-full max-w-sm flex-col gap-1.5">
-      <span className="sr-only">{label}</span>
+    <div className="flex w-full max-w-sm flex-col gap-1.5">
       <select
         id={id}
         value={value}
@@ -55,7 +54,7 @@ function NarrativeSelect({
           </option>
         ))}
       </select>
-    </label>
+    </div>
   );
 }
 
@@ -164,7 +163,7 @@ export function NarrativeWarsClient() {
           Narrative Wars
         </h1>
         <p className="mt-1 text-[15px] text-zinc-400">
-          Compare two narratives head-to-head
+          Compare two crypto narratives side by side.
         </p>
       </header>
 
@@ -197,9 +196,9 @@ export function NarrativeWarsClient() {
       {!bothSelected ? (
         <section className="space-y-4">
           <div className="text-center">
-            <p className="text-[15px] font-medium text-zinc-300">Suggested battles</p>
+            <p className="text-[15px] font-medium text-zinc-300">Suggested Comparisons</p>
             <p className="mt-1 text-[13px] text-zinc-500">
-              Pick a pair to start comparing — or use the dropdowns above.
+              Select a suggested pair, or choose narratives from the menus above.
             </p>
           </div>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">

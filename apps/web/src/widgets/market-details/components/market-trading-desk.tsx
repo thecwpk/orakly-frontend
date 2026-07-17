@@ -32,7 +32,7 @@ function parseLooseNumber(raw: string | undefined): number | null {
 
 /** Readable quote line — probabilities as ¢, USD-ish as compact, long junk trimmed. */
 function formatExecPxLine(raw: string | undefined): string {
-  if (raw == null || raw === "") return "—";
+  if (raw == null || raw === "") return "N/A";
   const n = parseLooseNumber(raw);
   if (n == null) return raw.length > 16 ? `${raw.slice(0, 16)}…` : raw;
   if (n >= 0 && n <= 1) return `${(n * 100).toFixed(2)}¢`;
@@ -40,7 +40,7 @@ function formatExecPxLine(raw: string | undefined): string {
 }
 
 function formatNotionalLine(raw: string | undefined): string {
-  if (raw == null || raw === "") return "—";
+  if (raw == null || raw === "") return "N/A";
   const n = parseLooseNumber(raw);
   if (n == null) return raw;
   return formatCompactUsd(n);
@@ -324,7 +324,7 @@ function MarketTradingDeskInner({
             <div className="flex justify-between gap-2 border-t border-white/6 pt-1">
               <span className="text-zinc-500">Est. max payout</span>
               <span className="text-zinc-200">
-                {estMaxPayoutUsd != null ? formatCompactUsd(estMaxPayoutUsd) : "—"}
+                {estMaxPayoutUsd != null ? formatCompactUsd(estMaxPayoutUsd) : "N/A"}
               </span>
             </div>
             <div className="flex justify-between gap-2">
@@ -339,7 +339,7 @@ function MarketTradingDeskInner({
               >
                 {estProfitIfWin != null && Number.isFinite(estProfitIfWin) ?
                   `${estProfitIfWin >= 0 ? "+" : ""}${formatCompactUsd(estProfitIfWin)}`
-                : "—"}
+                : "N/A"}
               </span>
             </div>
           </>
@@ -350,12 +350,12 @@ function MarketTradingDeskInner({
         <span>Collateral</span>
         <span className="font-mono text-zinc-200">
           {!isConnected
-            ? "—"
+            ? "N/A"
             : bal != null
               ? formatCompactUsd(bal)
               : collateralQ.isLoading
                 ? "…"
-                : "—"}
+                : "N/A"}
         </span>
       </div>
 

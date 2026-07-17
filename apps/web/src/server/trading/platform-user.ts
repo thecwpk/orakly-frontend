@@ -54,7 +54,7 @@ export function requirePlatformLiquidityUserId(): string {
   if (!id) {
     throw new TradingError(
       "CONFIG",
-      "Platform liquidity is initializing — retry in a moment",
+      "Platform liquidity is initializing. Retry in a moment",
       503,
     );
   }

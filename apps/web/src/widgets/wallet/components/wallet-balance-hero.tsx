@@ -132,7 +132,7 @@ function WalletBalanceHeroInner({
         />
         <Cell
           label="Gas"
-          value={nativeBalanceLabel ?? "—"}
+          value={nativeBalanceLabel ?? "N/A"}
           tone="cyan"
           hint="tBNB"
         />

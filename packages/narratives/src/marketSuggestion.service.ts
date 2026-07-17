@@ -9,7 +9,7 @@ const SUGGESTION_TEMPLATES: Record<
   AI: {
     title: "Will AI outperform Meme coins in the next 30 days?",
     description:
-      "AI narrative attention spiked — market on relative performance vs memecoins.",
+      "AI narrative attention spiked. Market on relative performance vs memecoins.",
     compare: "Memes",
   },
   Memes: {

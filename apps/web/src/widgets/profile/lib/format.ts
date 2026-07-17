@@ -24,7 +24,7 @@ export function signedPct(n: number, digits = 1): string {
 
 /** `0xab12...7e4f` truncation for public profiles. */
 export function shortAddress(addr: string): string {
-  if (!addr) return "—";
+  if (!addr) return "N/A";
   if (addr.length <= 12) return addr;
   if (addr.includes("…") || addr.includes("...")) return addr;
   return `${addr.slice(0, 6)}...${addr.slice(-4)}`;

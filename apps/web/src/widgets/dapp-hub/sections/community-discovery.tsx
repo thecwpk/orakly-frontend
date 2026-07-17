@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { CircleCheck, Flame, Sparkles, Trophy } from "lucide-react";
 import type { ReactNode } from "react";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -54,7 +55,7 @@ function ColumnCard({
   children,
   footer,
 }: {
-  title: string;
+  title: ReactNode;
   children: ReactNode;
   footer?: ReactNode;
 }) {
@@ -67,7 +68,7 @@ function ColumnCard({
   );
 }
 
-function EmptyColumn({ label = "No submissions yet" }: { label?: string }) {
+function EmptyColumn({ label = "No submissions yet." }: { label?: string }) {
   return <p className="py-8 text-center text-xs text-[var(--hub-muted)]">{label}</p>;
 }
 
@@ -179,7 +180,7 @@ function MostVotedItem({
           disabled={voteMutation.isPending}
           onClick={() => {
             if (!normalizedWallet) {
-              toast.message("Connect your wallet to vote");
+              toast.message("Connect your wallet to vote.");
               return;
             }
             voteMutation.mutate();
@@ -191,7 +192,7 @@ function MostVotedItem({
               : "border border-[var(--hub-border)] text-[var(--hub-primary-bright)] hover:bg-[var(--hub-primary-soft)]",
           )}
         >
-          {hasVoted ? "✓ Voted" : "Vote"}
+          {hasVoted ? "Voted" : "Vote"}
         </button>
       </div>
     </div>
@@ -310,7 +311,7 @@ export function CommunityDiscovery() {
         <div>
           <h2 className="text-xl font-bold text-white">Community Discovery</h2>
           <p className="mt-0.5 block text-sm text-slate-500">
-            Markets the community wants to see
+            Markets proposed and ranked by the community.
           </p>
         </div>
         <button
@@ -318,14 +319,19 @@ export function CommunityDiscovery() {
           onClick={openSubmit}
           className="hub-dapp-cta hub-dapp-cta--solid !mt-0 !w-auto shrink-0 px-4"
         >
-          Submit Market →
+          Submit Market Idea
         </button>
       </div>
 
       <div className="hub-dapp-grid-community mt-4">
         {/* Most Voted Suggestions */}
         <ColumnCard
-          title="🔥 Most Voted Suggestions"
+          title={
+            <span className="inline-flex items-center gap-2">
+              <Flame className="size-4 text-orange-400" aria-hidden />
+              Most Voted Suggestions
+            </span>
+          }
           footer={
             <Link
               href={ROUTES.marketsCommunity}
@@ -354,7 +360,12 @@ export function CommunityDiscovery() {
 
         {/* Newest Suggestions (spec name — was "Just Submitted") */}
         <ColumnCard
-          title="🆕 Newest Suggestions"
+          title={
+            <span className="inline-flex items-center gap-2">
+              <Sparkles className="size-4 text-blue-300" aria-hidden />
+              Newest Suggestions
+            </span>
+          }
           footer={
             <Link
               href={ROUTES.marketsCommunity}
@@ -382,7 +393,12 @@ export function CommunityDiscovery() {
 
         {/* Recently Approved Suggestions — distinct from newest */}
         <ColumnCard
-          title="✅ Recently Approved"
+          title={
+            <span className="inline-flex items-center gap-2">
+              <CircleCheck className="size-4 text-emerald-400" aria-hidden />
+              Recently Approved
+            </span>
+          }
           footer={
             <Link
               href={ROUTES.marketsCommunity}
@@ -395,7 +411,7 @@ export function CommunityDiscovery() {
           {approvedQuery.isLoading && approved.length === 0 ? (
             <ColumnSkeleton />
           ) : approved.length === 0 ? (
-            <EmptyColumn label="No approved suggestions yet" />
+            <EmptyColumn label="No approved suggestions yet." />
           ) : (
             approved.map((s, i) => (
               <SuggestionListItem
@@ -409,7 +425,12 @@ export function CommunityDiscovery() {
 
         {/* Top Creators */}
         <ColumnCard
-          title="🏆 Top Creators"
+          title={
+            <span className="inline-flex items-center gap-2">
+              <Trophy className="size-4 text-amber-400" aria-hidden />
+              Top Creators
+            </span>
+          }
           footer={
             <Link
               href={ROUTES.LEADERBOARD}
@@ -422,7 +443,7 @@ export function CommunityDiscovery() {
           {creatorsQuery.isLoading && creators.length === 0 ? (
             <ColumnSkeleton />
           ) : creators.length === 0 ? (
-            <EmptyColumn label="No creators yet" />
+            <EmptyColumn label="No creators ranked yet." />
           ) : (
             creators.map((creator, index) => (
               <div
@@ -467,10 +488,10 @@ export function CommunityDiscovery() {
       <div className="hub-dapp-banner">
         <div className="min-w-0">
           <p className="text-lg font-semibold text-[var(--hub-fg)]">
-            Have an idea for a market?
+            Have a market idea?
           </p>
           <p className="mt-1 text-sm text-[var(--hub-muted)]">
-            Submit it. If the community votes it up, it goes live.
+            Submit a proposal. If the community approves it, the market can go live.
           </p>
         </div>
         <button

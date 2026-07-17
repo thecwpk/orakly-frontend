@@ -23,14 +23,14 @@ export function HubTraderStrip() {
         ) : (
           <>
             <span className="hub-stat-chip font-mono text-sm font-bold tabular-nums text-[var(--hub-primary-bright)]">
-              {stats ? fmtUsdCompact(stats.volume24hUsd) : "—"}
+              {stats ? fmtUsdCompact(stats.volume24hUsd) : "N/A"}
               <span className="ml-1.5 text-[10px] font-semibold uppercase tracking-wider text-[var(--hub-muted)]">
                 24h
               </span>
             </span>
             <span className="hub-stat-chip">
               <strong className="font-mono text-sm tabular-nums text-[var(--hub-fg)]">
-                {stats ? fmtCount(stats.liveMarkets) : "—"}
+                {stats ? fmtCount(stats.liveMarkets) : "N/A"}
               </strong>
               <span className="ml-1 text-[10px] font-semibold uppercase tracking-wider text-[var(--hub-muted)]">
                 markets
@@ -38,7 +38,7 @@ export function HubTraderStrip() {
             </span>
             <span className="hub-stat-chip">
               <strong className="font-mono text-sm tabular-nums text-[var(--hub-fg)]">
-                {stats ? fmtCount(stats.activeNarratives) : "—"}
+                {stats ? fmtCount(stats.activeNarratives) : "N/A"}
               </strong>
               <span className="ml-1 text-[10px] font-semibold uppercase tracking-wider text-[var(--hub-muted)]">
                 narratives

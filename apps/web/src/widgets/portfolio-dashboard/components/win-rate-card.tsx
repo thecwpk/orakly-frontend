@@ -31,7 +31,7 @@ function WinRateCardInner({
             FIFO-matched sells vs entry; requires enough trade history.
           </p>
           <p className="mt-4 font-mono text-4xl font-semibold tracking-tight text-[var(--hub-fg)]">
-            {pct != null ? `${pct}%` : "—"}
+            {pct != null ? `${pct}%` : "N/A"}
           </p>
           <p className="mt-2 font-mono text-[11px] text-[var(--hub-muted)]">
             {closedQty > 0 ? `${closedQty.toLocaleString()} contracts closed (matched)` : "No matched exits yet"}

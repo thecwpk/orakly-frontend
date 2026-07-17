@@ -82,7 +82,7 @@ export function useDeployOnChainMarket() {
         });
         if (bal < pull) {
           throw new Error(
-            `Insufficient collateral — need ${input.seedLiquidityUsd} seed + ${input.assertionRewardUsd} reward in wallet.`,
+            `Insufficient collateral. Need ${input.seedLiquidityUsd} seed + ${input.assertionRewardUsd} reward in wallet.`,
           );
         }
 

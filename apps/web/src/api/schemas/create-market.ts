@@ -22,7 +22,7 @@ export const basicsSchema = z.object({
   title: z
     .string()
     .trim()
-    .min(8, "Title is too short — be specific.")
+    .min(8, "Title is too short. Be specific.")
     .max(140, "Keep titles under 140 characters."),
   slug: z
     .string()

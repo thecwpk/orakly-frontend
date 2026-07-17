@@ -11,7 +11,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const { slug } = await params;
   const decoded = decodeURIComponent(slug);
   return {
-    title: `${decoded} — Orakly`,
+    title: `${decoded}: Orakly`,
     description: "Trade this prediction market on Orakly.",
   };
 }

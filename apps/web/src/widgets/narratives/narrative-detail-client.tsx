@@ -167,7 +167,7 @@ function NarrativeDiscussion({ slug }: { slug: string }) {
       <ul className="mt-5 space-y-4">
         {comments.length === 0 && !commentsQ.isLoading ? (
           <li className="py-6 text-center text-[13px] text-zinc-500">
-            No comments yet — start the discussion.
+            No comments yet. Start the discussion.
           </li>
         ) : null}
         {comments.map((c) => (
@@ -363,7 +363,7 @@ export function NarrativeDetailClient({
               {(tradersQ.data ?? []).length === 0 && !tradersQ.isLoading ? (
                 <tr>
                   <td colSpan={5} className="px-2 py-8 text-center text-zinc-500">
-                    No traders yet for this narrative
+                  No traders yet for this narrative.
                   </td>
                 </tr>
               ) : null}
@@ -383,7 +383,7 @@ export function NarrativeDetailClient({
                         {shortenAddress(row.walletAddress)}
                       </Link>
                     ) : (
-                      <span className="text-zinc-500">—</span>
+                      <span className="text-zinc-500">N/A</span>
                     )}
                   </td>
                   <td className="px-2 py-2.5 tabular-nums text-zinc-200">
@@ -425,7 +425,7 @@ export function NarrativeDetailClient({
               {(creatorsQ.data ?? []).length === 0 && !creatorsQ.isLoading ? (
                 <tr>
                   <td colSpan={5} className="px-2 py-8 text-center text-zinc-500">
-                    No creators yet for this narrative
+                    No creators yet for this narrative.
                   </td>
                 </tr>
               ) : null}

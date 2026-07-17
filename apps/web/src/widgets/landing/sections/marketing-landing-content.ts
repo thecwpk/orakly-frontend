@@ -19,7 +19,7 @@ export const whyOraklyCells = [
     body: "Resolution criteria and collateral are visible on every market before you commit capital.",
   },
   {
-    title: "Built with the crowd",
+    title: "Built with the community",
     body: "Markets the community proposes, ranks, and earns from. Reputation is on-chain.",
   },
 ] as const;
@@ -34,8 +34,8 @@ export const whyOraklyFeatures = [
     detail: "Short horizons map to contracts built for rotations, not year-long holds.",
   },
   {
-    title: "Sentiment in the tape",
-    detail: "Odds update as participants trade — not after a manual refresh.",
+    title: "Sentiment in real time",
+    detail: "Odds update as participants trade, not after a manual refresh.",
   },
   {
     title: "Probability discovery",
@@ -59,7 +59,7 @@ export const whyOraklyBridgeColumns = [
   {
     title: "What the platform optimizes for",
     lines: [
-      "Context per market — why it exists, what resolves it.",
+      "Context per market: why it exists, what resolves it.",
       "Stablecoin flow for crypto-native participants.",
       "Infrastructure aimed at verifiable outcomes.",
     ],
@@ -69,13 +69,13 @@ export const whyOraklyBridgeColumns = [
 export const tradeBandMetrics = [
   {
     label: "Probability visibility",
-    headline: "Read the tape fast",
-    fact: "Live prices summarize crowd conviction at a glance.",
+    headline: "Read prices quickly",
+    fact: "Live prices summarize market conviction at a glance.",
   },
   {
     label: "Execution path",
-    headline: "Fewer steps to risk-on",
-    fact: "Discovery → quote → trade stays linear in-app.",
+    headline: "Fewer steps to trade",
+    fact: "Discovery, quote, and trade stay linear in-app.",
   },
   {
     label: "Settlement trust",
@@ -91,7 +91,7 @@ export const oraklyFramework = [
   },
   {
     k: "Execution clarity",
-    d: "Short trade flow on purpose — less hesitation at entry.",
+    d: "Short trade flow on purpose, so there is less hesitation at entry.",
   },
   {
     k: "Transparent resolution",
@@ -197,11 +197,11 @@ export const faqItems = [
   },
   {
     q: "How does the email list work?",
-    a: "Leave your email below to receive product and roadmap updates. We use the address only for that purpose — no spam, no resale.",
+    a: "Leave your email below to receive product and roadmap updates. We use the address only for that purpose. No spam, no resale.",
   },
 ] as const;
 
-/** @deprecated — kept for imports that still reference vision copy. */
+/** @deprecated kept for imports that still reference vision copy. */
 export const visionPoints = whyOraklyCells.map((c) => ({ title: c.title, body: c.body }));
 export const visionSpecStrip = [
   { k: "Trade format", v: "Binary shares" },

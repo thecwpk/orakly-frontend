@@ -1,7 +1,9 @@
+import { Star } from "lucide-react";
+
 const TESTIMONIALS = [
   {
     quote:
-      "Finally something that matches how crypto actually moves — narratives first, charts second.",
+      "Finally something that matches how crypto actually moves. Narratives first, charts second.",
     name: "Mira K.",
     meta: "Desk trader · 6 yrs crypto",
     initials: "MK",
@@ -32,7 +34,7 @@ export function SocialProofSection() {
             Traders like you, reading the narrative layer first
           </h2>
           <p className="mx-auto mt-3 max-w-lg text-sm text-muted-foreground">
-            Illustrative feedback — composite quotes for positioning only, not verified endorsements.
+            Illustrative feedback. Composite quotes for positioning only, not verified endorsements.
           </p>
         </div>
 
@@ -55,10 +57,8 @@ export function SocialProofSection() {
                 “{t.quote}”
               </blockquote>
               <div className="mt-4 flex items-center gap-1 text-yes/85">
-                {"★★★★★".split("").map((s, i) => (
-                  <span key={i} className="text-[13px]">
-                    {s}
-                  </span>
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <Star key={i} className="size-3 fill-current" aria-hidden />
                 ))}
               </div>
             </figure>

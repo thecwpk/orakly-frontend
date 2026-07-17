@@ -102,7 +102,7 @@ export function MarketsCategoryRail({ counts, total, isLoading }: Props) {
         {[ALL, ...MARKET_CATEGORIES].map((cat) => {
           const isActive = active === cat.slug;
           const Icon = cat.icon;
-          const count = isLoading ? "—" : cat.slug === "all" ? total : (counts[cat.slug] ?? 0);
+          const count = isLoading ? "N/A" : cat.slug === "all" ? total : (counts[cat.slug] ?? 0);
           return (
             <button
               key={cat.slug}

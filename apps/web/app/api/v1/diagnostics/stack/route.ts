@@ -15,7 +15,7 @@ function inspectDatabaseUrl(): { ok: boolean; detail: string } {
   const raw = process.env.DATABASE_URL?.trim();
   if (!raw) return { ok: false, detail: "MISSING" };
   if (/USER:PASSWORD|@HOST[.:]/i.test(raw)) {
-    return { ok: false, detail: "still .env.example placeholder — paste Neon URL from apps/web/.env.local" };
+    return { ok: false, detail: "still .env.example placeholder. Paste Neon URL from apps/web/.env.local" };
   }
   try {
     const u = new URL(raw.replace(/^postgresql:/i, "postgres:"));
@@ -24,7 +24,7 @@ function inspectDatabaseUrl(): { ok: boolean; detail: string } {
     if (badHosts.has(host)) {
       return {
         ok: false,
-        detail: `host "${u.hostname}" is not a real DB — use Neon ep-misty-feather-… from .env.local`,
+        detail: `host "${u.hostname}" is not a real DB. Use Neon ep-misty-feather-… from .env.local`,
       };
     }
     return { ok: true, detail: `set · host ${u.hostname}` };
@@ -39,7 +39,7 @@ function inspectAppUrl(): { ok: boolean; detail: string } {
   if (/YOUR-PROJECT|your-project/i.test(url)) {
     return {
       ok: false,
-      detail: "placeholder YOUR-PROJECT — set https://orakly-frontend-web.vercel.app",
+      detail: "placeholder YOUR-PROJECT. Set https://orakly-frontend-web.vercel.app",
     };
   }
   return { ok: true, detail: url };
@@ -90,7 +90,7 @@ export async function GET(req: Request) {
     {
       id: "env.ORAKLY_VERCEL_ONLY",
       ok: vercelOnly || !vercelOnly,
-      detail: vercelOnly ? "true — REST + cron worker mode" : "false — Railway realtime expected",
+      detail: vercelOnly ? "true. REST + cron worker mode" : "false. Railway realtime expected",
     },
     {
       id: "env.REALTIME_INGEST",
@@ -98,7 +98,7 @@ export async function GET(req: Request) {
         vercelOnly ||
         (envPresent("REALTIME_INGEST_URL") && envPresent("REALTIME_INGEST_SECRET")),
       detail: vercelOnly
-        ? "optional — skipped in Vercel-only mode"
+        ? "optional. Skipped in Vercel-only mode"
         : envPresent("REALTIME_INGEST_URL") && envPresent("REALTIME_INGEST_SECRET")
           ? "set"
           : "MISSING ingest URL or secret",
@@ -111,7 +111,7 @@ export async function GET(req: Request) {
         (envPresent("REALTIME_UPSTREAM_URL") &&
           process.env.NEXT_PUBLIC_REALTIME_SAME_ORIGIN === "true"),
       detail: vercelOnly
-        ? "optional — HTTP polling fallback"
+        ? "optional. HTTP polling fallback"
         : envPresent("NEXT_PUBLIC_REALTIME_URL")
           ? "direct NEXT_PUBLIC_REALTIME_URL"
           : envPresent("REALTIME_UPSTREAM_URL") &&

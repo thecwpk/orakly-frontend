@@ -10,7 +10,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { address } = await params;
   return {
-    title: `Trader ${address.slice(0, 6)}… — Orakly`,
+    title: `Trader ${address.slice(0, 6)}…: Orakly`,
     description: `Public profile, equity curve, and trade history for ${address}.`,
   };
 }

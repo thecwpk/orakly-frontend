@@ -33,7 +33,7 @@ export function PreviewCard({ draft }: { draft: CreateMarketDraft }) {
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
             <span className="rounded-full bg-white/[0.07] px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-zinc-300 ring-1 ring-white/10">
-              {cat?.name ?? "—"}
+              {cat?.name ?? "N/A"}
             </span>
             <span className="text-[10px] uppercase tracking-wider text-emerald-300/80">
               Pending review

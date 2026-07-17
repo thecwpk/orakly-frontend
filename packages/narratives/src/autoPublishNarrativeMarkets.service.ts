@@ -12,7 +12,7 @@ const PUBLISH_TEMPLATES: Record<
 > = {
   AI: {
     title: "Will AI tokens outperform memecoins in the next 30 days?",
-    description: "AI narrative attention spiked — relative performance vs memecoins.",
+    description: "AI narrative attention spiked. Relative performance vs memecoins.",
     categorySlug: "crypto-narratives",
     closesDays: 30,
   },

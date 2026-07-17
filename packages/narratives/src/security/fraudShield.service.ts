@@ -53,7 +53,7 @@ export async function assertTradeAllowed(
     const cooldown = Math.min(60_000, 2 ** (spamCount - SPAM_TRADE_THRESHOLD) * 1000);
     throw new FraudShieldError(
       "TRADE_SPAM",
-      "Trade frequency blocked — cooldown active",
+      "Trade frequency blocked. Cooldown active",
       429,
       cooldown,
     );

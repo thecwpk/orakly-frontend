@@ -67,7 +67,7 @@ export function MarketRecentTrades({ marketId }: { marketId: string }) {
             {!tradesQ.isLoading && rows.length === 0 ? (
               <tr>
                 <td colSpan={6} className="px-2 py-10 text-center text-zinc-500">
-                  No trades yet
+                  No trades yet.
                 </td>
               </tr>
             ) : null}
@@ -89,7 +89,7 @@ export function MarketRecentTrades({ marketId }: { marketId: string }) {
                         {shortenAddress(wallet)}
                       </Link>
                     ) : (
-                      <span className="text-zinc-500">—</span>
+                      <span className="text-zinc-500">N/A</span>
                     )}
                   </td>
                   <td className="px-2 py-2.5">
@@ -122,7 +122,7 @@ export function MarketRecentTrades({ marketId }: { marketId: string }) {
                         <ExternalLink className="size-4" />
                       </a>
                     ) : (
-                      <span className="text-zinc-600">—</span>
+                      <span className="text-zinc-600">N/A</span>
                     )}
                   </td>
                 </tr>

@@ -152,7 +152,7 @@ function MarketOrderBookInner({
       <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain scrollbar-terminal">
         {book.totalDepth === 0 && !tradesQ.isLoading ? (
           <p className="px-3 py-6 text-center text-[11px] text-zinc-500">
-            No trades yet for {side}
+            No trades yet for {side}.
           </p>
         ) : (
           <>
@@ -179,7 +179,7 @@ function MarketOrderBookInner({
                 <ArrowUp className="h-2.5 w-2.5 text-rose-400" />
                 Best ask{" "}
                 <span className="font-mono text-zinc-300">
-                  {bestAsk !== null ? `${bestAsk.toFixed(1)}¢` : "—"}
+                  {bestAsk !== null ? `${bestAsk.toFixed(1)}¢` : "N/A"}
                 </span>
               </span>
               <span className="rounded-md bg-[hsl(228_26%_10%/0.65)] px-2 py-0.5 font-mono text-[10.5px] tabular-nums text-zinc-200 ring-1 ring-white/[0.09]">
@@ -188,7 +188,7 @@ function MarketOrderBookInner({
               <span className="inline-flex items-center justify-end gap-1 text-[10.5px] text-zinc-500">
                 Best bid{" "}
                 <span className="font-mono text-zinc-300">
-                  {bestBid !== null ? `${bestBid.toFixed(1)}¢` : "—"}
+                  {bestBid !== null ? `${bestBid.toFixed(1)}¢` : "N/A"}
                 </span>
                 <ArrowDown className="h-2.5 w-2.5 text-emerald-400" />
               </span>

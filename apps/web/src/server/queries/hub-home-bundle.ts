@@ -28,7 +28,7 @@ export const EMPTY_HUB_HOME_BUNDLE: HubHomeBundle = {
   stats: {
     attentionIndex: 0,
     sentiment: "Bearish",
-    currentMeta: "—",
+    currentMeta: "Crypto",
     topChain: "BNB",
     volume24hUsd: 0,
     openInterest: 0,

@@ -24,7 +24,7 @@ export type MarketsListRowProps = {
 
 function timeUntilClose(iso: string): string {
   const ms = new Date(iso).getTime() - Date.now();
-  if (Number.isNaN(ms)) return "—";
+  if (Number.isNaN(ms)) return "N/A";
   if (ms <= 0) return "closed";
   const m = Math.floor(ms / 60_000);
   if (m < 60) return `${m}m`;

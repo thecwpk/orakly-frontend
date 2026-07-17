@@ -5,7 +5,7 @@ import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useAccount } from "wagmi";
 import { useConnectModal } from "@rainbow-me/rainbowkit";
-import { ExternalLink, Loader2 } from "lucide-react";
+import { Check, ExternalLink, Loader2, X } from "lucide-react";
 import type { Address } from "viem";
 import {
   Area,
@@ -60,7 +60,7 @@ function formatOdds(price: number): string {
 }
 
 function formatDate(iso: string | null | undefined): string {
-  if (!iso) return "—";
+  if (!iso) return "N/A";
   try {
     return new Intl.DateTimeFormat(undefined, {
       month: "short",
@@ -68,7 +68,7 @@ function formatDate(iso: string | null | undefined): string {
       year: "numeric",
     }).format(new Date(iso));
   } catch {
-    return "—";
+    return "N/A";
   }
 }
 
@@ -140,7 +140,7 @@ function ConnectGate({ onConnect }: { onConnect: () => void }) {
     <main className="mx-auto flex min-h-[70vh] max-w-6xl items-center justify-center px-4 py-16">
       <div className="w-full max-w-md rounded-2xl border border-white/[0.08] bg-zinc-950/60 p-8 text-center shadow-xl">
         <h1 className="text-[22px] font-bold text-white">
-          Connect your wallet to view your portfolio
+          Connect your wallet to view your portfolio.
         </h1>
         <p className="mt-2 text-[13px] text-zinc-500">
           Positions, PnL, claims, and creator earnings stay private until you connect.
@@ -378,7 +378,7 @@ function ClosedPositionsTable({ rows }: { rows: PortfolioPositionRowDto[] }) {
   if (rows.length === 0) {
     return (
       <p className="rounded-2xl border border-dashed border-white/[0.1] px-4 py-8 text-center text-sm text-zinc-500">
-        No closed positions yet
+        No closed positions yet.
       </p>
     );
   }
@@ -408,16 +408,20 @@ function ClosedPositionsTable({ rows }: { rows: PortfolioPositionRowDto[] }) {
               </td>
               <td className="px-4 py-3">
                 {row.result === "WON" ? (
-                  <span className="font-semibold text-emerald-300">WON ✓</span>
+                  <span className="inline-flex items-center gap-1 font-semibold text-emerald-300">
+                    WON <Check className="size-3.5" aria-hidden />
+                  </span>
                 ) : (
-                  <span className="font-semibold text-rose-300">LOST ✗</span>
+                  <span className="inline-flex items-center gap-1 font-semibold text-rose-300">
+                    LOST <X className="size-3.5" aria-hidden />
+                  </span>
                 )}
               </td>
               <td className="px-4 py-3 font-mono tabular-nums text-zinc-300">
                 {formatOdds(row.entryPrice)}
               </td>
               <td className="px-4 py-3 font-mono tabular-nums text-zinc-300">
-                {row.exitPrice != null ? formatOdds(row.exitPrice) : "—"}
+                {row.exitPrice != null ? formatOdds(row.exitPrice) : "N/A"}
               </td>
               <td
                 className={cn(
@@ -425,7 +429,7 @@ function ClosedPositionsTable({ rows }: { rows: PortfolioPositionRowDto[] }) {
                   (row.pnlBnb ?? 0) >= 0 ? "text-emerald-300" : "text-rose-300",
                 )}
               >
-                {row.pnlBnb != null ? formatBnb(row.pnlBnb) : "—"}
+                {row.pnlBnb != null ? formatBnb(row.pnlBnb) : "N/A"}
               </td>
               <td className="px-4 py-3 text-zinc-400">{formatDate(row.closedAt)}</td>
             </tr>
@@ -510,7 +514,14 @@ function ClaimSection({
                   )}
                 >
                   {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-                  {isClaimed ? "Claimed ✓" : "Claim"}
+                  {isClaimed ? (
+                    <>
+                      <Check className="size-4" aria-hidden />
+                      Claimed
+                    </>
+                  ) : (
+                    "Claim"
+                  )}
                 </button>
               </div>
             );
@@ -551,7 +562,7 @@ function TradingHistory({ address }: { address: string }) {
         <div className="h-40 animate-pulse rounded-2xl bg-zinc-800/80" />
       ) : rows.length === 0 ? (
         <p className="rounded-2xl border border-dashed border-white/[0.1] px-4 py-8 text-center text-sm text-zinc-500">
-          No trades yet
+          No trades yet.
         </p>
       ) : (
         <>
@@ -598,7 +609,7 @@ function TradingHistory({ address }: { address: string }) {
                           <ExternalLink className="h-4 w-4" />
                         </a>
                       ) : (
-                        <span className="text-zinc-600">—</span>
+                        <span className="text-zinc-600">N/A</span>
                       )}
                     </td>
                   </tr>
@@ -755,7 +766,7 @@ function AnalyticsSection({ analytics }: { analytics: PortfolioPageDto["analytic
           <div className="mt-2 h-[160px]">
             {pieData.length === 0 ? (
               <p className="flex h-full items-center justify-center text-sm text-zinc-500">
-                No resolved trades yet
+                No resolved trades yet.
               </p>
             ) : (
               <ResponsiveContainer width="100%" height="100%">
@@ -779,7 +790,7 @@ function AnalyticsSection({ analytics }: { analytics: PortfolioPageDto["analytic
           <div className="mt-2 h-[180px]">
             {analytics.narrativeTrades.length === 0 ? (
               <p className="flex h-full items-center justify-center text-sm text-zinc-500">
-                No narrative activity yet
+                No narrative activity yet.
               </p>
             ) : (
               <ResponsiveContainer width="100%" height="100%">
@@ -828,7 +839,7 @@ function AnalyticsSection({ analytics }: { analytics: PortfolioPageDto["analytic
               </div>
             </>
           ) : (
-            <p className="mt-6 text-sm text-zinc-400">No profitable trades yet</p>
+            <p className="mt-6 text-sm text-zinc-400">No profitable trades yet.</p>
           )}
         </div>
       </div>
@@ -881,7 +892,7 @@ function PortfolioConnected({ address }: { address: string }) {
           Portfolio
         </h1>
         <p className="mt-1 text-[14px] text-zinc-500">
-          Your positions, PnL, claims, and creator earnings
+          Your positions, PnL, claims, and creator earnings.
         </p>
       </header>
 

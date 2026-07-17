@@ -103,7 +103,7 @@ type Props = {
 export function TrendingPredictionMarketsSection({
   limit = TOP_N,
   title = "Trending crypto prediction markets",
-  description = "Highest-velocity pools right now — filtered by category, ranked by 24h notional, with live trade pulses and probability sparklines.",
+  description = "Highest-velocity pools right now, filtered by category, ranked by 24h notional, with live trade pulses and probability sparklines.",
   initialCategoryId = "all",
   hideHeader = false,
 }: Props) {
@@ -249,7 +249,7 @@ export function TrendingPredictionMarketsSection({
         {isError ? (
           <div className="flex flex-col items-center gap-2 rounded-xl bg-rose-500/[0.06] p-8 text-center ring-1 ring-rose-400/20">
             <p className="text-[13px] font-medium text-foreground">
-              Couldn&apos;t load markets
+              Unable to load markets.
             </p>
             <button
               type="button"
@@ -263,7 +263,7 @@ export function TrendingPredictionMarketsSection({
           <TrendingMarketGridSkeleton count={limit} />
         ) : empty ? (
           <div className="rounded-xl bg-muted/15 px-4 py-10 text-center text-[12.5px] text-muted-foreground ring-1 ring-border">
-            No markets in this category yet — try a different filter.
+            No markets in this category yet. Try a different filter.
           </div>
         ) : (
           <motion.div

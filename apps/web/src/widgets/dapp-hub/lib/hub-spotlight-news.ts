@@ -49,7 +49,7 @@ export function buildSpotlightNewsLines(marketTitle: string): SpotlightNewsLine[
     {
       source: pickSource(title, 0),
       ago: pickAgo(title, 0),
-      headline: `${core} — filings, speeches, and prints traders are watching.`,
+      headline: `${core}: filings, speeches, and prints traders are watching.`,
     },
     {
       source: pickSource(title, 1),
@@ -57,14 +57,14 @@ export function buildSpotlightNewsLines(marketTitle: string): SpotlightNewsLine[
       headline:
         h0 % 2 === 0
           ? "Forecasters revise scenarios as positioning shifts across venues."
-          : "Flows across related markets echo how desks mark baseline odds.",
+          : "Flows across related markets reflect how venues mark baseline odds.",
     },
     {
       source: pickSource(title, 2),
       ago: pickAgo(title, 2),
       headline:
         h1 % 2 === 0
-          ? "Verify primary sources before sizing risk — use the full desk for depth."
+          ? "Verify primary sources before sizing risk. Review the full market page for depth."
           : "Headlines are context only; book, timeline, and resolutions stay on the market page.",
     },
   ];

@@ -26,7 +26,7 @@ export function TrendingCryptoSection() {
       id="trending-crypto"
       eyebrow="Liquidity radar"
       title="Trending crypto markets"
-      description="High-velocity pools with tight spreads — surfaced from live ingestion and internal routing."
+      description="High-velocity pools with tight spreads, surfaced from live ingestion and internal routing."
       action={
         <span className="rounded-full bg-cyan-500/10 px-3 py-1 text-[11px] font-medium text-cyan-300 ring-1 ring-cyan-400/25">
           Updated continuously

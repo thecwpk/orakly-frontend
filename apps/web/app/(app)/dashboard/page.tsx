@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { UserDashboardPage } from "@/widgets/user-dashboard/user-dashboard-page";
 
 export const metadata: Metadata = {
-  title: "Dashboard — Orakly",
+  title: "Dashboard: Orakly",
   description: "Your portfolio, activity, and analytics shortcuts.",
 };
 

@@ -266,7 +266,7 @@ export async function executeNarrativeTrade(
     if (locked === null) {
       throw new TradeExecutionError(
         "LOCK_CONTENTION",
-        "Market busy — retry shortly",
+        "Market busy. Retry shortly",
         409,
         2_000,
       );

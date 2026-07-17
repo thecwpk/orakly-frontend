@@ -60,5 +60,5 @@ export function getMissingChainEnvKeys(): string[] {
 export function chainEnvConfigErrorMessage(): string {
   const missing = getMissingChainEnvKeys();
   if (missing.length === 0) return "";
-  return `On-chain env missing — set ${missing.join(", ")}.`;
+  return `On-chain env missing. Set ${missing.join(", ")}.`;
 }

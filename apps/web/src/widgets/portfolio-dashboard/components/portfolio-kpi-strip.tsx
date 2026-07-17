@@ -72,7 +72,7 @@ function PortfolioKpiStripInner({
     {
       id: "win",
       label: "Win rate",
-      value: winRatePct != null ? `${Math.round(winRatePct * 10) / 10}%` : "—",
+      value: winRatePct != null ? `${Math.round(winRatePct * 10) / 10}%` : "N/A",
       sub: "FIFO exits",
       icon: Percent,
       accent: "violet",

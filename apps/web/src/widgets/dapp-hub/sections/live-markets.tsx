@@ -49,7 +49,7 @@ function shortenCreator(raw: string): string {
 
 function endsInLabel(iso: string): { label: string; urgent: boolean } {
   const ms = new Date(iso).getTime() - Date.now();
-  if (!Number.isFinite(ms)) return { label: "—", urgent: false };
+  if (!Number.isFinite(ms)) return { label: "N/A", urgent: false };
   if (ms <= 0) return { label: "Ended", urgent: true };
   const urgent = ms < 24 * 60 * 60 * 1000;
   const totalMin = Math.floor(ms / 60_000);
@@ -252,7 +252,7 @@ export function LiveMarkets() {
         <div>
           <h2 className="text-xl font-bold text-white">Live Markets</h2>
           <p className="mt-0.5 text-sm text-slate-500">
-            Active prediction markets on BSC Testnet
+            Active prediction markets on BSC Testnet.
           </p>
         </div>
         <div className="flex items-center gap-3">

@@ -36,7 +36,7 @@ const TONE: Record<AnimatedStatTone, string> = {
 };
 
 function formatValue(n: number, fmt: AnimatedStatProps["format"] = "int"): string {
-  if (!Number.isFinite(n)) return "—";
+  if (!Number.isFinite(n)) return "N/A";
   switch (fmt) {
     case "usd":
       return compactUsd(n);

@@ -104,7 +104,7 @@ export function getJobSchedulesFromEnv(): JobScheduleDisplay[] {
     jobName: spec.jobName,
     interval:
       process.env[spec.intervalEnv]?.trim() || spec.defaultInterval,
-    lastRun: process.env[spec.lastRunEnv]?.trim() || "—",
-    nextRun: process.env[spec.nextRunEnv]?.trim() || "—",
+    lastRun: process.env[spec.lastRunEnv]?.trim() || "N/A",
+    nextRun: process.env[spec.nextRunEnv]?.trim() || "N/A",
   }));
 }

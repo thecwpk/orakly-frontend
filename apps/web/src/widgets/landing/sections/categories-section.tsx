@@ -41,7 +41,7 @@ export function CategoriesSection() {
       id="categories"
       eyebrow="Taxonomy"
       title="Market categories"
-      description="Dense categorical routing across narratives — each tile routes to filtered liquidity grids."
+      description="Dense categorical routing across narratives. Each tile routes to filtered liquidity grids."
     >
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7">
         {cats.map((c, i) => (

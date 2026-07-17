@@ -47,7 +47,7 @@ function filterByStatus(rows: CommunitySuggestion[], filter: StatusFilter): Comm
 
 function formatSubmitted(iso: string): string {
   const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return "—";
+  if (Number.isNaN(d.getTime())) return "N/A";
   return d.toLocaleDateString(undefined, {
     month: "short",
     day: "numeric",
@@ -364,7 +364,7 @@ export function AdminCommunitySubmissionsTab({
                       </td>
                       <td className="px-3 py-2 text-[var(--hub-muted)]">{row.category}</td>
                       <td className="px-3 py-2 font-mono text-[11px]">
-                        {row.creatorAddress ? shortAddress(row.creatorAddress) : "—"}
+                        {row.creatorAddress ? shortAddress(row.creatorAddress) : "N/A"}
                       </td>
                       <td className="px-3 py-2 font-mono tabular-nums">{row.voteCount}</td>
                       <td className="px-3 py-2 font-mono text-[11px] text-[var(--hub-muted)]">
@@ -394,7 +394,7 @@ export function AdminCommunitySubmissionsTab({
                             <div className="flex flex-wrap items-center justify-end gap-2">
                               <span className="inline-flex items-center gap-1 rounded-md bg-emerald-500/10 px-2 py-0.5 text-[10px] font-semibold text-emerald-200 ring-1 ring-emerald-400/25">
                                 <CheckCircle2 className="h-3 w-3" />
-                                Approved ✓
+                                Approved
                               </span>
                               {slug ? (
                                 <Link

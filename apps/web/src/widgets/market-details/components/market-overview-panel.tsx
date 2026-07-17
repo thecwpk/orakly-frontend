@@ -10,7 +10,7 @@ import { marketDetailPanelClass } from "./market-detail-section";
 
 function formatClosesAt(iso: string): string {
   const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return "—";
+  if (Number.isNaN(d.getTime())) return "N/A";
   return d.toLocaleString(undefined, {
     month: "short",
     day: "numeric",

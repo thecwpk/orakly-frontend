@@ -73,7 +73,7 @@ export function SubmitMarketModal({ open, onOpenChange, onSuccess }: SubmitMarke
           : undefined,
       }),
     onSuccess: () => {
-      toast.success("Market idea submitted");
+      toast.success("Market idea submitted.");
       setQuestion("");
       setCategory(SUBMIT_CATEGORIES[0].value);
       setNarrative("");
@@ -90,16 +90,16 @@ export function SubmitMarketModal({ open, onOpenChange, onSuccess }: SubmitMarke
 
   function validate(): string | null {
     const q = question.trim();
-    if (q.length < 10) return "Question must be at least 10 characters";
-    if (!q.endsWith("?")) return "Question must end with a question mark";
-    if (!category) return "Pick a category";
-    if (!resolutionDate) return "Pick a resolution date";
+    if (q.length < 10) return "Question must be at least 10 characters.";
+    if (!q.endsWith("?")) return "Question must end with a question mark.";
+    if (!category) return "Select a category.";
+    if (!resolutionDate) return "Select a resolution date.";
     const when = new Date(resolutionDate);
-    if (!Number.isFinite(when.getTime())) return "Invalid resolution date";
+    if (!Number.isFinite(when.getTime())) return "Invalid resolution date.";
     if (when.getTime() < Date.now() + 24 * 60 * 60 * 1000) {
-      return "Resolution date must be at least 24 hours from now";
+      return "Resolution date must be at least 24 hours from now.";
     }
-    if (!isConnected || !address) return "Connect your wallet to submit";
+    if (!isConnected || !address) return "Connect your wallet to submit.";
     return null;
   }
 
@@ -139,7 +139,7 @@ export function SubmitMarketModal({ open, onOpenChange, onSuccess }: SubmitMarke
               event.preventDefault();
               if (!isConnected) {
                 openConnectModal?.();
-                toast.message("Connect your wallet to submit a market idea");
+                toast.message("Connect your wallet to submit a market idea.");
                 return;
               }
               const error = validate();
@@ -167,11 +167,15 @@ export function SubmitMarketModal({ open, onOpenChange, onSuccess }: SubmitMarke
                 />
               </label>
 
-              <label className="block space-y-1.5">
-                <span className="text-[11px] font-semibold uppercase tracking-wider text-zinc-500">
+              <div className="space-y-1.5">
+                <label
+                  htmlFor="submit-market-category"
+                  className="block text-[11px] font-semibold uppercase tracking-wider text-zinc-500"
+                >
                   Category
-                </span>
+                </label>
                 <select
+                  id="submit-market-category"
                   value={category}
                   onChange={(event) => setCategory(event.target.value)}
                   className={fieldClass}
@@ -182,13 +186,18 @@ export function SubmitMarketModal({ open, onOpenChange, onSuccess }: SubmitMarke
                     </option>
                   ))}
                 </select>
-              </label>
+              </div>
 
-              <label className="block space-y-1.5">
-                <span className="text-[11px] font-semibold uppercase tracking-wider text-zinc-500">
-                  Narrative
-                </span>
+              <div className="space-y-1.5">
+                <label
+                  htmlFor="submit-market-narrative"
+                  className="block text-[11px] font-semibold uppercase tracking-wider text-zinc-500"
+                >
+                  Narrative{" "}
+                  <span className="font-normal normal-case text-zinc-600">(optional)</span>
+                </label>
                 <select
+                  id="submit-market-narrative"
                   value={narrative}
                   onChange={(event) => setNarrative(event.target.value)}
                   className={fieldClass}
@@ -200,7 +209,7 @@ export function SubmitMarketModal({ open, onOpenChange, onSuccess }: SubmitMarke
                     </option>
                   ))}
                 </select>
-              </label>
+              </div>
 
               <label className="block space-y-1.5">
                 <span className="text-[11px] font-semibold uppercase tracking-wider text-zinc-500">

@@ -11,7 +11,7 @@ import { HubSectionShell } from "./hub-section-shell";
 
 function formatEndDate(iso: string): string {
   const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return "—";
+  if (Number.isNaN(d.getTime())) return "N/A";
   return d.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
 }
 
@@ -23,7 +23,7 @@ export function HubConvictionOpportunities() {
     <HubSectionShell
       className="hub-section--mobile-reorder-conviction"
       title="Highest Conviction Opportunities"
-      subtitle="Markets with the strongest crowd positioning."
+      subtitle="Markets with the strongest community positioning."
     >
       {convictionQ.isLoading ? (
         <div className="grid gap-[var(--hub-card-gap)] sm:grid-cols-2 lg:grid-cols-3">
@@ -59,7 +59,7 @@ export function HubConvictionOpportunities() {
                 <span>
                   Attention{" "}
                   <strong className="text-[var(--hub-fg)]">
-                    {m.attentionScore != null ? Math.round(m.attentionScore) : "—"}
+                    {m.attentionScore != null ? Math.round(m.attentionScore) : "N/A"}
                   </strong>
                 </span>
                 <span>

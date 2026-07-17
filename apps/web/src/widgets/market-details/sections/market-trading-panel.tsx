@@ -3,6 +3,7 @@
 import { useConnectModal } from "@rainbow-me/rainbowkit";
 import { parseUnits, type Address } from "viem";
 import { useAccount } from "wagmi";
+import { Check, CheckCircle2, XCircle } from "lucide-react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import {
@@ -91,11 +92,23 @@ export function MarketTradingPanel({ market }: { market: MarketDetailDto }) {
       <section className="rounded-2xl border border-white/[0.08] p-6 text-center">
         <p
           className={cn(
-            "text-[28px] font-bold",
+            "inline-flex items-center justify-center gap-2 text-[28px] font-bold",
             winnerYes ? "text-emerald-400" : winnerNo ? "text-rose-400" : "text-zinc-200",
           )}
         >
-          {winnerYes ? "✅ YES WON" : winnerNo ? "❌ NO WON" : "Market Resolved"}
+          {winnerYes ? (
+            <>
+              <CheckCircle2 className="size-7" aria-hidden />
+              YES WON
+            </>
+          ) : winnerNo ? (
+            <>
+              <XCircle className="size-7" aria-hidden />
+              NO WON
+            </>
+          ) : (
+            "Market Resolved"
+          )}
         </p>
         {userWon && deployed ? (
           <button
@@ -246,7 +259,7 @@ export function MarketTradingPanel({ market }: { market: MarketDetailDto }) {
             ) : null}
           </p>
           <p className="text-[14px] font-semibold text-zinc-100">
-            Total cost: {totalCost > 0 ? totalCost.toFixed(4) : "—"} BNB
+            Total cost: {totalCost > 0 ? totalCost.toFixed(4) : "Not set"} BNB
           </p>
         </div>
       ) : (
@@ -303,7 +316,7 @@ export function MarketTradingPanel({ market }: { market: MarketDetailDto }) {
           </label>
 
           <p className="text-[14px] font-semibold text-zinc-100">
-            You receive: {sellReceive > 0 ? sellReceive.toFixed(4) : "—"} BNB
+            You receive: {sellReceive > 0 ? sellReceive.toFixed(4) : "Not set"} BNB
           </p>
         </div>
       )}
@@ -356,7 +369,9 @@ function OutcomeButton({
           : "border border-transparent ring-1 ring-white/10",
       )}
     >
-      {selected ? <span className="absolute right-2 top-1 text-[14px]">✓</span> : null}
+      {selected ? (
+        <Check className="absolute right-2 top-1 size-4" aria-hidden />
+      ) : null}
       {label}
     </button>
   );

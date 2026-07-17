@@ -86,7 +86,7 @@ export function SocketRegistryProvider({
       if (process.env.NODE_ENV === "development") {
         if (process.env.NODE_ENV === "development") {
         console.info(
-          "[orakly] Live feed unavailable — using scheduled updates.",
+          "[orakly] Live feed unavailable. Using scheduled updates.",
         );
       }
       }

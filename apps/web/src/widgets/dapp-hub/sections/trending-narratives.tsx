@@ -79,7 +79,7 @@ function sortNarratives(
 function fmtVolume(n: number): string {
   if (!Number.isFinite(n) || n <= 0) return "$0";
   const compact = fmtUsdCompact(n);
-  return compact === "—" ? `$${Math.round(n).toLocaleString()}` : compact;
+  return compact === "N/A" ? `$${Math.round(n).toLocaleString()}` : compact;
 }
 
 function NarrativeSkeletonCard() {
@@ -229,7 +229,7 @@ export function TrendingNarratives() {
       <div className="mb-4 flex flex-col gap-3 sm:mb-5 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h2 className="text-xl font-bold text-white">Trending Narratives</h2>
-          <p className="mt-0.5 text-sm text-slate-500">Where attention is flowing</p>
+          <p className="mt-0.5 text-sm text-slate-500">Where trading attention is concentrating.</p>
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
@@ -238,12 +238,12 @@ export function TrendingNarratives() {
               Demo narratives
             </span>
           ) : null}
-          <label className="relative inline-flex shrink-0 items-center">
-            <span className="sr-only">Sort narratives</span>
+          <div className="relative inline-flex shrink-0 items-center">
             <select
               value={sort}
               onChange={(e) => setSort(e.target.value as SortKey)}
               disabled={showSkeletons || showError}
+              aria-label="Sort narratives"
               className={cn(
                 "appearance-none rounded-lg border border-white/10 bg-white/5",
                 "py-1.5 pl-3 pr-8 text-sm text-slate-300",
@@ -261,13 +261,13 @@ export function TrendingNarratives() {
               className="pointer-events-none absolute right-2.5 size-3.5 text-slate-500"
               aria-hidden
             />
-          </label>
+          </div>
         </div>
       </div>
 
       {showError ? (
         <div className="rounded-2xl border border-dashed border-rose-400/30 bg-rose-500/5 px-6 py-10 text-center">
-          <p className="text-sm font-semibold text-white">Couldn’t load narratives</p>
+          <p className="text-sm font-semibold text-white">Unable to load narratives.</p>
           <p className="mx-auto mt-1 max-w-sm text-xs text-slate-500">
             {query.error instanceof Error
               ? query.error.message

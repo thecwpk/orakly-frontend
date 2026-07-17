@@ -106,7 +106,7 @@ export function MarketDiscussion({ marketId }: { marketId: string }) {
           : null}
         {!commentsQ.isLoading && comments.length === 0 ? (
           <li className="py-8 text-center text-[13px] text-zinc-500">
-            No comments yet — start the discussion.
+            No comments yet. Start the discussion.
           </li>
         ) : null}
         {comments.map((c) => {

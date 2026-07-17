@@ -492,7 +492,7 @@ export async function executeMarketTrade(
     if (locked === null) {
       throw new MarketTradeError(
         "LOCK_CONTENTION",
-        "Market busy — retry shortly",
+        "Market busy. Retry shortly",
         409,
         2_000,
       );

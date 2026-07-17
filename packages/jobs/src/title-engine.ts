@@ -126,7 +126,7 @@ export function buildDynamicMarketCopy(seed: SignalMarketSeed): TitleEngineResul
     default:
       title = `Will ${label} close higher than its open reference within ${horizonHours} hours?`;
       description = [
-        `Neutral momentum template — 24h move ~${move}.`,
+        `Neutral momentum template. 24h move ~${move}.`,
         `YES if benchmark price finishes above the oracle baseline at window open.`,
         `Trending rank ${seed.hotScore.toFixed(1)}.`,
       ].join("\n");

@@ -118,9 +118,9 @@ function formatAxisDate(day: string): string {
 }
 
 function formatResolvedDate(iso: string | null): string {
-  if (!iso) return "—";
+  if (!iso) return "N/A";
   const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return "—";
+  if (Number.isNaN(d.getTime())) return "N/A";
   return d.toLocaleDateString(undefined, {
     year: "numeric",
     month: "short",
@@ -491,7 +491,7 @@ function ResolvedMarketsTable({
                   <td className="max-w-[240px] truncate px-4 py-2.5 text-zinc-100">
                     {row.question}
                   </td>
-                  <td className="px-4 py-2.5">{row.narrative ?? "—"}</td>
+                  <td className="px-4 py-2.5">{row.narrative ?? "N/A"}</td>
                   <td className="px-4 py-2.5">
                     {row.creatorAddress ? (
                       <Link
@@ -501,11 +501,11 @@ function ResolvedMarketsTable({
                         {shortAddress(row.creatorAddress)}
                       </Link>
                     ) : (
-                      "—"
+                      "N/A"
                     )}
                   </td>
                   <td className="px-4 py-2.5 font-mono text-[11px] uppercase">
-                    {row.outcome ?? "—"}
+                    {row.outcome ?? "N/A"}
                   </td>
                   <td className="px-4 py-2.5 font-mono tabular-nums">
                     {compactUsd(row.totalVolume)}
@@ -608,7 +608,7 @@ export function HistoricalAnalyticsPage() {
       <header className="border-b border-white/[0.06] pb-r24">
         <p className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.22em] text-cyan-400/90">
           <BarChart3 className="h-3 w-3" />
-          Historical tape
+          Historical Analytics
         </p>
         <h1 className="mt-1.5 text-balance text-2xl font-semibold tracking-tight text-white sm:text-[1.75rem]">
           Historical Analytics
@@ -641,11 +641,15 @@ export function HistoricalAnalyticsPage() {
         </div>
 
         <div className="flex flex-wrap gap-4">
-          <label className="flex min-w-[200px] flex-1 flex-col gap-1.5">
-            <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-zinc-500">
+          <div className="flex min-w-[200px] flex-1 flex-col gap-1.5">
+            <label
+              htmlFor="analytics-filter-narrative"
+              className="w-fit text-[10px] font-semibold uppercase tracking-[0.18em] text-zinc-500"
+            >
               Narrative
-            </span>
+            </label>
             <select
+              id="analytics-filter-narrative"
               value={filters.narrative}
               onChange={(e) =>
                 setFilters((prev) => ({
@@ -662,13 +666,17 @@ export function HistoricalAnalyticsPage() {
                 </option>
               ))}
             </select>
-          </label>
+          </div>
 
-          <label className="flex min-w-[180px] flex-1 flex-col gap-1.5">
-            <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-zinc-500">
+          <div className="flex min-w-[180px] flex-1 flex-col gap-1.5">
+            <label
+              htmlFor="analytics-filter-category"
+              className="w-fit text-[10px] font-semibold uppercase tracking-[0.18em] text-zinc-500"
+            >
               Category
-            </span>
+            </label>
             <select
+              id="analytics-filter-category"
               value={filters.category}
               onChange={(e) =>
                 setFilters((prev) => ({
@@ -684,7 +692,7 @@ export function HistoricalAnalyticsPage() {
                 </option>
               ))}
             </select>
-          </label>
+          </div>
         </div>
       </div>
 

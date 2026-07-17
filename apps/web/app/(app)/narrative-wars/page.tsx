@@ -3,8 +3,9 @@ import { Suspense } from "react";
 import { NarrativeWarsClient } from "@/widgets/narrative-wars/narrative-wars-client";
 
 export const metadata: Metadata = {
-  title: "Narrative Wars — Orakly",
-  description: "Compare two crypto narratives head-to-head.",
+  title: "Narrative Wars: Orakly",
+  description:
+    "Compare two crypto narratives head-to-head with side-by-side markets, volume, and attention on Orakly.",
 };
 
 function NarrativeWarsFallback() {

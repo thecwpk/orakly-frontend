@@ -24,10 +24,10 @@ export function DiscoveryStatusTape({
   const { connectionStatus } = useSocketRegistry();
 
   const feedLabel = useMemo(() => {
-    if (connectionStatus === "connected") return "Live tape";
-    if (connectionStatus === "connecting") return "Syncing tape…";
-    if (connectionStatus === "error") return "Tape reconnecting";
-    return "Tape idle";
+    if (connectionStatus === "connected") return "Live feed";
+    if (connectionStatus === "connecting") return "Syncing feed…";
+    if (connectionStatus === "error") return "Reconnecting…";
+    return "Idle";
   }, [connectionStatus]);
 
   const tone =
@@ -73,7 +73,7 @@ export function DiscoveryStatusTape({
             isFetching && "text-[var(--hub-primary-bright)]",
           )}
         >
-          {updatedLabel ? `Δ ${updatedLabel}` : "—"}
+          {updatedLabel ? `Δ ${updatedLabel}` : "N/A"}
         </span>
       </span>
     </div>

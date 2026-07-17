@@ -1,4 +1,4 @@
-import { Users } from "lucide-react";
+import { Check, Users } from "lucide-react";
 
 type Feature = {
   title: string;
@@ -10,31 +10,31 @@ type Feature = {
 
 const FEATURES: Feature[] = [
   {
-    title: "Real-time prediction markets",
+    title: "Real-Time Prediction Markets",
     does: "Trade probability curves powered by live conviction.",
     matters: "You react to narrative shifts instead of stale headlines.",
-    better: "Pricing moves with every trade — not end-of-day resets.",
+    better: "Pricing moves with every trade, not end-of-day resets.",
     frame: "yesno",
   },
   {
-    title: "Narrative trading",
+    title: "Narrative Trading",
     does: "Track emerging crypto narratives before they go mainstream.",
     matters: "Capture rotations early when attention is still forming.",
-    better: "Purpose-built for crypto-native stories — not generic news bets.",
+    better: "Purpose-built for crypto-native stories, not generic news bets.",
     frame: "narrative",
   },
   {
-    title: "Community-driven discovery",
-    does: "Suggest markets, submit narratives, shape what trades next.",
-    matters: "Liquidity follows attention — the crowd surfaces what matters.",
+    title: "Community-Driven Discovery",
+    does: "Suggest markets, submit narratives, and shape what trades next.",
+    matters: "Liquidity follows attention. Community participation surfaces what matters.",
     better: "Markets evolve with the community instead of a fixed catalog.",
     frame: "community",
   },
   {
-    title: "Transparent settlement",
+    title: "Transparent Settlement",
     does: "Decentralized resolution with verifiable on-chain payouts.",
     matters: "Know how outcomes are decided before you size a position.",
-    better: "Designed for auditability — fewer hand-wavy resolutions.",
+    better: "Designed for auditability with clearer, verifiable resolutions.",
     frame: "settle",
   },
 ];
@@ -100,7 +100,10 @@ function DeviceFrame({
           {variant === "settle" && (
             <div className="flex h-full flex-col justify-center gap-3 font-mono text-[10px] text-muted-foreground">
               <div className="rounded border border-border bg-muted/25 p-3">
-                <p className="text-yes/90">✓ proposal verified</p>
+                <p className="inline-flex items-center gap-1 text-yes/90">
+                  <Check className="size-3" aria-hidden />
+                  proposal verified
+                </p>
                 <p className="mt-2 text-muted-foreground">on-chain payout queued</p>
               </div>
               <div className="h-2 rounded bg-muted/40" />

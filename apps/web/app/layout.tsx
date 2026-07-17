@@ -44,7 +44,7 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "Orakly Market — on-chain prediction markets",
+    default: "Orakly Market: on-chain prediction markets",
     template: "%s · Orakly Market",
   },
   description:
@@ -63,14 +63,14 @@ export const metadata: Metadata = {
     type: "website",
     url: "/dapp",
     siteName: "Orakly Market",
-    title: "Orakly Market — on-chain prediction markets",
+    title: "Orakly Market: on-chain prediction markets",
     description:
       "Trade live odds on crypto, macro, sports, and tech. Transparent rules, stablecoin rails, and verifiable on-chain settlement.",
     locale: "en_US",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Orakly Market — on-chain",
+    title: "Orakly Market: on-chain",
     description: "On-chain prediction markets. Trade live odds.",
     creator: "@orakly",
   },

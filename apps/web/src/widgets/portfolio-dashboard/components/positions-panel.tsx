@@ -15,7 +15,7 @@ import {
 } from "../lib/portfolio-metrics";
 
 function fmtDeltaCents(d: number | null): string {
-  if (d == null || !Number.isFinite(d)) return "—";
+  if (d == null || !Number.isFinite(d)) return "N/A";
   const r = Math.round(d * 10) / 10;
   if (r === 0) return "0";
   return `${r > 0 ? "+" : ""}${r}¢`;
@@ -127,7 +127,7 @@ function PositionsPanelInner({
                     </motion.span>
                   </td>
                   <td className="whitespace-nowrap px-2 py-1.5 text-right tabular-nums text-[var(--hub-muted)] sm:py-2">
-                    {yesMid != null ? `${yesMid}%` : "—"}
+                    {yesMid != null ? `${yesMid}%` : "N/A"}
                   </td>
                   <td
                     className={cn(

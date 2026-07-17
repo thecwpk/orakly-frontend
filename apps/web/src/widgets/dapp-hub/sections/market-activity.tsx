@@ -83,7 +83,7 @@ function eventLine(event: MarketActivityEvent): string {
             ? "closes Tomorrow"
             : `closes in ${event.hoursUntilClose}h`
           : "closes soon";
-      return `${q} — ${when}`;
+      return `${q}: ${when}`;
     }
     case "UPCOMING_EVENT":
       return event.eventName?.trim() || q;
@@ -273,7 +273,7 @@ export function MarketActivity() {
         <div>
           <h2 className="text-xl font-bold text-white">Market Activity</h2>
           <p className="mt-0.5 text-sm text-slate-500">
-            Six live desks — trades, listings, closings, events & votes
+            Live panels for trades, listings, closings, events, and votes.
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-x-2 gap-y-1">

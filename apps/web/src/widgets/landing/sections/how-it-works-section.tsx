@@ -8,7 +8,7 @@ const STEPS = [
   },
   {
     title: "Buy YES or NO",
-    body: "Trade with stablecoins in seconds. Each market has YES and NO shares — prices track live probability.",
+    body: "Trade with stablecoins in seconds. Each market has YES and NO shares, and prices track live probability.",
     icon: WalletCards,
   },
   {

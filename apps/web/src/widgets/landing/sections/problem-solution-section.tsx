@@ -3,7 +3,7 @@ import { Eye, Gauge, Layers, LockOpen } from "lucide-react";
 const PAIRS = [
   {
     pain: "Opaque pricing & settlement",
-    fix: "Transparent YES/NO mechanics — probability you see is what traders trade.",
+    fix: "Transparent YES/NO mechanics. The probability you see is what traders trade.",
     icon: Eye,
   },
   {
@@ -13,7 +13,7 @@ const PAIRS = [
   },
   {
     pain: "Slow feedback loops",
-    fix: "Prices update as conviction moves — react before the narrative is priced in.",
+    fix: "Prices update as conviction moves, so you can react before the narrative is priced in.",
     icon: Gauge,
   },
   {
@@ -31,7 +31,7 @@ export function ProblemSolutionSection() {
           Built for traders who are tired of noise
         </h2>
         <p className="mx-auto mt-3 max-w-xl text-center text-sm text-muted-foreground">
-          Straight language — no fluff. Here is what breaks today, and how Orakly
+          Straight language, no fluff. Here is what breaks today, and how Orakly
           is designed differently.
         </p>
 

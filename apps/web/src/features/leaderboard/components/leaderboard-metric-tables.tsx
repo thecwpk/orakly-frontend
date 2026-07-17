@@ -218,7 +218,7 @@ type YourRankCreatorProps = {
 };
 
 export function YourRankRow(props: YourRankTraderProps | YourRankCreatorProps) {
-  const rankLabel = props.rank != null ? `#${props.rank}` : "—";
+  const rankLabel = props.rank != null ? `#${props.rank}` : "N/A";
 
   if (props.tab === "creators") {
     const creatorRow = props.row;
@@ -239,19 +239,19 @@ export function YourRankRow(props: YourRankTraderProps | YourRankCreatorProps) {
           <div>
             <p className="text-zinc-500">Approved</p>
             <p className="font-mono text-zinc-100">
-              {creatorRow ? creatorRow.approvedMarkets : "—"}
+              {creatorRow ? creatorRow.approvedMarkets : "N/A"}
             </p>
           </div>
           <div>
             <p className="text-zinc-500">Volume</p>
             <p className="font-mono text-zinc-100">
-              {creatorRow ? compactUsd(creatorRow.volumeGenerated) : "—"}
+              {creatorRow ? compactUsd(creatorRow.volumeGenerated) : "N/A"}
             </p>
           </div>
           <div>
             <p className="text-zinc-500">Fees</p>
             <p className="font-mono text-zinc-100">
-              {creatorRow ? compactUsd(creatorRow.feesEarned) : "—"}
+              {creatorRow ? compactUsd(creatorRow.feesEarned) : "N/A"}
             </p>
           </div>
         </div>
@@ -280,25 +280,25 @@ export function YourRankRow(props: YourRankTraderProps | YourRankCreatorProps) {
             <div>
               <p className="text-zinc-500">Volume</p>
               <p className="font-mono text-zinc-100">
-                {traderRow ? compactUsd(traderRow.volumeUsd) : "—"}
+                {traderRow ? compactUsd(traderRow.volumeUsd) : "N/A"}
               </p>
             </div>
             <div>
               <p className="text-zinc-500">Trades</p>
               <p className="font-mono text-zinc-100">
-                {traderRow ? traderRow.tradeCount : "—"}
+                {traderRow ? traderRow.tradeCount : "N/A"}
               </p>
             </div>
             <div>
               <p className="text-zinc-500">Win rate</p>
               <p className="font-mono text-zinc-100">
-                {traderRow ? `${traderRow.winRatePct.toFixed(1)}%` : "—"}
+                {traderRow ? `${traderRow.winRatePct.toFixed(1)}%` : "N/A"}
               </p>
             </div>
             <div>
               <p className="text-zinc-500">PnL</p>
               <p className="font-mono text-zinc-100">
-                {traderRow ? signedCompactUsd(traderRow.pnlUsd) : "—"}
+                {traderRow ? signedCompactUsd(traderRow.pnlUsd) : "N/A"}
               </p>
             </div>
           </>
@@ -307,19 +307,19 @@ export function YourRankRow(props: YourRankTraderProps | YourRankCreatorProps) {
             <div>
               <p className="text-zinc-500">Win rate</p>
               <p className="font-mono text-zinc-100">
-                {traderRow ? `${traderRow.winRatePct.toFixed(1)}%` : "—"}
+                {traderRow ? `${traderRow.winRatePct.toFixed(1)}%` : "N/A"}
               </p>
             </div>
             <div>
               <p className="text-zinc-500">Trades</p>
               <p className="font-mono text-zinc-100">
-                {traderRow ? traderRow.tradeCount : "—"}
+                {traderRow ? traderRow.tradeCount : "N/A"}
               </p>
             </div>
             <div>
               <p className="text-zinc-500">Volume</p>
               <p className="font-mono text-zinc-100">
-                {traderRow ? compactUsd(traderRow.volumeUsd) : "—"}
+                {traderRow ? compactUsd(traderRow.volumeUsd) : "N/A"}
               </p>
             </div>
             <div />
@@ -329,19 +329,19 @@ export function YourRankRow(props: YourRankTraderProps | YourRankCreatorProps) {
             <div>
               <p className="text-zinc-500">PnL</p>
               <p className="font-mono text-zinc-100">
-                {traderRow ? signedCompactUsd(traderRow.pnlUsd) : "—"}
+                {traderRow ? signedCompactUsd(traderRow.pnlUsd) : "N/A"}
               </p>
             </div>
             <div>
               <p className="text-zinc-500">Best trade</p>
               <p className="font-mono text-zinc-100">
-                {traderRow ? compactUsd(traderRow.bestTradeUsd) : "—"}
+                {traderRow ? compactUsd(traderRow.bestTradeUsd) : "N/A"}
               </p>
             </div>
             <div>
               <p className="text-zinc-500">Markets</p>
               <p className="font-mono text-zinc-100">
-                {traderRow ? traderRow.marketsTraded : "—"}
+                {traderRow ? traderRow.marketsTraded : "N/A"}
               </p>
             </div>
             <div />

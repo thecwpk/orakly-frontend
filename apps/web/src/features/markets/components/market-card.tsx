@@ -3,6 +3,13 @@
 import type { Market } from "@orakly/types";
 import { formatCompactUsd } from "@orakly/utils";
 import { useRouter } from "next/navigation";
+import {
+  Bot,
+  ChartNoAxesColumnIncreasing,
+  Coins,
+  Link2,
+  type LucideIcon,
+} from "lucide-react";
 import { memo, useCallback, useEffect, useMemo, useState, type MouseEvent } from "react";
 import { useOpenTradeModal } from "@/features/trading";
 import { WatchlistStar } from "@/features/watchlist";
@@ -44,7 +51,7 @@ export type MarketCardProps = {
 };
 
 type CategoryVisual = {
-  emoji: string;
+  icon: LucideIcon;
   label: string;
   gradient: string;
 };
@@ -53,21 +60,21 @@ function categoryVisual(category: string): CategoryVisual {
   const c = (category || "").toLowerCase();
   if (c.includes("meme")) {
     return {
-      emoji: "🐸",
+      icon: Coins,
       label: formatCategoryLabel(category) || "Meme",
       gradient: "from-purple-900/60 to-pink-900/60",
     };
   }
   if (c.includes("defi")) {
     return {
-      emoji: "💰",
+      icon: Coins,
       label: formatCategoryLabel(category) || "DeFi",
       gradient: "from-blue-900/60 to-cyan-900/60",
     };
   }
   if (/\bai\b/.test(c) || c.includes("artificial")) {
     return {
-      emoji: "🤖",
+      icon: Bot,
       label: formatCategoryLabel(category) || "AI",
       gradient: "from-teal-900/60 to-green-900/60",
     };
@@ -81,13 +88,13 @@ function categoryVisual(category: string): CategoryVisual {
     c.includes("ethereum")
   ) {
     return {
-      emoji: "⛓️",
+      icon: Link2,
       label: formatCategoryLabel(category) || "Layer1",
       gradient: "from-orange-900/60 to-amber-900/60",
     };
   }
   return {
-    emoji: "📊",
+    icon: ChartNoAxesColumnIncreasing,
     label: formatCategoryLabel(category) || "Market",
     gradient: "from-indigo-900/60 to-slate-900/60",
   };
@@ -114,7 +121,7 @@ function timeRemaining(iso: string): {
 } {
   const ms = new Date(iso).getTime() - Date.now();
   if (!Number.isFinite(ms) || Number.isNaN(ms)) {
-    return { label: "—", urgent: false, expired: true };
+    return { label: "Closed", urgent: false, expired: true };
   }
   if (ms <= 0) return { label: "ENDED", urgent: true, expired: true };
   const urgent = ms < 24 * 60 * 60 * 1000;
@@ -168,6 +175,7 @@ function MarketCardImpl({
       : null);
 
   const visual = useMemo(() => categoryVisual(market.category), [market.category]);
+  const CategoryIcon = visual.icon;
   const remaining = useMemo(() => timeRemaining(market.closesAt), [market.closesAt]);
   const isOpen = market.status === "OPEN" && !remaining.expired;
   const showLive = isLive || isOpen;
@@ -268,9 +276,7 @@ function MarketCardImpl({
           />
         ) : null}
 
-        <span className="text-[32px] leading-none" aria-hidden>
-          {visual.emoji}
-        </span>
+        <CategoryIcon className="size-8 text-white/80" aria-hidden />
         <span className="mt-1 text-xs text-white/60">{visual.label}</span>
       </div>
 
@@ -327,7 +333,7 @@ function MarketCardImpl({
           <span>
             {participants != null && Number.isFinite(participants)
               ? `${Math.max(0, Math.round(participants)).toLocaleString()} traders`
-              : "— traders"}
+              : "No trader data"}
           </span>
         </div>
 

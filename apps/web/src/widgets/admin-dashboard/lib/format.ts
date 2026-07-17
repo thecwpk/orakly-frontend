@@ -30,7 +30,7 @@ export function parseDecimal(s: string | number | undefined | null): number {
 }
 
 export function shortId(id: string | undefined | null, head = 6, tail = 0): string {
-  if (!id) return "—";
+  if (!id) return "N/A";
   if (id.length <= head + tail + 1) return id;
   return tail > 0 ? `${id.slice(0, head)}…${id.slice(-tail)}` : `${id.slice(0, head)}…`;
 }

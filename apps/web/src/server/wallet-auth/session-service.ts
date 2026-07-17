@@ -88,7 +88,7 @@ export async function completeWalletAuthentication(
     if (!nonceRow) {
       throw new WalletAuthHttpError(
         "NONCE",
-        "Invalid or expired nonce — request a new one",
+        "Invalid or expired nonce. Request a new one",
         400,
       );
     }

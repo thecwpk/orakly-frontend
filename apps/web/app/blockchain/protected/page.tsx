@@ -36,7 +36,7 @@ export default function ProtectedBlockchainPage() {
                     Session address
                   </dt>
                   <dd className="mt-1 break-all font-mono text-sm text-cyan-100">
-                    {session?.address ?? "—"}
+                    {session?.address ?? "N/A"}
                   </dd>
                 </div>
                 <div>
@@ -44,7 +44,7 @@ export default function ProtectedBlockchainPage() {
                     Chain id
                   </dt>
                   <dd className="mt-1 font-mono text-sm text-zinc-200">
-                    {session?.chainId ?? "—"}
+                    {session?.chainId ?? "N/A"}
                   </dd>
                 </div>
               </dl>

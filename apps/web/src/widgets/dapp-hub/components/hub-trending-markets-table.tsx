@@ -71,7 +71,7 @@ export function HubTrendingMarketsTable() {
           ))}
         </div>
       ) : markets.length === 0 ? (
-        <p className="text-sm text-[var(--hub-muted)]">—</p>
+        <p className="text-sm text-[var(--hub-muted)]">No markets yet.</p>
       ) : (
         <div className="hub-card divide-y divide-[var(--hub-border)] overflow-hidden">
           {markets.map((m) => (

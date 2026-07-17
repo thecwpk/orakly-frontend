@@ -322,7 +322,9 @@ export function MarketsExplorerPage() {
     <div className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6">
       <header className="mb-5">
         <h1 className="text-[32px] font-bold tracking-tight text-zinc-50">Markets</h1>
-        <p className="mt-1 text-[15px] text-zinc-400">Every prediction market on Orakly</p>
+        <p className="mt-1 text-[15px] text-zinc-400">
+          Browse, search, and filter every prediction market on Orakly.
+        </p>
       </header>
 
       {/* Search */}
@@ -343,9 +345,12 @@ export function MarketsExplorerPage() {
 
       {/* Filters */}
       <div className="mb-3 flex flex-wrap items-end gap-3">
-        <label className="flex flex-col gap-1 text-[11px] font-medium text-zinc-500">
-          Category
+        <div className="flex flex-col gap-1 text-[11px] font-medium text-zinc-500">
+          <label htmlFor="markets-filter-category" className="w-fit">
+            Category
+          </label>
           <select
+            id="markets-filter-category"
             className={selectClass}
             value={local.category}
             onChange={(e) => patch({ category: e.target.value })}
@@ -356,11 +361,14 @@ export function MarketsExplorerPage() {
               </option>
             ))}
           </select>
-        </label>
+        </div>
 
-        <label className="flex flex-col gap-1 text-[11px] font-medium text-zinc-500">
-          Status
+        <div className="flex flex-col gap-1 text-[11px] font-medium text-zinc-500">
+          <label htmlFor="markets-filter-status" className="w-fit">
+            Status
+          </label>
           <select
+            id="markets-filter-status"
             className={selectClass}
             value={local.status}
             onChange={(e) => patch({ status: e.target.value })}
@@ -371,11 +379,14 @@ export function MarketsExplorerPage() {
               </option>
             ))}
           </select>
-        </label>
+        </div>
 
-        <label className="flex flex-col gap-1 text-[11px] font-medium text-zinc-500">
-          Narrative
+        <div className="flex flex-col gap-1 text-[11px] font-medium text-zinc-500">
+          <label htmlFor="markets-filter-narrative" className="w-fit">
+            Narrative
+          </label>
           <select
+            id="markets-filter-narrative"
             className={cn(selectClass, "min-w-[140px]")}
             value={local.narrative}
             onChange={(e) => patch({ narrative: e.target.value })}
@@ -387,42 +398,54 @@ export function MarketsExplorerPage() {
               </option>
             ))}
           </select>
-        </label>
+        </div>
 
-        <label className="flex min-w-[160px] flex-1 flex-col gap-1 text-[11px] font-medium text-zinc-500">
-          Creator
+        <div className="flex min-w-[160px] flex-1 flex-col gap-1 text-[11px] font-medium text-zinc-500">
+          <label htmlFor="markets-filter-creator" className="w-fit">
+            Creator
+          </label>
           <input
+            id="markets-filter-creator"
             type="text"
             value={creatorInput}
             onChange={(e) => setCreatorInput(e.target.value)}
             placeholder="Creator address..."
             className={inputClass}
           />
-        </label>
+        </div>
 
-        <label className="flex flex-col gap-1 text-[11px] font-medium text-zinc-500">
-          From
+        <div className="flex flex-col gap-1 text-[11px] font-medium text-zinc-500">
+          <label htmlFor="markets-filter-date-from" className="w-fit">
+            From
+          </label>
           <input
+            id="markets-filter-date-from"
             type="date"
             value={local.dateFrom}
             onChange={(e) => patch({ dateFrom: e.target.value })}
             className={inputClass}
           />
-        </label>
+        </div>
 
-        <label className="flex flex-col gap-1 text-[11px] font-medium text-zinc-500">
-          To
+        <div className="flex flex-col gap-1 text-[11px] font-medium text-zinc-500">
+          <label htmlFor="markets-filter-date-to" className="w-fit">
+            To
+          </label>
           <input
+            id="markets-filter-date-to"
             type="date"
             value={local.dateTo}
             onChange={(e) => patch({ dateTo: e.target.value })}
             className={inputClass}
           />
-        </label>
+        </div>
 
-        <label className="flex flex-col gap-1 text-[11px] font-medium text-zinc-500">
-          Min $
+        <div className="flex flex-col gap-1 text-[11px] font-medium text-zinc-500">
+          <label htmlFor="markets-filter-min-volume" className="w-fit">
+            Min $
+          </label>
           <input
+            id="markets-filter-min-volume"
             type="number"
             min={0}
             value={local.minVolume}
@@ -430,23 +453,26 @@ export function MarketsExplorerPage() {
             placeholder="0"
             className={cn(inputClass, "w-24")}
           />
-        </label>
+        </div>
 
-        <label className="flex flex-col gap-1 text-[11px] font-medium text-zinc-500">
-          Max $
+        <div className="flex flex-col gap-1 text-[11px] font-medium text-zinc-500">
+          <label htmlFor="markets-filter-max-volume" className="w-fit">
+            Max $
+          </label>
           <input
+            id="markets-filter-max-volume"
             type="number"
             min={0}
             value={local.maxVolume}
             onChange={(e) => patch({ maxVolume: e.target.value })}
-            placeholder="—"
+            placeholder="No max"
             className={cn(inputClass, "w-24")}
           />
-        </label>
+        </div>
 
         <div className="flex min-w-[200px] flex-1 flex-col gap-1 text-[11px] font-medium text-zinc-500">
           <span>
-            Probability ({local.minProbability || 0}% — {local.maxProbability || 100}%)
+            Probability ({local.minProbability || 0}% to {local.maxProbability || 100}%)
           </span>
           <div className="flex items-center gap-2">
             <input

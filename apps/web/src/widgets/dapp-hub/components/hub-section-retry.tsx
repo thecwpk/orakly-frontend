@@ -1,7 +1,7 @@
 "use client";
 
 export function HubSectionRetry({
-  message = "Couldn’t load this section.",
+  message = "Unable to load this section.",
   onRetry,
 }: {
   message?: string;

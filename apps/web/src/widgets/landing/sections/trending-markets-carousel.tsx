@@ -143,7 +143,7 @@ export function TrendingMarketsCarousel() {
       id="trending-markets"
       eyebrow="Live"
       title="Top volume"
-      description="From the active feed — scroll or arrows."
+      description="From the active feed. Scroll or use arrows."
       action={
         <div className="flex items-center gap-2">
           {!reduceMotion ? (
@@ -191,7 +191,7 @@ export function TrendingMarketsCarousel() {
           <CarouselSkeleton />
         ) : ranked.length === 0 ? (
           <div className="rounded-xl bg-white/[0.02] px-4 py-8 text-center text-[12.5px] text-zinc-500 ring-1 ring-white/[0.05]">
-            No trending markets yet — check back soon.
+            No trending markets yet. Check back soon.
           </div>
         ) : (
           <motion.div

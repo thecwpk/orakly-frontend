@@ -154,7 +154,7 @@ export const MARKET_ACTIVITY_DEMO: Record<
       id: "demo-close-1",
       kind: "MARKET_CLOSING",
       at: hoursFromNow(18),
-      question: "Ethereum Upgrade — Fusaka Activation",
+      question: "Ethereum Upgrade: Fusaka Activation",
       marketSlug: "demo-eth-upgrade",
       category: "Ethereum",
       hoursUntilClose: 18,

@@ -47,7 +47,7 @@ export function MarketsExplorerDiscoveryStrip({
   const { connectionStatus } = useSocketRegistry();
 
   const feedLabel = useMemo(() => {
-    if (connectionStatus === "connected") return "Live tape";
+    if (connectionStatus === "connected") return "Live feed";
     if (connectionStatus === "connecting") return "Syncing…";
     if (connectionStatus === "error") return "Reconnecting";
     return "Idle";
@@ -74,7 +74,7 @@ export function MarketsExplorerDiscoveryStrip({
         <span className="inline-flex items-center gap-1">
           <Database className="h-3 w-3 opacity-70" aria-hidden />
           <span className="font-mono tabular-nums text-[var(--hub-fg)]">
-            {isLoading ? "—" : totalLoaded}
+            {isLoading ? "N/A" : totalLoaded}
           </span>
           <span className="normal-case tracking-normal opacity-80">loaded</span>
         </span>
@@ -102,7 +102,7 @@ export function MarketsExplorerDiscoveryStrip({
               isFetching && "text-[var(--hub-primary-bright)]",
             )}
           >
-            {updatedLabel ? `Δ ${updatedLabel}` : "—"}
+            {updatedLabel ? `Δ ${updatedLabel}` : "N/A"}
           </span>
         </span>
       </div>

@@ -378,7 +378,7 @@ function UserRow({
         </span>
       </td>
       <td className="px-3 py-2 font-mono text-[11px] text-[var(--hub-muted)]">
-        {user.wallet ? compactUsd(available) : "—"}
+        {user.wallet ? compactUsd(available) : "N/A"}
       </td>
       <td className="px-3 py-2">
         {user.isSuspended ? (

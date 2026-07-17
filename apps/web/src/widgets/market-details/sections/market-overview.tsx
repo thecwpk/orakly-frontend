@@ -187,7 +187,7 @@ export function MarketOverviewSection({ market }: { market: MarketDetailDto }) {
         <div className="mt-3 space-y-1 text-[13px] text-zinc-400">
           <p>
             Resolves via:{" "}
-            <span className="text-zinc-200">{market.resolutionSource?.trim() || "—"}</span>
+            <span className="text-zinc-200">{market.resolutionSource?.trim() || "N/A"}</span>
           </p>
           <p>
             End Date:{" "}
@@ -252,7 +252,7 @@ export function MarketOverviewSection({ market }: { market: MarketDetailDto }) {
           <Stat
             label="Attention Score"
             value={
-              market.attentionScore != null ? String(Math.round(market.attentionScore)) : "—"
+              market.attentionScore != null ? String(Math.round(market.attentionScore)) : "N/A"
             }
           />
           <Stat
@@ -260,7 +260,7 @@ export function MarketOverviewSection({ market }: { market: MarketDetailDto }) {
             value={
               market.convictionScore != null
                 ? String(Math.round(market.convictionScore))
-                : "—"
+                : "N/A"
             }
           />
           <div>

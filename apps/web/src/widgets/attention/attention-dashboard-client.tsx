@@ -3,6 +3,19 @@
 import { formatCompactUsd } from "@orakly/utils";
 import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
+import {
+  Bot,
+  Boxes,
+  Circle,
+  Coins,
+  Droplets,
+  Gamepad2,
+  ImageIcon,
+  Landmark,
+  Link2,
+  Radio,
+  type LucideIcon,
+} from "lucide-react";
 import { useMemo } from "react";
 import { cn } from "@/lib/utils";
 import { fetchAttentionDashboard } from "@/shared/api/fetchers/attention-dashboard";
@@ -19,30 +32,30 @@ const REFETCH_MS = 30_000;
 type PredefinedNarrative = {
   name: string;
   slug: string;
-  emoji: string;
+  icon: LucideIcon;
 };
 
 /** Canonical narrative set — always rendered (zeros if no API row). */
 const PREDEFINED: readonly PredefinedNarrative[] = [
-  { name: "AI", slug: "ai", emoji: "🤖" },
-  { name: "Memes", slug: "memes", emoji: "🐸" },
-  { name: "Ethereum", slug: "ethereum", emoji: "⟠" },
-  { name: "BNB", slug: "bnb", emoji: "🟡" },
-  { name: "Base", slug: "base", emoji: "🔵" },
-  { name: "Solana", slug: "solana", emoji: "◎" },
-  { name: "Gaming", slug: "gaming", emoji: "🎮" },
-  { name: "RWA", slug: "rwa", emoji: "🏦" },
-  { name: "DeFi", slug: "defi", emoji: "💧" },
-  { name: "Layer1", slug: "layer1", emoji: "⛓️" },
-  { name: "Layer2", slug: "layer2", emoji: "🔗" },
-  { name: "NFTs", slug: "nfts", emoji: "🖼️" },
+  { name: "AI", slug: "ai", icon: Bot },
+  { name: "Memes", slug: "memes", icon: Coins },
+  { name: "Ethereum", slug: "ethereum", icon: Boxes },
+  { name: "BNB", slug: "bnb", icon: Circle },
+  { name: "Base", slug: "base", icon: Circle },
+  { name: "Solana", slug: "solana", icon: Boxes },
+  { name: "Gaming", slug: "gaming", icon: Gamepad2 },
+  { name: "RWA", slug: "rwa", icon: Landmark },
+  { name: "DeFi", slug: "defi", icon: Droplets },
+  { name: "Layer1", slug: "layer1", icon: Link2 },
+  { name: "Layer2", slug: "layer2", icon: Link2 },
+  { name: "NFTs", slug: "nfts", icon: ImageIcon },
 ] as const;
 
 type NarrativeCardModel = {
   id: string;
   name: string;
   slug: string;
-  emoji: string;
+  icon: LucideIcon;
   attentionScore: number;
   convictionScore: number;
   activeMarkets: number;
@@ -98,7 +111,7 @@ function emptyCard(predefined: PredefinedNarrative): NarrativeCardModel {
     id: `empty-${predefined.slug}`,
     name: predefined.name,
     slug: predefined.slug,
-    emoji: predefined.emoji,
+    icon: predefined.icon,
     attentionScore: 0,
     convictionScore: 0,
     activeMarkets: 0,
@@ -118,7 +131,7 @@ function fromApi(
     id: item.id,
     name: predefined.name,
     slug: item.narrativeSlug || predefined.slug,
-    emoji: predefined.emoji,
+    icon: predefined.icon,
     attentionScore: item.attentionScore ?? 0,
     convictionScore: item.convictionScore ?? 0,
     activeMarkets: item.activeMarkets ?? 0,
@@ -190,6 +203,7 @@ function NarrativeCard({
   const tone = scoreTone(card.attentionScore);
   const empty = card.empty;
   const barPct = Math.max(0, Math.min(100, card.attentionScore));
+  const NarrativeIcon = card.icon;
 
   return (
     <button
@@ -212,9 +226,7 @@ function NarrativeCard({
         >
           {card.name}
         </h3>
-        <span className="text-[20px] leading-none" aria-hidden>
-          {card.emoji}
-        </span>
+        <NarrativeIcon className="size-5 text-zinc-400" aria-hidden />
       </div>
 
       <div className="mt-4">
@@ -301,7 +313,7 @@ export function AttentionDashboardClient() {
         id: item.id,
         name: item.narrativeName,
         slug: item.narrativeSlug,
-        emoji: "📡",
+        icon: Radio,
         attentionScore: item.attentionScore ?? 0,
         convictionScore: item.convictionScore ?? 0,
         activeMarkets: item.activeMarkets ?? 0,
@@ -335,7 +347,7 @@ export function AttentionDashboardClient() {
       <header>
         <h1 className="text-[32px] font-bold tracking-tight text-zinc-50">Narratives</h1>
         <p className="mt-1 text-[15px] text-zinc-400">
-          Explore crypto attention by narrative category
+          Explore crypto attention across narrative categories.
         </p>
       </header>
 

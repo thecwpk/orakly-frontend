@@ -240,7 +240,7 @@ function EmptyState({
       </p>
       <p className="mt-1 max-w-xs text-[11.5px] leading-snug text-[var(--hub-muted)]">
         {marketScope
-          ? "Waiting for the next print on this market — fills will stream in here as they happen."
+          ? "Waiting for the next print on this market. Fills will stream in here as they happen."
           : "Activity will appear here in real time the moment it lands on the platform."}
       </p>
     </div>

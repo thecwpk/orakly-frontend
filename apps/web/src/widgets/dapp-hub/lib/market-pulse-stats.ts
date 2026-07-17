@@ -132,7 +132,7 @@ export function resolveMarketPulseStats(
   const openInterest = Math.max(0, Number(api!.openInterest) || 0);
   const activeTraders = Math.max(0, Math.floor(Number(api!.activeTraders) || 0));
   const currentMeta =
-    api!.currentMeta?.trim() && api!.currentMeta.trim() !== "—"
+    api!.currentMeta?.trim() && api!.currentMeta.trim() !== "N/A"
       ? api!.currentMeta.trim()
       : "Crypto";
   const topChain = api!.topChain?.trim() || "BNB";

@@ -24,14 +24,14 @@ export function HubHeroAttentionTerminal() {
             <h1 className="hub-hero-title">Trade what the market is watching</h1>
             <p className="mt-3 max-w-lg text-base leading-relaxed text-[var(--hub-muted)]">
               Discover trending events, follow narrative momentum, and place trades on outcomes
-              before the crowd moves.
+              before consensus forms.
             </p>
             <div className="mt-5 flex flex-wrap gap-3">
               <Link href={ROUTES.markets} className="hub-btn-primary px-5 py-2.5">
-                Browse markets
+                Browse Markets
               </Link>
               <Link href={ROUTES.marketCreate} className="hub-btn-secondary px-5 py-2.5">
-                Suggest a market
+                Suggest a Market
               </Link>
             </div>
           </div>
@@ -39,22 +39,22 @@ export function HubHeroAttentionTerminal() {
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-[var(--hub-card-gap)]">
             <HubMetricTile
               label="Narratives"
-              value={stats ? fmtCount(stats.activeNarratives) : "—"}
+              value={stats ? fmtCount(stats.activeNarratives) : "N/A"}
               loading={statsQ.isLoading}
             />
             <HubMetricTile
               label="Live markets"
-              value={stats ? fmtCount(stats.liveMarkets) : "—"}
+              value={stats ? fmtCount(stats.liveMarkets) : "N/A"}
               loading={statsQ.isLoading}
             />
             <HubMetricTile
               label="24h volume"
-              value={stats ? fmtUsdCompact(stats.volume24hUsd) : "—"}
+              value={stats ? fmtUsdCompact(stats.volume24hUsd) : "N/A"}
               loading={statsQ.isLoading}
             />
             <HubMetricTile
               label="Updates today"
-              value={stats ? fmtCount(stats.attentionUpdates24h) : "—"}
+              value={stats ? fmtCount(stats.attentionUpdates24h) : "N/A"}
               loading={statsQ.isLoading}
             />
           </div>

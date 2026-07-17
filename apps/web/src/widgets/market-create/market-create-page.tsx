@@ -118,7 +118,7 @@ function CreateMarketBody() {
       const created = await mutation.mutateAsync(payload);
       setSnapshotDraft(snapshot);
       setSubmitted(created);
-      toast.success("Market submitted — pending review.");
+      toast.success("Market submitted. Pending review.");
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Failed to publish.");
     }

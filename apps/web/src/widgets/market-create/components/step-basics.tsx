@@ -118,7 +118,7 @@ export function StepBasics({
 
       <WizardField
         label="Context"
-        hint="Optional 1–2 sentence framing — what this market measures and why."
+        hint="Optional 1 to 2 sentence framing of what this market measures and why."
         error={errors.description}
       >
         <textarea

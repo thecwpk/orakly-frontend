@@ -47,7 +47,7 @@ const LIFECYCLE_BADGE: Record<
   { label: string; ring: string; bg: string; text: string }
 > = {
   db_only: {
-    label: "DB Only — Not Tradeable",
+    label: "DB Only: Not Tradeable",
     ring: "ring-amber-400/30",
     bg: "bg-amber-500/10",
     text: "text-amber-200",
@@ -86,12 +86,12 @@ function marketLifecycle(market: AdminMarketRow): LifecycleKey {
 function marketCategoryLabel(market: AdminMarketRow): string {
   const adminKey = market.generationMeta?.adminCategory;
   if (adminKey && CATEGORY_LABELS[adminKey]) return CATEGORY_LABELS[adminKey];
-  return market.category?.name ?? "—";
+  return market.category?.name ?? "N/A";
 }
 
 function formatVolumeUsd(raw: string | number | undefined): string {
   const n = typeof raw === "string" ? Number.parseFloat(raw) : (raw ?? 0);
-  if (!Number.isFinite(n) || n <= 0) return "—";
+  if (!Number.isFinite(n) || n <= 0) return "N/A";
   return formatCompactUsd(n);
 }
 
@@ -420,7 +420,7 @@ function MarketRow({
             <ExternalLink className="h-3 w-3" />
           </a>
         ) : (
-          <span className="text-[10.5px] text-[var(--hub-muted)]">—</span>
+          <span className="text-[10.5px] text-[var(--hub-muted)]">N/A</span>
         )}
       </td>
       <td className="px-3 py-2 font-mono text-[11px] tabular-nums">

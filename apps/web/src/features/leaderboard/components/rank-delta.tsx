@@ -40,7 +40,7 @@ export function RankDelta({
       )}
     >
       <Icon className={iconSize} />
-      {delta === 0 ? "—" : Math.abs(delta)}
+      {delta === 0 ? "N/A" : Math.abs(delta)}
     </motion.span>
   );
 }

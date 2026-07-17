@@ -35,8 +35,8 @@ export async function generateMetadata({ params }: NarrativePageProps): Promise<
 
   return {
     title: narrative
-      ? `${narrative.narrativeName} — Narrative — Orakly`
-      : `${fallbackName} — Narrative — Orakly`,
+      ? `${narrative.narrativeName}: Narrative: Orakly`
+      : `${fallbackName}: Narrative: Orakly`,
     description: narrative
       ? `Attention, conviction, and markets for the ${narrative.narrativeName} narrative.`
       : "Narrative intelligence on Orakly.",

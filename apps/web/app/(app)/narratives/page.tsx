@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { AttentionDashboardClient } from "@/widgets/attention/attention-dashboard-client";
 
 export const metadata: Metadata = {
-  title: "Narratives — Orakly",
+  title: "Narratives: Orakly",
   description: "Explore crypto attention by narrative category.",
 };
 

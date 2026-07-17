@@ -82,7 +82,7 @@ export async function getHomeStats(): Promise<HomeStatsPayload> {
   const currentMeta =
     topRow?.narrativeName?.trim() ||
     topRow?.narrative?.trim() ||
-    "—";
+    "Crypto";
 
   const wallets = new Set<string>();
   for (const trade of recentTrades) {

@@ -171,7 +171,7 @@ export function HubBreakingNewsPanel({
             {railMode === "live_signals"
               ? "Linked signals appear when crypto tape is ingested."
               : railMode === "movers_24h"
-                ? "Sampling odds snapshots — run the cron sampler or wait for the next interval."
+                ? "Sampling odds snapshots. Run the cron sampler or wait for the next interval."
                 : "Tape warming…"}
           </p>
         ) : (

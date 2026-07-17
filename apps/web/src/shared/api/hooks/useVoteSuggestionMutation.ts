@@ -14,7 +14,7 @@ export function useVoteSuggestionMutation() {
       void qc.invalidateQueries({ queryKey: [...queryKeys.hub.root(), "suggestions"] });
     },
     onError: () => {
-      toast.error("Could not register vote — sign in with your wallet.");
+      toast.error("Could not register vote. Sign in with your wallet.");
     },
   });
 }

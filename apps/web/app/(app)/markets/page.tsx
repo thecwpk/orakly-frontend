@@ -3,7 +3,7 @@ import { Suspense } from "react";
 import { MarketsExplorerPage } from "@/widgets/markets-explorer/markets-explorer-page";
 
 export const metadata: Metadata = {
-  title: "Markets — Orakly",
+  title: "Markets: Orakly",
   description: "Browse, search, and filter every prediction market on Orakly.",
 };
 

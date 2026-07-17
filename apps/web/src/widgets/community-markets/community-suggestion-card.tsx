@@ -164,7 +164,7 @@ export function CommunitySuggestionCard({
             onClick={() => {
               if (!normalizedWallet) {
                 openConnectModal?.();
-                toast.message("Connect your wallet to vote");
+                toast.message("Connect your wallet to vote.");
                 return;
               }
               voteMutation.mutate();
@@ -176,7 +176,7 @@ export function CommunitySuggestionCard({
                 : "bg-white/[0.03] text-zinc-200 ring-white/[0.08] hover:bg-white/[0.06]",
             )}
           >
-            {hasVoted ? "✓ Voted" : "Vote ↑"}
+            {hasVoted ? "Voted" : "Vote ↑"}
           </button>
         </div>
 

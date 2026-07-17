@@ -103,7 +103,7 @@ function PortfolioTerminalSummaryInner({
         />
         <Metric
           label="Win rate"
-          value={winRatePct != null ? `${Math.round(winRatePct * 10) / 10}%` : "—"}
+          value={winRatePct != null ? `${Math.round(winRatePct * 10) / 10}%` : "N/A"}
           sub="Closed sells · FIFO"
           className="sm:max-w-[9rem]"
         />

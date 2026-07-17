@@ -50,13 +50,13 @@ let failed = 0;
 
 function pass(name, detail) {
   results.push({ name, ok: true, detail });
-  console.log(`  ✓ ${name} — ${detail}`);
+  console.log(`  PASS ${name}: ${detail}`);
 }
 
 function fail(name, detail) {
   results.push({ name, ok: false, detail });
   failed++;
-  console.log(`  ✗ ${name} — ${detail}`);
+  console.log(`  FAIL ${name}: ${detail}`);
 }
 
 async function getJson(url, init = {}) {
@@ -108,7 +108,7 @@ if (cronSecret) {
   if (sync.status === 404) {
     fail(
       "POST /api/internal/db-sync",
-      "404 — redeploy frontend; also set Vercel DATABASE_URL = Neon URL from .env.local",
+      "404. Redeploy frontend, then set Vercel DATABASE_URL to the Neon URL from .env.local",
     );
   } else if (sync.ok && sync.json?.openCount > 0) {
     pass(
@@ -118,7 +118,7 @@ if (cronSecret) {
   } else if (sync.ok) {
     fail(
       "POST /api/internal/db-sync",
-      `seed ran but 0 OPEN — check Vercel DATABASE_URL matches Neon in .env.local`,
+      "seed ran but 0 OPEN. Check that Vercel DATABASE_URL matches Neon in .env.local",
     );
   } else {
     fail("POST /api/internal/db-sync", `HTTP ${sync.status} · ${sync.text}`);
@@ -142,7 +142,7 @@ console.log("\n── App API ──\n");
 
 {
   const r = await getJson(`${base}/api/v1/health`);
-  if (r.ok && r.json?.ok) pass("GET /api/v1/health", `200 · ts ${r.json.data?.ts ?? "—"}`);
+  if (r.ok && r.json?.ok) pass("GET /api/v1/health", `200 · ts ${r.json.data?.ts ?? "N/A"}`);
   else fail("GET /api/v1/health", `HTTP ${r.status} ${r.text}`);
 }
 
@@ -152,7 +152,7 @@ for (const c of HUB_CHECKS) {
   if (r.ok && r.json?.ok && count > 0) {
     pass(c.name, `${count} markets · e.g. "${sample}"`);
   } else if (r.ok && r.json?.ok && count === 0) {
-    fail(c.name, "0 markets — DB empty or hub scope blocked · run seed on DATABASE_URL");
+    fail(c.name, "0 markets. DB empty or hub scope blocked. Run seed on DATABASE_URL");
   } else {
     fail(c.name, `HTTP ${r.status} · ${r.text}`);
   }
@@ -173,16 +173,16 @@ if (cronSecret) {
       else fail(`  env ${c.id}`, c.detail);
     }
   } else {
-    fail("GET /api/v1/diagnostics/stack", `HTTP ${r.status} — redeploy frontend with latest main`);
+    fail("GET /api/v1/diagnostics/stack", `HTTP ${r.status}. Redeploy frontend with latest main`);
   }
 } else {
-  fail("diagnostics/stack", "CRON_SECRET missing in .env.local — cannot probe Vercel DB");
+  fail("diagnostics/stack", "CRON_SECRET missing in .env.local. Cannot probe Vercel DB");
 }
 
 console.log("\n── Realtime (Railway) ──\n");
 
 if (vercelOnly) {
-  pass("Vercel-only mode", "ORAKLY_VERCEL_ONLY — skipping Railway realtime checks");
+  pass("Vercel-only mode", "ORAKLY_VERCEL_ONLY enabled. Skipping Railway realtime checks");
 } else if (realtimeBase) {
   const r = await getJson(`${realtimeBase}/health`);
   if (r.ok) pass("Railway realtime /health", realtimeBase);
@@ -192,14 +192,14 @@ if (vercelOnly) {
 }
 
 if (vercelOnly) {
-  pass("Socket.IO polling", "skipped — activity tape uses REST polling");
+  pass("Socket.IO polling", "skipped. Activity tape uses REST polling");
 } else if (socketBase) {
   const pollUrl = `${socketBase}/socket.io/?EIO=4&transport=polling`;
   const r = await getJson(pollUrl);
   if (r.ok && r.text.includes("sid")) {
     pass("Socket.IO polling", sameOrigin ? "via Vercel proxy" : "direct Railway");
   } else {
-    fail("Socket.IO polling", `HTTP ${r.status} — check REALTIME_UPSTREAM + SAME_ORIGIN on Vercel`);
+    fail("Socket.IO polling", `HTTP ${r.status}. Check REALTIME_UPSTREAM and SAME_ORIGIN on Vercel`);
   }
 } else {
   fail("Socket.IO polling", "no socket base URL (set SAME_ORIGIN or NEXT_PUBLIC_REALTIME_URL)");
@@ -217,11 +217,11 @@ console.log("\n═════════════════════�
 if (failed === 0) {
   console.log(
     vercelOnly
-      ? "  ALL CHECKS PASSED — Vercel-only stack (REST + crons) looks wired."
-      : "  ALL CHECKS PASSED — backend + markets + realtime look wired.",
+      ? "  ALL CHECKS PASSED. Vercel-only stack (REST + crons) looks wired."
+      : "  ALL CHECKS PASSED. Backend, markets, and realtime look wired.",
   );
 } else {
-  console.log(`  ${failed} CHECK(S) FAILED — fix items marked ✗ above.`);
+  console.log(`  ${failed} CHECK(S) FAILED. Fix items marked FAIL above.`);
 }
 console.log("══════════════════════════════════════════\n");
 

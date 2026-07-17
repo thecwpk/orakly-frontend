@@ -62,7 +62,7 @@ export function MemeTrendsSection() {
       id="meme-trends"
       eyebrow="Narrative velocity"
       title="Meme coin trends"
-      description="Fast-moving narrative flows with velocity scoring — a separate lane from core crypto majors."
+      description="Fast-moving narrative flows with velocity scoring, a separate lane from core crypto majors."
       action={
         <span className="flex items-center gap-1.5 rounded-full bg-rose-500/10 px-3 py-1 text-[11px] font-medium text-rose-300 ring-1 ring-rose-400/30">
           <Flame className="h-3.5 w-3.5" />

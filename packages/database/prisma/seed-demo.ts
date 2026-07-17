@@ -745,7 +745,7 @@ async function seedMarkets(
           Math.round(row.collateralPoolUsd * 1.8),
         ),
         trendingScore: new Prisma.Decimal(row.trendingScore),
-        resolutionSource: "Demo seed — CoinGecko / official announcements at deadline",
+        resolutionSource: "Demo seed: CoinGecko / official announcements at deadline",
         generationKey: `seed-demo:${row.slug}`,
       },
       update: {
@@ -767,7 +767,7 @@ async function seedMarkets(
           Math.round(row.collateralPoolUsd * 1.8),
         ),
         trendingScore: new Prisma.Decimal(row.trendingScore),
-        resolutionSource: "Demo seed — CoinGecko / official announcements at deadline",
+        resolutionSource: "Demo seed: CoinGecko / official announcements at deadline",
         generationKey: `seed-demo:${row.slug}`,
       },
     });
