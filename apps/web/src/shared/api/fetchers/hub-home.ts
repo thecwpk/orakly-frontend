@@ -15,9 +15,19 @@ export async function fetchAttentionDashboard(): Promise<AttentionNarrativeRow[]
   return unwrapApiResult(res);
 }
 
+const HOME_STATS_TIMEOUT_MS = 12_000;
+
 export async function fetchHomeStats(): Promise<HomeStatsPayload> {
-  const res = await apiClient.request<HomeStatsPayload>("/api/v1/hub/home/stats");
-  return unwrapApiResult(res);
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), HOME_STATS_TIMEOUT_MS);
+  try {
+    const res = await apiClient.request<HomeStatsPayload>("/api/v1/hub/home/stats", {
+      signal: controller.signal,
+    });
+    return unwrapApiResult(res);
+  } finally {
+    clearTimeout(timer);
+  }
 }
 
 export async function fetchNarrativeWars(): Promise<NarrativeWarCard[]> {

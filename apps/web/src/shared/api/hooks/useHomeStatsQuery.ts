@@ -11,5 +11,6 @@ export function useHomeStatsQuery() {
     queryFn: fetchHomeStats,
     staleTime: 45_000,
     refetchInterval: 60_000,
+    retry: 1,
   });
 }
