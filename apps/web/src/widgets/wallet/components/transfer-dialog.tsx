@@ -322,9 +322,8 @@ function ComposeBody({
 
       <p className="flex items-start gap-1.5 text-[10.5px] text-zinc-500">
         <ShieldCheck className="mt-0.5 h-3 w-3 shrink-0 text-emerald-400/80" />
-        Demo transfer — confirms locally for previewing balance updates and
-        transaction history. Production will route through the on-chain settlement
-        service.
+        Confirms locally for balance updates and transaction history. On-chain
+        settlement routes through the network when available.
       </p>
 
       {blockingError ? (

@@ -264,7 +264,6 @@ export function MarketActivity() {
     });
   }, [items, tick]);
 
-  const anyDemo = panels.some((p) => p.usedDemo);
   const loading = query.isLoading && items.length === 0;
 
   return (
@@ -277,17 +276,12 @@ export function MarketActivity() {
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-          {anyDemo ? (
-            <span className="rounded border border-white/10 bg-white/5 px-2 py-0.5 text-[10px] font-medium text-slate-500">
-              Includes demo activity
-            </span>
-          ) : null}
           <span className="inline-flex items-center gap-1.5 text-xs font-medium text-green-400">
             <span
               className="h-2 w-2 shrink-0 animate-pulse rounded-full bg-green-500"
               aria-hidden
             />
-            {socketConnected ? "Live updates (socket)" : "Live updates (polling)"}
+            {socketConnected ? "Live updates" : "Updating"}
           </span>
         </div>
       </div>

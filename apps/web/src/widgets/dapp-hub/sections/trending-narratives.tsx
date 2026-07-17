@@ -233,11 +233,6 @@ export function TrendingNarratives() {
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          {resolved.source === "demo" && !showError && !showSkeletons ? (
-            <span className="rounded border border-white/10 bg-white/5 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-slate-500">
-              Demo narratives
-            </span>
-          ) : null}
           <div className="relative inline-flex shrink-0 items-center">
             <select
               value={sort}

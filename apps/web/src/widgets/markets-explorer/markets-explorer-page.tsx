@@ -10,7 +10,11 @@ import { cn } from "@/lib/utils";
 import { fetchAttentionDashboard } from "@/shared/api/fetchers/attention-dashboard";
 import { fetchMarketsExplorer } from "@/shared/api/fetchers/markets-explorer";
 import { queryKeys } from "@/shared/api/query-keys";
-import type { MarketsExplorerSort } from "@/shared/contracts/markets-explorer";
+import type {
+  MarketsExplorerRowDto,
+  MarketsExplorerSort,
+} from "@/shared/contracts/markets-explorer";
+import { getFallbackExplorerMarkets } from "@/widgets/dapp-hub/lib/live-markets-demo";
 
 const PAGE_SIZE = 20;
 const DEBOUNCE_MS = 400;
@@ -304,10 +308,28 @@ export function MarketsExplorerPage() {
   }, [narrativesQuery.data]);
 
   const result = marketsQuery.data;
-  const markets = result?.markets ?? [];
-  const total = result?.total ?? 0;
+  const apiMarkets = result?.markets ?? [];
+  const usingFallback =
+    !marketsQuery.isLoading && apiMarkets.length === 0 && marketsQuery.isError;
+
+  const fallbackMarkets = useMemo(() => {
+    if (!usingFallback) return [] as MarketsExplorerRowDto[];
+    return getFallbackExplorerMarkets(PAGE_SIZE).map((m) => ({
+      ...m,
+      status:
+        m.status === "OPEN" || m.status === "RESOLVED" || m.status === "CLOSED"
+          ? m.status
+          : ("OPEN" as const),
+      momentum: m.momentum,
+      attentionScore: m.attentionScore ?? null,
+      convictionScore: m.convictionScore ?? null,
+    }));
+  }, [usingFallback]);
+
+  const markets = apiMarkets.length > 0 ? apiMarkets : fallbackMarkets;
+  const total = apiMarkets.length > 0 ? (result?.total ?? 0) : markets.length;
   const page = result?.page ?? urlFilters.page;
-  const totalPages = result?.totalPages ?? 1;
+  const totalPages = apiMarkets.length > 0 ? (result?.totalPages ?? 1) : 1;
   const loading = marketsQuery.isLoading && !result;
 
   const from = total === 0 ? 0 : (page - 1) * PAGE_SIZE + 1;

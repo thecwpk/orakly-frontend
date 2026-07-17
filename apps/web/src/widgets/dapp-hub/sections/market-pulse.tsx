@@ -222,15 +222,9 @@ export function MarketPulse() {
             <p className="hub-dapp-stat-label !text-[11px]">Market Pulse</p>
             <span className="hidden text-[11px] text-[var(--hub-muted)] sm:inline">· today</span>
           </div>
-          {pulse.source === "demo" ? (
-            <span className="hub-dapp-market-chip uppercase tracking-wider">
-              Demo desk data
-            </span>
-          ) : (
-            <span className="hub-dapp-stat-label !normal-case hub-dapp-move-up">
-              Live
-            </span>
-          )}
+          <span className="hub-dapp-stat-label !normal-case hub-dapp-move-up">
+            Live
+          </span>
         </div>
 
         <div

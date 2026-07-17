@@ -27,7 +27,7 @@ export function AppFooter() {
               <span className="font-bold text-white">Orakly</span>
             </div>
             <p className="text-xs leading-relaxed text-slate-500">
-              Crypto attention intelligence. Trade on-chain prediction markets on BNB Testnet.
+              Crypto attention intelligence. Trade on-chain prediction markets.
             </p>
             <div className="mt-4 flex gap-3">
               <a
@@ -129,11 +129,9 @@ export function AppFooter() {
 
         {/* Bottom bar */}
         <div className="flex flex-col items-center justify-between gap-4 border-t border-white/5 pt-6 md:flex-row">
+          <p className="text-xs text-slate-600">© 2026 Orakly</p>
           <p className="text-xs text-slate-600">
-            © 2026 Orakly · BNB Testnet · For demonstration purposes
-          </p>
-          <p className="text-xs text-slate-600">
-            Trading involves substantial risk of loss. This is a testnet environment.
+            Trading involves substantial risk of loss.
           </p>
         </div>
       </div>

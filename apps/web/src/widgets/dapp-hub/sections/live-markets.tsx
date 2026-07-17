@@ -229,19 +229,15 @@ export function LiveMarkets() {
     retry: 1,
   });
 
-  const { markets, source } = useMemo(() => {
+  const markets = useMemo(() => {
     const api = query.data ?? [];
     if (query.isLoading && !query.data) {
-      return { markets: [] as LiveMarketCardDto[], source: "loading" as const };
+      return [] as LiveMarketCardDto[];
     }
     if (api.length > 0) {
-      return { markets: api.slice(0, 6), source: "api" as const };
+      return api.slice(0, 6);
     }
-    // Empty / error → demo desk sorted for the active tab (≥6 cards).
-    return {
-      markets: getDemoLiveMarkets(tab, 6),
-      source: "demo" as const,
-    };
+    return getDemoLiveMarkets(tab, 6);
   }, [query.data, query.isLoading, tab]);
 
   const loading = query.isLoading && !query.data;
@@ -256,11 +252,6 @@ export function LiveMarkets() {
           </p>
         </div>
         <div className="flex items-center gap-3">
-          {source === "demo" && !loading ? (
-            <span className="rounded border border-white/10 bg-white/5 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-slate-500">
-              Demo markets
-            </span>
-          ) : null}
           <Link
             href={ROUTES.markets}
             className="text-sm font-medium text-indigo-400 transition hover:text-indigo-300"

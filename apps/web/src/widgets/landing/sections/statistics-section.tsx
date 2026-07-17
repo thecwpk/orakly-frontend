@@ -38,11 +38,11 @@ export function StatisticsSection() {
       id="statistics"
       eyebrow="Surveillance"
       title="Platform statistics"
-      description="Risk-facing aggregates at a glance. Wire to warehouse metrics for production dashboards."
+      description="Risk-facing aggregates at a glance."
       action={
         <span className="rounded-full bg-white/5 px-3 py-1 text-[11px] text-zinc-400 ring-1 ring-white/10">
           <BarChart3 className="-mt-0.5 mr-1 inline h-3.5 w-3.5 text-cyan-400/80" />
-          Demo metrics
+          Platform metrics
         </span>
       }
     >
