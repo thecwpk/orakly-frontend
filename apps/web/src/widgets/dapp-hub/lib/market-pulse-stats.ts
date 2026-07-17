@@ -29,14 +29,21 @@ export type MarketPulseStats = {
 export const MARKET_PULSE_DEMO_STATS: Readonly<Omit<MarketPulseStats, "source" | "attentionTag" | "marketSentiment">> & {
   sentiment: MarketSentiment;
 } = {
-  attentionIndex: 68,
-  sentiment: "Bullish",
+  attentionIndex: 64,
+  sentiment: "Neutral",
   currentMeta: "AI Infrastructure",
   topChain: "BNB",
-  liveMarkets: 18,
-  volume24hUsd: 18_400_000,
-  openInterest: 6_250_000,
-  activeTraders: 1_284,
+  /** ~one narrative lane's worth of live books on a busy desk. */
+  liveMarkets: 24,
+  /** ~$400k–$900k per market — busy but not casino-scale. */
+  volume24hUsd: 14_800_000,
+  /** Roughly 45–55% of 24h volume still open. */
+  openInterest: 7_200_000,
+  /**
+   * ~600 traders / $14.8M ≈ $25k notional per active trader —
+   * proportional to volume without looking empty next to it.
+   */
+  activeTraders: 612,
 };
 
 export function attentionTagFromIndex(index: number): MarketSentiment {
@@ -82,11 +89,26 @@ export function isHomeStatsSparse(stats: HomeStatsPayload | null | undefined): b
   );
 }
 
+/**
+ * Catch desks where volume/markets imply activity but trader count is near-empty
+ * (typical under-seeded trade tables). Prefer coherent demo over absurd ratios.
+ */
+export function isHomeStatsIncoherent(
+  stats: HomeStatsPayload | null | undefined,
+): boolean {
+  if (!stats || isHomeStatsSparse(stats)) return true;
+  const { volume24hUsd, activeTraders, liveMarkets } = stats;
+  if (volume24hUsd >= 1_000_000 && activeTraders < 15) return true;
+  if (liveMarkets >= 40 && activeTraders < 10) return true;
+  if (volume24hUsd >= 50_000_000 && activeTraders < 80) return true;
+  return false;
+}
+
 export function resolveMarketPulseStats(
   api: HomeStatsPayload | null | undefined,
   opts?: { apiError?: boolean },
 ): MarketPulseStats {
-  if (opts?.apiError || isHomeStatsSparse(api)) {
+  if (opts?.apiError || isHomeStatsIncoherent(api)) {
     const d = MARKET_PULSE_DEMO_STATS;
     return {
       attentionIndex: d.attentionIndex,

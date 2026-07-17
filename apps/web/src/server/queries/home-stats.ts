@@ -24,6 +24,7 @@ export async function getHomeStats(): Promise<HomeStatsPayload> {
     attentionUpdates24h,
     activeNarratives,
     recentTrades,
+    openPositions,
   ] = await Promise.all([
     prisma.attentionScore.findMany({
       orderBy: { score: "desc" },
@@ -36,6 +37,7 @@ export async function getHomeStats(): Promise<HomeStatsPayload> {
     }),
     prisma.market.count({ where: { status: MarketStatus.OPEN } }),
     prisma.market.aggregate({
+      where: { status: MarketStatus.OPEN },
       _sum: { volume24hUsd: true },
     }),
     prisma.market.aggregate({
@@ -54,7 +56,16 @@ export async function getHomeStats(): Promise<HomeStatsPayload> {
         buyer: { select: { walletAddress: true } },
         seller: { select: { walletAddress: true } },
       },
-      take: 8_000,
+      take: 12_000,
+    }),
+    prisma.position.findMany({
+      where: { market: { status: MarketStatus.OPEN } },
+      select: {
+        portfolio: {
+          select: { user: { select: { walletAddress: true } } },
+        },
+      },
+      take: 20_000,
     }),
   ]);
 
@@ -79,6 +90,10 @@ export async function getHomeStats(): Promise<HomeStatsPayload> {
     const seller = trade.seller.walletAddress?.toLowerCase();
     if (buyer) wallets.add(buyer);
     if (seller) wallets.add(seller);
+  }
+  for (const pos of openPositions) {
+    const addr = pos.portfolio.user.walletAddress?.toLowerCase();
+    if (addr) wallets.add(addr);
   }
 
   /** Prefer mark-to-market position value; fall back to collateral pools. */

@@ -57,11 +57,11 @@ const ATTENTION: readonly {
     conviction: 71,
     momentum: "Growing",
     trend: NarrativeTrend.RISING,
-    volume24hUsd: 1_850_000,
+    volume24hUsd: 2_450_000,
     activeMarkets: 5,
-    uniqueTraders: 412,
+    uniqueTraders: 420,
     liquidity: 920_000,
-    openInterest: 2_400_000,
+    openInterest: 1_850_000,
   },
   {
     narrative: "Memes",
@@ -72,11 +72,11 @@ const ATTENTION: readonly {
     conviction: 48,
     momentum: "Cooling",
     trend: NarrativeTrend.COOLING,
-    volume24hUsd: 1_120_000,
+    volume24hUsd: 1_680_000,
     activeMarkets: 4,
-    uniqueTraders: 580,
+    uniqueTraders: 510,
     liquidity: 510_000,
-    openInterest: 890_000,
+    openInterest: 980_000,
   },
   {
     narrative: "BNB",
@@ -87,11 +87,11 @@ const ATTENTION: readonly {
     conviction: 63,
     momentum: "Growing",
     trend: NarrativeTrend.RISING,
-    volume24hUsd: 980_000,
+    volume24hUsd: 1_420_000,
     activeMarkets: 4,
-    uniqueTraders: 265,
+    uniqueTraders: 310,
     liquidity: 740_000,
-    openInterest: 1_350_000,
+    openInterest: 1_150_000,
   },
   {
     narrative: "DeFi",
@@ -102,11 +102,11 @@ const ATTENTION: readonly {
     conviction: 57,
     momentum: "Stable",
     trend: NarrativeTrend.STABLE,
-    volume24hUsd: 760_000,
+    volume24hUsd: 1_050_000,
     activeMarkets: 4,
-    uniqueTraders: 198,
+    uniqueTraders: 265,
     liquidity: 680_000,
-    openInterest: 1_100_000,
+    openInterest: 920_000,
   },
   {
     narrative: "Base",
@@ -483,17 +483,18 @@ const MARKETS: readonly DemoMarket[] = [
   },
 ];
 
-/** 8 creator/trader wallets — checksum-style hex addresses. */
-const DEMO_WALLETS = [
-  "0xDem000000000000000000000000000000000001",
-  "0xDem000000000000000000000000000000000002",
-  "0xDem000000000000000000000000000000000003",
-  "0xDem000000000000000000000000000000000004",
-  "0xDem000000000000000000000000000000000005",
-  "0xDem000000000000000000000000000000000006",
-  "0xDem000000000000000000000000000000000007",
-  "0xDem000000000000000000000000000000000008",
-].map((w) => w.toLowerCase());
+/** Demo trader/creator wallets — enough unique addresses for realistic Active Traders. */
+const DEMO_WALLET_COUNT = 96;
+
+function demoWallet(index: number): string {
+  // 40 hex chars after 0x — deterministic, lowercase.
+  const n = (index + 1).toString(16).padStart(40, "0");
+  return `0x${n}`;
+}
+
+const DEMO_WALLETS = Array.from({ length: DEMO_WALLET_COUNT }, (_, i) =>
+  demoWallet(i),
+);
 
 const CREATOR_NAMES = [
   "NovaLabs",
@@ -505,6 +506,10 @@ const CREATOR_NAMES = [
   "YieldScout",
   "RiskRanger",
 ];
+
+function demoDisplayName(i: number): string {
+  return CREATOR_NAMES[i] ?? `DemoTrader${String(i + 1).padStart(2, "0")}`;
+}
 
 const PENDING_SUGGESTIONS: readonly {
   title: string;
@@ -640,10 +645,10 @@ async function ensureUsers(): Promise<string[]> {
       where: { walletAddress },
       create: {
         walletAddress,
-        displayName: CREATOR_NAMES[i] ?? `DemoTrader${i + 1}`,
+        displayName: demoDisplayName(i),
       },
       update: {
-        displayName: CREATOR_NAMES[i] ?? `DemoTrader${i + 1}`,
+        displayName: demoDisplayName(i),
       },
     });
     ids.push(user.id);
@@ -734,9 +739,11 @@ async function seedMarkets(
         noPrice: new Prisma.Decimal(no),
         probability: new Prisma.Decimal(yes),
         volumeTotalUsd: new Prisma.Decimal(row.volumeTotalUsd),
-        volume24hUsd: new Prisma.Decimal(row.volume24hUsd),
+        volume24hUsd: new Prisma.Decimal(Math.round(row.volume24hUsd * 2.4)),
         liquidityUsd: new Prisma.Decimal(row.liquidityUsd),
-        collateralPoolUsd: new Prisma.Decimal(row.collateralPoolUsd),
+        collateralPoolUsd: new Prisma.Decimal(
+          Math.round(row.collateralPoolUsd * 1.8),
+        ),
         trendingScore: new Prisma.Decimal(row.trendingScore),
         resolutionSource: "Demo seed — CoinGecko / official announcements at deadline",
         generationKey: `seed-demo:${row.slug}`,
@@ -754,9 +761,11 @@ async function seedMarkets(
         noPrice: new Prisma.Decimal(no),
         probability: new Prisma.Decimal(yes),
         volumeTotalUsd: new Prisma.Decimal(row.volumeTotalUsd),
-        volume24hUsd: new Prisma.Decimal(row.volume24hUsd),
+        volume24hUsd: new Prisma.Decimal(Math.round(row.volume24hUsd * 2.4)),
         liquidityUsd: new Prisma.Decimal(row.liquidityUsd),
-        collateralPoolUsd: new Prisma.Decimal(row.collateralPoolUsd),
+        collateralPoolUsd: new Prisma.Decimal(
+          Math.round(row.collateralPoolUsd * 1.8),
+        ),
         trendingScore: new Prisma.Decimal(row.trendingScore),
         resolutionSource: "Demo seed — CoinGecko / official announcements at deadline",
         generationKey: `seed-demo:${row.slug}`,
@@ -790,6 +799,38 @@ async function clearDemoTradesAndActivities(): Promise<void> {
   await prisma.trade.deleteMany({
     where: { externalRef: { startsWith: DEMO_EXTERNAL } },
   });
+  // Demo positions live only on demo markets / resolved demo markets.
+  await prisma.position.deleteMany({
+    where: {
+      market: {
+        OR: [
+          { slug: { startsWith: DEMO_PREFIX } },
+          { generationKey: { startsWith: "seed-demo:" } },
+        ],
+      },
+    },
+  });
+}
+
+async function ensurePortfolio(
+  userId: string,
+  realizedPnlUsd: number,
+): Promise<string> {
+  const row = await prisma.portfolio.upsert({
+    where: { userId },
+    create: {
+      userId,
+      realizedPnlUsd: new Prisma.Decimal(realizedPnlUsd.toFixed(2)),
+      lastMarkUsd: new Prisma.Decimal(Math.max(0, realizedPnlUsd * 0.35).toFixed(2)),
+      lastMarkedAt: new Date(),
+    },
+    update: {
+      realizedPnlUsd: new Prisma.Decimal(realizedPnlUsd.toFixed(2)),
+      lastMarkUsd: new Prisma.Decimal(Math.max(0, realizedPnlUsd * 0.35).toFixed(2)),
+      lastMarkedAt: new Date(),
+    },
+  });
+  return row.id;
 }
 
 async function seedTradesAndActivities(
@@ -798,46 +839,46 @@ async function seedTradesAndActivities(
 ): Promise<void> {
   await clearDemoTradesAndActivities();
 
-  const tradeCount = 22;
+  // ~4 trades per wallet over the last 18h → Active Traders ≈ wallet count.
+  const tradeCount = Math.max(userIds.length * 4, 360);
+  const tradeRows: Prisma.TradeCreateManyInput[] = [];
+  const activityRows: Prisma.ActivityCreateManyInput[] = [];
+
   for (let i = 0; i < tradeCount; i++) {
     const market = markets[i % markets.length]!;
     const buyerIdx = i % userIds.length;
-    const sellerIdx = (i + 3) % userIds.length;
+    let sellerIdx = (i * 7 + 11) % userIds.length;
+    if (sellerIdx === buyerIdx) sellerIdx = (sellerIdx + 1) % userIds.length;
     const buyerId = userIds[buyerIdx]!;
     const sellerId = userIds[sellerIdx]!;
-    const takerId = buyerId;
-    const makerId = sellerId;
     const outcome = i % 3 === 0 ? OutcomeSide.NO : OutcomeSide.YES;
-    const price = 0.28 + (i % 10) * 0.04;
-    const quantity = 50 + i * 17;
+    const price = 0.22 + (i % 14) * 0.04;
+    const quantity = 40 + (i % 25) * 12;
     const notional = Number((price * quantity).toFixed(2));
-    const executedAt = hoursAgo(i * 1.5 + 0.2);
+    const executedAt = hoursAgo((i / tradeCount) * 18 + 0.05);
     const externalRef = `${DEMO_EXTERNAL}trade:${i + 1}`;
 
-    const trade = await prisma.trade.create({
-      data: {
-        marketId: market.id,
-        outcome,
-        price: new Prisma.Decimal(price.toFixed(9)),
-        quantity: new Prisma.Decimal(quantity),
-        notionalUsd: new Prisma.Decimal(notional),
-        buyerId,
-        sellerId,
-        takerId,
-        makerId,
-        externalRef,
-        executedAt,
-        feeBuyerUsd: new Prisma.Decimal((notional * 0.0025).toFixed(4)),
-        feeSellerUsd: new Prisma.Decimal(0),
-      },
+    tradeRows.push({
+      marketId: market.id,
+      outcome,
+      price: new Prisma.Decimal(price.toFixed(9)),
+      quantity: new Prisma.Decimal(quantity),
+      notionalUsd: new Prisma.Decimal(notional),
+      buyerId,
+      sellerId,
+      takerId: buyerId,
+      makerId: sellerId,
+      externalRef,
+      executedAt,
+      feeBuyerUsd: new Prisma.Decimal((notional * 0.0025).toFixed(4)),
+      feeSellerUsd: new Prisma.Decimal(0),
     });
 
-    await prisma.activity.create({
-      data: {
+    if (i % 12 === 0) {
+      activityRows.push({
         type: ActivityType.TRADE,
-        userId: takerId,
+        userId: buyerId,
         marketId: market.id,
-        tradeId: trade.id,
         title: `[Demo] Trade on ${market.title.slice(0, 48)}`,
         payload: {
           source: "seed-demo",
@@ -846,50 +887,232 @@ async function seedTradesAndActivities(
           notionalUsd: notional,
         },
         createdAt: executedAt,
-      },
+      });
+    }
+  }
+
+  const BATCH = 80;
+  for (let i = 0; i < tradeRows.length; i += BATCH) {
+    await prisma.trade.createMany({
+      data: tradeRows.slice(i, i + BATCH),
+      skipDuplicates: true,
+    });
+  }
+  if (activityRows.length > 0) {
+    await prisma.activity.createMany({ data: activityRows });
+  }
+
+  // Portfolios + open positions (OI + Portfolio desk + leaderboard PnL).
+  const portfolioIds: string[] = [];
+  for (let i = 0; i < userIds.length; i++) {
+    const userId = userIds[i]!;
+    const pnl =
+      i < 8
+        ? 420 + i * 95
+        : i < 32
+          ? 80 + (i % 12) * 18
+          : 12 + (i % 9) * 7;
+    portfolioIds.push(await ensurePortfolio(userId, pnl));
+  }
+
+  const positionRows: Prisma.PositionCreateManyInput[] = [];
+  for (let i = 0; i < userIds.length; i++) {
+    const portfolioId = portfolioIds[i]!;
+    const openMarkets = 2 + (i % 3);
+    for (let p = 0; p < openMarkets; p++) {
+      const market = markets[(i + p * 5) % markets.length]!;
+      const side = (i + p) % 2 === 0 ? OutcomeSide.YES : OutcomeSide.NO;
+      const qty = 25 + ((i * 3 + p * 11) % 80);
+      const entry = 0.35 + ((i + p) % 8) * 0.05;
+      positionRows.push({
+        portfolioId,
+        marketId: market.id,
+        side,
+        quantity: new Prisma.Decimal(qty),
+        avgEntryPrice: new Prisma.Decimal(entry.toFixed(9)),
+      });
+    }
+  }
+  for (let i = 0; i < positionRows.length; i += BATCH) {
+    await prisma.position.createMany({
+      data: positionRows.slice(i, i + BATCH),
+      skipDuplicates: true,
     });
   }
 
   // Market creations (half organic, half community-approved style)
+  const createActs: Prisma.ActivityCreateManyInput[] = [];
   for (let i = 0; i < 8; i++) {
     const market = markets[i]!;
     const creatorId = userIds[i % userIds.length]!;
     const community = i % 2 === 0;
-    await prisma.activity.create({
-      data: {
-        type: ActivityType.MARKET_CREATED,
-        userId: creatorId,
-        marketId: market.id,
-        title: `[Demo] ${community ? "Approved" : "Created"} ${market.slug}`,
-        payload: {
-          source: community ? "community" : "seed-demo",
-          kind: community ? "approved" : "created",
-          question: market.title,
-        },
-        createdAt: hoursAgo(30 + i * 4),
+    createActs.push({
+      type: ActivityType.MARKET_CREATED,
+      userId: creatorId,
+      marketId: market.id,
+      title: `[Demo] ${community ? "Approved" : "Created"} ${market.slug}`,
+      payload: {
+        source: community ? "community" : "seed-demo",
+        kind: community ? "approved" : "created",
+        question: market.title,
       },
+      createdAt: hoursAgo(30 + i * 4),
     });
   }
-
-  // Explicit MARKET_APPROVED via ADMIN_ACTION
   for (let i = 0; i < 4; i++) {
-    const market = markets[8 + i]!;
+    const market = markets[8 + i];
     if (!market) continue;
-    await prisma.activity.create({
-      data: {
-        type: ActivityType.ADMIN_ACTION,
-        userId: userIds[0]!,
-        marketId: market.id,
-        title: `[Demo] Approved ${market.slug}`,
-        payload: {
-          source: "seed-demo",
-          kind: "approved",
-          action: "approve",
-          question: market.title,
-        },
-        createdAt: hoursAgo(8 + i * 3),
+    createActs.push({
+      type: ActivityType.ADMIN_ACTION,
+      userId: userIds[0]!,
+      marketId: market.id,
+      title: `[Demo] Approved ${market.slug}`,
+      payload: {
+        source: "seed-demo",
+        kind: "approved",
+        action: "approve",
+        question: market.title,
+      },
+      createdAt: hoursAgo(8 + i * 3),
+    });
+  }
+  if (createActs.length > 0) {
+    await prisma.activity.createMany({ data: createActs });
+  }
+}
+
+/**
+ * Resolved demo markets + winning/losing positions so Leaderboard Accuracy / Profit
+ * aren't stuck at 0%.
+ */
+async function seedResolvedDemoMarkets(
+  catIds: Map<string, string>,
+  userIds: string[],
+): Promise<void> {
+  const techId = catIds.get("tech");
+  const cryptoId = catIds.get("crypto");
+  if (!techId || !cryptoId) return;
+
+  const resolved: {
+    slug: string;
+    title: string;
+    narrative: string;
+    categoryId: string;
+    outcome: OutcomeSide;
+    yesPrice: number;
+  }[] = [
+    {
+      slug: `${DEMO_PREFIX}resolved-ai-gpu-shortage`,
+      title: "[Demo Resolved] GPU shortage ends before June 2026?",
+      narrative: "AI",
+      categoryId: techId,
+      outcome: OutcomeSide.NO,
+      yesPrice: 0.22,
+    },
+    {
+      slug: `${DEMO_PREFIX}resolved-btc-ath-q1`,
+      title: "[Demo Resolved] BTC sets a new ATH in Q1 2026?",
+      narrative: "DeFi",
+      categoryId: cryptoId,
+      outcome: OutcomeSide.YES,
+      yesPrice: 0.71,
+    },
+    {
+      slug: `${DEMO_PREFIX}resolved-meme-season`,
+      title: "[Demo Resolved] Meme season tops before March 2026?",
+      narrative: "Memes",
+      categoryId: catIds.get("meme-coins") ?? cryptoId,
+      outcome: OutcomeSide.YES,
+      yesPrice: 0.58,
+    },
+    {
+      slug: `${DEMO_PREFIX}resolved-bnb-etf`,
+      title: "[Demo Resolved] Spot BNB ETF filed in the US by May 2026?",
+      narrative: "BNB",
+      categoryId: catIds.get("ecosystems") ?? cryptoId,
+      outcome: OutcomeSide.NO,
+      yesPrice: 0.31,
+    },
+  ];
+
+  for (let i = 0; i < resolved.length; i++) {
+    const row = resolved[i]!;
+    const creatorId = userIds[i % Math.min(8, userIds.length)]!;
+    const yes = row.yesPrice;
+    const no = Math.round((1 - yes) * 1e9) / 1e9;
+    const market = await prisma.market.upsert({
+      where: { slug: row.slug },
+      create: {
+        slug: row.slug,
+        title: row.title,
+        status: MarketStatus.RESOLVED,
+        categoryId: row.categoryId,
+        creatorId,
+        creatorAddress: DEMO_WALLETS[i % DEMO_WALLETS.length]!,
+        creatorRewardPercent: 5,
+        narrative: row.narrative,
+        momentum: "Stable",
+        opensAt: daysAgo(90),
+        closesAt: daysAgo(3),
+        createdAt: daysAgo(95),
+        resolvedAt: daysAgo(2),
+        resolvedOutcome: row.outcome,
+        yesPrice: new Prisma.Decimal(yes),
+        noPrice: new Prisma.Decimal(no),
+        probability: new Prisma.Decimal(row.outcome === OutcomeSide.YES ? 1 : 0),
+        volumeTotalUsd: new Prisma.Decimal(850_000 + i * 120_000),
+        volume24hUsd: new Prisma.Decimal(0),
+        liquidityUsd: new Prisma.Decimal(0),
+        collateralPoolUsd: new Prisma.Decimal(0),
+        trendingScore: new Prisma.Decimal(10),
+        resolutionSource: "Demo seed resolution",
+        generationKey: `seed-demo:${row.slug}`,
+      },
+      update: {
+        status: MarketStatus.RESOLVED,
+        resolvedAt: daysAgo(2),
+        resolvedOutcome: row.outcome,
+        volume24hUsd: new Prisma.Decimal(0),
+        title: row.title,
+        narrative: row.narrative,
       },
     });
+
+    // ~24 wallets hold a side on each resolved market (mix of winners/losers).
+    for (let u = 0; u < 24; u++) {
+      const userIdx = (i * 13 + u * 3) % userIds.length;
+      const userId = userIds[userIdx]!;
+      const portfolioId = await ensurePortfolio(
+        userId,
+        40 + userIdx * 3 + (u % 5) * 11,
+      );
+      const side =
+        u % 3 === 0
+          ? row.outcome === OutcomeSide.YES
+            ? OutcomeSide.NO
+            : OutcomeSide.YES
+          : row.outcome;
+      await prisma.position.upsert({
+        where: {
+          portfolioId_marketId_side: {
+            portfolioId,
+            marketId: market.id,
+            side,
+          },
+        },
+        create: {
+          portfolioId,
+          marketId: market.id,
+          side,
+          quantity: new Prisma.Decimal(30 + u * 8),
+          avgEntryPrice: new Prisma.Decimal((0.4 + (u % 5) * 0.08).toFixed(9)),
+        },
+        update: {
+          quantity: new Prisma.Decimal(30 + u * 8),
+          avgEntryPrice: new Prisma.Decimal((0.4 + (u % 5) * 0.08).toFixed(9)),
+        },
+      });
+    }
   }
 }
 
@@ -948,21 +1171,26 @@ async function main() {
   await seedAttention();
   const markets = await seedMarkets(catIds, userIds);
   await seedTradesAndActivities(markets, userIds);
+  await seedResolvedDemoMarkets(catIds, userIds);
   await seedSuggestions(userIds);
 
-  const [openCount, attentionCount, tradeCount, pendingCount] = await Promise.all([
-    prisma.market.count({
-      where: { status: MarketStatus.OPEN, slug: { startsWith: DEMO_PREFIX } },
-    }),
-    prisma.attentionScore.count(),
-    prisma.trade.count({ where: { externalRef: { startsWith: DEMO_EXTERNAL } } }),
-    prisma.marketSuggestion.count({
-      where: {
-        status: MarketSuggestionStatus.PENDING,
-        title: { startsWith: "[Demo]" },
-      },
-    }),
-  ]);
+  const [openCount, attentionCount, tradeCount, pendingCount, positionCount] =
+    await Promise.all([
+      prisma.market.count({
+        where: { status: MarketStatus.OPEN, slug: { startsWith: DEMO_PREFIX } },
+      }),
+      prisma.attentionScore.count(),
+      prisma.trade.count({ where: { externalRef: { startsWith: DEMO_EXTERNAL } } }),
+      prisma.marketSuggestion.count({
+        where: {
+          status: MarketSuggestionStatus.PENDING,
+          title: { startsWith: "[Demo]" },
+        },
+      }),
+      prisma.position.count({
+        where: { market: { slug: { startsWith: DEMO_PREFIX } } },
+      }),
+    ]);
 
   console.log(
     JSON.stringify(
@@ -971,8 +1199,9 @@ async function main() {
         demoOpenMarkets: openCount,
         attentionNarratives: attentionCount,
         demoTrades: tradeCount,
+        demoPositions: positionCount,
         pendingSuggestions: pendingCount,
-        creators: DEMO_WALLETS.length,
+        traders: DEMO_WALLETS.length,
       },
       null,
       2,

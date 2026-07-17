@@ -276,15 +276,18 @@ export function MarketActivity() {
             Six live desks — trades, listings, closings, events & votes
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
           {anyDemo ? (
-            <span className="rounded border border-white/10 bg-white/5 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-slate-500">
-              Demo feeds padded
+            <span className="rounded border border-white/10 bg-white/5 px-2 py-0.5 text-[10px] font-medium text-slate-500">
+              Includes demo activity
             </span>
           ) : null}
-          <span className="h-2 w-2 animate-pulse rounded-full bg-green-500" />
-          <span className="text-xs font-medium text-green-400">
-            {socketConnected ? "Live · socket" : "Live · polling"}
+          <span className="inline-flex items-center gap-1.5 text-xs font-medium text-green-400">
+            <span
+              className="h-2 w-2 shrink-0 animate-pulse rounded-full bg-green-500"
+              aria-hidden
+            />
+            {socketConnected ? "Live updates (socket)" : "Live updates (polling)"}
           </span>
         </div>
       </div>
