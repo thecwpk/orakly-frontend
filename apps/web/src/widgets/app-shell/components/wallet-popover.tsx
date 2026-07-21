@@ -58,7 +58,7 @@ export function WalletPopover({
               whileHover={connecting ? undefined : { scale: 1.01 }}
               whileTap={connecting ? undefined : { scale: 0.99 }}
               className={cn(
-                "inline-flex h-9 shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-lg px-4 py-1.5 text-sm font-semibold transition-colors",
+                "inline-flex h-9 shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-[var(--radius-md)] px-4 py-1.5 text-sm font-semibold transition-colors",
                 "bg-[var(--accent)] text-white hover:bg-[var(--accent-hover)]",
                 "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]/35",
                 "disabled:cursor-not-allowed disabled:opacity-60",
@@ -82,7 +82,7 @@ export function WalletPopover({
             <div
               role="status"
               aria-label="Loading wallet"
-              className="h-9 min-w-[7.5rem] animate-pulse rounded-[10px] border border-white/[0.06] bg-white/[0.04]"
+              className="h-9 min-w-[7.5rem] animate-pulse rounded-[var(--radius-md)] border border-white/[0.06] bg-white/[0.04]"
             />
           );
         }
@@ -96,7 +96,7 @@ export function WalletPopover({
                 whileHover={{ scale: 1.01 }}
                 whileTap={{ scale: 0.99 }}
                 className={cn(
-                  "inline-flex h-9 w-full shrink-0 items-center gap-1.5 rounded-full border bg-white/[0.03] px-2.5 pr-2.5 transition sm:w-auto",
+                  "inline-flex h-9 w-full shrink-0 items-center gap-1.5 rounded-[var(--radius-md)] border bg-white/[0.03] px-2.5 pr-2.5 transition sm:w-auto",
                   wrongNetwork
                     ? "border-rose-500/35 bg-rose-500/[0.07]"
                     : "border-white/[0.08] hover:border-white/[0.11] hover:bg-white/[0.06]",

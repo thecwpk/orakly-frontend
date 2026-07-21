@@ -274,6 +274,7 @@ function NetworkBadge({ className }: { className?: string }) {
         className,
       )}
       title="Connected network"
+      aria-label="BNB Testnet, chain 97"
     >
       {NETWORK_LABEL}
     </span>
@@ -348,10 +349,26 @@ export function Navbar() {
           )}
         </nav>
 
-        <div className="ml-auto hidden shrink-0 items-center gap-2 md:flex">
-          <SearchField className="w-[min(100%,16.5rem)]" />
-          <NetworkBadge />
+        <div className="ml-auto hidden shrink-0 items-center gap-2 lg:flex">
+          <SearchField className="w-[min(100%,15rem)]" />
+          <NetworkBadge className="hidden xl:inline-flex" />
           <NotificationBell />
+          <WalletPopover connectLabel="Connect Wallet" variant="default" />
+        </div>
+
+        <div className="ml-auto hidden shrink-0 items-center gap-2 md:flex lg:hidden">
+          <button
+            type="button"
+            aria-label="Open search"
+            className={cn(
+              "inline-flex size-9 items-center justify-center rounded-[var(--radius-sm)] text-[var(--foreground-muted)] transition-colors hover:text-[var(--foreground)]",
+              focusRing(),
+            )}
+            onClick={() => openGlobalSearch()}
+          >
+            <Search className="size-[18px]" strokeWidth={2} aria-hidden />
+          </button>
+          <NetworkBadge />
           <WalletPopover connectLabel="Connect Wallet" variant="default" />
         </div>
 
