@@ -1,4 +1,23 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Inter+Tight:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap");
+
+@keyframes orakly-attention-drift {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-6%);
+  }
+}
+
+.orakly-attention-pulse {
+  animation: orakly-attention-drift 14s linear infinite alternate;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .orakly-attention-pulse {
+    animation: none;
+  }
+}
 
 @import "tailwindcss";
 @config "../tailwind.config.ts";
@@ -143,27 +162,27 @@
   /** Default vertical rhythm between major on-page bands (section separation). */
   --app-section-gap-y: 1.75rem;
 
-  /* Dark theme as default — crypto-native */
-  --background: #0f1117;
-  --background-secondary: #161b27;
-  --background-card: #1a2035;
-  --foreground: #f1f5f9;
-  --foreground-muted: #94a3b8;
-  --border: #1e293b;
-  --border-strong: #334155;
+  /* Dark theme as default — trading desk */
+  --background: #0a0b0d;
+  --background-secondary: #14161a;
+  --background-card: #14161a;
+  --foreground: #f2f3f5;
+  --foreground-muted: #8a8f98;
+  --border: #22252b;
+  --border-strong: #2e323a;
 
-  /* Brand accent */
-  --accent: #6366f1; /* indigo — Orakly brand */
-  --accent-hover: #4f46e5;
-  --accent-foreground: #f8fafc;
+  /* Brand accent — electric indigo (not YES/NO) */
+  --accent: #6c5ce7;
+  --accent-hover: #5a4bd1;
+  --accent-foreground: #f2f3f5;
 
-  /* Semantic colors */
-  --yes: #22c55e; /* green */
+  /* Semantic colors — odds / PnL only */
+  --yes: #2ecc71;
   --color-yes: var(--yes);
-  --color-yes-bg: #052e16;
-  --no: #ef4444; /* red */
+  --color-yes-bg: #0a2216;
+  --no: #ff5c5c;
   --color-no: var(--no);
-  --color-no-bg: #1c0a0a;
+  --color-no-bg: #2a1010;
   --warning: #f59e0b;
   --color-warning: var(--warning);
   --info: #3b82f6;
@@ -173,41 +192,41 @@
   --font-sans: "Inter", system-ui, sans-serif;
   --font-mono: "JetBrains Mono", "Fira Code", monospace;
 
-  /* Spacing / radii */
+  /* Spacing / radii — trading tool register (6–8px) */
   --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 14px;
-  --radius-xl: 18px;
-  --radius-2xl: 24px;
-  --radius: 0.625rem;
+  --radius-md: 8px;
+  --radius-lg: 8px;
+  --radius-xl: 10px;
+  --radius-2xl: 12px;
+  --radius: 0.5rem;
 
   /* Shadcn / component surfaces — dark defaults */
-  --card: #1a2035;
-  --card-foreground: #f1f5f9;
-  --popover: #161b27;
-  --popover-foreground: #f1f5f9;
-  --primary: #6366f1;
-  --primary-foreground: #f8fafc;
-  --secondary: #161b27;
-  --secondary-foreground: #f1f5f9;
-  --muted: #161b27;
-  --muted-foreground: #94a3b8;
+  --card: #14161a;
+  --card-foreground: #f2f3f5;
+  --popover: #14161a;
+  --popover-foreground: #f2f3f5;
+  --primary: #6c5ce7;
+  --primary-foreground: #f2f3f5;
+  --secondary: #14161a;
+  --secondary-foreground: #f2f3f5;
+  --muted: #14161a;
+  --muted-foreground: #8a8f98;
   --destructive: oklch(0.704 0.191 22.216);
-  --input: #1e293b;
-  --ring: #6366f1;
+  --input: #22252b;
+  --ring: #6c5ce7;
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
   --chart-3: oklch(0.439 0 0);
   --chart-4: oklch(0.371 0 0);
   --chart-5: oklch(0.269 0 0);
-  --sidebar: #161b27;
-  --sidebar-foreground: #f1f5f9;
-  --sidebar-primary: #6366f1;
-  --sidebar-primary-foreground: #f8fafc;
-  --sidebar-accent: #1a2035;
-  --sidebar-accent-foreground: #f1f5f9;
-  --sidebar-border: #1e293b;
-  --sidebar-ring: #6366f1;
+  --sidebar: #14161a;
+  --sidebar-foreground: #f2f3f5;
+  --sidebar-primary: #6c5ce7;
+  --sidebar-primary-foreground: #f2f3f5;
+  --sidebar-accent: #1a1c21;
+  --sidebar-accent-foreground: #f2f3f5;
+  --sidebar-border: #22252b;
+  --sidebar-ring: #6c5ce7;
 
   /** Legacy — market detail uses inline trade panel; keep ≈ bottom nav only. */
   --mobile-trade-desk-clearance: calc(var(--app-mobile-dock-h, 3.35rem) + 0.25rem);
@@ -360,31 +379,31 @@
 /** next-themes `.dark` — reinforce dark-first `:root` (no light flash on class). */
 .dark {
   color-scheme: dark;
-  --background: #0f1117;
-  --background-secondary: #161b27;
-  --background-card: #1a2035;
-  --foreground: #f1f5f9;
-  --foreground-muted: #94a3b8;
-  --border: #1e293b;
-  --border-strong: #334155;
-  --accent: #6366f1;
-  --accent-hover: #4f46e5;
-  --accent-foreground: #f8fafc;
-  --card: #1a2035;
-  --card-foreground: #f1f5f9;
-  --popover: #161b27;
-  --popover-foreground: #f1f5f9;
-  --primary: #6366f1;
-  --primary-foreground: #f8fafc;
-  --secondary: #161b27;
-  --secondary-foreground: #f1f5f9;
-  --muted: #161b27;
-  --muted-foreground: #94a3b8;
+  --background: #0a0b0d;
+  --background-secondary: #14161a;
+  --background-card: #14161a;
+  --foreground: #f2f3f5;
+  --foreground-muted: #8a8f98;
+  --border: #22252b;
+  --border-strong: #2e323a;
+  --accent: #6c5ce7;
+  --accent-hover: #5a4bd1;
+  --accent-foreground: #f2f3f5;
+  --card: #14161a;
+  --card-foreground: #f2f3f5;
+  --popover: #14161a;
+  --popover-foreground: #f2f3f5;
+  --primary: #6c5ce7;
+  --primary-foreground: #f2f3f5;
+  --secondary: #14161a;
+  --secondary-foreground: #f2f3f5;
+  --muted: #14161a;
+  --muted-foreground: #8a8f98;
   --destructive: oklch(0.704 0.191 22.216);
-  --input: #1e293b;
-  --ring: #6366f1;
-  --yes: #22c55e;
-  --no: #ef4444;
+  --input: #22252b;
+  --ring: #6c5ce7;
+  --yes: #2ecc71;
+  --no: #ff5c5c;
   --mb-page: var(--background);
   --app-canvas: var(--mb-page);
   --mb-fg: var(--foreground);

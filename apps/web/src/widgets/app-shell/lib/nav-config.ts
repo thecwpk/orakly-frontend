@@ -7,7 +7,6 @@ import {
   Swords,
   Trophy,
   User,
-  Users,
   type LucideIcon,
 } from "lucide-react";
 import { ROUTES } from "@/shared/constants/routes";
@@ -209,36 +208,16 @@ export function isPathActive(
 }
 
 /**
- * Frozen top-nav primary links (exact order). Used by AppTopbar + mobile drawer.
+ * Frozen top-nav primary links (exact order). Used by Navbar + mobile drawer.
+ * Narratives is a mega-menu parent — see NARRATIVES_MENU_ITEMS.
  */
 export const TOP_NAV_ITEMS: readonly NavItem[] = [
-  {
-    href: ROUTES.marketsBrowse,
-    label: "Markets",
-    icon: LayoutGrid,
-    marketsBrowse: true,
-    shortcut: "g m",
-  },
   {
     href: ROUTES.NARRATIVES,
     label: "Narratives",
     icon: Brain,
     attentionAnchor: true,
     shortcut: "g n",
-  },
-  {
-    href: ROUTES.WARS,
-    label: "Wars",
-    icon: Swords,
-    narrativeWarsAnchor: true,
-    shortcut: "g w",
-  },
-  {
-    href: ROUTES.COMMUNITY,
-    label: "Community",
-    icon: Users,
-    communityAnchor: true,
-    shortcut: "g c",
   },
   {
     href: ROUTES.LEADERBOARD,
@@ -254,7 +233,58 @@ export const TOP_NAV_ITEMS: readonly NavItem[] = [
     portfolioAnchor: true,
     shortcut: "g p",
   },
+  {
+    href: ROUTES.analytics,
+    label: "Analytics",
+    icon: LineChart,
+    analyticsAnchor: true,
+    shortcut: "g y",
+  },
 ] as const;
+
+/** Grouped under Narratives — Markets / Compare / Attention are views of the same concept. */
+export const NARRATIVES_MENU_ITEMS: readonly {
+  href: string;
+  label: string;
+  description: string;
+  icon: LucideIcon;
+  isActive: (pathname: string | null) => boolean;
+}[] = [
+  {
+    href: ROUTES.marketsBrowse,
+    label: "Markets",
+    description: "Trade odds on narrative outcomes",
+    icon: LayoutGrid,
+    isActive: (pathname) => isMarketsBrowseActive(pathname, null),
+  },
+  {
+    href: ROUTES.WARS,
+    label: "Compare",
+    description: "Head-to-head narrative matchups",
+    icon: Swords,
+    isActive: (pathname) => isNarrativeWarsActive(pathname),
+  },
+  {
+    href: ROUTES.attention,
+    label: "Attention",
+    description: "Raw attention and trend tracking",
+    icon: Brain,
+    isActive: (pathname) =>
+      Boolean(
+        pathname &&
+          (pathname === ROUTES.attention ||
+            pathname.startsWith(`${ROUTES.attention}/`) ||
+            pathname === ROUTES.narratives ||
+            pathname.startsWith(`${ROUTES.narratives}/`)),
+      ),
+  },
+] as const;
+
+/** True when any Narratives submenu route is active (for parent underline). */
+export function isNarrativesGroupActive(pathname: string | null): boolean {
+  if (!pathname) return false;
+  return NARRATIVES_MENU_ITEMS.some((item) => item.isActive(pathname));
+}
 
 /**
  * Primary destinations for `g` chord shortcuts + mobile dock.
