@@ -26,7 +26,7 @@ function createPrismaClient() {
       (process.env.VERCEL || process.env.NODE_ENV === "production")
     ) {
       throw new Error(
-        "DATABASE_URL is missing or empty. Set your Railway/Postgres URL in Vercel → Settings → Environment Variables (Production), then redeploy.",
+        "DATABASE_URL is missing or empty. Set your CockroachDB/Postgres URL in Vercel → Settings → Environment Variables (Production), then redeploy.",
       );
     }
     if (!isNextBuildPhase()) {

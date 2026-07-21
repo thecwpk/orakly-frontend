@@ -7,7 +7,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "cockroachdb"
 }
 
 // ---------------------------------------------------------------------------
@@ -129,7 +129,7 @@ model User {
 
   email         String? @unique
   /// Optional on-chain / smart wallet address (Polymarket-style)
-  walletAddress String? @unique @db.VarChar(128)
+  walletAddress String? @unique
   displayName   String?
   role          UserRole @default(USER)
   isSuspended   Boolean  @default(false)
@@ -167,8 +167,8 @@ model User {
 model WalletAuthNonce {
   id          String    @id @default(uuid()) @db.Uuid
   createdAt   DateTime  @default(now())
-  nonce       String    @unique @db.VarChar(128)
-  addressNorm String    @map("address_norm") @db.VarChar(42)
+  nonce       String    @unique
+  addressNorm String    @map("address_norm")
   expiresAt   DateTime
   consumedAt  DateTime?
 
@@ -182,8 +182,8 @@ model WalletAuthSession {
   id            String    @id @default(uuid()) @db.Uuid
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
-  jti           String    @unique @db.VarChar(128)
-  walletAddress String    @map("wallet_address") @db.VarChar(42)
+  jti           String    @unique
+  walletAddress String    @map("wallet_address")
   expiresAt     DateTime
   revokedAt     DateTime?
 
@@ -208,7 +208,7 @@ model BlockchainIndexerCheckpoint {
   /// Highest contiguous block committed as canonical for this chain.
   lastCommittedBlock BigInt @map("last_committed_block")
   /// Block hash for `lastCommittedBlock` (extends parent-hash verification).
-  lastCommittedHash String @map("last_committed_hash") @db.VarChar(66)
+  lastCommittedHash String @map("last_committed_hash")
 
   @@map("blockchain_indexer_checkpoints")
 }
@@ -219,7 +219,7 @@ model BlockchainCanonicalBlock {
 
   blockNumber BigInt @map("block_number")
 
-  blockHash String @map("block_hash") @db.VarChar(66)
+  blockHash String @map("block_hash")
 
   @@id([chainId, blockNumber])
   @@index([chainId])
@@ -236,19 +236,19 @@ model BlockchainEventLog {
 
   blockNumber BigInt @map("block_number")
 
-  blockHash String @map("block_hash") @db.VarChar(66)
+  blockHash String @map("block_hash")
 
-  transactionHash String @map("tx_hash") @db.VarChar(66)
+  transactionHash String @map("tx_hash")
 
   logIndex Int @map("log_index")
 
-  contractAddress String @map("contract_address") @db.VarChar(42)
+  contractAddress String @map("contract_address")
 
   /// `TradeExecuted` | `MarketResolved` | `RewardsClaimed` | `WalletDeposited` | `UNKNOWN`
-  eventName String @map("event_name") @db.VarChar(64)
+  eventName String @map("event_name")
 
   /// Decoded args + raw topics (`topicsHex`) for forward-compatible replay.
-  payload Json @db.JsonB
+  payload Json
 
   /// Set when a reorg invalidates this height or deeper rows on this chain.
   orphaned Boolean @default(false)
@@ -272,13 +272,13 @@ model WalletOnChainBalance {
   chainId Int @map("chain_id")
 
   /// `0x0000…0000` denotes native gas token for this row.
-  tokenAddress String @map("token_address") @db.VarChar(42)
+  tokenAddress String @map("token_address")
 
-  symbol   String? @db.VarChar(32)
+  symbol   String?
   decimals Int
 
   /// uint256 balance as exact decimal string
-  rawBalance String @map("raw_balance") @db.VarChar(128)
+  rawBalance String @map("raw_balance")
 
   formattedBalance Decimal @map("formatted_balance") @db.Decimal(38, 18)
 
@@ -364,7 +364,7 @@ model Market {
 
   slug        String @unique
   title       String
-  description String? @db.Text
+  description String?
 
   categoryId String?   @db.Uuid
   category   Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
@@ -389,9 +389,9 @@ model Market {
   isVoid          Boolean      @default(false)
 
   resolutionStatus ResolutionStatus @default(NONE)
-  resolutionReason String?          @db.Text
+  resolutionReason String?         
   /// External oracle / proposal id (e.g. UMA assertion id)
-  oracleAssertionId String? @unique @db.VarChar(256)
+  oracleAssertionId String? @unique
 
   /// Cumulative traded notional (platform metric)
   volumeTotalUsd Decimal @default(0) @db.Decimal(28, 8)
@@ -443,12 +443,12 @@ model Market {
   probabilitySnapshot MarketProbabilitySnapshot?
 
   /// Deterministic fingerprint for semantically identical auto-markets (cross-signal dedupe).
-  generationKey  String? @unique @db.VarChar(320)
+  generationKey  String? @unique
   /// Generator template id, horizons, targets — drives oracle copy & lifecycle tooling.
-  generationMeta Json?   @db.JsonB
+  generationMeta Json?  
 
   /// Clone `Market.sol` address on BSC testnet (required for live trading).
-  onChainAddress String? @map("on_chain_address") @db.VarChar(42)
+  onChainAddress String? @map("on_chain_address")
   chainId        Int?    @map("chain_id")
 
   @@index([onChainAddress])
@@ -472,7 +472,7 @@ model MarketComment {
   userId String @db.Uuid
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  body String @db.Text
+  body String
 
   @@index([marketId, createdAt(sort: Desc)])
   @@index([userId, createdAt(sort: Desc)])
@@ -551,7 +551,7 @@ model Trade {
   maker   User   @relation("TradeMaker", fields: [makerId], references: [id], onDelete: Restrict)
 
   /// Surrogate for idempotent ingestion from matching engine
-  externalRef String? @unique @db.VarChar(128)
+  externalRef String? @unique
 
   feeBuyerUsd  Decimal @default(0) @db.Decimal(28, 8)
   feeSellerUsd Decimal @default(0) @db.Decimal(28, 8)
@@ -595,7 +595,7 @@ model Transaction {
   amountUsd     Decimal  @db.Decimal(28, 8)
   balanceAfter  Decimal? @db.Decimal(28, 8)
   /// Flexible payload: tx hash, note, etc.
-  metadata Json? @db.JsonB
+  metadata Json?
 
   @@index([userId, createdAt(sort: Desc)])
   @@index([portfolioId, createdAt(sort: Desc)])
@@ -623,8 +623,8 @@ model LedgerEntry {
   type   LedgerEntryType
   amount Decimal         @db.Decimal(28, 8)
   balanceAfter Decimal? @map("balance_after") @db.Decimal(28, 8)
-  metadata Json?         @db.JsonB
-  txHash String?         @map("tx_hash") @db.VarChar(128)
+  metadata Json?        
+  txHash String?         @map("tx_hash")
   timestamp DateTime     @default(now())
 
   @@index([userId, timestamp(sort: Desc)])
@@ -667,13 +667,13 @@ model CryptoIngestionRun {
   updatedAt DateTime @updatedAt
 
   /// Deterministic key (e.g. hourly bucket) so overlapping crons skip safely.
-  idempotencyKey String             @unique @db.VarChar(160)
+  idempotencyKey String             @unique
   status         IngestionRunStatus @default(PENDING)
   startedAt      DateTime?
   finishedAt     DateTime?
 
-  stats        Json? @db.JsonB
-  errorMessage String? @db.Text
+  stats        Json?
+  errorMessage String?
 
   signals CryptoTokenSignal[]
 
@@ -689,13 +689,13 @@ model CryptoTokenSignal {
   ingestionRunId String?             @db.Uuid
   ingestionRun   CryptoIngestionRun? @relation(fields: [ingestionRunId], references: [id], onDelete: SetNull)
 
-  dedupeKey String @unique @db.VarChar(280)
+  dedupeKey String @unique
 
-  chainId      String? @db.VarChar(64)
-  tokenAddress String? @db.VarChar(160)
-  coingeckoId  String? @db.VarChar(160)
-  symbol       String? @db.VarChar(48)
-  name         String? @db.VarChar(320)
+  chainId      String?
+  tokenAddress String?
+  coingeckoId  String?
+  symbol       String?
+  name         String?
 
   priceUsd       Decimal?  @db.Decimal(28, 12)
   liquidityUsd   Decimal?  @db.Decimal(28, 8)
@@ -704,23 +704,23 @@ model CryptoTokenSignal {
   change24hPct   Decimal?  @db.Decimal(18, 8)
   pairCreatedAt  DateTime?
 
-  imageUrl    String? @db.Text
-  pairAddress String? @db.VarChar(160)
-  dexId       String? @db.VarChar(96)
+  imageUrl    String?
+  pairAddress String?
+  dexId       String?
 
   providers String[] @default([])
 
   /// Raw category scores from adapters (`trending_all`, `memecoin_pump`, …).
-  categoryScores Json @db.JsonB
+  categoryScores Json
 
   hotScore         Decimal @default(0) @db.Decimal(22, 8)
   volatilityScore  Decimal @default(0) @db.Decimal(22, 8)
   volumeScore      Decimal @default(0) @db.Decimal(22, 8)
   memeScore        Decimal @default(0) @db.Decimal(22, 8)
-  primaryBucket    String  @db.VarChar(64)
+  primaryBucket    String 
 
   /// Rolling “latest activity” hint — extend with DEX txn stats later.
-  activitySnapshot Json? @db.JsonB
+  activitySnapshot Json?
 
   lastSeenAt  DateTime @default(now())
   firstSeenAt DateTime @default(now())
@@ -758,7 +758,7 @@ model Activity {
 
   /// Public label + structured fields for UI
   title   String?
-  payload Json @db.JsonB
+  payload Json
 
   @@index([marketId, createdAt(sort: Desc)])
   @@index([userId, createdAt(sort: Desc)])
@@ -797,15 +797,15 @@ model AdminAuditLog {
   adminId String @db.Uuid
   admin   Admin  @relation(fields: [adminId], references: [id], onDelete: Cascade)
 
-  action     String @db.VarChar(128)
-  targetType String @db.VarChar(64)
+  action     String
+  targetType String
   targetId   String? @db.Uuid
 
   targetUserId String? @db.Uuid
   targetUser   User?   @relation("AuditTargetUser", fields: [targetUserId], references: [id], onDelete: SetNull)
 
-  metadata  Json?   @db.JsonB
-  ipAddress String? @db.VarChar(64)
+  metadata  Json?  
+  ipAddress String?
 
   @@index([adminId, createdAt(sort: Desc)])
   @@index([targetType, targetId])
@@ -822,7 +822,7 @@ model AttentionScore {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  narrative String @unique @db.VarChar(64)
+  narrative String @unique
 
   /// Normalized 0–100 attention score
   score Decimal @db.Decimal(8, 4)
@@ -845,7 +845,7 @@ model AttentionScore {
   openInterest    Float  @default(0)
   scorePrev24h    Float  @default(0)
 
-  rawSnapshot Json? @db.JsonB
+  rawSnapshot Json?
 
   @@index([narrativeSlug])
   @@index([score(sort: Desc)])
@@ -860,9 +860,9 @@ model MarketSuggestion {
   updatedAt DateTime @updatedAt
 
   title       String
-  description String? @db.Text
-  category    String  @db.VarChar(64)
-  narrative   String? @db.VarChar(64)
+  description String?
+  category    String 
+  narrative   String?
 
   votesUp   Int @default(0)
   votesDown Int @default(0)
@@ -878,7 +878,7 @@ model MarketSuggestion {
   submitter   User?   @relation("SuggestionSubmitter", fields: [submitterId], references: [id], onDelete: SetNull)
 
   status        MarketSuggestionStatus @default(PENDING)
-  triggerReason String?                @db.Text
+  triggerReason String?               
 
   marketId String? @unique @db.Uuid
   market   Market? @relation(fields: [marketId], references: [id], onDelete: SetNull)
@@ -917,15 +917,15 @@ model MarketDraft {
   suggestion   MarketSuggestion @relation(fields: [suggestionId], references: [id], onDelete: Cascade)
 
   title       String
-  description String? @db.Text
-  category    String  @db.VarChar(64)
-  narrative   String? @db.VarChar(64)
+  description String?
+  category    String 
+  narrative   String?
 
   status MarketDraftStatus @default(IN_REVIEW)
 
   closesAt           DateTime? @map("closes_at")
-  resolutionSource   String?   @map("resolution_source") @db.Text
-  rejectionReason    String?   @map("rejection_reason") @db.Text
+  resolutionSource   String?   @map("resolution_source")
+  rejectionReason    String?   @map("rejection_reason")
 
   reviewedById String?   @map("reviewed_by_id") @db.Uuid
   reviewedAt   DateTime? @map("reviewed_at")
@@ -942,13 +942,13 @@ model ExternalApiLog {
   id        String   @id @default(uuid()) @db.Uuid
   createdAt DateTime @default(now())
 
-  source   String @db.VarChar(64)
-  endpoint String @db.VarChar(512)
+  source   String
+  endpoint String
   status   Int
   durationMs Int @map("duration_ms")
 
-  responseSnippet String? @map("response_snippet") @db.Text
-  error           String? @db.Text
+  responseSnippet String? @map("response_snippet")
+  error           String?
 
   @@index([source, createdAt(sort: Desc)])
   @@map("external_api_logs")
@@ -964,7 +964,7 @@ model MarketProbabilitySnapshot {
   ammRatio       Decimal @map("amm_ratio") @db.Decimal(10, 9)
   orderRatio     Decimal @map("order_ratio") @db.Decimal(10, 9)
   degraded       Boolean @default(false)
-  payload        Json?   @db.JsonB
+  payload        Json?  
 
   updatedAt DateTime @updatedAt
 
