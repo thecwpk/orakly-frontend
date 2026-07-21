@@ -7,7 +7,9 @@ import {
   ChevronDown,
   Loader2,
   LogOut,
+  Plus,
   Settings,
+  Shield,
   User,
 } from "lucide-react";
 import Link from "next/link";
@@ -20,6 +22,7 @@ import {
 } from "@/components/ui/popover";
 import { ROUTES } from "@/shared/constants/routes";
 import { cn } from "@/lib/utils";
+import { useShowAdminNavLink } from "@/widgets/admin-dashboard/hooks/use-admin-nav-session";
 
 export function WalletPopover({
   connectLabel = "Connect Wallet",
@@ -31,6 +34,7 @@ export function WalletPopover({
   const [open, setOpen] = useState(false);
   const { address, status } = useAccount();
   const { disconnectAsync, isPending: disconnectPending } = useDisconnect();
+  const showAdminNav = useShowAdminNavLink();
 
   const connecting = status === "connecting" || status === "reconnecting";
   const connected = status === "connected" && Boolean(address);
@@ -136,6 +140,24 @@ export function WalletPopover({
                   <Settings className="h-3.5 w-3.5 text-zinc-400" />
                   Settings
                 </Link>
+                <Link
+                  href={ROUTES.marketCreate}
+                  onClick={() => setOpen(false)}
+                  className="flex items-center gap-2 px-3 py-2 text-[12px] text-zinc-200 transition hover:bg-white/[0.04]"
+                >
+                  <Plus className="h-3.5 w-3.5 text-emerald-400" />
+                  Create market
+                </Link>
+                {showAdminNav ? (
+                  <Link
+                    href={ROUTES.adminDashboard}
+                    onClick={() => setOpen(false)}
+                    className="flex items-center gap-2 px-3 py-2 text-[12px] text-zinc-200 transition hover:bg-white/[0.04]"
+                  >
+                    <Shield className="h-3.5 w-3.5 text-zinc-400" />
+                    Operator console
+                  </Link>
+                ) : null}
                 <button
                   type="button"
                   disabled={disconnectPending}

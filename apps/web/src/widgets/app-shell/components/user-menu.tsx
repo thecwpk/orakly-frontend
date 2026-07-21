@@ -71,7 +71,11 @@ export function UserMenu() {
           type="button"
           aria-label="More menu"
           aria-haspopup="menu"
-          className="inline-flex size-9 shrink-0 items-center justify-center rounded-[10px] border border-white/[0.08] bg-white/[0.04] text-zinc-100 transition hover:border-white/[0.12] hover:bg-white/[0.07] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-yes/35"
+          className={cn(
+            "inline-flex size-9 shrink-0 items-center justify-center rounded-[var(--radius-sm)] border border-[var(--border)] bg-white/[0.03] text-[var(--foreground-muted)] transition",
+            "hover:border-white/[0.11] hover:bg-white/[0.06] hover:text-[var(--foreground)]",
+            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]/35 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--background-secondary)]",
+          )}
         >
           <Menu className="size-[18px]" strokeWidth={2} aria-hidden />
         </button>

@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { ChevronDown, Menu, Search, X } from "lucide-react";
+import { ChevronDown, Menu, Plus, Search, Shield, X } from "lucide-react";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useEffect, useId, useRef, useState } from "react";
@@ -10,7 +10,9 @@ import { BRAND_LOGO_NAV } from "@/shared/constants/brand-logos";
 import { PrefetchLink } from "@/shared/ui";
 import { cn } from "@/lib/utils";
 import { useGlobalSearchStore } from "@/features/search";
+import { useShowAdminNavLink } from "@/widgets/admin-dashboard/hooks/use-admin-nav-session";
 import { NotificationBell } from "./notification-popover";
+import { UserMenu } from "./user-menu";
 import { WalletPopover } from "./wallet-popover";
 import { useNavShortcuts } from "../lib/use-nav-shortcuts";
 import {
@@ -22,6 +24,44 @@ import {
 
 const NAV_H = "h-14";
 const NETWORK_LABEL = "BNB Testnet · 97";
+
+function isMarketCreateActive(pathname: string | null): boolean {
+  if (!pathname) return false;
+  return (
+    pathname === ROUTES.marketCreate ||
+    pathname.startsWith(`${ROUTES.marketCreate}/`)
+  );
+}
+
+function CreateMarketLink({
+  className,
+  onClick,
+}: {
+  className?: string;
+  onClick?: () => void;
+}) {
+  const pathname = usePathname();
+  const active = isMarketCreateActive(pathname);
+
+  return (
+    <PrefetchLink
+      href={ROUTES.marketCreate}
+      onClick={onClick}
+      aria-current={active ? "page" : undefined}
+      className={cn(
+        "inline-flex h-9 shrink-0 items-center gap-1.5 rounded-[var(--radius-sm)] px-3 text-[13px] font-medium transition-colors",
+        focusRing(),
+        active
+          ? "bg-[var(--accent)]/12 text-[var(--foreground)] ring-1 ring-[var(--accent)]/25"
+          : "text-[var(--foreground-muted)] hover:bg-white/[0.05] hover:text-[var(--foreground)]",
+        className,
+      )}
+    >
+      <Plus className="size-3.5 shrink-0" strokeWidth={2.5} aria-hidden />
+      Create
+    </PrefetchLink>
+  );
+}
 
 function focusRing() {
   return "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--background-secondary)]";
@@ -288,6 +328,7 @@ function NetworkBadge({ className }: { className?: string }) {
 export function Navbar() {
   useNavShortcuts();
   const pathname = usePathname();
+  const showAdminNav = useShowAdminNavLink();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [narrativesOpen, setNarrativesOpen] = useState(false);
   const openGlobalSearch = useGlobalSearchStore((s) => s.open);
@@ -353,6 +394,8 @@ export function Navbar() {
           <SearchField className="w-[min(100%,15rem)]" />
           <NetworkBadge className="hidden xl:inline-flex" />
           <NotificationBell />
+          <CreateMarketLink />
+          <UserMenu />
           <WalletPopover connectLabel="Connect Wallet" variant="default" />
         </div>
 
@@ -369,6 +412,8 @@ export function Navbar() {
             <Search className="size-[18px]" strokeWidth={2} aria-hidden />
           </button>
           <NetworkBadge />
+          <CreateMarketLink className="hidden sm:inline-flex" />
+          <UserMenu />
           <WalletPopover connectLabel="Connect Wallet" variant="default" />
         </div>
 
@@ -384,6 +429,7 @@ export function Navbar() {
           >
             <Search className="size-[18px]" strokeWidth={2} aria-hidden />
           </button>
+          <UserMenu />
           <WalletPopover connectLabel="Connect" variant="default" />
           <button
             type="button"
@@ -512,6 +558,40 @@ export function Navbar() {
                     );
                   },
                 )}
+
+                <div className="my-3 border-t border-[var(--border)]" />
+
+                <p className="px-2 pb-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--foreground-muted)]">
+                  Actions
+                </p>
+                <PrefetchLink
+                  href={ROUTES.marketCreate}
+                  onClick={() => setDrawerOpen(false)}
+                  aria-current={isMarketCreateActive(pathname) ? "page" : undefined}
+                  className={cn(
+                    "flex items-center gap-2 rounded-[var(--radius-sm)] px-3 py-2.5 text-[14px] font-medium transition-colors",
+                    focusRing(),
+                    isMarketCreateActive(pathname)
+                      ? "bg-[var(--accent)]/10 text-[var(--foreground)]"
+                      : "text-[var(--foreground-muted)] hover:text-[var(--foreground)]",
+                  )}
+                >
+                  <Plus className="size-4 shrink-0" strokeWidth={2.5} aria-hidden />
+                  Create market
+                </PrefetchLink>
+                {showAdminNav ? (
+                  <PrefetchLink
+                    href={ROUTES.adminDashboard}
+                    onClick={() => setDrawerOpen(false)}
+                    className={cn(
+                      "flex items-center gap-2 rounded-[var(--radius-sm)] px-3 py-2.5 text-[14px] font-medium text-[var(--foreground-muted)] transition-colors hover:text-[var(--foreground)]",
+                      focusRing(),
+                    )}
+                  >
+                    <Shield className="size-4 shrink-0" aria-hidden />
+                    Operator console
+                  </PrefetchLink>
+                ) : null}
               </nav>
             </motion.div>
           </div>

@@ -9,6 +9,7 @@ import {
   LayoutGrid,
   Plus,
   Settings,
+  Shield,
   Star,
   Swords,
   Trophy,
@@ -20,6 +21,7 @@ import Link from "next/link";
 import { useEffect } from "react";
 import { ROUTES } from "@/shared/constants/routes";
 import { cn } from "@/lib/utils";
+import { useShowAdminNavLink } from "@/widgets/admin-dashboard/hooks/use-admin-nav-session";
 import { useAppShellStore } from "../store/use-app-shell-store";
 import { ConnectionIndicator } from "./connection-indicator";
 import { ThemeToggle } from "./theme-toggle";
@@ -55,6 +57,7 @@ function SheetRow({
 export function MobileMoreSheet() {
   const open = useAppShellStore((s) => s.mobileMoreMenuOpen);
   const setOpen = useAppShellStore((s) => s.setMobileMoreMenuOpen);
+  const showAdminNav = useShowAdminNavLink();
 
   useEffect(() => {
     if (!open) return;
@@ -159,6 +162,14 @@ export function MobileMoreSheet() {
                   icon={Settings}
                   label="Settings"
                 />
+                {showAdminNav ? (
+                  <SheetRow
+                    href={ROUTES.adminDashboard}
+                    onNavigate={close}
+                    icon={Shield}
+                    label="Operator console"
+                  />
+                ) : null}
               </div>
 
               <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-zinc-500">
