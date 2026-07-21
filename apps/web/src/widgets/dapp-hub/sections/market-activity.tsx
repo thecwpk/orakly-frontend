@@ -270,8 +270,8 @@ export function MarketActivity() {
     <section className="hub-section" aria-label="Market Activity">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
         <div>
-          <h2 className="text-xl font-bold text-white">Market Activity</h2>
-          <p className="mt-0.5 text-sm text-slate-500">
+          <h2 className="hub-section-title">Market Activity</h2>
+          <p className="hub-section-sub mt-0.5">
             Live panels for trades, listings, closings, events, and votes.
           </p>
         </div>

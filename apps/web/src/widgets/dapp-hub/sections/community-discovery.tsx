@@ -309,8 +309,8 @@ export function CommunityDiscovery() {
     <section className="hub-section" aria-label="Community Discovery">
       <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h2 className="text-xl font-bold text-white">Community Discovery</h2>
-          <p className="mt-0.5 block text-sm text-slate-500">
+          <h2 className="hub-section-title">Community Discovery</h2>
+          <p className="hub-section-sub mt-0.5 block">
             Markets proposed and ranked by the community.
           </p>
         </div>

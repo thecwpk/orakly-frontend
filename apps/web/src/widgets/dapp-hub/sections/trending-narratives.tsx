@@ -228,8 +228,8 @@ export function TrendingNarratives() {
     <section className="hub-section" aria-label="Trending Narratives">
       <div className="mb-4 flex flex-col gap-3 sm:mb-5 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h2 className="text-xl font-bold text-white">Trending Narratives</h2>
-          <p className="mt-0.5 text-sm text-slate-500">Where trading attention is concentrating.</p>
+          <h2 className="hub-section-title">Trending Narratives</h2>
+          <p className="hub-section-sub mt-0.5">Where trading attention is concentrating.</p>
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
@@ -240,9 +240,9 @@ export function TrendingNarratives() {
               disabled={showSkeletons || showError}
               aria-label="Sort narratives"
               className={cn(
-                "appearance-none rounded-lg border border-white/10 bg-white/5",
-                "py-1.5 pl-3 pr-8 text-sm text-slate-300",
-                "focus:outline-none focus:ring-2 focus:ring-indigo-500/30",
+                "appearance-none rounded-lg border border-[var(--border)] bg-[var(--background-secondary)]",
+                "py-1.5 pl-3 pr-8 text-sm text-[var(--foreground)]",
+                "focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30",
                 "disabled:cursor-not-allowed disabled:opacity-50",
               )}
             >
@@ -253,7 +253,7 @@ export function TrendingNarratives() {
               ))}
             </select>
             <ChevronDown
-              className="pointer-events-none absolute right-2.5 size-3.5 text-slate-500"
+              className="pointer-events-none absolute right-2.5 size-3.5 text-[var(--foreground-muted)]"
               aria-hidden
             />
           </div>
@@ -262,8 +262,8 @@ export function TrendingNarratives() {
 
       {showError ? (
         <div className="rounded-2xl border border-dashed border-rose-400/30 bg-rose-500/5 px-6 py-10 text-center">
-          <p className="text-sm font-semibold text-white">Unable to load narratives.</p>
-          <p className="mx-auto mt-1 max-w-sm text-xs text-slate-500">
+          <p className="text-sm font-semibold text-[var(--foreground)]">Unable to load narratives.</p>
+          <p className="mx-auto mt-1 max-w-sm text-xs text-[var(--foreground-muted)]">
             {query.error instanceof Error
               ? query.error.message
               : "The attention feed is unavailable."}
@@ -271,7 +271,7 @@ export function TrendingNarratives() {
           <button
             type="button"
             onClick={() => void query.refetch()}
-            className="mt-4 inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-white transition hover:bg-white/10"
+            className="mt-4 inline-flex items-center gap-2 rounded-xl border border-[var(--border)] bg-[var(--background-secondary)] px-4 py-2 text-sm font-medium text-[var(--foreground)] transition hover:bg-white/[0.06]"
           >
             <RefreshCw className="size-3.5" aria-hidden />
             Retry

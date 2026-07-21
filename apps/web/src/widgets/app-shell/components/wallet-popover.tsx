@@ -107,10 +107,10 @@ export function WalletPopover({
                 )}
               >
                 <span className="size-2 shrink-0 rounded-full bg-emerald-400 ring-2 ring-emerald-400/25" aria-hidden />
-                <span className="font-mono text-[11.5px] font-semibold tracking-tight text-zinc-100">
+                <span className="font-mono text-[11.5px] font-semibold tracking-tight text-chrome">
                   {display}
                 </span>
-                <ChevronDown className="h-3 w-3 shrink-0 text-zinc-500" />
+                <ChevronDown className="h-3 w-3 shrink-0 text-chrome-muted" />
               </motion.button>
             </PopoverTrigger>
 
@@ -119,31 +119,31 @@ export function WalletPopover({
                 <Link
                   href={ROUTES.profile}
                   onClick={() => setOpen(false)}
-                  className="flex items-center gap-2 px-3 py-2 text-[12px] text-zinc-200 transition hover:bg-white/[0.04]"
+                  className="flex items-center gap-2 px-3 py-2 text-[12px] text-chrome transition hover:bg-white/[0.04]"
                 >
-                  <User className="h-3.5 w-3.5 text-zinc-400" />
+                  <User className="h-3.5 w-3.5 text-chrome-muted" />
                   Profile
                 </Link>
                 <Link
                   href={ROUTES.portfolio}
                   onClick={() => setOpen(false)}
-                  className="flex items-center gap-2 px-3 py-2 text-[12px] text-zinc-200 transition hover:bg-white/[0.04]"
+                  className="flex items-center gap-2 px-3 py-2 text-[12px] text-chrome transition hover:bg-white/[0.04]"
                 >
-                  <Briefcase className="h-3.5 w-3.5 text-zinc-400" />
+                  <Briefcase className="h-3.5 w-3.5 text-chrome-muted" />
                   Portfolio
                 </Link>
                 <Link
                   href={ROUTES.settings}
                   onClick={() => setOpen(false)}
-                  className="flex items-center gap-2 px-3 py-2 text-[12px] text-zinc-200 transition hover:bg-white/[0.04]"
+                  className="flex items-center gap-2 px-3 py-2 text-[12px] text-chrome transition hover:bg-white/[0.04]"
                 >
-                  <Settings className="h-3.5 w-3.5 text-zinc-400" />
+                  <Settings className="h-3.5 w-3.5 text-chrome-muted" />
                   Settings
                 </Link>
                 <Link
                   href={ROUTES.marketCreate}
                   onClick={() => setOpen(false)}
-                  className="flex items-center gap-2 px-3 py-2 text-[12px] text-zinc-200 transition hover:bg-white/[0.04]"
+                  className="flex items-center gap-2 px-3 py-2 text-[12px] text-chrome transition hover:bg-white/[0.04]"
                 >
                   <Plus className="h-3.5 w-3.5 text-emerald-400" />
                   Create market
@@ -152,9 +152,9 @@ export function WalletPopover({
                   <Link
                     href={ROUTES.adminDashboard}
                     onClick={() => setOpen(false)}
-                    className="flex items-center gap-2 px-3 py-2 text-[12px] text-zinc-200 transition hover:bg-white/[0.04]"
+                    className="flex items-center gap-2 px-3 py-2 text-[12px] text-chrome transition hover:bg-white/[0.04]"
                   >
-                    <Shield className="h-3.5 w-3.5 text-zinc-400" />
+                    <Shield className="h-3.5 w-3.5 text-chrome-muted" />
                     Operator console
                   </Link>
                 ) : null}

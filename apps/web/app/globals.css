@@ -167,7 +167,7 @@
   --background-secondary: #14161a;
   --background-card: #14161a;
   --foreground: #f2f3f5;
-  --foreground-muted: #8a8f98;
+  --foreground-muted: #a1a6b0;
   --border: #22252b;
   --border-strong: #2e323a;
 
@@ -210,7 +210,7 @@
   --secondary: #14161a;
   --secondary-foreground: #f2f3f5;
   --muted: #14161a;
-  --muted-foreground: #8a8f98;
+  --muted-foreground: #a1a6b0;
   --destructive: oklch(0.704 0.191 22.216);
   --input: #22252b;
   --ring: #6c5ce7;
@@ -361,7 +361,7 @@
  * Hub route canvas — blue theme tokens + gradient (see hub-design-tokens.css).
  */
 .hub-app-canvas {
-  color: var(--hub-fg, #e8f0ff);
+  color: var(--foreground);
 }
 
 /** `/discover` marketing directory — same cool radial canvas as hub (no flat black). */
@@ -383,7 +383,7 @@
   --background-secondary: #14161a;
   --background-card: #14161a;
   --foreground: #f2f3f5;
-  --foreground-muted: #8a8f98;
+  --foreground-muted: #a1a6b0;
   --border: #22252b;
   --border-strong: #2e323a;
   --accent: #6c5ce7;
@@ -398,7 +398,7 @@
   --secondary: #14161a;
   --secondary-foreground: #f2f3f5;
   --muted: #14161a;
-  --muted-foreground: #8a8f98;
+  --muted-foreground: #a1a6b0;
   --destructive: oklch(0.704 0.191 22.216);
   --input: #22252b;
   --ring: #6c5ce7;
@@ -516,7 +516,7 @@
     border-width: 1px;
     border-style: solid;
     border-color: var(--app-border-subtle);
-    background-color: rgb(10 10 14 / 0.94);
+    background-color: color-mix(in srgb, var(--background-secondary) 94%, transparent);
   }
 
   /** Uppercase data labels — Polymarket / HL terminal rhythm */
@@ -525,11 +525,21 @@
     font-weight: 600;
     letter-spacing: 0.14em;
     text-transform: uppercase;
-    color: rgb(113 113 122);
+    color: var(--foreground-muted);
   }
 
-  .dark .label-terminal {
-    color: rgb(131 131 139);
+  /** Chrome overlays — menus, popovers, sheets (token-driven, not raw zinc). */
+  .text-chrome {
+    color: var(--foreground);
+  }
+  .text-chrome-muted {
+    color: var(--foreground-muted);
+  }
+  .bg-chrome-surface {
+    background-color: color-mix(in srgb, var(--background-secondary) 97%, transparent);
+  }
+  .border-chrome {
+    border-color: var(--border);
   }
 
   /** Top chrome — hairline only (Dexscreener-style). Prefer over tinted bloom + inset glow. */

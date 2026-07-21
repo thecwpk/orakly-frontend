@@ -246,8 +246,8 @@ export function LiveMarkets() {
     <section className="hub-section" aria-label="Live Markets">
       <div className="mb-4 flex flex-col gap-3 sm:mb-5 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h2 className="text-xl font-bold text-white">Live Markets</h2>
-          <p className="mt-0.5 text-sm text-slate-500">
+          <h2 className="hub-section-title">Live Markets</h2>
+          <p className="hub-section-sub mt-0.5">
             Active prediction markets on BSC Testnet.
           </p>
         </div>
@@ -278,8 +278,8 @@ export function LiveMarkets() {
               className={cn(
                 "rounded-lg px-4 py-1.5 text-sm transition-all",
                 active
-                  ? "bg-white/10 font-medium text-white"
-                  : "text-slate-400 hover:text-white",
+                  ? "bg-white/10 font-medium text-[var(--foreground)]"
+                  : "text-[var(--foreground-muted)] hover:text-[var(--foreground)]",
               )}
             >
               {t.label}

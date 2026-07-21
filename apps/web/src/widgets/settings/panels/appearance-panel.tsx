@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Moon, Sparkles, Sun } from "lucide-react";
+import { useTheme } from "next-themes";
 import { cn } from "@/lib/utils";
 import {
   SettingsPanel,
@@ -16,10 +17,16 @@ type Theme = "dark" | "system" | "light";
 type Density = "compact" | "comfortable";
 
 export function AppearanceSettingsPanel() {
-  const [theme, setTheme] = useState<Theme>("dark");
+  const { theme, setTheme, resolvedTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
   const [density, setDensity] = useState<Density>("compact");
   const [reduceMotion, setReduceMotion] = useState(false);
   const [neonAccents, setNeonAccents] = useState(true);
+
+  useEffect(() => setMounted(true), []);
+
+  const activeTheme: Theme =
+    theme === "light" || theme === "system" ? theme : "dark";
 
   const themes: { id: Theme; label: string; icon: typeof Sun }[] = [
     { id: "dark", label: "Dark", icon: Moon },
@@ -32,10 +39,17 @@ export function AppearanceSettingsPanel() {
       title="Appearance"
       description="Theme, density, and motion preferences."
     >
-      <SettingsRow label="Theme" hint="Dark is the default for trading sessions.">
+      <SettingsRow
+        label="Theme"
+        hint={
+          mounted
+            ? `Active: ${resolvedTheme ?? activeTheme}. Dark is recommended for trading.`
+            : "Dark is the default for trading sessions."
+        }
+      >
         <div className={cn("grid grid-cols-3 gap-1.5 p-1", settingsInsetClass)}>
           {themes.map((t) => {
-            const active = theme === t.id;
+            const active = mounted && activeTheme === t.id;
             const Icon = t.icon;
             return (
               <button

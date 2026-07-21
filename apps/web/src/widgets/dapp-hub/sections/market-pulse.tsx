@@ -158,7 +158,7 @@ export function MarketPulse() {
       key: "meta",
       label: "Current Meta",
       value: (
-        <span className="line-clamp-2 text-base font-semibold leading-snug text-white sm:text-lg">
+        <span className="line-clamp-2 text-base font-semibold leading-snug text-[var(--foreground)] sm:text-lg">
           {pulse.currentMeta}
         </span>
       ),
@@ -167,7 +167,7 @@ export function MarketPulse() {
       key: "chain",
       label: "Top Chain",
       value: (
-        <span className="inline-flex items-center gap-2 text-white">
+        <span className="inline-flex items-center gap-2 text-[var(--foreground)]">
           <BnbChainIcon />
           <span className="font-semibold tracking-wide">{pulse.topChain}</span>
         </span>
@@ -177,7 +177,7 @@ export function MarketPulse() {
       key: "live",
       label: "Live Markets",
       value: (
-        <span className="tabular-nums text-white">{fmtInt(pulse.liveMarkets)}</span>
+        <span className="tabular-nums text-[var(--foreground)]">{fmtInt(pulse.liveMarkets)}</span>
       ),
     },
     {
@@ -200,7 +200,7 @@ export function MarketPulse() {
       key: "traders",
       label: "Active Traders",
       value: (
-        <span className="tabular-nums text-white">{fmtInt(pulse.activeTraders)}</span>
+        <span className="tabular-nums text-[var(--foreground)]">{fmtInt(pulse.activeTraders)}</span>
       ),
     },
   ];

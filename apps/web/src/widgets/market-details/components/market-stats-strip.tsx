@@ -57,9 +57,9 @@ function StatCell({
   mono?: boolean;
 }) {
   return (
-    <div className="min-w-[100px] flex-1 rounded-xl bg-black/25 px-3 py-2.5 ring-1 ring-white/6">
-      <p className="text-[10px] font-semibold uppercase tracking-wider text-zinc-500">{label}</p>
-      <p className={`mt-1 text-sm font-medium text-zinc-100 ${mono ? "font-mono tabular-nums" : ""}`}>
+    <div className="min-w-[100px] flex-1 rounded-xl bg-[var(--background-secondary)] px-3 py-2.5 ring-1 ring-[var(--border)]">
+      <p className="text-[10px] font-semibold uppercase tracking-wider text-[var(--foreground-muted)]">{label}</p>
+      <p className={`mt-1 text-sm font-medium text-[var(--foreground)] ${mono ? "font-mono tabular-nums" : ""}`}>
         {value}
       </p>
     </div>

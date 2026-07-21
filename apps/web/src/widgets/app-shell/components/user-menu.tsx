@@ -39,16 +39,16 @@ import { useShowAdminNavLink } from "@/widgets/admin-dashboard/hooks/use-admin-n
 import { cn } from "@/lib/utils";
 
 const menuItem =
-  "cursor-pointer rounded-lg px-3 py-2.5 text-[13px] font-normal leading-snug text-zinc-100 focus:bg-white/[0.07] focus:text-white";
+  "cursor-pointer rounded-lg px-3 py-2.5 text-[13px] font-normal leading-snug text-chrome focus:bg-white/[0.07] focus:text-[var(--foreground)]";
 
 const subMenuPanel =
-  "max-h-[min(52vh,340px)] w-[min(calc(100vw-2rem),248px)] overflow-y-auto rounded-[10px] border border-white/[0.06] bg-[#16181f]/97 p-1.5 shadow-[0_20px_48px_-14px_rgba(0,0,0,0.88)] backdrop-blur-xl";
+  "max-h-[min(52vh,340px)] w-[min(calc(100vw-2rem),248px)] overflow-y-auto rounded-[10px] border border-chrome bg-chrome-surface p-1.5 shadow-[0_20px_48px_-14px_rgba(0,0,0,0.88)] backdrop-blur-xl";
 
 const categoryRow =
-  "cursor-pointer rounded-md px-2 py-2 text-[12px] font-normal text-zinc-100 focus:bg-white/[0.06]";
+  "cursor-pointer rounded-md px-2 py-2 text-[12px] font-normal text-chrome focus:bg-white/[0.06]";
 
 const sectionLabel =
-  "px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-zinc-500";
+  "px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-chrome-muted";
 
 function marketsCategoryHref(_slug: string) {
   return ROUTES.marketsBrowse;
@@ -84,25 +84,25 @@ export function UserMenu() {
         align="end"
         sideOffset={10}
         className={cn(
-          "min-w-[min(calc(100vw-1.5rem),272px)] rounded-[10px] border border-white/[0.06] bg-[#16181f]/97 p-2 shadow-[0_24px_56px_-14px_rgba(0,0,0,0.92)] backdrop-blur-xl",
+          "min-w-[min(calc(100vw-1.5rem),272px)] rounded-[10px] border border-chrome bg-chrome-surface p-2 shadow-[0_24px_56px_-14px_rgba(0,0,0,0.92)] backdrop-blur-xl",
         )}
       >
         <DropdownMenuLabel className={sectionLabel}>Trading</DropdownMenuLabel>
         <DropdownMenuItem asChild className={menuItem}>
           <PrefetchLink href={ROUTES.marketsBrowse}>
-            <LayoutGrid className="mr-2 size-4 text-zinc-500" aria-hidden />
+            <LayoutGrid className="mr-2 size-4 text-chrome-muted" aria-hidden />
             Markets
           </PrefetchLink>
         </DropdownMenuItem>
         <DropdownMenuItem asChild className={menuItem}>
           <PrefetchLink href={ROUTES.marketsCommunity}>
-            <Users className="mr-2 size-4 text-zinc-500" aria-hidden />
+            <Users className="mr-2 size-4 text-chrome-muted" aria-hidden />
             Community
           </PrefetchLink>
         </DropdownMenuItem>
         <DropdownMenuItem asChild className={menuItem}>
           <PrefetchLink href={ROUTES.watchlist}>
-            <Star className="mr-2 size-4 text-zinc-500" aria-hidden />
+            <Star className="mr-2 size-4 text-chrome-muted" aria-hidden />
             Watchlist
           </PrefetchLink>
         </DropdownMenuItem>
@@ -136,25 +136,25 @@ export function UserMenu() {
         <DropdownMenuLabel className={sectionLabel}>Discover</DropdownMenuLabel>
         <DropdownMenuItem asChild className={menuItem}>
           <PrefetchLink href={ROUTES.attention}>
-            <Brain className="mr-2 size-4 text-zinc-500" aria-hidden />
+            <Brain className="mr-2 size-4 text-chrome-muted" aria-hidden />
             Attention
           </PrefetchLink>
         </DropdownMenuItem>
         <DropdownMenuItem asChild className={menuItem}>
           <PrefetchLink href={ROUTES.narrativeWars}>
-            <Swords className="mr-2 size-4 text-zinc-500" aria-hidden />
+            <Swords className="mr-2 size-4 text-chrome-muted" aria-hidden />
             Narrative Wars
           </PrefetchLink>
         </DropdownMenuItem>
         <DropdownMenuItem asChild className={menuItem}>
           <PrefetchLink href={ROUTES.leaderboard}>
-            <Trophy className="mr-2 size-4 text-zinc-500" aria-hidden />
+            <Trophy className="mr-2 size-4 text-chrome-muted" aria-hidden />
             Leaderboard
           </PrefetchLink>
         </DropdownMenuItem>
         <DropdownMenuItem asChild className={menuItem}>
           <PrefetchLink href={ROUTES.analytics}>
-            <BarChart3 className="mr-2 size-4 text-zinc-500" aria-hidden />
+            <BarChart3 className="mr-2 size-4 text-chrome-muted" aria-hidden />
             Analytics
           </PrefetchLink>
         </DropdownMenuItem>
@@ -164,31 +164,31 @@ export function UserMenu() {
         <DropdownMenuLabel className={sectionLabel}>Account</DropdownMenuLabel>
         <DropdownMenuItem asChild className={menuItem}>
           <PrefetchLink href={tradingUserId ? ROUTES.profile : ROUTES.wallet}>
-            <UserIcon className="mr-2 size-4 text-zinc-500" aria-hidden />
+            <UserIcon className="mr-2 size-4 text-chrome-muted" aria-hidden />
             Profile
           </PrefetchLink>
         </DropdownMenuItem>
         <DropdownMenuItem asChild className={menuItem}>
           <PrefetchLink href={ROUTES.portfolio}>
-            <Briefcase className="mr-2 size-4 text-zinc-500" aria-hidden />
+            <Briefcase className="mr-2 size-4 text-chrome-muted" aria-hidden />
             Portfolio
           </PrefetchLink>
         </DropdownMenuItem>
         <DropdownMenuItem asChild className={menuItem}>
           <PrefetchLink href={ROUTES.wallet}>
-            <Wallet className="mr-2 size-4 text-zinc-500" aria-hidden />
+            <Wallet className="mr-2 size-4 text-chrome-muted" aria-hidden />
             Wallet
           </PrefetchLink>
         </DropdownMenuItem>
         <DropdownMenuItem asChild className={menuItem}>
           <PrefetchLink href={ROUTES.activity}>
-            <Activity className="mr-2 size-4 text-zinc-500" aria-hidden />
+            <Activity className="mr-2 size-4 text-chrome-muted" aria-hidden />
             Activity
           </PrefetchLink>
         </DropdownMenuItem>
         <DropdownMenuItem asChild className={menuItem}>
           <PrefetchLink href={ROUTES.settings}>
-            <Settings className="mr-2 size-4 text-zinc-500" aria-hidden />
+            <Settings className="mr-2 size-4 text-chrome-muted" aria-hidden />
             Settings
           </PrefetchLink>
         </DropdownMenuItem>
@@ -198,7 +198,7 @@ export function UserMenu() {
             <DropdownMenuSeparator className="my-2 bg-white/[0.07]" />
             <DropdownMenuItem asChild className={menuItem}>
               <PrefetchLink href={ROUTES.adminDashboard}>
-                <Shield className="mr-2 size-4 text-zinc-500" aria-hidden />
+                <Shield className="mr-2 size-4 text-chrome-muted" aria-hidden />
                 Operator console
               </PrefetchLink>
             </DropdownMenuItem>

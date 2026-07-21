@@ -5,15 +5,19 @@ import Link from "next/link";
 import { BRAND_LOGO_MARK_DARK } from "@/shared/constants/brand-logos";
 import { ROUTES } from "@/shared/constants/routes";
 
+const footerLink =
+  "block text-sm text-[var(--foreground-muted)] transition-colors hover:text-[var(--foreground)]";
+const footerHeading =
+  "mb-3 text-xs font-semibold uppercase tracking-widest text-[var(--foreground-muted)]";
+
 /**
  * Trust / navigation footer for the trading shell (Polymarket-style).
  */
 export function AppFooter() {
   return (
-    <footer className="mt-16 border-t border-white/5 px-4 py-12">
+    <footer className="mt-16 border-t border-[var(--border)] px-4 py-12">
       <div className="mx-auto max-w-7xl">
         <div className="mb-8 grid grid-cols-2 gap-8 md:grid-cols-4">
-          {/* Brand column */}
           <div className="col-span-2 md:col-span-1">
             <div className="mb-3 flex items-center gap-2">
               <Image
@@ -24,9 +28,9 @@ export function AppFooter() {
                 unoptimized
                 className="h-6 w-6 object-contain"
               />
-              <span className="font-bold text-white">Orakly</span>
+              <span className="font-bold text-[var(--foreground)]">Orakly</span>
             </div>
-            <p className="text-xs leading-relaxed text-slate-500">
+            <p className="text-xs leading-relaxed text-[var(--foreground-muted)]">
               Crypto attention intelligence. Trade on-chain prediction markets.
             </p>
             <div className="mt-4 flex gap-3">
@@ -34,7 +38,7 @@ export function AppFooter() {
                 href="https://x.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-slate-500 transition-colors hover:text-white"
+                className="text-[var(--foreground-muted)] transition-colors hover:text-[var(--foreground)]"
               >
                 𝕏
               </a>
@@ -42,95 +46,64 @@ export function AppFooter() {
                 href="https://discord.gg"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-slate-500 transition-colors hover:text-white"
+                className="text-[var(--foreground-muted)] transition-colors hover:text-[var(--foreground)]"
               >
                 Discord
               </a>
             </div>
           </div>
 
-          {/* Markets */}
           <div>
-            <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-slate-400">
-              Markets
-            </p>
+            <p className={footerHeading}>Markets</p>
             <div className="space-y-2">
-              <Link
-                href={ROUTES.markets}
-                className="block text-sm text-slate-500 transition-colors hover:text-white"
-              >
+              <Link href={ROUTES.markets} className={footerLink}>
                 All Markets
               </Link>
-              <Link
-                href={ROUTES.marketsCommunity}
-                className="block text-sm text-slate-500 transition-colors hover:text-white"
-              >
+              <Link href={ROUTES.marketsCommunity} className={footerLink}>
                 Community
               </Link>
-              <Link
-                href={ROUTES.narrativeWars}
-                className="block text-sm text-slate-500 transition-colors hover:text-white"
-              >
+              <Link href={ROUTES.narrativeWars} className={footerLink}>
                 Narrative Wars
               </Link>
-              <Link
-                href={ROUTES.attention}
-                className="block text-sm text-slate-500 transition-colors hover:text-white"
-              >
+              <Link href={ROUTES.attention} className={footerLink}>
                 Narratives
               </Link>
             </div>
           </div>
 
-          {/* Platform */}
           <div>
-            <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-slate-400">
-              Platform
-            </p>
+            <p className={footerHeading}>Platform</p>
             <div className="space-y-2">
-              <Link
-                href={ROUTES.leaderboard}
-                className="block text-sm text-slate-500 transition-colors hover:text-white"
-              >
+              <Link href={ROUTES.leaderboard} className={footerLink}>
                 Leaderboard
               </Link>
-              <Link
-                href={ROUTES.analytics}
-                className="block text-sm text-slate-500 transition-colors hover:text-white"
-              >
+              <Link href={ROUTES.analytics} className={footerLink}>
                 Analytics
               </Link>
-              <Link
-                href={ROUTES.portfolio}
-                className="block text-sm text-slate-500 transition-colors hover:text-white"
-              >
+              <Link href={ROUTES.portfolio} className={footerLink}>
                 Portfolio
               </Link>
             </div>
           </div>
 
-          {/* Network */}
           <div>
-            <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-slate-400">
-              Network
-            </p>
+            <p className={footerHeading}>Network</p>
             <div className="space-y-2">
               <div className="flex items-center gap-2">
                 <div className="h-2 w-2 rounded-full bg-yellow-400" />
-                <span className="text-sm text-slate-500">BNB Testnet</span>
+                <span className="text-sm text-[var(--foreground-muted)]">BNB Testnet</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="h-2 w-2 animate-pulse rounded-full bg-green-400" />
-                <span className="text-sm text-slate-500">Chain ID: 97</span>
+                <span className="text-sm text-[var(--foreground-muted)]">Chain ID: 97</span>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Bottom bar */}
-        <div className="flex flex-col items-center justify-between gap-4 border-t border-white/5 pt-6 md:flex-row">
-          <p className="text-xs text-slate-600">© 2026 Orakly</p>
-          <p className="text-xs text-slate-600">
+        <div className="flex flex-col items-center justify-between gap-4 border-t border-[var(--border)] pt-6 md:flex-row">
+          <p className="text-xs text-[var(--foreground-muted)]">© 2026 Orakly</p>
+          <p className="text-xs text-[var(--foreground-muted)]">
             Trading involves substantial risk of loss.
           </p>
         </div>

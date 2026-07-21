@@ -3,27 +3,27 @@
  */
 .hub-app-canvas,
 .hub-root {
-  --hub-bg: #0a0b0d;
-  --hub-bg-subtle: #101114;
-  --hub-bg-elevated: #14161a;
-  --hub-card: #14161a;
-  --hub-card-hover: #1a1c21;
-  --hub-border: #22252b;
-  --hub-border-strong: #2e323a;
-  --hub-fg: #f2f3f5;
-  --hub-muted: #8a8f98;
-  --hub-primary: #6c5ce7;
-  --hub-primary-bright: #7f71ea;
-  --hub-primary-soft: rgba(108, 92, 231, 0.14);
-  --hub-primary-glow: rgba(108, 92, 231, 0.28);
-  --hub-success: #2ecc71;
-  --hub-success-bg: rgba(46, 204, 113, 0.14);
-  --hub-danger: #ff5c5c;
-  --hub-danger-bg: rgba(255, 92, 92, 0.14);
-  --hub-attention: #6c5ce7;
-  --hub-chrome: rgba(20, 22, 26, 0.96);
-  --hub-track-bg: rgba(0, 0, 0, 0.35);
-  --hub-surface-highlight: #1a1c21;
+  --hub-bg: var(--background);
+  --hub-bg-subtle: color-mix(in srgb, var(--background) 88%, var(--foreground) 12%);
+  --hub-bg-elevated: var(--background-secondary);
+  --hub-card: var(--background-card);
+  --hub-card-hover: color-mix(in srgb, var(--background-card) 85%, var(--foreground) 15%);
+  --hub-border: var(--border);
+  --hub-border-strong: var(--border-strong);
+  --hub-fg: var(--foreground);
+  --hub-muted: var(--foreground-muted);
+  --hub-primary: var(--accent);
+  --hub-primary-bright: color-mix(in srgb, var(--accent) 75%, white 25%);
+  --hub-primary-soft: color-mix(in srgb, var(--accent) 14%, transparent);
+  --hub-primary-glow: color-mix(in srgb, var(--accent) 28%, transparent);
+  --hub-success: var(--yes);
+  --hub-success-bg: color-mix(in srgb, var(--yes) 14%, transparent);
+  --hub-danger: var(--no);
+  --hub-danger-bg: color-mix(in srgb, var(--no) 14%, transparent);
+  --hub-attention: var(--accent);
+  --hub-chrome: color-mix(in srgb, var(--background-secondary) 96%, transparent);
+  --hub-track-bg: color-mix(in srgb, var(--background) 65%, black 35%);
+  --hub-surface-highlight: color-mix(in srgb, var(--background-card) 85%, var(--foreground) 15%);
   --hub-radius: 0.5rem;
   --hub-section-gap: 2rem;
   --hub-card-gap: 0.75rem;
@@ -31,7 +31,7 @@
 }
 
 .hub-app-canvas {
-  background: #0a0b0d;
+  background: var(--background);
 }
 
 .hub-root {
@@ -41,8 +41,8 @@
 }
 
 .hub-root--analytics {
-  --hub-bg-subtle: #101c34;
-  --hub-card: #162844;
+  --hub-bg-subtle: color-mix(in srgb, var(--background) 82%, var(--accent) 18%);
+  --hub-card: color-mix(in srgb, var(--background-card) 90%, var(--accent) 10%);
 }
 
 .hub-container {

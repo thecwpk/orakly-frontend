@@ -93,7 +93,6 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      data-theme="dark"
       className={cn("dark font-sans", inter.variable, interTight.variable)}
       suppressHydrationWarning
     >

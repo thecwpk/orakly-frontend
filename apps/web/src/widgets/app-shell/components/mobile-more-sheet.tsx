@@ -46,7 +46,7 @@ function SheetRow({
       <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white/[0.05] text-cyan-300 ring-1 ring-white/[0.08]">
         <Icon className="h-4 w-4" aria-hidden />
       </span>
-      <span className="min-w-0 text-[13px] font-semibold text-white">{label}</span>
+      <span className="min-w-0 text-[13px] font-semibold text-chrome">{label}</span>
     </Link>
   );
 }
@@ -103,14 +103,14 @@ export function MobileMoreSheet() {
             exit={{ y: "105%" }}
             transition={{ type: "spring", stiffness: 420, damping: 36 }}
             className={cn(
-              "absolute inset-x-2 max-h-[min(72vh,520px)] overflow-hidden rounded-t-2xl border border-white/[0.08]",
-              "bg-[#0b0b14]/95 shadow-[0_-12px_48px_rgba(0,0,0,0.55)] backdrop-blur-xl",
+              "absolute inset-x-2 max-h-[min(72vh,520px)] overflow-hidden rounded-t-2xl border border-[var(--border)]",
+              "bg-chrome-surface shadow-[0_-12px_48px_rgba(0,0,0,0.55)] backdrop-blur-xl",
             )}
             style={{ bottom: "var(--app-mobile-dock-h)" }}
           >
             <div className="mx-auto mt-2 h-1 w-10 shrink-0 rounded-full bg-white/15" aria-hidden />
             <div className="max-h-[min(68vh,480px)] space-y-3 overflow-y-auto p-4 pb-5">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-zinc-500">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-chrome-muted">
                 Trading
               </p>
               <div className="space-y-2">
@@ -172,7 +172,7 @@ export function MobileMoreSheet() {
                 ) : null}
               </div>
 
-              <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-zinc-500">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-chrome-muted">
                 Discover
               </p>
               <div className="space-y-2">
@@ -203,7 +203,7 @@ export function MobileMoreSheet() {
               </div>
 
               <div className="flex items-center justify-between gap-3 rounded-xl bg-black/30 px-3 py-2 ring-1 ring-white/[0.06]">
-                <span className="text-[10px] font-semibold uppercase tracking-wider text-zinc-500">
+                <span className="text-[10px] font-semibold uppercase tracking-wider text-chrome-muted">
                   Appearance
                 </span>
                 <ThemeToggle variant="pill" />

@@ -24,13 +24,15 @@ export function MarketDetailsPage({ slug }: { slug: string }) {
   }
 
   return (
-    <div className="mx-auto w-full max-w-6xl space-y-8 px-4 py-6 pb-20 sm:px-6">
-      <MarketOverviewSection market={market} />
-      <MarketTradingPanel market={market} />
-      <MarketPriceChart marketId={marketId} />
-      <MarketRecentTrades marketId={marketId} />
-      <MarketDiscussion marketId={marketId} />
-      <MarketShareSection question={market.title} marketId={marketId} />
+    <div className="market-detail-root hub-root">
+      <div className="market-detail-container mx-auto w-full max-w-6xl space-y-8 px-4 py-6 pb-20 sm:px-6">
+        <MarketOverviewSection market={market} />
+        <MarketTradingPanel market={market} />
+        <MarketPriceChart marketId={marketId} />
+        <MarketRecentTrades marketId={marketId} />
+        <MarketDiscussion marketId={marketId} />
+        <MarketShareSection question={market.title} marketId={marketId} />
+      </div>
     </div>
   );
 }

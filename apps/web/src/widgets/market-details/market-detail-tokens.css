@@ -1,20 +1,20 @@
 /**
- * Market detail / trade page — aligned with hub navy theme.
+ * Market detail / trade page — aligned with hub charcoal theme.
  */
 .market-detail-root {
-  --md-bg: #0c1529;
-  --md-bg-subtle: #121f38;
-  --md-card: #1a2d4d;
-  --md-border: rgba(96, 165, 250, 0.16);
-  --md-border-strong: rgba(96, 165, 250, 0.3);
-  --md-fg: #e8f0ff;
-  --md-muted: #8ba3c7;
-  --md-primary: #3b82f6;
-  --md-primary-bright: #60a5fa;
-  --md-success: #34d399;
-  --md-success-bg: rgba(52, 211, 153, 0.14);
-  --md-danger: #fb7185;
-  --md-danger-bg: rgba(251, 113, 133, 0.14);
+  --md-bg: var(--hub-bg, var(--background));
+  --md-bg-subtle: var(--hub-bg-subtle, var(--background-secondary));
+  --md-card: var(--hub-card, var(--background-card));
+  --md-border: var(--hub-border, var(--border));
+  --md-border-strong: var(--hub-border-strong, var(--border-strong));
+  --md-fg: var(--hub-fg, var(--foreground));
+  --md-muted: var(--hub-muted, var(--foreground-muted));
+  --md-primary: var(--hub-primary, var(--accent));
+  --md-primary-bright: var(--hub-primary-bright, var(--accent));
+  --md-success: var(--hub-success, var(--yes));
+  --md-success-bg: var(--hub-success-bg, color-mix(in srgb, var(--yes) 14%, transparent));
+  --md-danger: var(--hub-danger, var(--no));
+  --md-danger-bg: var(--hub-danger-bg, color-mix(in srgb, var(--no) 14%, transparent));
   --md-radius: 0.75rem;
   color: var(--md-fg);
 }
