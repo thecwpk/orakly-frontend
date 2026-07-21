@@ -37,7 +37,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json(
       err(
         "DATABASE_UNAVAILABLE",
-        "Postgres unreachable from Vercel. Set DATABASE_URL to your Neon URL (not placeholder host “base”).",
+        "Postgres unreachable from Vercel. Set DATABASE_URL to your CockroachDB connection string.",
       ),
       { status: 503 },
     );
