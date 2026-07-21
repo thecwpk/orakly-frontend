@@ -4,6 +4,10 @@ import Link from "next/link";
 import { ROUTES } from "@/shared/constants/routes";
 import { cn } from "@/lib/utils";
 import { formatCompactUsd } from "@orakly/utils";
+import { useQuery } from "@tanstack/react-query";
+import { fetchHomeStats } from "@/shared/api/fetchers/hub-home";
+import { Sparkline } from "@/shared/ui";
+import { useEffect, useMemo, useState } from "react";
 
 type SnippetMarket = {
   id: string;
@@ -83,55 +87,52 @@ function MarketSnippet({ market }: { market: SnippetMarket }) {
   );
 }
 
-function AttentionPulse({ className }: { className?: string }) {
+function clamp0to100(n: number): number {
+  if (!Number.isFinite(n)) return 0;
+  return Math.min(100, Math.max(0, n));
+}
+
+function AttentionPulse({
+  className,
+  series,
+  current,
+}: {
+  className?: string;
+  series: readonly number[];
+  current: number | null;
+}) {
   return (
     <div
-      className={cn("relative h-[4.5rem] w-full overflow-hidden", className)}
-      aria-hidden
+      className={cn(
+        "relative h-[4.5rem] w-full overflow-hidden rounded-[var(--radius-md)] border border-[var(--border)] bg-[color-mix(in_srgb,var(--background-secondary)_95%,transparent)]",
+        className,
+      )}
     >
-      <svg
-        viewBox="0 0 480 72"
-        className="h-full w-full"
-        preserveAspectRatio="none"
-        role="presentation"
-      >
-        <defs>
-          <linearGradient id="orakly-pulse-fade" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%" stopColor="var(--background)" stopOpacity="1" />
-            <stop offset="12%" stopColor="var(--background)" stopOpacity="0" />
-            <stop offset="88%" stopColor="var(--background)" stopOpacity="0" />
-            <stop offset="100%" stopColor="var(--background)" stopOpacity="1" />
-          </linearGradient>
-        </defs>
-        <g className="orakly-attention-pulse">
-          <path
-            d="M0 44 C40 40, 70 28, 110 36 S170 52, 210 38 S270 18, 310 30 S370 54, 410 40 S460 28, 480 34"
-            fill="none"
-            stroke="#3a3d45"
-            strokeWidth="1.25"
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[var(--accent)]/12 via-transparent to-[var(--accent)]/12" />
+      <div className="relative flex h-full items-center gap-3 px-4">
+        <div className="min-w-[56px]">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--foreground-muted)]">
+            Index
+          </p>
+          <p className="mt-1 text-[20px] font-semibold tabular-nums text-[var(--foreground)]">
+            {current == null ? "—" : Math.round(current)}
+          </p>
+        </div>
+
+        <div className="min-w-0 flex-1">
+          <Sparkline
+            data={series}
+            width={480}
+            height={44}
+            tone="violet"
+            fill
+            showLastDot
+            intensity="high"
+            ariaLabel="Live attention index sparkline"
+            className="h-full w-full"
           />
-          <path
-            d="M0 38 C50 48, 90 22, 130 34 S190 58, 230 42 S290 20, 340 36 S400 50, 440 32 S470 26, 480 30"
-            fill="none"
-            stroke="#4a4e58"
-            strokeWidth="1.25"
-          />
-          <path
-            d="M0 50 C45 42, 85 56, 125 44 S185 24, 225 40 S285 60, 325 46 S385 22, 425 36 S465 48, 480 42"
-            fill="none"
-            stroke="#5c4fc7"
-            strokeWidth="1.35"
-            opacity="0.55"
-          />
-          <path
-            d="M0 32 C55 26, 95 44, 140 30 S200 14, 245 28 S305 48, 350 34 S410 16, 455 28 S475 34, 480 30"
-            fill="none"
-            stroke="var(--accent)"
-            strokeWidth="1.6"
-          />
-        </g>
-        <rect width="480" height="72" fill="url(#orakly-pulse-fade)" />
-      </svg>
+        </div>
+      </div>
     </div>
   );
 }
@@ -141,6 +142,41 @@ function AttentionPulse({ className }: { className?: string }) {
  * Desktop: two columns within one viewport. Mobile: stacked.
  */
 export function Hero() {
+  const SERIES_LEN = 28;
+  const seed = 64;
+
+  const statsQ = useQuery({
+    queryKey: ["hub", "homeStats", "heroPulse"],
+    queryFn: fetchHomeStats,
+    staleTime: 10_000,
+    refetchInterval: 15_000,
+    retry: 1,
+  });
+
+  const initialSeries = useMemo(() => {
+    return Array.from({ length: SERIES_LEN }, (_, i) => {
+      const t = i / Math.max(1, SERIES_LEN - 1);
+      const wave = Math.sin(t * Math.PI * 2) * 3;
+      const wave2 = Math.cos(t * Math.PI * 5) * 1.75;
+      return clamp0to100(seed + wave - wave2);
+    });
+  }, []);
+
+  const [series, setSeries] = useState<readonly number[]>(initialSeries);
+
+  const attentionIndex = statsQ.data?.attentionIndex;
+  const clampedAttentionIndex =
+    attentionIndex == null ? null : clamp0to100(attentionIndex);
+
+  useEffect(() => {
+    if (clampedAttentionIndex == null) return;
+    setSeries((prev) => {
+      const next = prev.slice(1);
+      next.push(clampedAttentionIndex);
+      return next;
+    });
+  }, [clampedAttentionIndex]);
+
   return (
     <section
       aria-label="Orakly hero"
@@ -189,7 +225,11 @@ export function Hero() {
           <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--foreground-muted)]">
             Attention pulse
           </p>
-          <AttentionPulse className="mb-5" />
+          <AttentionPulse
+            className="mb-5"
+            series={series}
+            current={clampedAttentionIndex}
+          />
           <div className="flex flex-col gap-3">
             {SNIPPETS.map((m) => (
               <MarketSnippet key={m.id} market={m} />
