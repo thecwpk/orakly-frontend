@@ -6,6 +6,7 @@ import { useHomeStatsQuery } from "@/shared/api/hooks";
 import type { MarketSentiment } from "@/shared/contracts/hub-home";
 import { ROUTES } from "@/shared/constants/routes";
 import { cn } from "@/lib/utils";
+import { HubCountUp } from "../components/hub-count-up";
 import { resolveMarketPulseStats } from "../lib/market-pulse-stats";
 
 function fmtUsd(n: number): string {
@@ -16,10 +17,6 @@ function fmtUsd(n: number): string {
   return `$${Math.round(n).toLocaleString("en-US")}`;
 }
 
-function fmtInt(n: number): string {
-  return Math.max(0, Math.floor(n)).toLocaleString("en-US");
-}
-
 function sentimentTone(s: MarketSentiment): {
   text: string;
   bg: string;
@@ -28,22 +25,22 @@ function sentimentTone(s: MarketSentiment): {
 } {
   if (s === "Bullish") {
     return {
-      text: "text-emerald-300",
-      bg: "bg-emerald-500/15",
-      border: "border-emerald-400/25",
-      dot: "bg-emerald-400",
+      text: "text-[var(--hub-success)]",
+      bg: "bg-[var(--hub-success-bg)]",
+      border: "border-[var(--hub-success)]/25",
+      dot: "bg-[var(--hub-success)]",
     };
   }
   if (s === "Bearish") {
     return {
-      text: "text-rose-300",
-      bg: "bg-rose-500/15",
-      border: "border-rose-400/25",
-      dot: "bg-rose-400",
+      text: "text-[var(--hub-danger)]",
+      bg: "bg-[var(--hub-danger-bg)]",
+      border: "border-[var(--hub-danger)]/25",
+      dot: "bg-[var(--hub-danger)]",
     };
   }
   return {
-    text: "text-amber-200",
+    text: "text-amber-300",
     bg: "bg-amber-500/15",
     border: "border-amber-400/25",
     dot: "bg-amber-400",
@@ -74,7 +71,6 @@ function SentimentPill({
   );
 }
 
-/** Simple BNB chain mark — gold dial, no external asset dependency. */
 function BnbChainIcon({ className }: { className?: string }) {
   return (
     <svg
@@ -92,29 +88,31 @@ function BnbChainIcon({ className }: { className?: string }) {
 
 function PulseSkeleton() {
   return (
-    <div className="hub-dapp-pulse">
+    <div className="hub-dapp-pulse hub-glass-card">
       <div className="border-b border-[var(--hub-border)] px-4 py-3 sm:px-6">
         <div className="hub-dapp-skel h-3 w-40" />
       </div>
       <div className="grid grid-cols-2 gap-0 sm:grid-cols-4 lg:grid-cols-8">
         {Array.from({ length: 8 }).map((_, i) => (
-          <div key={i} className="hub-dapp-pulse-cell border-[var(--hub-border)] border-b sm:border-r">
+          <div
+            key={i}
+            className="hub-dapp-pulse-cell border-b border-[var(--hub-border)] sm:border-r"
+          >
             <div className="hub-dapp-skel h-2.5 w-16" />
             <div className="hub-dapp-skel h-7 w-12" />
           </div>
         ))}
       </div>
       <div className="flex gap-3 border-t border-[var(--hub-border)] px-4 py-4 sm:px-6">
-        <div className="hub-dapp-skel h-10 w-36 rounded-lg" />
-        <div className="hub-dapp-skel h-10 w-36 rounded-lg" />
+        <div className="hub-dapp-skel h-11 w-36 rounded-lg" />
+        <div className="hub-dapp-skel h-11 w-36 rounded-lg" />
       </div>
     </div>
   );
 }
 
 /**
- * Section 1 — Market Pulse: full-width desk header (not a card grid).
- * Identity strip — scannable in &lt;5s for “what is happening today”.
+ * Section 1 — Market Pulse: full-width desk header with live count-up stats.
  */
 export function MarketPulse() {
   const statsQ = useHomeStatsQuery();
@@ -122,7 +120,10 @@ export function MarketPulse() {
 
   if (loading) {
     return (
-      <section className="hub-section !pt-5 sm:!pt-6" aria-label="Market Pulse">
+      <section
+        className="hub-section hub-section-enter !pt-5 sm:!pt-6"
+        aria-label="Market Pulse"
+      >
         <PulseSkeleton />
       </section>
     );
@@ -143,9 +144,11 @@ export function MarketPulse() {
       key: "attention",
       label: "Attention Index",
       value: (
-        <span className={cn("tabular-nums", attentionTone.text)}>
-          {pulse.attentionIndex}
-        </span>
+        <HubCountUp
+          value={pulse.attentionIndex}
+          formatter={(n) => String(Math.round(n))}
+          className={cn("tabular-nums", attentionTone.text)}
+        />
       ),
       sub: <SentimentPill value={pulse.attentionTag} size="sm" />,
     },
@@ -158,7 +161,7 @@ export function MarketPulse() {
       key: "meta",
       label: "Current Meta",
       value: (
-        <span className="line-clamp-2 text-base font-semibold leading-snug text-[var(--foreground)] sm:text-lg">
+        <span className="line-clamp-2 text-base font-semibold leading-snug text-[var(--hub-fg)] sm:text-lg">
           {pulse.currentMeta}
         </span>
       ),
@@ -167,7 +170,7 @@ export function MarketPulse() {
       key: "chain",
       label: "Top Chain",
       value: (
-        <span className="inline-flex items-center gap-2 text-[var(--foreground)]">
+        <span className="inline-flex items-center gap-2 text-[var(--hub-fg)]">
           <BnbChainIcon />
           <span className="font-semibold tracking-wide">{pulse.topChain}</span>
         </span>
@@ -177,37 +180,52 @@ export function MarketPulse() {
       key: "live",
       label: "Live Markets",
       value: (
-        <span className="tabular-nums text-[var(--foreground)]">{fmtInt(pulse.liveMarkets)}</span>
+        <HubCountUp
+          value={pulse.liveMarkets}
+          className="tabular-nums text-[var(--hub-fg)]"
+        />
       ),
     },
     {
       key: "volume",
       label: "24H Trading Volume",
       value: (
-        <span className="tabular-nums text-emerald-300">
-          {fmtUsd(pulse.volume24hUsd)}
-        </span>
+        <HubCountUp
+          value={pulse.volume24hUsd}
+          formatter={fmtUsd}
+          className="tabular-nums text-[var(--hub-success)]"
+        />
       ),
     },
     {
       key: "oi",
       label: "Open Interest",
       value: (
-        <span className="tabular-nums text-sky-300">{fmtUsd(pulse.openInterest)}</span>
+        <HubCountUp
+          value={pulse.openInterest}
+          formatter={fmtUsd}
+          className="tabular-nums text-sky-300"
+        />
       ),
     },
     {
       key: "traders",
       label: "Active Traders",
       value: (
-        <span className="tabular-nums text-[var(--foreground)]">{fmtInt(pulse.activeTraders)}</span>
+        <HubCountUp
+          value={pulse.activeTraders}
+          className="tabular-nums text-[var(--hub-fg)]"
+        />
       ),
     },
   ];
 
   return (
-    <section className="hub-section !pt-5 sm:!pt-6" aria-label="Market Pulse">
-      <div className="hub-dapp-pulse relative">
+    <section
+      className="hub-section hub-section-enter !pt-5 sm:!pt-6"
+      aria-label="Market Pulse"
+    >
+      <div className="hub-dapp-pulse hub-glass-card relative overflow-hidden">
         <div
           className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[var(--hub-primary-bright)]/45 to-transparent"
           aria-hidden
@@ -215,12 +233,14 @@ export function MarketPulse() {
 
         <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[var(--hub-border)] px-4 py-3 sm:px-6">
           <div className="flex items-center gap-2">
-            <span className="relative flex size-2" aria-hidden>
-              <span className="absolute inset-0 animate-ping rounded-full bg-emerald-400/70" />
-              <span className="relative size-2 rounded-full bg-emerald-400" />
+            <span className="relative flex size-2.5" aria-hidden>
+              <span className="absolute inset-0 animate-ping rounded-full bg-[var(--hub-success)]/70" />
+              <span className="relative size-2.5 rounded-full bg-[var(--hub-success)] shadow-[0_0_8px_rgba(0,212,170,0.55)]" />
             </span>
             <p className="hub-dapp-stat-label !text-[11px]">Market Pulse</p>
-            <span className="hidden text-[11px] text-[var(--hub-muted)] sm:inline">· today</span>
+            <span className="hidden text-[11px] text-[var(--hub-muted)] sm:inline">
+              · today
+            </span>
           </div>
           <span className="hub-dapp-stat-label !normal-case hub-dapp-move-up">
             Live
@@ -243,16 +263,10 @@ export function MarketPulse() {
         </div>
 
         <div className="flex flex-wrap items-center gap-3 border-t border-[var(--hub-border)] px-4 py-4 sm:px-6">
-          <Link
-            href={ROUTES.markets}
-            className="hub-dapp-cta hub-dapp-cta--solid !mt-0 !w-auto px-5"
-          >
+          <Link href={ROUTES.markets} className="hub-cta-gold !min-h-[2.75rem]">
             Explore Markets
           </Link>
-          <Link
-            href={ROUTES.narratives}
-            className="hub-dapp-cta !mt-0 !w-auto px-5"
-          >
+          <Link href={ROUTES.narratives} className="hub-cta-violet !min-h-[2.75rem]">
             View Narratives
           </Link>
         </div>

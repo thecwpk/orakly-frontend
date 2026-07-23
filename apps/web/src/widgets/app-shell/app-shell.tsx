@@ -31,7 +31,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           <main
             id="app-content"
             style={appMainPageInsetStyle}
-            className="relative min-w-0 w-full max-w-full flex-1 touch-pan-y pt-14 pb-[var(--app-mobile-dock-h)] lg:pb-0"
+            className="relative min-w-0 w-full max-w-full flex-1 touch-pan-y pt-20 pb-[var(--app-mobile-dock-h)] lg:pb-0"
           >
             {children}
             <AppFooter />

@@ -7,12 +7,15 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { formatCompactUsd } from "@orakly/utils";
 import { apiClient } from "@/api/client/http-client";
+import { useOpenTradeModal } from "@/features/trading";
 import { cn } from "@/lib/utils";
 import { ROUTES } from "@/shared/constants/routes";
 import { queryKeys } from "@/shared/api/query-keys";
 import { unwrapApiResult } from "@/shared/api/unwrap";
+import { Sparkline } from "@/shared/ui";
 import type { LiveMarketCardDto } from "@/shared/contracts/live-markets";
-import { getDemoLiveMarkets } from "../lib/live-markets-demo";
+import { buildFeaturedSparkSeries } from "../lib/hub-sparkline-series";
+import { marketToTradeModal } from "../lib/open-hub-trade";
 
 type LiveTab = "trending" | "volume" | "newest" | "ending";
 
@@ -63,13 +66,14 @@ function endsInLabel(iso: string): { label: string; urgent: boolean } {
 
 function LiveMarketSkeleton() {
   return (
-    <div className="hub-dapp-skel-card">
+    <div className="hub-dapp-skel-card hub-glass-card">
       <div className="hub-dapp-skel mb-3 h-4 w-[92%]" />
       <div className="hub-dapp-skel mb-3 h-4 w-[58%]" />
       <div className="mb-3 flex gap-2">
         <div className="hub-dapp-skel h-5 w-16 rounded-md" />
         <div className="hub-dapp-skel h-5 w-20 rounded-md" />
       </div>
+      <div className="hub-dapp-skel mb-4 h-10 w-full rounded-md" />
       <div className="hub-dapp-skel mb-2 h-2.5 w-20" />
       <div className="hub-dapp-skel mb-4 h-2 w-full rounded-full" />
       <div className="mb-4 grid grid-cols-3 gap-2">
@@ -77,12 +81,15 @@ function LiveMarketSkeleton() {
         <div className="hub-dapp-skel h-10 rounded-md" />
         <div className="hub-dapp-skel h-10 rounded-md" />
       </div>
-      <div className="hub-dapp-skel h-10 w-full rounded-lg" />
+      <div className="flex gap-2">
+        <div className="hub-dapp-skel h-11 flex-1 rounded-lg" />
+        <div className="hub-dapp-skel h-11 flex-1 rounded-lg" />
+      </div>
     </div>
   );
 }
 
-/** Hub Live Markets card — all review fields + Trade → detail. */
+/** Hub Live Markets card — glass chrome, sparkline, YES/NO trade actions. */
 export function HubLiveMarketCard({
   market,
   index = 0,
@@ -91,26 +98,46 @@ export function HubLiveMarketCard({
   index?: number;
 }) {
   const router = useRouter();
-  const yesPct = Math.round(
-    Math.max(0, Math.min(1, market.probability ?? 0.5)) * 100,
-  );
+  const openTrade = useOpenTradeModal();
+  const probability = Math.max(0, Math.min(1, market.probability ?? 0.5));
+  const yesPct = Math.round(probability * 100);
   const noPct = 100 - yesPct;
   const ends = endsInLabel(market.closesAt);
   const detailHref = ROUTES.market(market.slug);
-  const creator = market.creatorAddress?.trim() || market.creatorDisplayName?.trim() || null;
+  const creator =
+    market.creatorAddress?.trim() || market.creatorDisplayName?.trim() || null;
   const narrative = market.narrative?.trim() || null;
   const participants = Math.max(0, Math.round(market.participants ?? 0));
+  const isOpen = market.status === "OPEN" && ends.label !== "Ended";
+  const canTrade = Boolean(market.onChainAddress?.trim()) && isOpen;
+
+  const sparkSeries = useMemo(
+    () =>
+      buildFeaturedSparkSeries(market.id, probability, []),
+    [market.id, probability],
+  );
 
   const go = (e?: MouseEvent) => {
     e?.stopPropagation();
     router.push(detailHref);
   };
 
+  const handleSide = (side: "YES" | "NO", e: MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    if (!canTrade) {
+      go(e);
+      return;
+    }
+    openTrade(marketToTradeModal(market), side);
+  };
+
   return (
     <motion.article
-      initial={{ opacity: 0, y: 4 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.24, delay: index * 0.04 }}
+      initial={{ opacity: 0, y: 8 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.3, delay: index * 0.04 }}
       role="link"
       tabIndex={0}
       onClick={() => go()}
@@ -120,7 +147,7 @@ export function HubLiveMarketCard({
           go();
         }
       }}
-      className="hub-dapp-card hub-dapp-card--interactive cursor-pointer"
+      className="hub-dapp-card hub-dapp-card--interactive hub-glass-card hub-glass-card--lift cursor-pointer"
     >
       <div className="flex items-start justify-between gap-2">
         <h3 className="hub-dapp-market-title">{market.title}</h3>
@@ -128,7 +155,7 @@ export function HubLiveMarketCard({
           className={cn(
             "hub-dapp-market-chip shrink-0 tabular-nums",
             ends.urgent &&
-              "border-rose-400/30 bg-rose-500/15 text-rose-300",
+              "border-[var(--hub-danger)]/30 bg-[var(--hub-danger-bg)] text-[var(--hub-danger)]",
           )}
         >
           Ends {ends.label}
@@ -150,6 +177,20 @@ export function HubLiveMarketCard({
             by {shortenCreator(creator)}
           </span>
         ) : null}
+      </div>
+
+      <div className="mt-3 overflow-hidden rounded-lg border border-[var(--hub-glass-border)] bg-black/20 px-2 py-1.5">
+        <Sparkline
+          data={sparkSeries}
+          width={320}
+          height={36}
+          tone="emerald"
+          fill
+          showLastDot
+          intensity="normal"
+          ariaLabel={`${market.title} probability sparkline`}
+          className="h-9 w-full"
+        />
       </div>
 
       <div className="mt-4 space-y-2">
@@ -204,13 +245,22 @@ export function HubLiveMarketCard({
         </div>
       </div>
 
-      <button
-        type="button"
-        onClick={(e) => go(e)}
-        className="hub-dapp-cta hub-dapp-cta--solid mt-4"
-      >
-        Trade
-      </button>
+      <div className="mt-4 flex gap-2">
+        <button
+          type="button"
+          onClick={(e) => handleSide("YES", e)}
+          className="hub-yes-btn"
+        >
+          YES {yesPct}%
+        </button>
+        <button
+          type="button"
+          onClick={(e) => handleSide("NO", e)}
+          className="hub-no-btn"
+        >
+          NO {noPct}%
+        </button>
+      </div>
     </motion.article>
   );
 }
@@ -222,47 +272,38 @@ export function LiveMarkets() {
   const [tab, setTab] = useState<LiveTab>("trending");
 
   const query = useQuery({
-    queryKey: queryKeys.hub.liveMarkets(tab, 6),
-    queryFn: () => fetchLiveMarkets(tab, 6),
+    queryKey: queryKeys.hub.liveMarkets(tab, 20),
+    queryFn: () => fetchLiveMarkets(tab, 20),
     staleTime: 10_000,
     refetchInterval: 15_000,
     retry: 1,
   });
 
   const markets = useMemo(() => {
-    const api = query.data ?? [];
-    if (query.isLoading && !query.data) {
-      return [] as LiveMarketCardDto[];
-    }
-    if (api.length > 0) {
-      return api.slice(0, 6);
-    }
-    return getDemoLiveMarkets(tab, 6);
-  }, [query.data, query.isLoading, tab]);
+    return (query.data ?? []).slice(0, 20);
+  }, [query.data]);
 
   const loading = query.isLoading && !query.data;
 
   return (
-    <section className="hub-section" aria-label="Live Markets">
+    <section className="hub-section hub-section-enter" aria-label="Live Markets">
       <div className="mb-4 flex flex-col gap-3 sm:mb-5 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h2 className="hub-section-title">Live Markets</h2>
           <p className="hub-section-sub mt-0.5">
-            Active prediction markets on BSC Testnet.
+            Active prediction markets on BNB Chain.
           </p>
         </div>
-        <div className="flex items-center gap-3">
-          <Link
-            href={ROUTES.markets}
-            className="text-sm font-medium text-indigo-400 transition hover:text-indigo-300"
-          >
-            View All →
-          </Link>
-        </div>
+        <Link
+          href={ROUTES.markets}
+          className="text-sm font-medium text-[var(--hub-primary-bright)] transition hover:text-[var(--hub-primary)]"
+        >
+          View All →
+        </Link>
       </div>
 
       <div
-        className="flex w-fit gap-1 rounded-xl bg-white/5 p-1"
+        className="flex w-fit gap-1 rounded-xl border border-[var(--hub-glass-border)] bg-white/[0.04] p-1 backdrop-blur-sm"
         role="tablist"
         aria-label="Market sort"
       >
@@ -276,10 +317,10 @@ export function LiveMarkets() {
               aria-selected={active}
               onClick={() => setTab(t.id)}
               className={cn(
-                "rounded-lg px-4 py-1.5 text-sm transition-all",
+                "min-h-[2.5rem] rounded-lg px-4 py-1.5 text-sm transition-all",
                 active
-                  ? "bg-white/10 font-medium text-[var(--foreground)]"
-                  : "text-[var(--foreground-muted)] hover:text-[var(--foreground)]",
+                  ? "bg-[var(--hub-primary-soft)] font-medium text-[var(--hub-fg)] shadow-[0_0_12px_rgba(124,92,252,0.2)]"
+                  : "text-[var(--hub-muted)] hover:text-[var(--hub-fg)]",
               )}
             >
               {t.label}
@@ -288,11 +329,24 @@ export function LiveMarkets() {
         })}
       </div>
 
-      <div className="hub-dapp-grid-markets mt-4">
+      <div className="hub-dapp-grid-markets mt-4 max-sm:flex max-sm:snap-x max-sm:snap-mandatory max-sm:gap-3 max-sm:overflow-x-auto max-sm:pb-2">
         {loading
-          ? Array.from({ length: 6 }).map((_, i) => <LiveMarketSkeleton key={i} />)
-          : markets.map((market, index) => (
-              <HubLiveMarketCard key={`${tab}-${market.id}`} market={market} index={index} />
+          ? Array.from({ length: 8 }).map((_, i) => (
+              <LiveMarketSkeleton key={i} />
+            ))
+          : markets.length === 0
+            ? (
+                <p className="col-span-full py-10 text-center text-sm text-[var(--hub-muted)]">
+                  No live markets yet. Check back shortly.
+                </p>
+              )
+            : markets.map((market, index) => (
+              <div
+                key={`${tab}-${market.id}`}
+                className="max-sm:min-w-[min(88vw,320px)] max-sm:snap-start"
+              >
+                <HubLiveMarketCard market={market} index={index} />
+              </div>
             ))}
       </div>
     </section>

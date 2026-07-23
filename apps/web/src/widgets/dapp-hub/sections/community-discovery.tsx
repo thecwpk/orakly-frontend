@@ -60,7 +60,7 @@ function ColumnCard({
   footer?: ReactNode;
 }) {
   return (
-    <div className="hub-dapp-column">
+    <div className="hub-dapp-column hub-glass-card">
       <h3 className="hub-dapp-column-title">{title}</h3>
       {children}
       {footer}
@@ -306,7 +306,7 @@ export function CommunityDiscovery() {
   };
 
   return (
-    <section className="hub-section" aria-label="Community Discovery">
+    <section className="hub-section hub-section-enter" aria-label="Community Discovery">
       <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h2 className="hub-section-title">Community Discovery</h2>
@@ -485,7 +485,7 @@ export function CommunityDiscovery() {
         </ColumnCard>
       </div>
 
-      <div className="hub-dapp-banner">
+      <div className="hub-dapp-banner hub-glass-card">
         <div className="min-w-0">
           <p className="text-lg font-semibold text-[var(--hub-fg)]">
             Have a market idea?

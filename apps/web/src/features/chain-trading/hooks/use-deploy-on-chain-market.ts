@@ -51,7 +51,7 @@ export function useDeployOnChainMarket() {
     ): Promise<DeployOnChainMarketResult> => {
       if (!address) throw new Error("Connect MetaMask to deploy on-chain markets.");
       if (chainId !== testBnbChain.id) {
-        throw new Error("Switch MetaMask to BNB Smart Chain Testnet (chain 97).");
+        throw new Error("Switch MetaMask to BNB Smart Chain (chain 97).");
       }
       if (!isChainEnvConfigured()) {
         throw new Error(chainEnvConfigErrorMessage() || "On-chain env missing.");

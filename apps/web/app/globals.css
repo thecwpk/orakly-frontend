@@ -147,7 +147,7 @@
 :root {
   color-scheme: dark;
   /* Shell — primary chrome row height (matches marketing nav `h-14`) + ticker row. */
-  --app-topbar-row-h: 3.5rem; /* 56px — fixed top nav */
+  --app-topbar-row-h: 5rem; /* 80px — premium trading chrome */
   --app-topbar-ticker-h: 0px;
   --app-topbar-h: var(--app-topbar-row-h);
   --app-chrome: rgb(15 17 23 / 0.95);

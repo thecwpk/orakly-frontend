@@ -13,6 +13,9 @@
     "check-types": "next typegen && tsc --noEmit",
     "env:generate": "node scripts/generate-env-secrets.mjs",
     "bootstrap:dev": "node scripts/bootstrap-dev.mjs",
+    "showcase:bootstrap": "tsx scripts/showcase-bootstrap.mts",
+    "showcase:cap": "tsx scripts/enforce-showcase-cap.mts",
+    "showcase:deploy": "tsx scripts/batch-deploy-markets.mts",
     "verify:vercel": "node scripts/verify-vercel.mjs"
   },
   "dependencies": {

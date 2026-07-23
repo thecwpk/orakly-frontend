@@ -13,7 +13,6 @@ import type {
   AttentionMomentum,
 } from "@/shared/contracts/attention-dashboard";
 import { fmtUsdCompact } from "../lib/format-hub-metrics";
-import { TRENDING_NARRATIVES_DEMO } from "../lib/trending-narratives-demo";
 
 type SortKey = "trending" | "growing" | "volume" | "newest";
 
@@ -104,7 +103,7 @@ function NarrativeCard({ item }: { item: AttentionDashboardItem }) {
   const href = ROUTES.narrativeDetail(item.narrativeSlug);
 
   return (
-    <article className="hub-dapp-card hub-dapp-card--interactive hub-dapp-narrative">
+    <article className="hub-dapp-card hub-dapp-card--interactive hub-dapp-narrative hub-glass-card hub-glass-card--lift">
       <h3 className="hub-dapp-narrative-title">{item.narrativeName}</h3>
 
       <div className="mt-3.5">
@@ -175,17 +174,13 @@ function NarrativeCard({ item }: { item: AttentionDashboardItem }) {
 
 function ResolveRows(
   payload: AttentionDashboardItem[] | undefined,
-): { rows: AttentionDashboardItem[]; source: "api" | "demo" } {
+): { rows: AttentionDashboardItem[]; source: "api" | "empty" } {
   const data = payload ?? [];
   const real = data.filter((row) => !row._isMock);
   if (real.length > 0) {
     return { rows: real.slice(0, 12), source: "api" };
   }
-  // Empty API or server-only mock rows → client demo desk (richer, sortable).
-  return {
-    rows: [...TRENDING_NARRATIVES_DEMO],
-    source: "demo",
-  };
+  return { rows: [], source: "empty" };
 }
 
 /**
@@ -206,11 +201,10 @@ export function TrendingNarratives() {
     if (query.isLoading && !query.data) {
       return { rows: [] as AttentionDashboardItem[], source: "api" as const };
     }
-    // API error or empty → demo desk (never leave the section blank).
     if (query.isError || !query.data) {
       return {
-        rows: [...TRENDING_NARRATIVES_DEMO],
-        source: "demo" as const,
+        rows: [] as AttentionDashboardItem[],
+        source: "empty" as const,
       };
     }
     return ResolveRows(query.data.data);
@@ -225,7 +219,7 @@ export function TrendingNarratives() {
   const showError = false;
 
   return (
-    <section className="hub-section" aria-label="Trending Narratives">
+    <section className="hub-section hub-section-enter" aria-label="Trending Narratives">
       <div className="mb-4 flex flex-col gap-3 sm:mb-5 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h2 className="hub-section-title">Trending Narratives</h2>
@@ -240,9 +234,9 @@ export function TrendingNarratives() {
               disabled={showSkeletons || showError}
               aria-label="Sort narratives"
               className={cn(
-                "appearance-none rounded-lg border border-[var(--border)] bg-[var(--background-secondary)]",
-                "py-1.5 pl-3 pr-8 text-sm text-[var(--foreground)]",
-                "focus:outline-none focus:ring-2 focus:ring-[var(--accent)]/30",
+                "appearance-none rounded-lg border border-[var(--hub-glass-border)] bg-white/[0.04] backdrop-blur-sm",
+                "py-1.5 pl-3 pr-8 text-sm text-[var(--hub-fg)]",
+                "focus:outline-none focus:ring-2 focus:ring-[var(--hub-primary)]/30",
                 "disabled:cursor-not-allowed disabled:opacity-50",
               )}
             >
@@ -283,7 +277,13 @@ export function TrendingNarratives() {
             ? Array.from({ length: 6 }).map((_, i) => (
                 <NarrativeSkeletonCard key={i} />
               ))
-            : rows.map((item) => <NarrativeCard key={item.id} item={item} />)}
+            : rows.length === 0
+              ? (
+                  <p className="w-full py-10 text-center text-sm text-[var(--hub-muted)]">
+                    Attention scores will appear once live feeds refresh.
+                  </p>
+                )
+              : rows.map((item) => <NarrativeCard key={item.id} item={item} />)}
         </div>
       )}
     </section>

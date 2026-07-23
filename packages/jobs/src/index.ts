@@ -44,3 +44,9 @@ export {
   type NarrativePipelineResult,
 } from "./narrative-pipeline";
 export { runFullRecompute } from "./consistency-pipeline";
+export {
+  showcaseAutoOpenCap,
+  countAutoOpenMarkets,
+  remainingAutoOpenSlots,
+  resolveAutoMarketStatus,
+} from "./showcase-cap";

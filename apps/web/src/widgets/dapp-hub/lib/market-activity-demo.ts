@@ -358,20 +358,8 @@ export function fillFeedPanel(
     .filter((e) => e.kind === kind)
     .sort((a, b) => new Date(b.at).getTime() - new Date(a.at).getTime());
 
-  if (fromApi.length >= min) {
-    return { items: fromApi.slice(0, min), usedDemo: false };
-  }
-
-  const demo = MARKET_ACTIVITY_DEMO[kind];
-  const seen = new Set(fromApi.map((e) => e.id));
-  const merged = [...fromApi];
-  for (const row of demo) {
-    if (merged.length >= min) break;
-    if (seen.has(row.id)) continue;
-    merged.push(row);
-  }
   return {
-    items: merged.slice(0, Math.max(min, merged.length)).slice(0, Math.max(min, 5)),
-    usedDemo: fromApi.length < min,
+    items: fromApi.slice(0, Math.max(min, 5)),
+    usedDemo: false,
   };
 }

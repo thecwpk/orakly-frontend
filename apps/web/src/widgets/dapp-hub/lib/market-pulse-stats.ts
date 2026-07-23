@@ -108,34 +108,38 @@ export function resolveMarketPulseStats(
   api: HomeStatsPayload | null | undefined,
   opts?: { apiError?: boolean },
 ): MarketPulseStats {
-  if (opts?.apiError || isHomeStatsIncoherent(api)) {
-    const d = MARKET_PULSE_DEMO_STATS;
+  if (opts?.apiError || !api || isHomeStatsSparse(api)) {
     return {
-      attentionIndex: d.attentionIndex,
-      attentionTag: attentionTagFromIndex(d.attentionIndex),
-      marketSentiment: marketSentimentFromDesk(d),
-      currentMeta: d.currentMeta,
-      topChain: d.topChain,
-      liveMarkets: d.liveMarkets,
-      volume24hUsd: d.volume24hUsd,
-      openInterest: d.openInterest,
-      activeTraders: d.activeTraders,
-      source: "demo",
+      attentionIndex: Math.round(Math.min(100, Math.max(0, Number(api?.attentionIndex) || 0))),
+      attentionTag: attentionTagFromIndex(Number(api?.attentionIndex) || 0),
+      marketSentiment: marketSentimentFromDesk({
+        volume24hUsd: Number(api?.volume24hUsd) || 0,
+        openInterest: Number(api?.openInterest) || 0,
+        activeTraders: Number(api?.activeTraders) || 0,
+        liveMarkets: Number(api?.liveMarkets) || 0,
+      }),
+      currentMeta: api?.currentMeta?.trim() || "Crypto",
+      topChain: api?.topChain?.trim() || "BNB",
+      liveMarkets: Math.max(0, Math.floor(Number(api?.liveMarkets) || 0)),
+      volume24hUsd: Math.max(0, Number(api?.volume24hUsd) || 0),
+      openInterest: Math.max(0, Number(api?.openInterest) || 0),
+      activeTraders: Math.max(0, Math.floor(Number(api?.activeTraders) || 0)),
+      source: api && !opts?.apiError ? "api" : "api",
     };
   }
 
   const attentionIndex = Math.round(
-    Math.min(100, Math.max(0, Number(api!.attentionIndex) || 0)),
+    Math.min(100, Math.max(0, Number(api.attentionIndex) || 0)),
   );
-  const liveMarkets = Math.max(0, Math.floor(Number(api!.liveMarkets) || 0));
-  const volume24hUsd = Math.max(0, Number(api!.volume24hUsd) || 0);
-  const openInterest = Math.max(0, Number(api!.openInterest) || 0);
-  const activeTraders = Math.max(0, Math.floor(Number(api!.activeTraders) || 0));
+  const liveMarkets = Math.max(0, Math.floor(Number(api.liveMarkets) || 0));
+  const volume24hUsd = Math.max(0, Number(api.volume24hUsd) || 0);
+  const openInterest = Math.max(0, Number(api.openInterest) || 0);
+  const activeTraders = Math.max(0, Math.floor(Number(api.activeTraders) || 0));
   const currentMeta =
-    api!.currentMeta?.trim() && api!.currentMeta.trim() !== "N/A"
-      ? api!.currentMeta.trim()
+    api.currentMeta?.trim() && api.currentMeta.trim() !== "N/A"
+      ? api.currentMeta.trim()
       : "Crypto";
-  const topChain = api!.topChain?.trim() || "BNB";
+  const topChain = api.topChain?.trim() || "BNB";
 
   return {
     attentionIndex,

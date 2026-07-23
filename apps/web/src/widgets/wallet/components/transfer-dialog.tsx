@@ -306,7 +306,7 @@ function ComposeBody({
       <div className="space-y-1.5 rounded-xl bg-black/30 px-3.5 py-3 ring-1 ring-white/[0.06]">
         <div className="mb-1 flex items-center justify-between text-[10.5px] font-semibold uppercase tracking-wider text-zinc-500">
           <span>Transaction preview</span>
-          <span className="font-mono text-[10px] text-zinc-600">demo · t+1.2s</span>
+          <span className="font-mono text-[10px] text-zinc-600">t+1.2s</span>
         </div>
         <Row label="Direction" value={isDeposit ? "On-chain → Custodial" : "Custodial → On-chain"} />
         <Row label="Amount" value={fullUsd(numericAmount)} emphasis="primary" />

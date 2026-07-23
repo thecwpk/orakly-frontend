@@ -152,7 +152,7 @@ export function WalletPage() {
 
       {!isConnected ? (
         <div className="mb-s40 rounded-xl border border-amber-500/25 bg-amber-500/10 px-4 py-3 text-[12.5px] text-amber-100">
-          Connect MetaMask on <strong>BNB Smart Chain Testnet (97)</strong> to see
+          Connect MetaMask on <strong>BNB Smart Chain</strong> to see
           your collateral balance and open positions.
         </div>
       ) : null}

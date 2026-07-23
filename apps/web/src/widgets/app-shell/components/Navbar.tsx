@@ -22,8 +22,8 @@ import {
   resolvePrimaryNavActive,
 } from "../lib/nav-config";
 
-const NAV_H = "h-14";
-const NETWORK_LABEL = "BNB Testnet · 97";
+const NAV_H = "h-20";
+const NETWORK_LABEL = "BNB Chain";
 
 function isMarketCreateActive(pathname: string | null): boolean {
   if (!pathname) return false;
@@ -93,9 +93,6 @@ function LogoMark({ onClick }: { onClick?: () => void }) {
       >
         Orakly
       </span>
-      <span className="ml-2 rounded-[4px] border border-[var(--border)] bg-transparent px-1.5 py-0.5 text-[9px] font-medium uppercase tracking-[0.08em] text-[var(--foreground-muted)]">
-        Beta
-      </span>
     </PrefetchLink>
   );
 }
@@ -121,13 +118,13 @@ function NavLink({
         focusRing(),
         active
           ? "text-[var(--foreground)]"
-          : "text-[var(--foreground-muted)] hover:text-[var(--foreground)]",
+          : "text-[var(--foreground-muted)] hover:text-[var(--foreground)] hover:drop-shadow-[0_0_8px_rgba(124,92,252,0.35)]",
       )}
     >
       {label}
       {active ? (
         <span
-          className="absolute inset-x-2.5 -bottom-px h-px bg-[var(--accent)]"
+          className="absolute inset-x-2.5 -bottom-px h-0.5 rounded-full bg-[var(--accent)] shadow-[0_0_12px_rgba(124,92,252,0.55)]"
           aria-hidden
         />
       ) : null}
@@ -314,7 +311,7 @@ function NetworkBadge({ className }: { className?: string }) {
         className,
       )}
       title="Connected network"
-      aria-label="BNB Testnet, chain 97"
+      aria-label="BNB Chain"
     >
       {NETWORK_LABEL}
     </span>
@@ -355,7 +352,7 @@ export function Navbar() {
   return (
     <header
       role="banner"
-      className="fixed inset-x-0 top-0 z-50 w-full border-b border-[var(--border)] bg-[var(--background-secondary)]"
+      className="fixed inset-x-0 top-0 z-50 w-full border-b border-white/[0.06] bg-[color-mix(in_srgb,var(--background-secondary)_72%,transparent)] backdrop-blur-xl"
     >
       <div
         className={cn(

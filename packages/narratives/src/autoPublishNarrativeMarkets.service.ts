@@ -5,60 +5,26 @@ import {
   Prisma,
 } from "@prisma/client";
 import type { NarrativeScoreRow } from "./narrativeEngine.service.js";
+import { NARRATIVE_KEYS } from "./lib/constants.js";
 
-const PUBLISH_TEMPLATES: Record<
-  string,
-  { title: string; description: string; categorySlug: string; closesDays: number }
-> = {
-  AI: {
-    title: "Will AI tokens outperform memecoins in the next 30 days?",
-    description: "AI narrative attention spiked. Relative performance vs memecoins.",
-    categorySlug: "crypto-narratives",
-    closesDays: 30,
-  },
-  Memes: {
-    title: "Will memecoins regain dominance over DeFi this month?",
-    description: "Meme attention cycle heating up vs DeFi flows.",
-    categorySlug: "meme-coins",
-    closesDays: 30,
-  },
-  Solana: {
-    title: "Will Solana ecosystem TVL grow faster than Base this quarter?",
-    description: "Solana narrative momentum vs Base L2 attention.",
-    categorySlug: "ecosystems",
-    closesDays: 90,
-  },
-  Base: {
-    title: "Will Base chain activity exceed Solana this month?",
-    description: "Base L2 narrative surge vs Solana engagement.",
-    categorySlug: "ecosystems",
-    closesDays: 30,
-  },
-  DeFi: {
-    title: "Will DeFi total volume beat gaming narratives in 30 days?",
-    description: "DeFi capital rotation signal vs gaming attention.",
-    categorySlug: "crypto-narratives",
-    closesDays: 30,
-  },
-  Gaming: {
-    title: "Will gaming narratives outperform RWA this month?",
-    description: "GameFi attention vs real-world asset narrative.",
-    categorySlug: "market-sentiment",
-    closesDays: 30,
-  },
-  RWA: {
-    title: "Will RWA tokenization narratives lead DeFi growth?",
-    description: "RWA institutional flow signal vs broader DeFi.",
-    categorySlug: "industry-events",
-    closesDays: 30,
-  },
-  ETF: {
-    title: "Will ETF flows dominate AI token performance this month?",
-    description: "ETF macro narrative vs AI crypto beta.",
-    categorySlug: "industry-events",
-    closesDays: 30,
-  },
+const CATEGORY_BY_NARRATIVE: Record<string, string> = {
+  AI: "crypto-narratives",
+  Memes: "meme-coins",
+  Solana: "ecosystems",
+  Base: "ecosystems",
+  DeFi: "crypto-narratives",
+  Gaming: "market-sentiment",
+  RWA: "industry-events",
+  ETF: "industry-events",
 };
+
+const WAR_PAIRS: ReadonlyArray<readonly [string, string]> = [
+  ["AI", "Memes"],
+  ["Solana", "Base"],
+  ["DeFi", "Gaming"],
+  ["RWA", "DeFi"],
+  ["ETF", "AI"],
+];
 
 function slugify(title: string): string {
   const base = title
@@ -75,14 +41,81 @@ function envBool(name: string, fallback: boolean): boolean {
   return v === "true" || v === "1" || v === "yes";
 }
 
+function showcaseCap(): number {
+  const raw = process.env.SHOWCASE_AUTO_OPEN_CAP ?? process.env.NARRATIVE_AUTO_PUBLISH_MAX;
+  if (!raw) return 20;
+  const n = Number.parseInt(raw, 10);
+  return Number.isFinite(n) && n > 0 ? n : 20;
+}
+
 function scoreDeltaPct(current: number, previous: number | null): number {
   if (previous == null || previous <= 0) return 0;
   return ((current - previous) / previous) * 100;
 }
 
+/** Build API-score-derived titles (not a fixed marketing catalog). */
+function buildNarrativeMarketCopies(row: NarrativeScoreRow, volumeSpike: boolean): {
+  title: string;
+  description: string;
+  closesDays: number;
+  kind: string;
+}[] {
+  const score = Math.round(row.score);
+  const delta = scoreDeltaPct(row.score, row.previousScore);
+  const deltaLabel =
+    delta >= 0 ? `+${delta.toFixed(1)}%` : `${delta.toFixed(1)}%`;
+  const vs = WAR_PAIRS.find(([a, b]) => a === row.narrative || b === row.narrative);
+  const rival =
+    vs == null
+      ? null
+      : vs[0] === row.narrative
+        ? vs[1]
+        : vs[0];
+
+  const copies: {
+    title: string;
+    description: string;
+    closesDays: number;
+    kind: string;
+  }[] = [
+    {
+      kind: "attention_lead",
+      title: `Will ${row.narrative} hold attention leadership above score ${Math.max(50, score - 5)} this week?`,
+      description: [
+        `Live attention index for ${row.narrative} is ${score} (${row.trend}, ${deltaLabel} vs prior).`,
+        `Components — Reddit ${row.redditScore.toFixed(0)}, news ${row.newsScore.toFixed(0)}, CoinGecko ${row.coingeckoMomentum.toFixed(0)}, TVL ${row.tvlGrowth.toFixed(0)}.`,
+        volumeSpike ? "Volume spike detected on this narrative." : "",
+      ]
+        .filter(Boolean)
+        .join(" "),
+      closesDays: 7,
+    },
+  ];
+
+  if (rival) {
+    copies.push({
+      kind: "war_pair",
+      title: `Will ${row.narrative} outperform ${rival} on attention over the next 14 days?`,
+      description: `Narrative war: ${row.narrative} (score ${score}, ${deltaLabel}) vs ${rival}. Resolves on relative attention leadership from Orakly AttentionScore.`,
+      closesDays: 14,
+    });
+  }
+
+  if (row.coingeckoMomentum >= 40 || volumeSpike) {
+    copies.push({
+      kind: "momentum",
+      title: `Will ${row.narrative} CoinGecko momentum stay elevated for 48 hours?`,
+      description: `${row.narrative} CoinGecko momentum component is ${row.coingeckoMomentum.toFixed(0)}. YES if momentum stays ≥ current band through resolution.`,
+      closesDays: 2,
+    });
+  }
+
+  return copies;
+}
+
 /**
- * Rising narratives from external APIs → live OPEN markets linked via MarketSuggestion.
- * Set `NARRATIVE_AUTO_PUBLISH=false` to keep suggestions-only mode.
+ * Rising narratives from external APIs → OPEN markets (capped for showcase).
+ * Beyond SHOWCASE_AUTO_OPEN_CAP (default 20), skips publish so admin owns the rest.
  */
 export async function autoPublishNarrativeMarkets(input: {
   narratives: NarrativeScoreRow[];
@@ -90,85 +123,115 @@ export async function autoPublishNarrativeMarkets(input: {
 }): Promise<number> {
   if (!envBool("NARRATIVE_AUTO_PUBLISH", true)) return 0;
 
-  const minScore = Number(process.env.NARRATIVE_AUTO_PUBLISH_MIN_SCORE ?? 55);
-  const minDelta = Number(process.env.NARRATIVE_AUTO_PUBLISH_MIN_DELTA_PCT ?? 8);
+  const minScore = Number(process.env.NARRATIVE_AUTO_PUBLISH_MIN_SCORE ?? 40);
+  const minDelta = Number(process.env.NARRATIVE_AUTO_PUBLISH_MIN_DELTA_PCT ?? 5);
+  const cap = showcaseCap();
   let published = 0;
 
-  for (const row of input.narratives) {
+  const sorted = [...input.narratives].sort((a, b) => b.score - a.score);
+
+  for (const row of sorted) {
+    if (!NARRATIVE_KEYS.includes(row.narrative as (typeof NARRATIVE_KEYS)[number])) {
+      continue;
+    }
+
+    const openAuto = await prisma.market.count({
+      where: { status: MarketStatus.OPEN, autoGenerated: true },
+    });
+    if (openAuto >= cap) break;
+
     const delta = scoreDeltaPct(row.score, row.previousScore);
     const volumeSpike = input.volumeSpikes.includes(row.narrative);
     const hot =
-      row.score >= minScore && (delta >= minDelta || volumeSpike || row.trend === "RISING");
+      row.score >= minScore ||
+      delta >= minDelta ||
+      volumeSpike ||
+      row.trend === "RISING";
     if (!hot) continue;
 
-    const template = PUBLISH_TEMPLATES[row.narrative];
-    if (!template) continue;
-
-    const linkedLive = await prisma.market.count({
-      where: {
-        status: MarketStatus.OPEN,
-        marketSuggestion: { narrative: row.narrative },
-      },
-    });
-    if (linkedLive > 0) continue;
-
+    const categorySlug = CATEGORY_BY_NARRATIVE[row.narrative] ?? "crypto-narratives";
     const category = await prisma.category.findFirst({
-      where: { slug: template.categorySlug },
+      where: { slug: categorySlug },
     });
 
-    const triggerReason = volumeSpike
-      ? `Volume spike · ${row.narrative}`
-      : `Attention +${delta.toFixed(1)}% · score ${row.score.toFixed(0)}`;
+    const copies = buildNarrativeMarketCopies(row, volumeSpike);
 
-    await prisma.$transaction(async (tx) => {
-      const suggestion = await tx.marketSuggestion.create({
-        data: {
-          title: template.title,
-          description: template.description,
-          category: template.categorySlug,
-          narrative: row.narrative,
-          votesUp: 0,
-          votesDown: 0,
-          status: MarketSuggestionStatus.APPROVED,
-          triggerReason,
-        },
+    for (const copy of copies) {
+      const openNow = await prisma.market.count({
+        where: { status: MarketStatus.OPEN, autoGenerated: true },
       });
+      if (openNow >= cap) break;
 
-      const now = new Date();
-      const closesAt = new Date(now.getTime() + template.closesDays * 86_400_000);
+      const existingTitle = await prisma.market.findFirst({
+        where: {
+          title: copy.title,
+          status: { in: [MarketStatus.OPEN, MarketStatus.DRAFT] },
+        },
+        select: { id: true },
+      });
+      if (existingTitle) continue;
 
-      const market = await tx.market.create({
-        data: {
-          slug: slugify(template.title),
-          title: template.title,
-          description: template.description,
-          categoryId: category?.id ?? null,
-          status: MarketStatus.OPEN,
-          autoGenerated: true,
-          opensAt: now,
-          closesAt,
-          yesPrice: new Prisma.Decimal(0.5),
-          noPrice: new Prisma.Decimal(0.5),
-          liquidityUsd: new Prisma.Decimal(2_500),
-          volume24hUsd: new Prisma.Decimal(0),
-          trendingScore: new Prisma.Decimal(row.score * 10),
-          trendingUpdatedAt: now,
-          generationMeta: {
-            source: "narrative_auto_publish",
+      const triggerReason = volumeSpike
+        ? `Volume spike · ${row.narrative}`
+        : `Attention ${delta >= 0 ? "+" : ""}${delta.toFixed(1)}% · score ${row.score.toFixed(0)} · ${copy.kind}`;
+
+      await prisma.$transaction(async (tx) => {
+        const suggestion = await tx.marketSuggestion.create({
+          data: {
+            title: copy.title,
+            description: copy.description,
+            category: categorySlug,
             narrative: row.narrative,
-            attentionScore: row.score,
+            votesUp: 0,
+            votesDown: 0,
+            status: MarketSuggestionStatus.APPROVED,
             triggerReason,
           },
-        },
+        });
+
+        const now = new Date();
+        const closesAt = new Date(now.getTime() + copy.closesDays * 86_400_000);
+
+        const market = await tx.market.create({
+          data: {
+            slug: slugify(copy.title),
+            title: copy.title,
+            description: copy.description,
+            categoryId: category?.id ?? null,
+            status: MarketStatus.OPEN,
+            autoGenerated: true,
+            narrative: row.narrative,
+            attentionScore: row.score,
+            opensAt: now,
+            closesAt,
+            yesPrice: new Prisma.Decimal(0.5),
+            noPrice: new Prisma.Decimal(0.5),
+            liquidityUsd: new Prisma.Decimal(2_500),
+            volume24hUsd: new Prisma.Decimal(0),
+            trendingScore: new Prisma.Decimal(row.score * 10),
+            trendingUpdatedAt: now,
+            generationMeta: {
+              source: "narrative_auto_publish",
+              narrative: row.narrative,
+              attentionScore: row.score,
+              redditScore: row.redditScore,
+              newsScore: row.newsScore,
+              coingeckoMomentum: row.coingeckoMomentum,
+              tvlGrowth: row.tvlGrowth,
+              kind: copy.kind,
+              triggerReason,
+            },
+          },
+        });
+
+        await tx.marketSuggestion.update({
+          where: { id: suggestion.id },
+          data: { marketId: market.id },
+        });
       });
 
-      await tx.marketSuggestion.update({
-        where: { id: suggestion.id },
-        data: { marketId: market.id },
-      });
-    });
-
-    published += 1;
+      published += 1;
+    }
   }
 
   return published;

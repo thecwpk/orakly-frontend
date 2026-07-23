@@ -146,7 +146,7 @@ function FeedPanel({
   loading: boolean;
 }) {
   return (
-    <div className="hub-dapp-feed-panel">
+    <div className="hub-dapp-feed-panel hub-glass-card">
       <div className="hub-dapp-feed-panel-head">
         <h3 className={cn("hub-dapp-feed-panel-title", accent)}>{title}</h3>
         <span className="hub-dapp-feed-panel-count">{items.length}</span>
@@ -162,6 +162,10 @@ function FeedPanel({
               </div>
             ))}
           </div>
+        ) : items.length === 0 ? (
+          <p className="px-4 py-8 text-center text-xs text-[var(--hub-muted)]">
+            No events yet.
+          </p>
         ) : (
           items.map((event) => (
             <FeedItem
@@ -267,7 +271,7 @@ export function MarketActivity() {
   const loading = query.isLoading && items.length === 0;
 
   return (
-    <section className="hub-section" aria-label="Market Activity">
+    <section className="hub-section hub-section-enter" aria-label="Market Activity">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
         <div>
           <h2 className="hub-section-title">Market Activity</h2>
@@ -276,9 +280,9 @@ export function MarketActivity() {
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-          <span className="inline-flex items-center gap-1.5 text-xs font-medium text-green-400">
+          <span className="inline-flex items-center gap-1.5 text-xs font-medium text-[var(--hub-success)]">
             <span
-              className="h-2 w-2 shrink-0 animate-pulse rounded-full bg-green-500"
+              className="h-2 w-2 shrink-0 animate-pulse rounded-full bg-[var(--hub-success)] shadow-[0_0_6px_rgba(0,212,170,0.5)]"
               aria-hidden
             />
             {socketConnected ? "Live updates" : "Updating"}

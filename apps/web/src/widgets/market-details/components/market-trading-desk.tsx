@@ -382,7 +382,7 @@ function MarketTradingDeskInner({
       {!compact ? (
         <p className="text-center text-[9px] leading-snug text-zinc-600">
           {isConnected
-            ? "On-chain execution via MetaMask · BSC testnet"
+            ? "On-chain execution via MetaMask · BNB Chain"
             : "Connect wallet on the Wallet page to trade on-chain."}
         </p>
       ) : null}

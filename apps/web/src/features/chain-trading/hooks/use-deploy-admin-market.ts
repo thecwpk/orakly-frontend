@@ -46,7 +46,7 @@ export function useDeployAdminMarket() {
         throw new Error("Connect admin wallet first");
       }
       if (chainId !== testBnbChain.id) {
-        throw new Error("Switch to BNB Testnet (Chain ID 97)");
+        throw new Error("Switch to BNB Smart Chain (Chain ID 97)");
       }
       if (!isChainEnvConfigured()) {
         throw new Error(chainEnvConfigErrorMessage() || "On-chain env missing.");

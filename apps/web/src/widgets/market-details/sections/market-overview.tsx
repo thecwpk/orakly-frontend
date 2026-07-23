@@ -180,7 +180,7 @@ export function MarketOverviewSection({ market }: { market: MarketDetailDto }) {
             {status.label}
           </span>
           <span className="rounded-md bg-amber-500/10 px-2 py-0.5 text-[11px] font-semibold text-amber-200 ring-1 ring-amber-400/25">
-            BSC Testnet
+            BNB Chain
           </span>
         </div>
 

@@ -2,7 +2,9 @@ import type { DeployOnChainMarketInput } from "../hooks/use-deploy-on-chain-mark
 import { categorySlugToChainCategory } from "./category-slug-to-chain-category";
 
 /** Collateral pulled at deploy — capped so factory bootstrap stays affordable on testnet. */
-const DEPLOY_SEED_USD = "100";
+const DEPLOY_SEED_USD = process.env.NEXT_PUBLIC_DEPLOY_SEED_USD?.trim() || "100";
+const DEPLOY_REWARD_USD = process.env.NEXT_PUBLIC_DEPLOY_REWARD_USD?.trim() || "5";
+const DEPLOY_BOND_USD = process.env.NEXT_PUBLIC_DEPLOY_BOND_USD?.trim() || "1";
 
 export type DeployableMarketRecord = {
   title: string;
@@ -37,8 +39,8 @@ export function marketRecordToDeployInput(
     category: categorySlugToChainCategory(categorySlug),
     endTimeUnix,
     seedLiquidityUsd: DEPLOY_SEED_USD,
-    assertionRewardUsd: "5",
-    requiredBondUsd: "1",
+    assertionRewardUsd: DEPLOY_REWARD_USD,
+    requiredBondUsd: DEPLOY_BOND_USD,
     feeBps: Math.min(Math.max(market.takerFeeBps ?? 25, 0), 200),
   };
 }

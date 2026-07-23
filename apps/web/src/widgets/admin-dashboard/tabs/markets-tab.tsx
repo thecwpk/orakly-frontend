@@ -111,6 +111,46 @@ export function AdminMarketsTab({
   const marketsQ = useAdminMarketsQuery(filter, true);
   const deployMarket = useDeployAdminMarket();
   const qc = useQueryClient();
+  const [bulkDeploying, setBulkDeploying] = useState(false);
+
+  const undeployedShowcase = useMemo(() => {
+    const rows = marketsQ.data ?? [];
+    return rows
+      .filter((m) => m.status === "OPEN" && !m.onChainAddress)
+      .slice(0, 20);
+  }, [marketsQ.data]);
+
+  const deployShowcaseBatch = async () => {
+    if (undeployedShowcase.length === 0) {
+      toast.message("No undeployed auto markets to deploy.");
+      return;
+    }
+    setBulkDeploying(true);
+    let ok = 0;
+    try {
+      for (const m of undeployedShowcase) {
+        try {
+          await deployMarket.mutateAsync({
+            id: m.id,
+            slug: m.slug,
+            title: m.title,
+            description: m.description,
+            closesAt: m.closesAt,
+            category: m.category,
+            resolutionSource: m.resolutionSource,
+            takerFeeBps: m.takerFeeBps,
+          });
+          ok += 1;
+        } catch {
+          break;
+        }
+      }
+      toast.success(`Deployed ${ok} of ${undeployedShowcase.length} markets.`);
+    } finally {
+      setBulkDeploying(false);
+      void marketsQ.refetch();
+    }
+  };
 
   const resolveMutation = useMutation({
     mutationFn: async (vars: { id: string; outcome: "YES" | "NO" }) =>
@@ -161,7 +201,7 @@ export function AdminMarketsTab({
     <TabShell
       eyebrow="Lifecycle"
       title="Markets"
-      description="Create markets in the database, then deploy on BSC testnet to enable trading."
+      description="Create markets in the database, then deploy on BNB Chain to enable trading."
       actions={
         <>
           <button
@@ -175,6 +215,19 @@ export function AdminMarketsTab({
             />
             Refresh
           </button>
+          {canCreate && undeployedShowcase.length > 0 ? (
+            <button
+              type="button"
+              onClick={() => void deployShowcaseBatch()}
+              disabled={bulkDeploying || deployMarket.isPending}
+              className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-500/15 px-2.5 py-1.5 text-[12px] font-semibold text-emerald-200 ring-1 ring-emerald-400/30 transition hover:bg-emerald-500/25 disabled:opacity-50"
+            >
+              <Link2 className="h-3.5 w-3.5" />
+              {bulkDeploying
+                ? "Deploying…"
+                : `Deploy showcase (${undeployedShowcase.length})`}
+            </button>
+          ) : null}
           {canCreate ? (
             <button
               type="button"

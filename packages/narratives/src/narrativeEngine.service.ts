@@ -42,13 +42,30 @@ function resolveTrend(current: number, previous: number | null): NarrativeTrend 
 }
 
 export async function computeNarratives(): Promise<ComputeNarrativesResult> {
-  const [coingecko, news, reddit, defillama, existingRows] = await Promise.all([
+  const settled = await Promise.allSettled([
     getAllCoingeckoNarratives(),
     getNews(),
     getCryptoPosts(),
     getAllDefiLlamaNarratives(),
     prisma.attentionScore.findMany(),
   ]);
+
+  const coingecko =
+    settled[0].status === "fulfilled" ? settled[0].value : [];
+  const news = settled[1].status === "fulfilled" ? settled[1].value : [];
+  const reddit = settled[2].status === "fulfilled" ? settled[2].value : [];
+  const defillama =
+    settled[3].status === "fulfilled" ? settled[3].value : [];
+  const existingRows =
+    settled[4].status === "fulfilled" ? settled[4].value : [];
+
+  for (let i = 0; i < settled.length; i++) {
+    const s = settled[i];
+    const label = ["coingecko", "cryptopanic", "reddit", "defillama", "attentionScore"][i] ?? "source";
+    if (s && s.status === "rejected") {
+      console.warn(`[narratives] ${label} failed:`, s.reason);
+    }
+  }
 
   const previousByNarrative = new Map(
     existingRows.map((r) => [r.narrative, Number(r.score)]),
