@@ -32,6 +32,53 @@ const BSC_TESTNET_CONTRACT_DEFAULTS = {
   umaOptimisticOracleV3: "0x911a78b32c66261bff31b01a122b4f1e2df8da51",
 } as const;
 
+const LS_FACTORY = "orakly_factory_address";
+const LS_FACTORY_BLOCK = "orakly_factory_deploy_block";
+
+let runtimeFactoryAddress = "";
+let runtimeFactoryDeployBlock = "";
+
+/** Prefer a freshly upgraded factory (MetaMask redeploy) over baked-in env defaults. */
+export function setRuntimeFactoryAddress(
+  address: string,
+  deployBlock?: string,
+): void {
+  runtimeFactoryAddress = address.trim();
+  if (deployBlock) runtimeFactoryDeployBlock = deployBlock.trim();
+  if (typeof window !== "undefined") {
+    if (runtimeFactoryAddress) {
+      window.localStorage.setItem(LS_FACTORY, runtimeFactoryAddress);
+    }
+    if (runtimeFactoryDeployBlock) {
+      window.localStorage.setItem(LS_FACTORY_BLOCK, runtimeFactoryDeployBlock);
+    }
+  }
+}
+
+export function hydrateRuntimeFactoryFromStorage(): void {
+  if (typeof window === "undefined") return;
+  const addr = window.localStorage.getItem(LS_FACTORY)?.trim() ?? "";
+  const block = window.localStorage.getItem(LS_FACTORY_BLOCK)?.trim() ?? "";
+  if (addr) runtimeFactoryAddress = addr;
+  if (block) runtimeFactoryDeployBlock = block;
+}
+
+function clientFactoryOverride(): string {
+  if (runtimeFactoryAddress) return runtimeFactoryAddress;
+  if (typeof window !== "undefined") {
+    return window.localStorage.getItem(LS_FACTORY)?.trim() ?? "";
+  }
+  return "";
+}
+
+function clientFactoryBlockOverride(): string {
+  if (runtimeFactoryDeployBlock) return runtimeFactoryDeployBlock;
+  if (typeof window !== "undefined") {
+    return window.localStorage.getItem(LS_FACTORY_BLOCK)?.trim() ?? "";
+  }
+  return "";
+}
+
 /** HTTP RPC for BSC testnet — client + server fallbacks. */
 export function getBscTestnetRpcUrl(): string {
   return firstNonEmpty(
@@ -52,6 +99,7 @@ export function getChainMarketTradeAddressRaw(): string {
 
 export function getFactoryAddressRaw(): string {
   return firstNonEmpty(
+    clientFactoryOverride(),
     trimEnv("NEXT_PUBLIC_FACTORY_ADDRESS"),
     getChainMarketTradeAddressRaw(),
     BSC_TESTNET_CONTRACT_DEFAULTS.factoryAddress,
@@ -59,27 +107,52 @@ export function getFactoryAddressRaw(): string {
 }
 
 export const chainPublicEnv = {
-  walletConnectProjectId: trimEnv("NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID"),
-  supportedChainIds: trimEnv("NEXT_PUBLIC_SUPPORTED_CHAIN_IDS") || "97",
-  rpcUrl: getBscTestnetRpcUrl(),
-  factoryAddress: getFactoryAddressRaw(),
-  factoryDeployBlock: trimEnv("NEXT_PUBLIC_FACTORY_DEPLOY_BLOCK"),
-  collateralAddress: firstNonEmpty(
-    trimEnv("NEXT_PUBLIC_COLLATERAL_ADDRESS"),
-    BSC_TESTNET_CONTRACT_DEFAULTS.collateralAddress,
-  ),
-  collateralDecimals: trimEnv("NEXT_PUBLIC_COLLATERAL_DECIMALS") || "6",
-  treasuryAddress: firstNonEmpty(
-    trimEnv("NEXT_PUBLIC_TREASURY_ADDRESS"),
-    BSC_TESTNET_CONTRACT_DEFAULTS.treasuryAddress,
-  ),
-  umaOptimisticOracleV3: firstNonEmpty(
-    trimEnv("NEXT_PUBLIC_UMA_OPTIMISTIC_ORACLE_V3"),
-    BSC_TESTNET_CONTRACT_DEFAULTS.umaOptimisticOracleV3,
-  ),
-  adminAddresses: parseAddressList(trimEnv("NEXT_PUBLIC_ADMIN_ADDRESSES")),
-  bscTestnetUsdcFaucetUrl: trimEnv("NEXT_PUBLIC_BSC_TESTNET_USDC_FAUCET_URL"),
-} as const;
+  get walletConnectProjectId() {
+    return trimEnv("NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID");
+  },
+  get supportedChainIds() {
+    return trimEnv("NEXT_PUBLIC_SUPPORTED_CHAIN_IDS") || "97";
+  },
+  get rpcUrl() {
+    return getBscTestnetRpcUrl();
+  },
+  get factoryAddress() {
+    return getFactoryAddressRaw();
+  },
+  get factoryDeployBlock() {
+    return firstNonEmpty(
+      clientFactoryBlockOverride(),
+      trimEnv("NEXT_PUBLIC_FACTORY_DEPLOY_BLOCK"),
+    );
+  },
+  get collateralAddress() {
+    return firstNonEmpty(
+      trimEnv("NEXT_PUBLIC_COLLATERAL_ADDRESS"),
+      BSC_TESTNET_CONTRACT_DEFAULTS.collateralAddress,
+    );
+  },
+  get collateralDecimals() {
+    return trimEnv("NEXT_PUBLIC_COLLATERAL_DECIMALS") || "6";
+  },
+  get treasuryAddress() {
+    return firstNonEmpty(
+      trimEnv("NEXT_PUBLIC_TREASURY_ADDRESS"),
+      BSC_TESTNET_CONTRACT_DEFAULTS.treasuryAddress,
+    );
+  },
+  get umaOptimisticOracleV3() {
+    return firstNonEmpty(
+      trimEnv("NEXT_PUBLIC_UMA_OPTIMISTIC_ORACLE_V3"),
+      BSC_TESTNET_CONTRACT_DEFAULTS.umaOptimisticOracleV3,
+    );
+  },
+  get adminAddresses() {
+    return parseAddressList(trimEnv("NEXT_PUBLIC_ADMIN_ADDRESSES"));
+  },
+  get bscTestnetUsdcFaucetUrl() {
+    return trimEnv("NEXT_PUBLIC_BSC_TESTNET_USDC_FAUCET_URL");
+  },
+};
 
 /** Testnet USDC faucet — same token as collateral when configured. */
 export function getBscTestnetUsdcFaucetUrl(): string {

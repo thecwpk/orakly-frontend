@@ -37,7 +37,7 @@ export function decodeIndexerLog(log: Log): DecodedIndexerLog {
     });
     const args = decoded.args as Record<string, unknown> | undefined;
     return {
-      eventName: decoded.eventName,
+      eventName: decoded.eventName ?? "UNKNOWN",
       payload: encodeIndexerPayload(args, log.topics),
     };
   } catch {

@@ -9,6 +9,7 @@ import {
   Link2,
   Plus,
   RefreshCw,
+  Rocket,
   Search,
   X,
 } from "lucide-react";
@@ -19,7 +20,9 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { formatCompactUsd } from "@orakly/utils";
 import { useDeployAdminMarket } from "@/features/chain-trading/hooks/use-deploy-admin-market";
 import { useDeployAdminMarketsBulk } from "@/features/chain-trading/hooks/use-deploy-admin-markets-bulk";
+import { useUpgradeMarketFactory } from "@/features/chain-trading/hooks/use-upgrade-market-factory";
 import { bscTestnetAddressUrl } from "@/features/chain-trading/lib/chain-contract-env";
+import { getFactoryAddressRaw } from "@/lib/chain-public-env";
 import { cn } from "@/lib/utils";
 import { adminApi } from "../lib/admin-api";
 import {
@@ -132,7 +135,9 @@ export function AdminMarketsTab({
   const marketsQ = useAdminMarketsQuery(filter, true);
   const deployMarket = useDeployAdminMarket();
   const deployBulk = useDeployAdminMarketsBulk();
+  const upgradeFactory = useUpgradeMarketFactory();
   const qc = useQueryClient();
+  const factoryAddress = getFactoryAddressRaw();
 
   const filtered = useMemo(() => {
     const rows = marketsQ.data ?? [];
@@ -232,13 +237,14 @@ export function AdminMarketsTab({
     void qc.invalidateQueries({ queryKey: adminMarketsKey(filter, 120) });
   };
 
-  const bulkBusy = deployBulk.isPending || deployMarket.isPending;
+  const bulkBusy =
+    deployBulk.isPending || deployMarket.isPending || upgradeFactory.isPending;
 
   return (
     <TabShell
       eyebrow="Lifecycle"
       title="Markets"
-      description="Create markets in the database, then deploy on BNB Chain to enable trading. Bulk deploy uses one MetaMask confirmation."
+      description="Create markets in the database, then deploy on BNB Chain to enable trading. Bulk deploy uses one MetaMask confirmation after the factory upgrade."
       actions={
         <>
           <button
@@ -252,6 +258,20 @@ export function AdminMarketsTab({
             />
             Refresh
           </button>
+          {canCreate ? (
+            <button
+              type="button"
+              onClick={() => upgradeFactory.mutate()}
+              disabled={bulkBusy}
+              title={`Current factory: ${factoryAddress}`}
+              className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--hub-primary-soft)] px-2.5 py-1.5 text-[12px] font-semibold text-[var(--hub-primary-bright)] ring-1 ring-[var(--hub-border-strong)] transition hover:bg-violet-500/25 disabled:opacity-50"
+            >
+              <Rocket className="h-3.5 w-3.5" />
+              {upgradeFactory.isPending
+                ? "Upgrading factory…"
+                : "Upgrade factory (bulk)"}
+            </button>
+          ) : null}
           {canCreate ? (
             <button
               type="button"

@@ -51,7 +51,10 @@ if (factoryAbi) {
     path.join(webRoot, "src/server/chain-indexer/abi.ts"),
     "chainIndexerEventsAbi",
     factoryAbi.filter(
-      (item) => item.type === "event" || (item.type === "function" && item.name === "createMarket"),
+      (item) =>
+        item.type === "event" ||
+        (item.type === "function" &&
+          (item.name === "createMarket" || item.name === "createMarkets")),
     ),
     "/** Auto-generated factory events — do not edit by hand. */",
   );

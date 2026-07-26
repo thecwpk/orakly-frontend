@@ -14,3 +14,5 @@ export { useLinkMarketOnChain } from "./use-link-market-on-chain";
 export { useChainCollateralBalance } from "./use-chain-collateral-balance";
 export { useChainWalletPositions } from "./use-chain-wallet-positions";
 export { useClaimWinnings } from "./use-claim-winnings";
+export { useUpgradeMarketFactory } from "./use-upgrade-market-factory";
+export { useDeployAdminMarketsBulk } from "./use-deploy-admin-markets-bulk";

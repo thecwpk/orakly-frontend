@@ -24,6 +24,7 @@ import type { ReactNode } from "react";
 import { WagmiProvider } from "wagmi";
 import { wagmiConfig } from "./wagmi-config";
 import { WalletReconnectGate } from "./wallet-reconnect-gate";
+import { ChainConfigHydrator } from "@/features/chain-trading/components/chain-config-hydrator";
 
 export type Web3AppProviderProps = {
   /** Shared React Query client — create with `useState(() => createAppQueryClient())` in the parent shell. */
@@ -40,6 +41,7 @@ export function Web3AppProvider({ queryClient, children }: Web3AppProviderProps)
           to TanStack Query and throws "No QueryClient set" otherwise.
         */}
         <WalletReconnectGate />
+        <ChainConfigHydrator />
         <RainbowKitProvider
           modalSize="compact"
           theme={darkTheme({

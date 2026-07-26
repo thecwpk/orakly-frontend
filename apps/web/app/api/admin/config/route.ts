@@ -16,7 +16,7 @@ const putSchema = z.object({
     .array(
       z.object({
         key: z.string().min(1).max(128),
-        value: z.string().max(64),
+        value: z.string().max(128),
       }),
     )
     .min(1),
