@@ -1,7 +1,6 @@
 import type { NextRequest } from "next/server";
 import { unstable_cache } from "next/cache";
 import { NextResponse } from "next/server";
-import { MarketStatus } from "@prisma/client";
 import { prisma } from "@orakly/database";
 import {
   getMarketsFeedScoped,
@@ -15,6 +14,7 @@ import {
   listMarketsExplorer,
   parseMarketsExplorerParams,
 } from "@/server/queries/markets-explorer";
+import { publicTradeableMarketWhere } from "@/server/queries/public-tradeable-market";
 import { err, ok } from "../_lib/response";
 import { MarketsFeedDatabaseError } from "@/server/queries/markets-feed-scoped";
 import { scheduleMarketsStaleRefresh } from "@/server/vercel-worker/stale-refresh";
@@ -158,7 +158,7 @@ export async function GET(req: NextRequest) {
   let openBucket = "oc?";
   try {
     const openCount = await prisma.market.count({
-      where: { status: MarketStatus.OPEN },
+      where: publicTradeableMarketWhere,
     });
     openBucket = openCount > 0 ? "oc1" : "oc0";
   } catch {

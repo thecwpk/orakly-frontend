@@ -1,10 +1,10 @@
-import { MarketStatus } from "@prisma/client";
 import { prisma } from "@orakly/database";
 import type { HubMarketEnriched } from "@/shared/contracts/hub-home";
 import { marketConvictionScore } from "@/widgets/dapp-hub/lib/conviction-score";
 import { prismaMarketToFeedDto } from "./market-feed-mapper";
 import { getAttentionDashboardRows } from "./attention-dashboard";
 import { buildNarrativeMarketWhere, marketMatchesNarrative } from "./hub-narrative-match";
+import { withPublicTradeable } from "./public-tradeable-market";
 
 export type HubTrendingFilter = {
   categorySlug?: string | null;
@@ -22,8 +22,7 @@ export async function getHubTrendingMarkets(
 
   const [rows, attentionRows] = await Promise.all([
     prisma.market.findMany({
-      where: {
-        status: MarketStatus.OPEN,
+      where: withPublicTradeable({
         ...(cat && cat !== "all" ? { category: { slug: cat } } : {}),
         ...(narrative ? buildNarrativeMarketWhere(narrative) : {}),
         ...(breaking
@@ -32,7 +31,7 @@ export async function getHubTrendingMarkets(
               signalLastSeenAt: { not: null },
             }
           : {}),
-      },
+      }),
       orderBy: breaking
         ? [{ signalLastSeenAt: "desc" }, { externalMomentumScore: "desc" }, { volume24hUsd: "desc" }]
         : [{ volume24hUsd: "desc" }, { volumeTotalUsd: "desc" }],

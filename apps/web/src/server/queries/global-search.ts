@@ -6,6 +6,7 @@ import {
   buildCreatorFeesMap,
   resolveCreatorRank,
 } from "@/server/queries/leaderboard.service";
+import { withPublicVisible } from "./public-tradeable-market";
 
 export type SearchMarketHit = {
   id: string;
@@ -86,13 +87,12 @@ export async function runGlobalSearch(input: {
 
 async function searchMarkets(q: string): Promise<SearchMarketHit[]> {
   const rows = await prisma.market.findMany({
-    where: {
+    where: withPublicVisible({
       OR: [
         { title: { contains: q, mode: "insensitive" } },
         { slug: { contains: q, mode: "insensitive" } },
       ],
-      status: { in: [MarketStatus.OPEN, MarketStatus.RESOLVED] },
-    },
+    }),
     orderBy: [{ volumeTotalUsd: "desc" }, { trendingScore: "desc" }],
     take: 4,
     select: {
@@ -152,10 +152,9 @@ async function searchNarratives(q: string): Promise<SearchNarrativeHit[]> {
 
 async function searchCreators(q: string): Promise<SearchCreatorHit[]> {
   const rows = await prisma.market.findMany({
-    where: {
+    where: withPublicVisible({
       creatorAddress: { contains: q, mode: "insensitive" },
-      status: { in: [MarketStatus.OPEN, MarketStatus.RESOLVED] },
-    },
+    }),
     select: { creatorAddress: true },
     take: 80,
   });

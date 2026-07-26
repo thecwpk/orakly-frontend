@@ -1,7 +1,7 @@
-import { MarketStatus } from "@prisma/client";
 import { prisma } from "@orakly/database";
 import type { CategoryOverviewRow } from "@/shared/contracts/hub-home";
 import { getAttentionDashboardRows } from "./attention-dashboard";
+import { publicTradeableMarketWhere } from "./public-tradeable-market";
 
 /** Spec homepage categories — slug → display name. */
 export const HUB_CATEGORY_SLUGS: readonly { slug: string; name: string }[] = [
@@ -26,7 +26,7 @@ export async function getCategoriesOverview(): Promise<CategoryOverviewRow[]> {
       where: { slug: { in: HUB_CATEGORY_SLUGS.map((c) => c.slug) } },
       include: {
         markets: {
-          where: { status: MarketStatus.OPEN },
+          where: publicTradeableMarketWhere,
           select: { volumeTotalUsd: true },
         },
       },

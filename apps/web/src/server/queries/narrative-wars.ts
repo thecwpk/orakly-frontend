@@ -1,8 +1,8 @@
-import { MarketStatus } from "@prisma/client";
 import { prisma } from "@orakly/database";
 import type { NarrativeWarCard } from "@/shared/contracts/hub-home";
 import { NARRATIVE_WAR_PAIRS } from "@/widgets/dapp-hub/lib/narrative-war-pairs";
 import { getAttentionDashboardRows } from "./attention-dashboard";
+import { publicTradeableMarketWhere } from "./public-tradeable-market";
 
 function splitProbs(scoreA: number, scoreB: number): { a: number; b: number } {
   const total = scoreA + scoreB;
@@ -26,7 +26,7 @@ export async function getNarrativeWars(): Promise<NarrativeWarCard[]> {
   const [attentionRows, markets] = await Promise.all([
     getAttentionDashboardRows(),
     prisma.market.findMany({
-      where: { status: MarketStatus.OPEN },
+      where: publicTradeableMarketWhere,
       select: {
         slug: true,
         title: true,

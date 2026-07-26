@@ -3,6 +3,7 @@ import "server-only";
 import { ActivityType, MarketStatus } from "@prisma/client";
 import { prisma } from "@orakly/database";
 import { narrativeMarketWhere } from "./narrative-markets";
+import { withPublicVisible } from "./public-tradeable-market";
 
 export type NarrativeTimelineEvent = {
   id: string;
@@ -20,7 +21,7 @@ export async function getNarrativeTimeline(
   if (!slug) return [];
 
   const markets = await prisma.market.findMany({
-    where: narrativeMarketWhere(slug),
+    where: withPublicVisible(narrativeMarketWhere(slug)),
     select: {
       id: true,
       title: true,

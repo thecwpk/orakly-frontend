@@ -1,9 +1,9 @@
-import { MarketStatus } from "@prisma/client";
 import { prisma } from "@orakly/database";
 import type { HubMarketEnriched } from "@/shared/contracts/hub-home";
 import { marketConvictionScore } from "@/widgets/dapp-hub/lib/conviction-score";
 import { prismaMarketToFeedDto } from "./market-feed-mapper";
 import { getAttentionDashboardRows } from "./attention-dashboard";
+import { publicTradeableMarketWhere } from "./public-tradeable-market";
 
 function momentumPct(score: number, previous: number | null): number | null {
   if (previous == null || previous <= 0) return null;
@@ -13,7 +13,7 @@ function momentumPct(score: number, previous: number | null): number | null {
 export async function getConvictionMarkets(take = 6): Promise<HubMarketEnriched[]> {
   const [rows, attentionRows] = await Promise.all([
     prisma.market.findMany({
-      where: { status: MarketStatus.OPEN },
+      where: publicTradeableMarketWhere,
       select: {
         id: true,
         slug: true,

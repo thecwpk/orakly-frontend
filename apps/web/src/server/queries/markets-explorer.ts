@@ -10,6 +10,11 @@ import type {
 } from "@/shared/contracts/markets-explorer";
 import { buildNarrativeMarketWhere } from "./hub-narrative-match";
 import { mapRowsToEnrichedFeedDto } from "./market-feed-enrichment";
+import {
+  publicTradeableMarketWhere,
+  withPublicTradeable,
+  withPublicVisible,
+} from "./public-tradeable-market";
 
 const feedSelect = {
   id: true,
@@ -128,8 +133,20 @@ function buildWhere(input: MarketsExplorerParams): Prisma.MarketWhereInput {
   const and: Prisma.MarketWhereInput[] = [];
 
   const status = parseStatus(input.status);
-  if (status && status !== "ALL") {
-    and.push({ status });
+  // Public explorer: never list undeployed / draft markets for regular users.
+  if (!status || status === "ALL") {
+    and.push(withPublicVisible());
+  } else if (status === MarketStatus.OPEN) {
+    and.push(publicTradeableMarketWhere);
+  } else if (status === MarketStatus.RESOLVED) {
+    and.push({
+      status: MarketStatus.RESOLVED,
+      onChainAddress: { not: null },
+      NOT: { onChainAddress: "" },
+    });
+  } else {
+    // DRAFT / PAUSED / CLOSED are operator-only — return empty for public browse.
+    and.push({ id: "__never__" });
   }
 
   const q = input.q?.trim();
@@ -205,7 +222,7 @@ function buildWhere(input: MarketsExplorerParams): Prisma.MarketWhereInput {
 
   const sort = parseSort(input.sort);
   if (sort === "ending") {
-    and.push({ status: MarketStatus.OPEN, closesAt: { gt: new Date() } });
+    and.push(withPublicTradeable({ closesAt: { gt: new Date() } }));
   }
 
   return and.length > 0 ? { AND: and } : {};

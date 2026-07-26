@@ -1,6 +1,6 @@
-import { MarketStatus } from "@prisma/client";
 import { prisma } from "@orakly/database";
 import type { HomeStatsPayload, MarketSentiment } from "@/shared/contracts/hub-home";
+import { publicTradeableMarketWhere } from "./public-tradeable-market";
 
 function sentimentFromIndex(attentionIndex: number): MarketSentiment {
   if (attentionIndex >= 70) return "Bullish";
@@ -35,13 +35,13 @@ export async function getHomeStats(): Promise<HomeStatsPayload> {
         narrative: true,
       },
     }),
-    prisma.market.count({ where: { status: MarketStatus.OPEN } }),
+    prisma.market.count({ where: publicTradeableMarketWhere }),
     prisma.market.aggregate({
-      where: { status: MarketStatus.OPEN },
+      where: publicTradeableMarketWhere,
       _sum: { volume24hUsd: true },
     }),
     prisma.market.aggregate({
-      where: { status: MarketStatus.OPEN },
+      where: publicTradeableMarketWhere,
       _sum: { collateralPoolUsd: true },
     }),
     prisma.attentionScore.count({
@@ -59,7 +59,7 @@ export async function getHomeStats(): Promise<HomeStatsPayload> {
       take: 12_000,
     }),
     prisma.position.findMany({
-      where: { market: { status: MarketStatus.OPEN } },
+      where: { market: publicTradeableMarketWhere },
       select: {
         portfolio: {
           select: { user: { select: { walletAddress: true } } },
@@ -100,7 +100,7 @@ export async function getHomeStats(): Promise<HomeStatsPayload> {
   let openInterest = toNum(openInterestAgg._sum.collateralPoolUsd);
   try {
     const positions = await prisma.position.findMany({
-      where: { market: { status: MarketStatus.OPEN } },
+      where: { market: publicTradeableMarketWhere },
       select: {
         quantity: true,
         side: true,

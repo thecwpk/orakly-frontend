@@ -1,10 +1,11 @@
 import "server-only";
 
-import { ActivityType, MarketStatus, MarketSuggestionStatus } from "@prisma/client";
+import { ActivityType, MarketSuggestionStatus } from "@prisma/client";
 import { prisma } from "@orakly/database";
 import type { FeedActivityPayload } from "@orakly/realtime-protocol";
 import type { MarketActivityEvent } from "@/shared/contracts/market-activity";
 import { marketActivityToFeedPayload } from "@/shared/lib/market-activity-map";
+import { withPublicTradeable } from "./public-tradeable-market";
 
 function truncate(text: string, max: number): string {
   const t = text.trim();
@@ -93,10 +94,9 @@ export async function getMarketActivityFeed(input?: {
       },
     }),
     prisma.market.findMany({
-      where: {
-        status: MarketStatus.OPEN,
+      where: withPublicTradeable({
         closesAt: { gt: new Date(), lte: closingBefore },
-      },
+      }),
       orderBy: { closesAt: "asc" },
       take: 6,
       select: {

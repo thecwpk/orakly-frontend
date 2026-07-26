@@ -8,6 +8,7 @@ import {
   mapRowsToEnrichedFeedDto,
   type EnrichedMarketFeedDto,
 } from "./market-feed-enrichment";
+import { withPublicTradeable, withPublicVisible } from "./public-tradeable-market";
 
 const feedSelect = {
   id: true,
@@ -50,9 +51,7 @@ export async function getMarketsByNarrative(
   take = 20,
 ): Promise<EnrichedMarketFeedDto[]> {
   const rows = await prisma.market.findMany({
-    where: {
-      AND: [{ status: MarketStatus.OPEN }, narrativeMarketWhere(slug)],
-    },
+    where: withPublicTradeable(narrativeMarketWhere(slug)),
     orderBy: [{ volume24hUsd: "desc" }, { volumeTotalUsd: "desc" }],
     take,
     select: feedSelect,
@@ -63,8 +62,8 @@ export async function getMarketsByNarrative(
 
 export async function countResolvedMarketsByNarrative(slug: string): Promise<number> {
   return prisma.market.count({
-    where: {
+    where: withPublicVisible({
       AND: [{ status: MarketStatus.RESOLVED }, narrativeMarketWhere(slug)],
-    },
+    }),
   });
 }

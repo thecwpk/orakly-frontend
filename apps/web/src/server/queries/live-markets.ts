@@ -4,6 +4,10 @@ import { MarketStatus, Prisma } from "@prisma/client";
 import { prisma } from "@orakly/database";
 import type { LiveMarketCardDto, LiveMarketsSort } from "@/shared/contracts/live-markets";
 import { mapRowsToEnrichedFeedDto } from "./market-feed-enrichment";
+import {
+  publicTradeableMarketWhere,
+  withPublicTradeable,
+} from "./public-tradeable-market";
 
 export type { LiveMarketCardDto, LiveMarketsSort };
 
@@ -55,13 +59,19 @@ export async function getLiveMarkets(input: {
         : MarketStatus.OPEN;
 
   const now = new Date();
+  // Public live desk: only admin-deployed OPEN markets are listed.
   const where: Prisma.MarketWhereInput =
-    sort === "ending"
-      ? {
-          status: MarketStatus.OPEN,
-          closesAt: { gt: now },
-        }
-      : { status };
+    status === MarketStatus.OPEN
+      ? sort === "ending"
+        ? withPublicTradeable({ closesAt: { gt: now } })
+        : publicTradeableMarketWhere
+      : status === MarketStatus.RESOLVED
+        ? {
+            status: MarketStatus.RESOLVED,
+            onChainAddress: { not: null },
+            NOT: { onChainAddress: "" },
+          }
+        : { status: MarketStatus.CLOSED, id: "__never__" };
 
   let orderBy: Prisma.MarketOrderByWithRelationInput[];
   switch (sort) {

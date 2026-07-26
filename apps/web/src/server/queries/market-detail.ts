@@ -3,6 +3,7 @@ import "server-only";
 import { Prisma } from "@prisma/client";
 import { prisma } from "@orakly/database";
 import { prismaMarketToFeedDto } from "./market-feed-mapper";
+import { isPublicVisibleMarket } from "./public-tradeable-market";
 import type { MarketDetailDto } from "@/shared/contracts/market-detail";
 import type { MarketOddsChartPoint, MarketOddsPeriod } from "@/shared/contracts/market-detail";
 import type { MarketTradeDetailDto } from "@/shared/contracts/market-detail";
@@ -65,6 +66,9 @@ export async function getMarketDetailBySlug(
   });
 
   if (!row) return null;
+
+  // Undeployed / draft markets are admin-only — hide from public detail.
+  if (!isPublicVisibleMarket(row)) return null;
 
   const base = prismaMarketToFeedDto(row);
   const participants = await participantCount(row.id);

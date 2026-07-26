@@ -1,8 +1,8 @@
-import { MarketStatus } from "@prisma/client";
 import { prisma } from "@orakly/database";
 import type { HubTopicChip } from "@/shared/contracts/hub-home";
 import { getAttentionDashboardRows } from "./attention-dashboard";
 import { marketMatchesNarrative, NARRATIVE_CATEGORY_SLUGS } from "./hub-narrative-match";
+import { publicTradeableMarketWhere, withPublicTradeable } from "./public-tradeable-market";
 
 const NARRATIVE_LABELS: Record<string, string> = {
   AI: "AI",
@@ -27,7 +27,7 @@ export async function getHubTopicChips(): Promise<HubTopicChip[]> {
   const [attentionRows, openMarkets, breakingCount] = await Promise.all([
     getAttentionDashboardRows(),
     prisma.market.findMany({
-      where: { status: MarketStatus.OPEN },
+      where: publicTradeableMarketWhere,
       select: {
         title: true,
         category: { select: { slug: true } },
@@ -35,11 +35,10 @@ export async function getHubTopicChips(): Promise<HubTopicChip[]> {
       },
     }),
     prisma.market.count({
-      where: {
-        status: MarketStatus.OPEN,
+      where: withPublicTradeable({
         cryptoSignalId: { not: null },
         signalLastSeenAt: { not: null },
-      },
+      }),
     }),
   ]);
 

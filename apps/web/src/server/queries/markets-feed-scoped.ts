@@ -9,6 +9,11 @@ import {
   enrichStaticMarkets,
   mapRowsToEnrichedFeedDto,
 } from "./market-feed-enrichment";
+import {
+  PUBLIC_TRADEABLE_SQL,
+  isPublicTradeableMarket,
+  publicTradeableMarketWhere,
+} from "./public-tradeable-market";
 
 /** Hub feeds must not swallow DB failures as an empty list (misleading “syncing” UI). */
 export class MarketsFeedDatabaseError extends Error {
@@ -88,7 +93,7 @@ async function fetchMovers24hFeedDto(take: number, useStaticFallback: boolean) {
       SELECT m.id
       FROM "Market" m
       INNER JOIN latest l ON l."market_id" = m.id
-      WHERE m.status = 'OPEN'
+      WHERE ${PUBLIC_TRADEABLE_SQL}
         AND m."yesPrice" IS NOT NULL
         AND m."volume24hUsd" >= ${minVol24}
       ORDER BY ABS(
@@ -99,7 +104,11 @@ async function fetchMovers24hFeedDto(take: number, useStaticFallback: boolean) {
     `);
 
     if (rankedIds.length === 0) {
-      return useStaticFallback ? enrichStaticMarkets(await staticFeaturedMarkets()) : [];
+      return useStaticFallback
+        ? (await enrichStaticMarkets(await staticFeaturedMarkets())).filter(
+            isPublicTradeableMarket,
+          )
+        : [];
     }
 
     const rows = await prisma.market.findMany({
@@ -116,7 +125,9 @@ async function fetchMovers24hFeedDto(take: number, useStaticFallback: boolean) {
       const msg = e instanceof Error ? e.message : String(e);
       throw new MarketsFeedDatabaseError(msg);
     }
-    return enrichStaticMarkets(await staticFeaturedMarkets());
+    return (await enrichStaticMarkets(await staticFeaturedMarkets())).filter(
+      isPublicTradeableMarket,
+    );
   }
 }
 
@@ -152,7 +163,7 @@ export async function getMarketsFeedScoped(input: {
   const now = new Date();
 
   const baseWhere: Prisma.MarketWhereInput = {
-    status: MarketStatus.OPEN,
+    ...publicTradeableMarketWhere,
   };
 
   let where: Prisma.MarketWhereInput = { ...baseWhere };
@@ -292,7 +303,11 @@ export async function getMarketsFeedScoped(input: {
       select: feedSelect,
     });
     if (rows.length === 0) {
-      return useStaticFallback ? enrichStaticMarkets(await staticFeaturedMarkets()) : [];
+      return useStaticFallback
+        ? (await enrichStaticMarkets(await staticFeaturedMarkets())).filter(
+            isPublicTradeableMarket,
+          )
+        : [];
     }
     return mapRowsToEnrichedFeedDto(rows);
   } catch (e) {
@@ -300,6 +315,8 @@ export async function getMarketsFeedScoped(input: {
       const msg = e instanceof Error ? e.message : String(e);
       throw new MarketsFeedDatabaseError(msg);
     }
-    return enrichStaticMarkets(await staticFeaturedMarkets());
+    return (await enrichStaticMarkets(await staticFeaturedMarkets())).filter(
+      isPublicTradeableMarket,
+    );
   }
 }
