@@ -48,6 +48,12 @@ if (marketAbi) {
 
 if (factoryAbi) {
   writeTsModule(
+    path.join(webRoot, "src/features/chain-trading/abis/market-factory.ts"),
+    "marketFactoryAbi",
+    factoryAbi,
+    "/** Auto-generated from orakly-market/packages/contracts — do not edit by hand. */",
+  );
+  writeTsModule(
     path.join(webRoot, "src/server/chain-indexer/abi.ts"),
     "chainIndexerEventsAbi",
     factoryAbi.filter(
