@@ -187,6 +187,36 @@ export async function adminModerateMarket(input: AdminModerateMarketInput) {
   });
 }
 
+/** Hard-delete a market and trade/position rows that Restrict cascade. */
+export async function adminDeleteMarket(marketId: string): Promise<{ id: string; title: string }> {
+  const market = await prisma.market.findUnique({
+    where: { id: marketId },
+    select: { id: true, title: true },
+  });
+  if (!market) {
+    throw new TradingError("NOT_FOUND", "Market not found", 404);
+  }
+
+  await prisma.$transaction(async (tx) => {
+    await tx.position.deleteMany({ where: { marketId } });
+    // PlatformFee cascades from Trade; Restrict on Market requires trades gone first.
+    await tx.trade.deleteMany({ where: { marketId } });
+
+    await tx.marketSuggestion.updateMany({
+      where: { marketId },
+      data: { marketId: null },
+    });
+    await tx.marketDraft.updateMany({
+      where: { marketId },
+      data: { marketId: null },
+    });
+
+    await tx.market.delete({ where: { id: marketId } });
+  });
+
+  return market;
+}
+
 export async function adminRecordMarketCreatedActivity(input: {
   marketId: string;
   actorUserId: string | null;

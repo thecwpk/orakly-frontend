@@ -11,6 +11,8 @@ import {
   RefreshCw,
   Rocket,
   Search,
+  Square,
+  Trash2,
   X,
 } from "lucide-react";
 import Link from "next/link";
@@ -44,8 +46,11 @@ const STATUS_FILTERS = ["ALL", "OPEN", "DRAFT", "PAUSED", "CLOSED", "RESOLVED"] 
 type StatusFilter = (typeof STATUS_FILTERS)[number];
 
 type ResolveTarget = { id: string; title: string; outcome: "YES" | "NO" } | null;
+type ModerateTarget =
+  | { id: string; title: string; action: "close" | "delete" }
+  | null;
 
-type LifecycleKey = "db_only" | "live" | "resolved" | "paused";
+type LifecycleKey = "db_only" | "live" | "resolved" | "paused" | "closed";
 
 const LIFECYCLE_BADGE: Record<
   LifecycleKey,
@@ -75,6 +80,12 @@ const LIFECYCLE_BADGE: Record<
     bg: "bg-rose-500/10",
     text: "text-rose-200",
   },
+  closed: {
+    label: "Closed",
+    ring: "ring-zinc-400/30",
+    bg: "bg-zinc-500/10",
+    text: "text-[var(--hub-muted)]",
+  },
 };
 
 const CATEGORY_LABELS = Object.fromEntries(
@@ -83,6 +94,7 @@ const CATEGORY_LABELS = Object.fromEntries(
 
 function marketLifecycle(market: AdminMarketRow): LifecycleKey {
   if (market.status === "RESOLVED") return "resolved";
+  if (market.status === "CLOSED") return "closed";
   if (market.status === "PAUSED") return "paused";
   if (market.onChainAddress && market.status === "OPEN") return "live";
   return "db_only";
@@ -120,6 +132,7 @@ function toDeployPayload(m: AdminMarketRow) {
 
 export function AdminMarketsTab({
   canCreate,
+  canModerate,
   canResolve,
 }: {
   canCreate: boolean;
@@ -130,6 +143,7 @@ export function AdminMarketsTab({
   const [query, setQuery] = useState("");
   const [showCreate, setShowCreate] = useState(false);
   const [resolveTarget, setResolveTarget] = useState<ResolveTarget>(null);
+  const [moderateTarget, setModerateTarget] = useState<ModerateTarget>(null);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
   const marketsQ = useAdminMarketsQuery(filter, true);
@@ -219,6 +233,31 @@ export function AdminMarketsTab({
     },
     onError: (e: unknown) =>
       toast.error(e instanceof Error ? e.message : "Resolve failed"),
+  });
+
+  const moderateMutation = useMutation({
+    mutationFn: async (vars: { id: string; action: "close" | "delete" }) => {
+      if (vars.action === "delete") {
+        return adminApi(`/markets/${vars.id}`, { method: "DELETE" });
+      }
+      return adminApi(`/markets/${vars.id}`, {
+        method: "PATCH",
+        json: { status: "CLOSED" },
+      });
+    },
+    onSuccess: (_data, vars) => {
+      toast.success(vars.action === "delete" ? "Market deleted" : "Market closed");
+      void qc.invalidateQueries({ queryKey: ["admin", "markets"] });
+      void qc.invalidateQueries({ queryKey: adminOverviewKey });
+      setModerateTarget(null);
+      setSelectedIds((prev) => {
+        const next = new Set(prev);
+        next.delete(vars.id);
+        return next;
+      });
+    },
+    onError: (e: unknown) =>
+      toast.error(e instanceof Error ? e.message : "Action failed"),
   });
 
   const counts = useMemo(() => {
@@ -457,6 +496,7 @@ export function AdminMarketsTab({
                       key={m.id}
                       market={m}
                       canCreate={canCreate}
+                      canModerate={canModerate}
                       canResolve={canResolve}
                       selected={selectedIds.has(m.id)}
                       selectable={canCreate && isDeployable(m)}
@@ -464,6 +504,20 @@ export function AdminMarketsTab({
                       onToggleSelect={(on) => toggleOne(m.id, on)}
                       onDeploy={() =>
                         deployMarket.mutate(toDeployPayload(m))
+                      }
+                      onClose={() =>
+                        setModerateTarget({
+                          id: m.id,
+                          title: m.title,
+                          action: "close",
+                        })
+                      }
+                      onDelete={() =>
+                        setModerateTarget({
+                          id: m.id,
+                          title: m.title,
+                          action: "delete",
+                        })
                       }
                       onResolveYes={() =>
                         setResolveTarget({ id: m.id, title: m.title, outcome: "YES" })
@@ -503,6 +557,42 @@ export function AdminMarketsTab({
           });
         }}
       />
+
+      <ConfirmDialog
+        open={!!moderateTarget}
+        onOpenChange={(o) => (!o ? setModerateTarget(null) : null)}
+        tone="danger"
+        title={
+          moderateTarget?.action === "delete"
+            ? `Delete “${moderateTarget?.title ?? ""}”?`
+            : `Close “${moderateTarget?.title ?? ""}”?`
+        }
+        description={
+          moderateTarget?.action === "delete" ? (
+            <span>
+              Permanently removes this market from the database (including related
+              positions/trades). On-chain contract is{" "}
+              <span className="font-semibold text-[var(--hub-fg)]">not</span> destroyed.
+              Prefer <span className="font-semibold text-[var(--hub-fg)]">Close</span> if
+              you only want to hide it from users.
+            </span>
+          ) : (
+            <span>
+              Sets status to <span className="font-semibold text-[var(--hub-fg)]">CLOSED</span>.
+              Trading stops and the market leaves public browse feeds.
+            </span>
+          )
+        }
+        confirmLabel={moderateTarget?.action === "delete" ? "Delete market" : "Close market"}
+        busy={moderateMutation.isPending}
+        onConfirm={() => {
+          if (!moderateTarget) return;
+          moderateMutation.mutate({
+            id: moderateTarget.id,
+            action: moderateTarget.action,
+          });
+        }}
+      />
     </TabShell>
   );
 }
@@ -510,29 +600,40 @@ export function AdminMarketsTab({
 function MarketRow({
   market,
   canCreate,
+  canModerate,
   canResolve,
   selected,
   selectable,
   deployBusy,
   onToggleSelect,
   onDeploy,
+  onClose,
+  onDelete,
   onResolveYes,
   onResolveNo,
 }: {
   market: AdminMarketRow;
   canCreate: boolean;
+  canModerate: boolean;
   canResolve: boolean;
   selected: boolean;
   selectable: boolean;
   deployBusy: boolean;
   onToggleSelect: (on: boolean) => void;
   onDeploy: () => void;
+  onClose: () => void;
+  onDelete: () => void;
   onResolveYes: () => void;
   onResolveNo: () => void;
 }) {
   const lifecycle = marketLifecycle(market);
   const badge = LIFECYCLE_BADGE[lifecycle];
   const onChain = Boolean(market.onChainAddress);
+  const canClose =
+    canModerate &&
+    market.status !== "CLOSED" &&
+    market.status !== "RESOLVED";
+  const canDelete = canModerate;
 
   return (
     <motion.tr
@@ -631,6 +732,24 @@ function MarketRow({
                 </a>
               ) : null}
             </>
+          ) : null}
+          {canClose ? (
+            <ActionButton
+              tone="amber"
+              icon={Square}
+              onClick={onClose}
+              label="Close"
+              disabled={deployBusy}
+            />
+          ) : null}
+          {canDelete ? (
+            <ActionButton
+              tone="rose"
+              icon={Trash2}
+              onClick={onDelete}
+              label="Delete"
+              disabled={deployBusy}
+            />
           ) : null}
           {lifecycle === "resolved" ? (
             <Link
