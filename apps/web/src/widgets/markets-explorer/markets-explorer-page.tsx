@@ -11,7 +11,6 @@ import { fetchAttentionDashboard } from "@/shared/api/fetchers/attention-dashboa
 import { fetchMarketsExplorer } from "@/shared/api/fetchers/markets-explorer";
 import { queryKeys } from "@/shared/api/query-keys";
 import type {
-  MarketsExplorerRowDto,
   MarketsExplorerSort,
 } from "@/shared/contracts/markets-explorer";
 
@@ -153,13 +152,13 @@ function Pagination({
         type="button"
         disabled={page <= 1}
         onClick={() => onPage(page - 1)}
-        className="rounded-lg px-3 py-1.5 text-[13px] font-medium text-zinc-300 ring-1 ring-white/10 transition enabled:hover:bg-white/[0.06] disabled:opacity-40"
+        className="rounded-lg px-3 py-1.5 text-[13px] font-medium text-[var(--foreground)] ring-1 ring-[var(--border)] transition enabled:hover:bg-[color-mix(in_srgb,var(--foreground)_6%,transparent)] disabled:opacity-40"
       >
         Previous
       </button>
       {pages.map((p, i) =>
         p === "…" ? (
-          <span key={`e-${i}`} className="px-1 text-zinc-500">
+          <span key={`e-${i}`} className="px-1 text-[var(--foreground-muted)]">
             …
           </span>
         ) : (
@@ -170,8 +169,8 @@ function Pagination({
             className={cn(
               "min-w-8 rounded-lg px-2.5 py-1.5 text-[13px] font-semibold transition",
               p === page
-                ? "bg-blue-600 text-white"
-                : "text-zinc-300 ring-1 ring-white/10 hover:bg-white/[0.06]",
+                ? "bg-[var(--accent)] text-[var(--accent-foreground)]"
+                : "text-[var(--foreground)] ring-1 ring-[var(--border)] hover:bg-[color-mix(in_srgb,var(--foreground)_6%,transparent)]",
             )}
           >
             {p}
@@ -182,7 +181,7 @@ function Pagination({
         type="button"
         disabled={page >= totalPages}
         onClick={() => onPage(page + 1)}
-        className="rounded-lg px-3 py-1.5 text-[13px] font-medium text-zinc-300 ring-1 ring-white/10 transition enabled:hover:bg-white/[0.06] disabled:opacity-40"
+        className="rounded-lg px-3 py-1.5 text-[13px] font-medium text-[var(--foreground)] ring-1 ring-[var(--border)] transition enabled:hover:bg-[color-mix(in_srgb,var(--foreground)_6%,transparent)] disabled:opacity-40"
       >
         Next
       </button>
@@ -318,15 +317,15 @@ export function MarketsExplorerPage() {
   const to = Math.min(page * PAGE_SIZE, total);
 
   const selectClass =
-    "rounded-lg border border-white/10 bg-zinc-900/80 px-2.5 py-2 text-[13px] text-zinc-200 outline-none focus:border-blue-500/50";
+    "rounded-lg border border-[var(--border)] bg-[var(--card)] px-2.5 py-2 text-[13px] text-[var(--foreground)] outline-none focus:border-[var(--accent)]/50";
   const inputClass =
-    "rounded-lg border border-white/10 bg-zinc-900/80 px-2.5 py-2 text-[13px] text-zinc-200 outline-none placeholder:text-zinc-500 focus:border-blue-500/50";
+    "rounded-lg border border-[var(--border)] bg-[var(--card)] px-2.5 py-2 text-[13px] text-[var(--foreground)] outline-none placeholder:text-[var(--foreground-muted)] focus:border-[var(--accent)]/50";
 
   return (
     <div className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6">
       <header className="mb-5">
-        <h1 className="text-[32px] font-bold tracking-tight text-zinc-50">Markets</h1>
-        <p className="mt-1 text-[15px] text-zinc-400">
+        <h1 className="text-[32px] font-bold tracking-tight text-[var(--foreground)]">Markets</h1>
+        <p className="mt-1 text-[15px] text-[var(--foreground-muted)]">
           Browse, search, and filter every prediction market on Orakly.
         </p>
       </header>
@@ -334,7 +333,7 @@ export function MarketsExplorerPage() {
       {/* Search */}
       <div className="relative mb-4">
         <Search
-          className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-zinc-500"
+          className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-[var(--foreground-muted)]"
           aria-hidden
         />
         <input
@@ -342,14 +341,14 @@ export function MarketsExplorerPage() {
           value={searchInput}
           onChange={(e) => setSearchInput(e.target.value)}
           placeholder="Search markets..."
-          className="w-full rounded-xl border border-white/10 bg-zinc-900/80 py-3 pl-10 pr-4 text-[15px] text-zinc-100 outline-none placeholder:text-zinc-500 focus:border-blue-500/50"
+          className="w-full rounded-xl border border-[var(--border)] bg-[var(--card)] py-3 pl-10 pr-4 text-[15px] text-[var(--foreground)] outline-none placeholder:text-[var(--foreground-muted)] focus:border-[var(--accent)]/50"
           aria-label="Search markets"
         />
       </div>
 
       {/* Filters */}
       <div className="mb-3 flex flex-wrap items-end gap-3">
-        <div className="flex flex-col gap-1 text-[11px] font-medium text-zinc-500">
+        <div className="flex flex-col gap-1 text-[11px] font-medium text-[var(--foreground-muted)]">
           <label htmlFor="markets-filter-category" className="w-fit">
             Category
           </label>
@@ -367,7 +366,7 @@ export function MarketsExplorerPage() {
           </select>
         </div>
 
-        <div className="flex flex-col gap-1 text-[11px] font-medium text-zinc-500">
+        <div className="flex flex-col gap-1 text-[11px] font-medium text-[var(--foreground-muted)]">
           <label htmlFor="markets-filter-status" className="w-fit">
             Status
           </label>
@@ -385,7 +384,7 @@ export function MarketsExplorerPage() {
           </select>
         </div>
 
-        <div className="flex flex-col gap-1 text-[11px] font-medium text-zinc-500">
+        <div className="flex flex-col gap-1 text-[11px] font-medium text-[var(--foreground-muted)]">
           <label htmlFor="markets-filter-narrative" className="w-fit">
             Narrative
           </label>
@@ -404,7 +403,7 @@ export function MarketsExplorerPage() {
           </select>
         </div>
 
-        <div className="flex min-w-[160px] flex-1 flex-col gap-1 text-[11px] font-medium text-zinc-500">
+        <div className="flex min-w-[160px] flex-1 flex-col gap-1 text-[11px] font-medium text-[var(--foreground-muted)]">
           <label htmlFor="markets-filter-creator" className="w-fit">
             Creator
           </label>
@@ -418,7 +417,7 @@ export function MarketsExplorerPage() {
           />
         </div>
 
-        <div className="flex flex-col gap-1 text-[11px] font-medium text-zinc-500">
+        <div className="flex flex-col gap-1 text-[11px] font-medium text-[var(--foreground-muted)]">
           <label htmlFor="markets-filter-date-from" className="w-fit">
             From
           </label>
@@ -431,7 +430,7 @@ export function MarketsExplorerPage() {
           />
         </div>
 
-        <div className="flex flex-col gap-1 text-[11px] font-medium text-zinc-500">
+        <div className="flex flex-col gap-1 text-[11px] font-medium text-[var(--foreground-muted)]">
           <label htmlFor="markets-filter-date-to" className="w-fit">
             To
           </label>
@@ -444,7 +443,7 @@ export function MarketsExplorerPage() {
           />
         </div>
 
-        <div className="flex flex-col gap-1 text-[11px] font-medium text-zinc-500">
+        <div className="flex flex-col gap-1 text-[11px] font-medium text-[var(--foreground-muted)]">
           <label htmlFor="markets-filter-min-volume" className="w-fit">
             Min $
           </label>
@@ -459,7 +458,7 @@ export function MarketsExplorerPage() {
           />
         </div>
 
-        <div className="flex flex-col gap-1 text-[11px] font-medium text-zinc-500">
+        <div className="flex flex-col gap-1 text-[11px] font-medium text-[var(--foreground-muted)]">
           <label htmlFor="markets-filter-max-volume" className="w-fit">
             Max $
           </label>
@@ -474,7 +473,7 @@ export function MarketsExplorerPage() {
           />
         </div>
 
-        <div className="flex min-w-[200px] flex-1 flex-col gap-1 text-[11px] font-medium text-zinc-500">
+        <div className="flex min-w-[200px] flex-1 flex-col gap-1 text-[11px] font-medium text-[var(--foreground-muted)]">
           <span>
             Probability ({local.minProbability || 0}% to {local.maxProbability || 100}%)
           </span>
@@ -492,7 +491,7 @@ export function MarketsExplorerPage() {
                   maxProbability: String(Math.max(min, max)),
                 });
               }}
-              className="w-full accent-blue-500"
+              className="w-full accent-[var(--accent)]"
               aria-label="Minimum yes probability"
             />
             <input
@@ -508,7 +507,7 @@ export function MarketsExplorerPage() {
                   minProbability: String(Math.min(min, max)),
                 });
               }}
-              className="w-full accent-blue-500"
+              className="w-full accent-[var(--accent)]"
               aria-label="Maximum yes probability"
             />
           </div>
@@ -517,7 +516,7 @@ export function MarketsExplorerPage() {
         <button
           type="button"
           onClick={resetFilters}
-          className="mb-0.5 text-[13px] font-medium text-blue-400 underline-offset-2 hover:underline"
+          className="mb-0.5 text-[13px] font-medium text-[var(--accent)] underline-offset-2 hover:underline"
         >
           Reset filters
         </button>
@@ -535,8 +534,8 @@ export function MarketsExplorerPage() {
               className={cn(
                 "rounded-full px-3.5 py-1.5 text-[13px] font-medium transition",
                 active
-                  ? "bg-blue-600 text-white"
-                  : "text-zinc-400 ring-1 ring-white/10 hover:bg-white/[0.06] hover:text-zinc-200",
+                  ? "bg-[var(--accent)] text-[var(--accent-foreground)]"
+                  : "text-[var(--foreground-muted)] ring-1 ring-[var(--border)] hover:bg-[color-mix(in_srgb,var(--foreground)_6%,transparent)] hover:text-[var(--foreground)]",
               )}
             >
               {s.label}
@@ -547,26 +546,26 @@ export function MarketsExplorerPage() {
 
       {/* Card grid */}
       {loading ? (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {Array.from({ length: 6 }).map((_, i) => (
             <MarketCardSkeleton key={i} index={i} />
           ))}
         </div>
       ) : markets.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-white/10 px-4 py-16 text-center">
-          <p className="text-[15px] text-zinc-400">
+        <div className="rounded-2xl border border-dashed border-[var(--border)] px-4 py-16 text-center">
+          <p className="text-[15px] text-[var(--foreground-muted)]">
             No markets found matching your filters.
           </p>
           <button
             type="button"
             onClick={resetFilters}
-            className="mt-4 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-500"
+            className="mt-4 rounded-lg bg-[var(--accent)] px-4 py-2 text-sm font-semibold text-[var(--accent-foreground)] hover:bg-[var(--accent-hover)]"
           >
             Reset filters
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {markets.map((m, index) => (
             <MarketCard
               key={m.id}
@@ -583,7 +582,7 @@ export function MarketsExplorerPage() {
       {/* Pagination */}
       {!loading && total > 0 ? (
         <div className="mt-5 flex flex-col items-center gap-3 sm:flex-row sm:justify-between">
-          <p className="text-[13px] text-zinc-500">
+          <p className="text-[13px] text-[var(--foreground-muted)]">
             Showing {from}-{to} of {total} markets
           </p>
           <Pagination

@@ -3,18 +3,12 @@
 import type { Market } from "@orakly/types";
 import { formatCompactUsd } from "@orakly/utils";
 import { useRouter } from "next/navigation";
-import {
-  Bot,
-  ChartNoAxesColumnIncreasing,
-  Coins,
-  Link2,
-  type LucideIcon,
-} from "lucide-react";
 import { memo, useCallback, useEffect, useMemo, useState, type MouseEvent } from "react";
 import { useOpenTradeModal } from "@/features/trading";
 import { WatchlistStar } from "@/features/watchlist";
 import { ROUTES } from "@/shared/constants/routes";
 import { cn } from "@/lib/utils";
+import { resolveHubMarketVisual } from "@/widgets/dapp-hub/lib/hub-market-visual";
 
 const UUID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -40,65 +34,13 @@ export type MarketCardProps = {
   index?: number;
   volumeMax?: number;
   hideWatchlist?: boolean;
-  /** @deprecated Kept for call-site compat — new design is always Polymarket-style. */
+  /** @deprecated Kept for call-site compat — card is always Polymarket-style. */
   directoryStyle?: boolean;
   href?: string;
   className?: string;
-  /** Narrative tag when enriched from live feed. */
   narrative?: string | null;
-  /** Trader / participant count when enriched. */
   participants?: number | null;
 };
-
-type CategoryVisual = {
-  icon: LucideIcon;
-  label: string;
-  gradient: string;
-};
-
-function categoryVisual(category: string): CategoryVisual {
-  const c = (category || "").toLowerCase();
-  if (c.includes("meme")) {
-    return {
-      icon: Coins,
-      label: formatCategoryLabel(category) || "Meme",
-      gradient: "from-purple-900/60 to-pink-900/60",
-    };
-  }
-  if (c.includes("defi")) {
-    return {
-      icon: Coins,
-      label: formatCategoryLabel(category) || "DeFi",
-      gradient: "from-blue-900/60 to-cyan-900/60",
-    };
-  }
-  if (/\bai\b/.test(c) || c.includes("artificial")) {
-    return {
-      icon: Bot,
-      label: formatCategoryLabel(category) || "AI",
-      gradient: "from-teal-900/60 to-green-900/60",
-    };
-  }
-  if (
-    c.includes("layer") ||
-    c.includes("l1") ||
-    c.includes("chain") ||
-    c.includes("solana") ||
-    c.includes("base") ||
-    c.includes("ethereum")
-  ) {
-    return {
-      icon: Link2,
-      label: formatCategoryLabel(category) || "Layer1",
-      gradient: "from-orange-900/60 to-amber-900/60",
-    };
-  }
-  return {
-    icon: ChartNoAxesColumnIncreasing,
-    label: formatCategoryLabel(category) || "Market",
-    gradient: "from-indigo-900/60 to-slate-900/60",
-  };
-}
 
 function formatCategoryLabel(slug: string): string {
   if (!slug || slug === "all") return "";
@@ -107,11 +49,6 @@ function formatCategoryLabel(slug: string): string {
     .filter(Boolean)
     .map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
     .join(" ");
-}
-
-function shortenAddress(addr: string): string {
-  if (addr.length < 12) return addr;
-  return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
 }
 
 function timeRemaining(iso: string): {
@@ -144,6 +81,11 @@ function useFreshNow(intervalMs = 60_000) {
   }, [intervalMs]);
 }
 
+function fmtCents(probability: number): string {
+  const cents = Math.round(Math.max(0, Math.min(1, probability)) * 100);
+  return `${cents}¢`;
+}
+
 function MarketCardImpl({
   market,
   isLive = false,
@@ -151,7 +93,6 @@ function MarketCardImpl({
   href,
   className,
   narrative: narrativeProp,
-  participants: participantsProp,
 }: MarketCardProps) {
   useFreshNow();
   const router = useRouter();
@@ -160,28 +101,29 @@ function MarketCardImpl({
   const yesPct = Math.round(Math.max(0, Math.min(1, probability)) * 100);
   const noPct = 100 - yesPct;
   const volumeUsd = market.volumeUsd ?? 0;
-  const liquidityUsd = market.liquidityUsd ?? 0;
-  const creatorAddress = market.creatorAddress?.trim() || null;
   const narrative =
     narrativeProp?.trim() ||
-    (typeof (market as Market & { narrative?: string | null }).narrative === "string"
+    (typeof (market as Market & { narrative?: string | null }).narrative ===
+    "string"
       ? (market as Market & { narrative?: string | null }).narrative?.trim()
       : null) ||
     null;
-  const participants =
-    participantsProp ??
-    (typeof (market as Market & { participants?: number }).participants === "number"
-      ? (market as Market & { participants?: number }).participants
-      : null);
 
-  const visual = useMemo(() => categoryVisual(market.category), [market.category]);
-  const CategoryIcon = visual.icon;
-  const remaining = useMemo(() => timeRemaining(market.closesAt), [market.closesAt]);
+  const visual = useMemo(
+    () => resolveHubMarketVisual(market.category, market.title),
+    [market.category, market.title],
+  );
+  const CategoryIcon = visual.Icon;
+  const remaining = useMemo(
+    () => timeRemaining(market.closesAt),
+    [market.closesAt],
+  );
   const isOpen = market.status === "OPEN" && !remaining.expired;
   const showLive = isLive || isOpen;
   const detailsHref = href ?? ROUTES.market(market.slug);
   const deployed = Boolean(market.onChainAddress?.trim());
   const canTrade = deployed && isOpen;
+  const categoryLabel = formatCategoryLabel(market.category) || "Market";
 
   const openTradeModal = useOpenTradeModal();
   const tradeMarketId = useMemo(() => resolveTradeMarketId(market), [market]);
@@ -237,120 +179,81 @@ function MarketCardImpl({
         }
       }}
       className={cn(
-        "group relative cursor-pointer overflow-hidden rounded-2xl",
-        "border border-[var(--border)] bg-[var(--background-card)]",
-        "transition-all duration-200",
-        "hover:border-[var(--border-strong)] hover:shadow-lg hover:shadow-black/20",
+        "group relative flex cursor-pointer flex-col overflow-hidden rounded-xl",
+        "border border-[var(--border)] bg-[var(--card)]",
+        "transition-[border-color,box-shadow,transform] duration-150",
+        "hover:-translate-y-px hover:border-[var(--border-strong)] hover:shadow-[0_12px_28px_-16px_color-mix(in_srgb,var(--foreground)_28%,transparent)]",
         className,
       )}
     >
-      {/* Banner */}
-      <div
-        className={cn(
-          "relative flex h-20 flex-col items-center justify-center bg-gradient-to-br",
-          visual.gradient,
-        )}
-      >
-        <span className="absolute left-2 top-2 rounded-full bg-black/40 px-2 py-0.5 text-xs tabular-nums">
-          <span className={remaining.urgent ? "text-red-400" : "text-white/70"}>
-            {remaining.label}
+      <div className="flex flex-1 flex-col gap-3 p-3.5">
+        {/* Header: icon + title + chance */}
+        <div className="flex items-start gap-2.5">
+          <span
+            className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-lg"
+            style={{ backgroundColor: visual.bg }}
+            aria-hidden
+          >
+            <CategoryIcon
+              className="size-4"
+              style={{ color: visual.iconColor }}
+            />
           </span>
-        </span>
 
-        {showLive && !remaining.expired ? (
-          <span className="absolute right-10 top-2 inline-flex items-center gap-1 rounded-full bg-black/40 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-emerald-300">
-            <span className="relative flex h-1.5 w-1.5">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400/70" />
-              <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-400" />
-            </span>
-            Live
-          </span>
-        ) : null}
-
-        {!hideWatchlist ? (
-          <WatchlistStar
-            id={market.id}
-            size="md"
-            absolute
-            className="!right-2 !top-2 !bg-transparent !text-slate-500 !ring-0 hover:!bg-transparent hover:!text-yellow-400"
-          />
-        ) : null}
-
-        <CategoryIcon className="size-8 text-white/80" aria-hidden />
-        <span className="mt-1 text-xs text-white/60">{visual.label}</span>
-      </div>
-
-      {/* Body */}
-      <div className="p-4">
-        <h3 className="line-clamp-2 text-sm font-medium text-white">{market.title}</h3>
-
-        {(narrative || creatorAddress) && (
-          <div className="mt-2 flex flex-wrap items-center gap-1.5">
+          <div className="min-w-0 flex-1">
+            <h3 className="line-clamp-2 text-[13.5px] font-semibold leading-snug text-[var(--foreground)] group-hover:text-[var(--accent)]">
+              {market.title}
+            </h3>
             {narrative ? (
-              <span className="rounded border border-white/10 bg-white/5 px-2 py-0.5 text-[10px] text-slate-400">
+              <p className="mt-1 truncate text-[11px] text-[var(--foreground-muted)]">
                 {narrative}
-              </span>
-            ) : null}
-            {creatorAddress ? (
-              <span
-                className="rounded border border-white/10 bg-white/5 px-2 py-0.5 font-mono text-[10px] text-slate-400"
-                title={creatorAddress}
-              >
-                by {shortenAddress(creatorAddress)}
-              </span>
+              </p>
             ) : null}
           </div>
-        )}
 
-        <div className="mt-3 space-y-1">
-          <div className="flex items-center justify-between text-sm">
-            <span className="font-medium text-[var(--color-yes)]">YES</span>
-            <span className="font-bold tabular-nums text-[var(--color-yes)]">{yesPct}%</span>
-          </div>
-          <div className="my-1 flex h-1.5 w-full overflow-hidden rounded-full bg-black/40">
-            <div
-              className="h-full bg-[var(--color-yes)] transition-[width] duration-300"
-              style={{ width: `${yesPct}%` }}
-            />
-            <div
-              className="h-full bg-[var(--color-no)] transition-[width] duration-300"
-              style={{ width: `${noPct}%` }}
-            />
-          </div>
-          <div className="flex items-center justify-between text-sm">
-            <span className="font-medium text-[var(--color-no)]">NO</span>
-            <span className="font-bold tabular-nums text-[var(--color-no)]">{noPct}%</span>
+          <div className="shrink-0 pt-0.5 text-right">
+            <p className="text-[18px] font-bold tabular-nums leading-none text-[var(--foreground)]">
+              {yesPct}%
+            </p>
+            <p className="mt-0.5 text-[10px] font-medium uppercase tracking-wide text-[var(--foreground-muted)]">
+              chance
+            </p>
           </div>
         </div>
 
-        <div className="mt-3 flex flex-wrap gap-3 text-[11px] text-slate-500">
-          <span>
-            Vol <span className="text-slate-400">{formatCompactUsd(volumeUsd)}</span>
-          </span>
-          <span>
-            Liq <span className="text-slate-400">{formatCompactUsd(liquidityUsd)}</span>
-          </span>
-          <span>
-            {participants != null && Number.isFinite(participants)
-              ? `${Math.max(0, Math.round(participants)).toLocaleString()} traders`
-              : "No trader data"}
-          </span>
+        {/* Probability track */}
+        <div
+          className="flex h-1.5 w-full overflow-hidden rounded-full bg-[color-mix(in_srgb,var(--foreground)_8%,transparent)]"
+          aria-hidden
+        >
+          <div
+            className="h-full bg-[var(--yes)] transition-[width] duration-300"
+            style={{ width: `${yesPct}%` }}
+          />
+          <div
+            className="h-full bg-[var(--no)] transition-[width] duration-300"
+            style={{ width: `${noPct}%` }}
+          />
         </div>
 
-        <div className="mt-3 grid grid-cols-2 gap-2">
+        {/* Yes / No action row */}
+        <div className="grid grid-cols-2 gap-2">
           <button
             type="button"
             disabled={!canTrade}
             title={!deployed ? "Market not yet deployed" : "Buy YES"}
             onClick={(e) => handleSideClick("YES", e)}
             className={cn(
-              "rounded-lg border border-green-900/40 bg-[var(--color-yes-bg)] py-2 text-sm font-medium text-[var(--color-yes)]",
+              "flex h-10 items-center justify-between rounded-lg px-3 text-[13px] font-semibold transition",
+              "bg-[color-mix(in_srgb,var(--yes)_14%,transparent)] text-[var(--yes)]",
+              "ring-1 ring-[color-mix(in_srgb,var(--yes)_28%,transparent)]",
               canTrade
-                ? "hover:bg-green-900/60"
-                : "cursor-not-allowed opacity-40 hover:bg-[var(--color-yes-bg)]",
+                ? "hover:bg-[color-mix(in_srgb,var(--yes)_22%,transparent)]"
+                : "cursor-not-allowed opacity-40",
             )}
           >
-            YES
+            <span>Yes</span>
+            <span className="tabular-nums">{fmtCents(probability)}</span>
           </button>
           <button
             type="button"
@@ -358,14 +261,56 @@ function MarketCardImpl({
             title={!deployed ? "Market not yet deployed" : "Buy NO"}
             onClick={(e) => handleSideClick("NO", e)}
             className={cn(
-              "rounded-lg border border-red-900/40 bg-[var(--color-no-bg)] py-2 text-sm font-medium text-[var(--color-no)]",
+              "flex h-10 items-center justify-between rounded-lg px-3 text-[13px] font-semibold transition",
+              "bg-[color-mix(in_srgb,var(--no)_14%,transparent)] text-[var(--no)]",
+              "ring-1 ring-[color-mix(in_srgb,var(--no)_28%,transparent)]",
               canTrade
-                ? "hover:bg-red-900/60"
-                : "cursor-not-allowed opacity-40 hover:bg-[var(--color-no-bg)]",
+                ? "hover:bg-[color-mix(in_srgb,var(--no)_22%,transparent)]"
+                : "cursor-not-allowed opacity-40",
             )}
           >
-            NO
+            <span>No</span>
+            <span className="tabular-nums">{fmtCents(1 - probability)}</span>
           </button>
+        </div>
+
+        {/* Footer */}
+        <div className="mt-auto flex items-center justify-between gap-2 border-t border-[var(--border)] pt-2.5">
+          <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 text-[11px] text-[var(--foreground-muted)]">
+            {showLive && !remaining.expired ? (
+              <span className="inline-flex items-center gap-1 font-semibold uppercase tracking-wide text-[var(--yes)]">
+                <span className="relative flex size-1.5">
+                  <span className="absolute inset-0 animate-ping rounded-full bg-[var(--yes)]/70" />
+                  <span className="relative size-1.5 rounded-full bg-[var(--yes)]" />
+                </span>
+                Live
+              </span>
+            ) : null}
+            <span className="truncate font-medium uppercase tracking-wide">
+              {categoryLabel}
+            </span>
+            <span aria-hidden>·</span>
+            <span className="tabular-nums">
+              {formatCompactUsd(volumeUsd)} Vol
+            </span>
+            <span aria-hidden>·</span>
+            <span
+              className={cn(
+                "tabular-nums",
+                remaining.urgent && "text-[var(--no)]",
+              )}
+            >
+              {remaining.label}
+            </span>
+          </div>
+
+          {!hideWatchlist ? (
+            <WatchlistStar
+              id={market.id}
+              size="sm"
+              className="shrink-0 text-[var(--foreground-muted)] hover:text-[var(--warning)]"
+            />
+          ) : null}
         </div>
       </div>
     </article>
