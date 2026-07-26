@@ -1,6 +1,41 @@
 /**
  * Operator console — inherit hub canvas tokens for charts, tables, and legacy utility leftovers.
+ * Always keep the dark desk palette so white/light text stays readable even if the app theme is light.
  */
+.hub-admin-canvas.hub-app-canvas,
+.hub-admin-canvas.hub-root,
+[data-theme="light"] .hub-admin-canvas.hub-app-canvas,
+[data-theme="light"] .hub-admin-canvas.hub-root,
+.light .hub-admin-canvas.hub-app-canvas,
+.light .hub-admin-canvas.hub-root {
+  --hub-bg: #09090b;
+  --hub-bg-subtle: #0c0d10;
+  --hub-bg-elevated: #121318;
+  --hub-card: #121318;
+  --hub-card-hover: #181a21;
+  --hub-border: #252730;
+  --hub-border-strong: #353945;
+  --hub-fg: #f4f4f5;
+  --hub-muted: #a1a6b0;
+  --hub-primary: #7c5cfc;
+  --hub-primary-bright: #9b82ff;
+  --hub-primary-soft: rgba(124, 92, 252, 0.14);
+  --hub-primary-glow: rgba(124, 92, 252, 0.32);
+  --hub-success: #00d4aa;
+  --hub-success-bg: rgba(0, 212, 170, 0.12);
+  --hub-danger: #ff5c5c;
+  --hub-danger-bg: rgba(255, 92, 92, 0.12);
+  --hub-attention: #7c5cfc;
+  --hub-chrome: rgba(18, 19, 24, 0.72);
+  --hub-track-bg: rgba(0, 0, 0, 0.45);
+  --hub-surface-highlight: #1a1c23;
+  --hub-glass-border: rgba(255, 255, 255, 0.08);
+  --hub-glass-border-hover: rgba(255, 255, 255, 0.18);
+  --hub-glass-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
+  color: var(--hub-fg);
+  color-scheme: dark;
+}
+
 .hub-admin {
   color: var(--hub-fg);
 }
@@ -80,30 +115,31 @@
 }
 
 /**
- * Radix portal renders outside `.hub-admin` — ship tokens + readable fields on the dialog root.
+ * Radix portal renders outside `.hub-admin` — ship the same dark desk tokens on the dialog root.
  */
 .admin-create-market-dialog {
-  --hub-bg: #0c1529;
-  --hub-bg-subtle: #121f38;
-  --hub-bg-elevated: #172742;
-  --hub-card: #1a2d4d;
-  --hub-card-hover: #203558;
-  --hub-border: rgba(96, 165, 250, 0.16);
-  --hub-border-strong: rgba(96, 165, 250, 0.3);
-  --hub-fg: #e8f0ff;
-  --hub-muted: #8ba3c7;
-  --hub-primary: #3b82f6;
-  --hub-primary-bright: #60a5fa;
-  --hub-primary-soft: rgba(59, 130, 246, 0.16);
-  --hub-primary-glow: rgba(59, 130, 246, 0.35);
-  --hub-success: #34d399;
-  --hub-success-bg: rgba(52, 211, 153, 0.14);
-  --hub-danger: #fb7185;
-  --hub-danger-bg: rgba(251, 113, 133, 0.14);
-  --hub-attention: #60a5fa;
-  --hub-chrome: rgba(12, 21, 41, 0.94);
-  --hub-track-bg: rgba(0, 0, 0, 0.28);
-  --hub-surface-highlight: #1e3358;
+  --hub-bg: #09090b;
+  --hub-bg-subtle: #0c0d10;
+  --hub-bg-elevated: #121318;
+  --hub-card: #121318;
+  --hub-card-hover: #181a21;
+  --hub-border: #252730;
+  --hub-border-strong: #353945;
+  --hub-fg: #f4f4f5;
+  --hub-muted: #a1a6b0;
+  --hub-primary: #7c5cfc;
+  --hub-primary-bright: #9b82ff;
+  --hub-primary-soft: rgba(124, 92, 252, 0.14);
+  --hub-primary-glow: rgba(124, 92, 252, 0.32);
+  --hub-success: #00d4aa;
+  --hub-success-bg: rgba(0, 212, 170, 0.12);
+  --hub-danger: #ff5c5c;
+  --hub-danger-bg: rgba(255, 92, 92, 0.12);
+  --hub-attention: #7c5cfc;
+  --hub-chrome: rgba(18, 19, 24, 0.72);
+  --hub-track-bg: rgba(0, 0, 0, 0.45);
+  --hub-surface-highlight: #1a1c23;
   --hub-radius: 0.75rem;
   color: var(--hub-fg);
+  color-scheme: dark;
 }

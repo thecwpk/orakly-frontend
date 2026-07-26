@@ -92,7 +92,7 @@ export function AdminLoginPage() {
           </button>
         )}
 
-        <details className="mt-6 rounded-xl border border-[var(--hub-border)] bg-black/20 px-4 py-3">
+        <details className="mt-6 rounded-xl border border-[var(--hub-border)] bg-[color-mix(in_srgb,var(--hub-fg)_5%,transparent)] px-4 py-3">
           <summary className="cursor-pointer text-[12px] font-semibold uppercase tracking-wide text-[var(--hub-muted)]">
             Bootstrap token (dev)
           </summary>

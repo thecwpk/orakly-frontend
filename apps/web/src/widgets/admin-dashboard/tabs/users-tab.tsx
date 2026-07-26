@@ -140,7 +140,7 @@ export function AdminUsersTab() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search email, name, or id…"
-            className="w-full rounded-xl border border-[var(--hub-border)] bg-[var(--hub-bg-subtle)] py-2 pl-8 pr-7 text-[12.5px] text-white outline-none focus:border-[var(--hub-primary)]/50"
+            className="w-full rounded-xl border border-[var(--hub-border)] bg-[var(--hub-bg-subtle)] py-2 pl-8 pr-7 text-[12.5px] text-[var(--hub-fg)] outline-none focus:border-[var(--hub-primary)]/50"
           />
           {query ? (
             <button
@@ -162,7 +162,7 @@ export function AdminUsersTab() {
               className={cn(
                 "relative inline-flex items-center gap-1 rounded-lg px-2 py-1 text-[10.5px] font-bold uppercase tracking-wider transition",
                 role === k
-                  ? "bg-[var(--hub-card-hover)] text-white"
+                  ? "bg-[var(--hub-card-hover)] text-[var(--hub-fg)]"
                   : "text-[var(--hub-muted)] hover:text-[var(--hub-fg)]",
               )}
             >
@@ -302,8 +302,8 @@ export function AdminUsersTab() {
         description={
           <span>
             Role for{" "}
-            <span className="font-semibold text-white">{roleTarget?.label}</span> →{" "}
-            <span className="font-semibold text-white">{roleTarget?.nextRole}</span>.
+            <span className="font-semibold text-[var(--hub-fg)]">{roleTarget?.label}</span> →{" "}
+            <span className="font-semibold text-[var(--hub-fg)]">{roleTarget?.nextRole}</span>.
             {roleTarget?.nextRole === "ADMIN"
               ? " Admins can resolve markets, edit revenue settings, and manage users."
               : null}

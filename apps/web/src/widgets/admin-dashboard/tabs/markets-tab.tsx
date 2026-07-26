@@ -248,7 +248,7 @@ export function AdminMarketsTab({
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search title, slug, id, or category…"
-            className="w-full rounded-xl border border-[var(--hub-border)] bg-[var(--hub-bg-subtle)] py-2 pl-8 pr-7 text-[12.5px] text-white outline-none focus:border-[var(--hub-primary)]/50"
+            className="w-full rounded-xl border border-[var(--hub-border)] bg-[var(--hub-bg-subtle)] py-2 pl-8 pr-7 text-[12.5px] text-[var(--hub-fg)] outline-none focus:border-[var(--hub-primary)]/50"
           />
           {query ? (
             <button
@@ -270,7 +270,7 @@ export function AdminMarketsTab({
               className={cn(
                 "relative inline-flex items-center gap-1 rounded-lg px-2 py-1 text-[10.5px] font-bold uppercase tracking-wider transition",
                 filter === k
-                  ? "bg-[var(--hub-card-hover)] text-white"
+                  ? "bg-[var(--hub-card-hover)] text-[var(--hub-fg)]"
                   : "text-[var(--hub-muted)] hover:text-[var(--hub-fg)]",
               )}
             >
@@ -397,7 +397,7 @@ export function AdminMarketsTab({
         title={`Resolve “${resolveTarget?.title ?? ""}” → ${resolveTarget?.outcome ?? ""}`}
         description={
           <span>
-            Resolution is <span className="font-semibold text-white">irreversible</span>.
+            Resolution is <span className="font-semibold text-[var(--hub-fg)]">irreversible</span>.
             Settlement engine will pay out winners and close the market.
           </span>
         }

@@ -93,7 +93,7 @@ export function ConfirmDialog({
             </div>
             <DialogPrimitive.Close
               aria-label="Close"
-              className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-[var(--hub-bg-subtle)] text-[var(--hub-muted)] ring-1 ring-[var(--hub-border)] transition hover:bg-[var(--hub-card-hover)] hover:text-white"
+              className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-[var(--hub-bg-subtle)] text-[var(--hub-muted)] ring-1 ring-[var(--hub-border)] transition hover:bg-[var(--hub-card-hover)] hover:text-[var(--hub-fg)]"
             >
               <X className="h-3.5 w-3.5" />
             </DialogPrimitive.Close>
@@ -108,7 +108,7 @@ export function ConfirmDialog({
               type="button"
               onClick={() => onOpenChange(false)}
               disabled={busy}
-              className="h-10 rounded-xl bg-[var(--hub-bg-subtle)] text-[13px] font-semibold text-[var(--hub-muted)] ring-1 ring-[var(--hub-border)] transition hover:bg-[var(--hub-card-hover)] hover:text-white disabled:opacity-50"
+              className="h-10 rounded-xl bg-[var(--hub-bg-subtle)] text-[13px] font-semibold text-[var(--hub-muted)] ring-1 ring-[var(--hub-border)] transition hover:bg-[var(--hub-card-hover)] hover:text-[var(--hub-fg)] disabled:opacity-50"
             >
               {cancelLabel}
             </button>

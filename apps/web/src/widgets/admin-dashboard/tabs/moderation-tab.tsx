@@ -183,7 +183,7 @@ export function AdminModerationTab({ canModerate }: { canModerate: boolean }) {
         description={
           <span>
             New status:{" "}
-            <span className="font-semibold text-white">{target?.status}</span>.
+            <span className="font-semibold text-[var(--hub-fg)]">{target?.status}</span>.
             {target?.status === "OPEN"
               ? " Trading begins immediately and the market goes live in discovery feeds."
               : null}
@@ -249,9 +249,9 @@ function ModeChip({
         <span className="block text-[10px] font-bold uppercase tracking-[0.18em] text-[var(--hub-muted)]">
           {hint}
         </span>
-        <span className="block text-[13.5px] font-semibold text-white">{label}</span>
+        <span className="block text-[13.5px] font-semibold text-[var(--hub-fg)]">{label}</span>
       </span>
-      <span className="font-mono text-[16px] font-semibold tabular-nums text-white">
+      <span className="font-mono text-[16px] font-semibold tabular-nums text-[var(--hub-fg)]">
         {count}
       </span>
       {active ? (

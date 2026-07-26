@@ -116,7 +116,7 @@ export function AdminCategoriesTab({ canManage }: { canManage: boolean }) {
               value={name}
               onChange={(e) => onNameChange(e.target.value)}
               placeholder="Name (e.g. Politics)"
-              className="rounded-xl border border-[var(--hub-border)] bg-[var(--hub-bg-subtle)] px-3 py-2.5 text-[13px] text-white outline-none focus:border-[var(--hub-primary)]/50"
+              className="rounded-xl border border-[var(--hub-border)] bg-[var(--hub-bg-subtle)] px-3 py-2.5 text-[13px] text-[var(--hub-fg)] outline-none focus:border-[var(--hub-primary)]/50"
             />
             <div className="relative">
               <input
@@ -124,7 +124,7 @@ export function AdminCategoriesTab({ canManage }: { canManage: boolean }) {
                 onChange={(e) => setSlug(e.target.value)}
                 disabled={autoSlug}
                 placeholder="slug"
-                className="w-full rounded-xl border border-[var(--hub-border)] bg-[var(--hub-bg-subtle)] px-3 py-2.5 pr-16 font-mono text-[13px] text-white outline-none focus:border-[var(--hub-primary)]/50 disabled:opacity-60"
+                className="w-full rounded-xl border border-[var(--hub-border)] bg-[var(--hub-bg-subtle)] px-3 py-2.5 pr-16 font-mono text-[13px] text-[var(--hub-fg)] outline-none focus:border-[var(--hub-primary)]/50 disabled:opacity-60"
               />
               <button
                 type="button"
@@ -162,7 +162,7 @@ export function AdminCategoriesTab({ canManage }: { canManage: boolean }) {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search categories…"
-          className="w-full rounded-xl border border-[var(--hub-border)] bg-[var(--hub-bg-subtle)] py-2 pl-8 pr-7 text-[12.5px] text-white outline-none focus:border-[var(--hub-primary)]/50"
+          className="w-full rounded-xl border border-[var(--hub-border)] bg-[var(--hub-bg-subtle)] py-2 pl-8 pr-7 text-[12.5px] text-[var(--hub-fg)] outline-none focus:border-[var(--hub-primary)]/50"
         />
         {query ? (
           <button
@@ -253,7 +253,7 @@ export function AdminCategoriesTab({ canManage }: { canManage: boolean }) {
             {(deleteTarget?._count.markets ?? 0) > 0 ? (
               <>
                 This category has{" "}
-                <span className="font-semibold text-white">
+                <span className="font-semibold text-[var(--hub-fg)]">
                   {deleteTarget?._count.markets} markets
                 </span>{" "}
                 {" "}— they&apos;ll keep existing but lose their category association.

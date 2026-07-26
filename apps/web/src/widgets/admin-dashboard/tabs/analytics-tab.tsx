@@ -111,7 +111,7 @@ export function AdminAnalyticsTab() {
                 className={cn(
                   "relative inline-flex items-center rounded-lg px-2 py-1 text-[10.5px] font-bold uppercase tracking-wider transition",
                   days === r.id
-                    ? "bg-[var(--hub-card-hover)] text-white"
+                    ? "bg-[var(--hub-card-hover)] text-[var(--hub-fg)]"
                     : "text-[var(--hub-muted)] hover:text-[var(--hub-fg)]",
                 )}
               >
@@ -408,7 +408,7 @@ export function AdminAnalyticsTab() {
                   </p>
                   <p className="text-[10.5px] text-[var(--hub-muted)]">{row.hint}</p>
                 </div>
-                <p className="font-mono text-[14px] font-semibold tabular-nums text-white">
+                <p className="font-mono text-[14px] font-semibold tabular-nums text-[var(--hub-fg)]">
                   {row.value}
                 </p>
               </li>
