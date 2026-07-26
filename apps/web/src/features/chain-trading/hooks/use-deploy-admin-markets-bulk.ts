@@ -3,9 +3,9 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
-  encodeFunctionData,
   maxUint256,
   parseUnits,
+  toFunctionSelector,
   type Address,
   type TransactionReceipt,
 } from "viem";
@@ -14,8 +14,7 @@ import {
   getPublicClient,
   waitForTransactionReceipt,
 } from "wagmi/actions";
-import { waitForCallsStatus } from "@wagmi/core";
-import { useAccount, useChainId, useSendCalls, useWriteContract } from "wagmi";
+import { useAccount, useChainId, useWriteContract } from "wagmi";
 import {
   invalidateMarketsFeed,
   invalidateMarketLive,
@@ -48,6 +47,30 @@ export type BulkDeployResult = {
   txHash?: `0x${string}`;
 };
 
+/** Keep each createMarkets tx under typical wallet / block gas comfort. */
+const CREATE_MARKETS_CHUNK = 5;
+
+const CREATE_MARKETS_SELECTOR = toFunctionSelector({
+  type: "function",
+  name: "createMarkets",
+  stateMutability: "nonpayable",
+  inputs: [
+    { name: "collateral", type: "address" },
+    { name: "treasury", type: "address" },
+    { name: "optimisticOracle", type: "address" },
+    { name: "feeBps", type: "uint16[]" },
+    { name: "questions", type: "string[]" },
+    { name: "resolutionSources", type: "string[]" },
+    { name: "categories", type: "uint8[]" },
+    { name: "endTimes", type: "uint256[]" },
+    { name: "seedLiquidities", type: "uint256[]" },
+    { name: "assertionRewards", type: "uint256[]" },
+    { name: "requiredBonds", type: "uint256[]" },
+    { name: "assertionLiveness", type: "uint64" },
+  ],
+  outputs: [{ name: "markets", type: "address[]" }],
+});
+
 function formatDeployError(error: unknown): string {
   if (error instanceof UserRejectedRequestError) {
     return "Transaction cancelled";
@@ -55,11 +78,14 @@ function formatDeployError(error: unknown): string {
   return formatChainTradeError(error);
 }
 
-function isMissingSelectorError(error: unknown): boolean {
-  const msg = error instanceof Error ? error.message : String(error);
-  return /function selector|unrecognized|does not exist|execution reverted/i.test(
-    msg,
-  );
+async function factorySupportsCreateMarkets(
+  publicClient: NonNullable<ReturnType<typeof getPublicClient>>,
+  factory: Address,
+): Promise<boolean> {
+  const code = await publicClient.getBytecode({ address: factory });
+  if (!code || code === "0x") return false;
+  // Runtime bytecode includes the 4-byte selector in the dispatcher.
+  return code.toLowerCase().includes(CREATE_MARKETS_SELECTOR.slice(2).toLowerCase());
 }
 
 async function persistDeployAddress(
@@ -95,7 +121,6 @@ function matchAddressesToMarkets(
       if (hit) paired.push({ id: m.id, slug: m.slug, address: hit.market });
       continue;
     }
-    // Fall back to order if question strings diverge slightly.
     if (remaining.length > 0 && paired.length < markets.length) {
       const hit = remaining.splice(0, 1)[0];
       if (hit) paired.push({ id: m.id, slug: m.slug, address: hit.market });
@@ -104,16 +129,22 @@ function matchAddressesToMarkets(
   return paired;
 }
 
+function chunkIndices(total: number, size: number): Array<[number, number]> {
+  const out: Array<[number, number]> = [];
+  for (let i = 0; i < total; i += size) {
+    out.push([i, Math.min(i + size, total)]);
+  }
+  return out;
+}
+
 /**
- * Deploy many admin markets with a single MetaMask confirmation when possible.
- * Prefers factory `createMarkets` (one tx). Falls back to EIP-5792 `sendCalls`
- * batching multiple `createMarket` calls.
+ * Deploy many admin markets via factory `createMarkets` (one MetaMask confirm per chunk).
+ * Requires an upgraded MarketFactory — no oversized wallet_sendCalls fallback.
  */
 export function useDeployAdminMarketsBulk() {
   const { address } = useAccount();
   const chainId = useChainId();
   const { writeContractAsync } = useWriteContract();
-  const { sendCallsAsync } = useSendCalls();
   const qc = useQueryClient();
 
   return useMutation({
@@ -138,6 +169,23 @@ export function useDeployAdminMarketsBulk() {
       const uma = getUmaOracleAddress()!;
       const decimals = collateralDecimals();
 
+      const publicClient = getPublicClient(wagmiConfig, {
+        chainId: testBnbChain.id,
+      });
+      if (!publicClient) {
+        throw new Error("BSC testnet RPC client unavailable.");
+      }
+
+      const supportsBatch = await factorySupportsCreateMarkets(
+        publicClient,
+        factory,
+      );
+      if (!supportsBatch) {
+        throw new Error(
+          `Factory ${factory.slice(0, 8)}… does not support createMarkets. Click “Upgrade factory (bulk)” first, confirm the 2 MetaMask deploys, then retry bulk deploy.`,
+        );
+      }
+
       const inputs = markets.map((m) =>
         marketRecordToDeployInput(m as DeployableMarketRecord),
       );
@@ -154,13 +202,6 @@ export function useDeployAdminMarketsBulk() {
         rews.push(rew);
         bonds.push(rb);
         totalPull += seedL + rew;
-      }
-
-      const publicClient = getPublicClient(wagmiConfig, {
-        chainId: testBnbChain.id,
-      });
-      if (!publicClient) {
-        throw new Error("BSC testnet RPC client unavailable.");
       }
 
       if (totalPull > 0n) {
@@ -184,7 +225,33 @@ export function useDeployAdminMarketsBulk() {
         args: [address, factory],
       });
 
-      const needsApprove = totalPull > 0n && allowance < totalPull;
+      if (totalPull > 0n && allowance < totalPull) {
+        if (allowance > 0n) {
+          const resetHash = await writeContractAsync({
+            address: collateral,
+            abi: erc20Abi,
+            functionName: "approve",
+            args: [factory, 0n],
+            chainId: testBnbChain.id,
+          });
+          await waitForTransactionReceipt(wagmiConfig, {
+            hash: resetHash,
+            chainId: testBnbChain.id,
+          });
+        }
+        toast.message("Approve collateral once for the whole batch…");
+        const approveHash = await writeContractAsync({
+          address: collateral,
+          abi: erc20Abi,
+          functionName: "approve",
+          args: [factory, maxUint256],
+          chainId: testBnbChain.id,
+        });
+        await waitForTransactionReceipt(wagmiConfig, {
+          hash: approveHash,
+          chainId: testBnbChain.id,
+        });
+      }
 
       const feeBps = inputs.map((i) => i.feeBps);
       const questions = inputs.map((i) => i.question);
@@ -192,69 +259,21 @@ export function useDeployAdminMarketsBulk() {
       const categories = inputs.map((i) => i.category);
       const endTimes = inputs.map((i) => BigInt(i.endTimeUnix));
 
-      // Path A: factory createMarkets — one MetaMask confirm (after optional approve).
-      let receipt: TransactionReceipt | null = null;
-      let txHash: `0x${string}` | undefined;
+      const ranges = chunkIndices(markets.length, CREATE_MARKETS_CHUNK);
+      let ok = 0;
+      let lastTx: `0x${string}` | undefined;
 
-      const tryCreateMarkets = async (): Promise<TransactionReceipt | null> => {
-        try {
-          await publicClient.simulateContract({
-            address: factory,
-            abi: marketFactoryAbi,
-            functionName: "createMarkets",
-            args: [
-              collateral,
-              treasury,
-              uma,
-              feeBps,
-              questions,
-              resolutionSources,
-              categories,
-              endTimes,
-              seedLs,
-              rews,
-              bonds,
-              3600n,
-            ],
-            account: address,
-          });
-        } catch (e) {
-          if (isMissingSelectorError(e)) return null;
-          // Simulation may fail for other reasons (e.g. not owner) — still try sendCalls.
-          return null;
-        }
-
-        if (needsApprove) {
-          if (allowance > 0n) {
-            const resetHash = await writeContractAsync({
-              address: collateral,
-              abi: erc20Abi,
-              functionName: "approve",
-              args: [factory, 0n],
-              chainId: testBnbChain.id,
-            });
-            await waitForTransactionReceipt(wagmiConfig, {
-              hash: resetHash,
-              chainId: testBnbChain.id,
-            });
-          }
-          toast.message("Approve collateral once for the whole batch…");
-          const approveHash = await writeContractAsync({
-            address: collateral,
-            abi: erc20Abi,
-            functionName: "approve",
-            args: [factory, maxUint256],
-            chainId: testBnbChain.id,
-          });
-          await waitForTransactionReceipt(wagmiConfig, {
-            hash: approveHash,
-            chainId: testBnbChain.id,
-          });
-        }
+      for (let c = 0; c < ranges.length; c++) {
+        const [start, end] = ranges[c]!;
+        const sliceMarkets = markets.slice(start, end);
+        const n = end - start;
 
         toast.message(
-          `Confirm deploying ${markets.length} markets in MetaMask (one confirmation)…`,
+          ranges.length === 1
+            ? `Confirm deploying ${n} markets in MetaMask (one confirmation)…`
+            : `Confirm chunk ${c + 1}/${ranges.length} (${n} markets) in MetaMask…`,
         );
+
         const hash = await writeContractAsync({
           address: factory,
           abi: marketFactoryAbi,
@@ -263,129 +282,47 @@ export function useDeployAdminMarketsBulk() {
             collateral,
             treasury,
             uma,
-            feeBps,
-            questions,
-            resolutionSources,
-            categories,
-            endTimes,
-            seedLs,
-            rews,
-            bonds,
+            feeBps.slice(start, end),
+            questions.slice(start, end),
+            resolutionSources.slice(start, end),
+            categories.slice(start, end),
+            endTimes.slice(start, end),
+            seedLs.slice(start, end),
+            rews.slice(start, end),
+            bonds.slice(start, end),
             3600n,
           ],
           chainId: testBnbChain.id,
         });
-        txHash = hash;
-        const mined = await waitForTransactionReceipt(wagmiConfig, {
-          hash,
-          chainId: testBnbChain.id,
-        });
-        return mined.status === "success" ? mined : null;
-      };
+        lastTx = hash;
 
-      receipt = await tryCreateMarkets();
-
-      if (!receipt) {
-        // Path B: EIP-5792 sendCalls — approve + N createMarket under one wallet UI.
-        const calls: { to: Address; data: `0x${string}` }[] = [];
-
-        if (needsApprove) {
-          if (allowance > 0n) {
-            calls.push({
-              to: collateral,
-              data: encodeFunctionData({
-                abi: erc20Abi,
-                functionName: "approve",
-                args: [factory, 0n],
-              }),
-            });
-          }
-          calls.push({
-            to: collateral,
-            data: encodeFunctionData({
-              abi: erc20Abi,
-              functionName: "approve",
-              args: [factory, maxUint256],
-            }),
-          });
-        }
-
-        for (let i = 0; i < markets.length; i++) {
-          calls.push({
-            to: factory,
-            data: encodeFunctionData({
-              abi: marketFactoryAbi,
-              functionName: "createMarket",
-              args: [
-                collateral,
-                treasury,
-                uma,
-                feeBps[i]!,
-                questions[i]!,
-                resolutionSources[i]!,
-                categories[i]!,
-                endTimes[i]!,
-                seedLs[i]!,
-                rews[i]!,
-                bonds[i]!,
-                3600n,
-              ],
-            }),
-          });
-        }
-
-        toast.message(
-          `Confirm deploying ${markets.length} markets in MetaMask (one confirmation)…`,
+        const receipt: TransactionReceipt = await waitForTransactionReceipt(
+          wagmiConfig,
+          { hash, chainId: testBnbChain.id },
         );
+        if (receipt.status !== "success") {
+          throw new Error(`Chunk ${c + 1} deployment reverted.`);
+        }
 
-        try {
-          const { id } = await sendCallsAsync({
-            chainId: testBnbChain.id,
-            calls,
-          });
-          const status = await waitForCallsStatus(wagmiConfig, {
-            id,
-            timeout: 180_000,
-          });
-          if (status.status !== "success") {
-            throw new Error("Batch deployment did not confirm.");
-          }
-          const receipts = (status.receipts ?? []) as TransactionReceipt[];
-          const events = receipts.flatMap((r) =>
-            parseMarketCreatedEvents(r, factory),
-          );
-          if (events.length === 0) {
-            throw new Error("No MarketCreated events found in batch receipts.");
-          }
-          const paired = matchAddressesToMarkets(markets, events);
-          for (const p of paired) {
-            await persistDeployAddress(p.id, p.address);
-          }
-          txHash = receipts[0]?.transactionHash;
-          return { ok: paired.length, total: markets.length, txHash };
-        } catch (e) {
-          if (e instanceof UserRejectedRequestError) throw e;
+        const events = parseMarketCreatedEvents(receipt, factory);
+        if (events.length === 0) {
           throw new Error(
-            `${formatDeployError(e)} — Redeploy MarketFactory with createMarkets, or use a wallet that supports batched calls (EIP-5792).`,
+            `Chunk ${c + 1}: could not read MarketCreated events from receipt.`,
           );
         }
+
+        const paired = matchAddressesToMarkets(sliceMarkets, events);
+        for (const p of paired) {
+          await persistDeployAddress(p.id, p.address);
+        }
+        ok += paired.length;
       }
 
-      const events = parseMarketCreatedEvents(receipt, factory);
-      if (events.length === 0) {
-        throw new Error("Could not read MarketCreated events from receipt.");
-      }
-
-      const paired = matchAddressesToMarkets(markets, events);
-      for (const p of paired) {
-        await persistDeployAddress(p.id, p.address);
-      }
-
-      return { ok: paired.length, total: markets.length, txHash };
+      return { ok, total: markets.length, txHash: lastTx };
     },
     onSuccess: (res, markets) => {
       toast.success(
-        `Deployed ${res.ok} of ${res.total} markets with one confirmation. Users can trade them now.`,
+        `Deployed ${res.ok} of ${res.total} markets. Users can trade them now.`,
       );
       void qc.invalidateQueries({ queryKey: ["admin", "markets"] });
       invalidateMarketsFeed(qc);

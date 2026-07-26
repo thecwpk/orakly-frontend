@@ -358,10 +358,23 @@ export function AdminMarketsTab({
               <Link2 className="h-3.5 w-3.5" />
               {deployBulk.isPending
                 ? "Deploying…"
-                : `Deploy selected (${selectedDeployable.length}) · 1 confirm`}
+                : `Deploy selected (${selectedDeployable.length})`}
             </button>
           </div>
         </div>
+      ) : null}
+
+      {canCreate ? (
+        <p className="text-[11px] text-[var(--hub-muted)]">
+          Factory{" "}
+          <span className="font-mono text-[var(--hub-fg)]">
+            {factoryAddress.slice(0, 10)}…{factoryAddress.slice(-4)}
+          </span>
+          . Bulk deploy needs an upgraded factory with{" "}
+          <span className="text-[var(--hub-fg)]">createMarkets</span> — use{" "}
+          <span className="text-[var(--hub-fg)]">Upgrade factory (bulk)</span>{" "}
+          first if you still see wallet batch errors.
+        </p>
       ) : null}
 
       <Section
