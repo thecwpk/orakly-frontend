@@ -79,10 +79,10 @@ export function AppSearch({
         "group relative flex h-10 w-full max-w-none items-center rounded-lg border transition",
         hubLight
           ? "border-[var(--hub-border)] bg-[color-mix(in_srgb,var(--hub-card)_78%,var(--hub-bg-subtle))] hover:border-[var(--hub-border-strong)]"
-          : "h-9 rounded-[10px] border-white/[0.07] bg-white/[0.03] shadow-[0_0_0_1px_rgba(255,255,255,0.03)_inset] hover:border-white/[0.1] hover:bg-white/[0.045]",
+          : "h-9 rounded-[var(--radius-md)] border-[var(--border)] bg-[color-mix(in_srgb,var(--foreground)_3%,transparent)] hover:border-[var(--border-strong)] hover:bg-[color-mix(in_srgb,var(--foreground)_5%,transparent)]",
         !hubLight &&
           (focused
-            ? "border-cyan-500/35 bg-white/[0.06] shadow-[0_0_20px_-10px_rgba(34,211,238,0.35)]"
+            ? "border-[var(--accent)]/40 bg-[color-mix(in_srgb,var(--foreground)_6%,transparent)] shadow-[0_0_20px_-10px_color-mix(in_srgb,var(--accent)_40%,transparent)]"
             : ""),
         hubLight && focused && "border-[var(--hub-primary)] ring-2 ring-[var(--hub-primary)]/15",
         className,
@@ -96,8 +96,8 @@ export function AppSearch({
               ? "text-[var(--hub-primary)]"
               : "text-[var(--hub-muted)]"
             : focused
-              ? "text-cyan-300"
-              : "text-zinc-500",
+              ? "text-[var(--accent)]"
+              : "text-[var(--foreground-muted)]",
         )}
       />
       <input
@@ -111,13 +111,13 @@ export function AppSearch({
           "h-full min-w-0 flex-1 bg-transparent px-2 text-sm focus:outline-none",
           hubLight
             ? "font-normal text-[var(--hub-fg)] placeholder:text-[var(--hub-muted)]"
-            : "text-[12px] font-medium text-zinc-100 placeholder:text-zinc-600",
+            : "text-[12px] font-medium text-[var(--foreground)] placeholder:text-[var(--foreground-muted)]",
         )}
         autoComplete="off"
         spellCheck={false}
       />
       {!hubLight ? (
-        <kbd className="mr-1.5 hidden h-[18px] select-none items-center gap-0.5 rounded border border-white/10 bg-black/30 px-1 font-mono text-[9px] font-medium text-zinc-500 sm:inline-flex">
+        <kbd className="mr-1.5 hidden h-[18px] select-none items-center gap-0.5 rounded border border-[var(--border)] bg-[color-mix(in_srgb,var(--foreground)_5%,transparent)] px-1 font-mono text-[9px] font-medium text-[var(--foreground-muted)] sm:inline-flex">
           ⌘K
         </kbd>
       ) : null}

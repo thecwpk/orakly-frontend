@@ -41,15 +41,15 @@ export function SecuritySettingsPanel() {
       </SettingsRow>
 
       <div className="space-y-2">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-400">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--foreground-muted)]">
           Active sessions
         </p>
-        <div className="overflow-hidden rounded-xl border border-white/[0.06]">
-          <ul className="divide-y divide-white/[0.04]">
+        <div className="overflow-hidden rounded-xl border border-[var(--border)]">
+          <ul className="divide-y divide-[var(--border)]">
             {SESSIONS.map((s) => (
               <li
                 key={s.id}
-                className="flex items-center justify-between gap-3 px-3 py-2.5 hover:bg-white/[0.02]"
+                className="flex items-center justify-between gap-3 px-3 py-2.5 hover:bg-[color-mix(in_srgb,var(--foreground)_5%,transparent)]"
               >
                 <div className="flex items-center gap-3">
                   <span
@@ -57,14 +57,14 @@ export function SecuritySettingsPanel() {
                       "flex h-8 w-8 items-center justify-center rounded-lg ring-1",
                       s.current
                         ? "bg-emerald-500/10 text-emerald-300 ring-emerald-400/30"
-                        : "bg-white/[0.04] text-zinc-400 ring-white/10",
+                        : "bg-[color-mix(in_srgb,var(--foreground)_4%,transparent)] text-[var(--foreground-muted)] ring-[var(--border)]",
                     )}
                   >
                     <Smartphone className="h-3.5 w-3.5" />
                   </span>
                   <div className="min-w-0">
-                    <p className="text-[12.5px] text-zinc-100">{s.device}</p>
-                    <p className="text-[11px] text-zinc-500">
+                    <p className="text-[12.5px] text-[var(--foreground)]">{s.device}</p>
+                    <p className="text-[11px] text-[var(--foreground-muted)]">
                       {s.location} · {s.lastSeen}
                     </p>
                   </div>
@@ -76,7 +76,7 @@ export function SecuritySettingsPanel() {
                 ) : (
                   <button
                     type="button"
-                    className="rounded-md bg-white/[0.04] px-2 py-1 text-[11px] font-medium text-zinc-300 ring-1 ring-white/10 transition hover:bg-rose-500/10 hover:text-rose-200 hover:ring-rose-400/30"
+                    className="rounded-md bg-[color-mix(in_srgb,var(--foreground)_4%,transparent)] px-2 py-1 text-[11px] font-medium text-[var(--foreground)]/80 ring-1 ring-[var(--border)] transition hover:bg-rose-500/10 hover:text-rose-200 hover:ring-rose-400/30"
                   >
                     Revoke
                   </button>

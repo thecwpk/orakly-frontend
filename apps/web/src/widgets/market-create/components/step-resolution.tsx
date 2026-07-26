@@ -53,10 +53,10 @@ export function StepResolution({
   return (
     <div className="space-y-5">
       <div>
-        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-400">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--foreground-muted)]">
           Resolution source
         </p>
-        <p className="mt-1 text-[12px] text-zinc-500">
+        <p className="mt-1 text-[12px] text-[var(--foreground-muted)]">
           Decide how the YES outcome is determined when the market closes.
         </p>
         <div className="mt-3 grid gap-2 sm:grid-cols-2">
@@ -71,8 +71,8 @@ export function StepResolution({
                 onClick={() => setField("source", src)}
                 className={cn(
                   "group flex items-start gap-3 rounded-xl px-3 py-3 text-left transition",
-                  "ring-1 ring-white/10 bg-white/[0.03] hover:bg-white/[0.06]",
-                  selected && cn("bg-white/[0.07]", meta.accent),
+                  "ring-1 ring-[var(--border)] bg-[color-mix(in_srgb,var(--foreground)_3%,transparent)] hover:bg-[color-mix(in_srgb,var(--foreground)_6%,transparent)]",
+                  selected && cn("bg-[color-mix(in_srgb,var(--foreground)_7%,transparent)]", meta.accent),
                 )}
                 aria-pressed={selected}
               >
@@ -81,21 +81,16 @@ export function StepResolution({
                     "flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ring-1",
                     selected
                       ? meta.accent
-                      : "bg-white/[0.06] text-zinc-400 ring-white/10",
+                      : "bg-[color-mix(in_srgb,var(--foreground)_6%,transparent)] text-[var(--foreground-muted)] ring-[var(--border)]",
                   )}
                 >
                   <Icon className="h-4 w-4" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p
-                    className={cn(
-                      "text-[13px] font-semibold tracking-tight",
-                      selected ? "text-white" : "text-zinc-200",
-                    )}
-                  >
+                  <p className="text-[13px] font-semibold tracking-tight text-[var(--foreground)]">
                     {meta.label}
                   </p>
-                  <p className="mt-0.5 text-[11px] leading-snug text-zinc-500">
+                  <p className="mt-0.5 text-[11px] leading-snug text-[var(--foreground-muted)]">
                     {meta.blurb}
                   </p>
                 </div>

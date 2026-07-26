@@ -56,7 +56,7 @@ export function ThemeToggle({
         aria-label={`Theme: ${LABEL[current as keyof typeof LABEL]}. Click to cycle.`}
         title={`Theme: ${LABEL[current as keyof typeof LABEL]}`}
         className={cn(
-          "flex h-8 w-8 items-center justify-center rounded-lg bg-white/[0.04] text-zinc-300 ring-1 ring-white/[0.08] transition hover:bg-white/[0.08] hover:text-white",
+          "flex h-8 w-8 items-center justify-center rounded-lg bg-[color-mix(in_srgb,var(--foreground)_4%,transparent)] text-[var(--foreground-muted)] ring-1 ring-[var(--border)] transition hover:bg-[color-mix(in_srgb,var(--foreground)_8%,transparent)] hover:text-[var(--foreground)]",
           className,
         )}
       >
@@ -76,7 +76,7 @@ export function ThemeToggle({
     return (
       <div
         className={cn(
-          "inline-flex items-center gap-0.5 rounded-lg bg-black/25 p-0.5 ring-1 ring-white/[0.06]",
+          "inline-flex items-center gap-0.5 rounded-lg bg-[color-mix(in_srgb,var(--foreground)_4%,transparent)] p-0.5 ring-1 ring-[var(--border)]",
           className,
         )}
         role="group"
@@ -96,8 +96,8 @@ export function ThemeToggle({
               className={cn(
                 "flex h-7 w-7 items-center justify-center rounded-md transition",
                 active
-                  ? "bg-white/[0.1] text-white ring-1 ring-cyan-400/30"
-                  : "text-zinc-500 hover:text-zinc-200",
+                  ? "bg-[color-mix(in_srgb,var(--accent)_18%,transparent)] text-[var(--foreground)] ring-1 ring-[var(--accent)]/30"
+                  : "text-[var(--foreground-muted)] hover:text-[var(--foreground)]",
               )}
             >
               <OptIcon className="h-3 w-3" />
@@ -115,7 +115,7 @@ export function ThemeToggle({
       aria-label={`Theme: ${LABEL[current as keyof typeof LABEL]}. Click to cycle.`}
       title={`Theme: ${LABEL[current as keyof typeof LABEL]}`}
       className={cn(
-        "inline-flex h-9 w-9 items-center justify-center rounded-lg bg-white/[0.04] text-zinc-300 ring-1 ring-white/[0.08] transition hover:bg-white/[0.08] hover:text-white",
+        "inline-flex h-9 w-9 items-center justify-center rounded-lg bg-[color-mix(in_srgb,var(--foreground)_4%,transparent)] text-[var(--foreground-muted)] ring-1 ring-[var(--border)] transition hover:bg-[color-mix(in_srgb,var(--foreground)_8%,transparent)] hover:text-[var(--foreground)]",
         className,
       )}
     >

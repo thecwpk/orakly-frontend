@@ -35,9 +35,9 @@ export function WizardStepper({
               onClick={() => onSelect(i)}
               className={cn(
                 "group block w-full rounded-lg px-2.5 py-2 text-left transition",
-                "ring-1 ring-white/8 hover:bg-white/[0.04]",
+                "ring-1 ring-[var(--border)] hover:bg-[color-mix(in_srgb,var(--foreground)_4%,transparent)]",
                 "disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent",
-                status === "current" && "bg-white/[0.06] ring-cyan-400/40",
+                status === "current" && "bg-[color-mix(in_srgb,var(--foreground)_6%,transparent)] ring-cyan-400/40",
               )}
               aria-current={status === "current" ? "step" : undefined}
             >
@@ -51,8 +51,8 @@ export function WizardStepper({
                       "bg-cyan-500/20 text-cyan-100 ring-cyan-400/50",
                     status === "upcoming" &&
                       (wasVisited
-                        ? "bg-white/10 text-zinc-300 ring-white/15"
-                        : "bg-white/5 text-zinc-500 ring-white/10"),
+                        ? "bg-[color-mix(in_srgb,var(--foreground)_8%,transparent)] text-[var(--foreground)]/80 ring-[var(--border)]"
+                        : "bg-[color-mix(in_srgb,var(--foreground)_5%,transparent)] text-[var(--foreground-muted)] ring-[var(--border)]"),
                   )}
                 >
                   {status === "complete" ? (
@@ -65,12 +65,12 @@ export function WizardStepper({
                   <p
                     className={cn(
                       "truncate text-[12px] font-semibold tracking-tight",
-                      status === "upcoming" ? "text-zinc-500" : "text-white",
+                      status === "upcoming" ? "text-[var(--foreground-muted)]" : "text-[var(--foreground)]",
                     )}
                   >
                     {step.label}
                   </p>
-                  <p className="hidden truncate text-[10px] text-zinc-600 sm:block">
+                  <p className="hidden truncate text-[10px] text-[var(--foreground-muted)] sm:block">
                     {step.hint}
                   </p>
                 </div>
@@ -83,7 +83,7 @@ export function WizardStepper({
                   transition={{ type: "spring", stiffness: 400, damping: 32 }}
                 />
               ) : (
-                <span className="mt-2 block h-0.5 w-full rounded-full bg-white/[0.04]" />
+                <span className="mt-2 block h-0.5 w-full rounded-full bg-[color-mix(in_srgb,var(--foreground)_4%,transparent)]" />
               )}
             </button>
           </li>

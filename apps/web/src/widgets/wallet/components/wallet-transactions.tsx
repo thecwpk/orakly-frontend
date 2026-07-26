@@ -79,22 +79,22 @@ function WalletTransactionsInner({
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.2, duration: 0.35 }}
-      className="glass-panel-strong overflow-hidden rounded-2xl ring-1 ring-white/[0.06]"
+      className="glass-panel-strong overflow-hidden rounded-2xl ring-1 ring-[var(--border)]"
     >
-      <header className="flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.06] px-4 py-2.5 sm:px-5">
+      <header className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--border)] px-4 py-2.5 sm:px-5">
         <div className="flex items-center gap-2">
           <span className="inline-flex h-7 w-7 items-center justify-center rounded-md bg-cyan-500/10 text-cyan-300 ring-1 ring-cyan-400/25">
             <Receipt className="h-3.5 w-3.5" />
           </span>
           <div>
-            <p className="text-[9.5px] font-semibold uppercase tracking-[0.2em] text-zinc-500">
+            <p className="text-[9.5px] font-semibold uppercase tracking-[0.2em] text-[var(--foreground-muted)]">
               History
             </p>
-            <p className="text-[13px] font-semibold text-white">Transactions</p>
+            <p className="text-[13px] font-semibold text-[var(--foreground)]">Transactions</p>
           </div>
         </div>
-        <div className="inline-flex items-center gap-0.5 rounded-md bg-black/30 p-0.5 ring-1 ring-white/[0.08]">
-          <span className="px-1.5 text-zinc-600">
+        <div className="inline-flex items-center gap-0.5 rounded-md bg-[color-mix(in_srgb,var(--foreground)_5%,transparent)] p-0.5 ring-1 ring-[var(--border)]">
+          <span className="px-1.5 text-[var(--foreground-muted)]">
             <Filter className="h-3 w-3" aria-hidden />
           </span>
           {FILTERS.map((f) => {
@@ -108,8 +108,8 @@ function WalletTransactionsInner({
                 className={cn(
                   "rounded-sm px-2 py-1 text-[10.5px] font-bold transition",
                   isActive
-                    ? "bg-white/[0.08] text-zinc-100 ring-1 ring-white/[0.08]"
-                    : "text-zinc-500 hover:text-zinc-300",
+                    ? "bg-[color-mix(in_srgb,var(--foreground)_8%,transparent)] text-[var(--foreground)] ring-1 ring-[var(--border)]"
+                    : "text-[var(--foreground-muted)] hover:text-[var(--foreground)]/80",
                 )}
               >
                 {f.label}
@@ -125,7 +125,7 @@ function WalletTransactionsInner({
         ) : (
           <table className="w-full min-w-[640px] border-collapse text-left text-[12px]">
             <thead>
-              <tr className="text-[9.5px] font-semibold uppercase tracking-[0.18em] text-zinc-500">
+              <tr className="text-[9.5px] font-semibold uppercase tracking-[0.18em] text-[var(--foreground-muted)]">
                 <th className="px-4 py-2 sm:px-5">Type</th>
                 <th className="px-2 py-2">Reference</th>
                 <th className="px-2 py-2 text-right">Amount</th>
@@ -133,7 +133,7 @@ function WalletTransactionsInner({
                 <th className="px-4 py-2 pr-4 text-right sm:pr-5">When</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/[0.04]">
+            <tbody className="divide-y divide-[var(--border)]">
               {filtered.map((tx) => {
                 const meta = KIND_META[tx.kind];
                 const Icon = meta.icon;
@@ -142,7 +142,7 @@ function WalletTransactionsInner({
                   <tr
                     key={tx.id}
                     className={cn(
-                      "transition-colors hover:bg-white/[0.025]",
+                      "transition-colors hover:bg-[color-mix(in_srgb,var(--foreground)_3%,transparent)]",
                       tx.status === "PENDING" && "opacity-70",
                     )}
                   >
@@ -158,7 +158,7 @@ function WalletTransactionsInner({
                       </span>
                     </td>
                     <td className="px-2 py-2.5">
-                      <span className="font-mono text-[11px] text-zinc-400">
+                      <span className="font-mono text-[11px] text-[var(--foreground-muted)]">
                         {tx.label}
                       </span>
                     </td>
@@ -172,14 +172,14 @@ function WalletTransactionsInner({
                         {positive ? "+" : "−"}
                         {compactUsd(Math.abs(tx.amountUsd))}
                       </span>
-                      <span className="ml-1 hidden text-[10px] text-zinc-500 sm:inline">
+                      <span className="ml-1 hidden text-[10px] text-[var(--foreground-muted)] sm:inline">
                         {fullUsd(Math.abs(tx.amountUsd))}
                       </span>
                     </td>
                     <td className="px-2 py-2.5 text-right">
                       <StatusPill status={tx.status} />
                     </td>
-                    <td className="px-4 py-2.5 pr-4 text-right font-mono text-[11px] text-zinc-500 sm:pr-5">
+                    <td className="px-4 py-2.5 pr-4 text-right font-mono text-[11px] text-[var(--foreground-muted)] sm:pr-5">
                       {timeAgo(tx.at)}
                     </td>
                   </tr>
@@ -191,12 +191,12 @@ function WalletTransactionsInner({
       </div>
 
       {hasNextPage ? (
-        <div className="border-t border-white/[0.06] p-3">
+        <div className="border-t border-[var(--border)] p-3">
           <button
             type="button"
             onClick={onLoadMore}
             disabled={isFetchingMore}
-            className="flex w-full items-center justify-center gap-2 rounded-xl bg-white/[0.04] py-2.5 text-[12.5px] font-semibold text-zinc-200 ring-1 ring-white/[0.08] transition hover:bg-white/[0.08] disabled:opacity-50"
+            className="flex w-full items-center justify-center gap-2 rounded-xl bg-[color-mix(in_srgb,var(--foreground)_4%,transparent)] py-2.5 text-[12.5px] font-semibold text-[var(--foreground)] ring-1 ring-[var(--border)] transition hover:bg-[color-mix(in_srgb,var(--foreground)_6%,transparent)] disabled:opacity-50"
           >
             {isFetchingMore ? (
               <>
@@ -255,10 +255,10 @@ function EmptyState({
             key={i}
             className="flex items-center gap-3 py-2"
           >
-            <div className="h-5 w-20 rounded-md bg-white/[0.05] skeleton-shimmer" />
-            <div className="h-4 flex-1 rounded bg-white/[0.04] skeleton-shimmer" />
-            <div className="h-4 w-16 rounded bg-white/[0.05] skeleton-shimmer" />
-            <div className="h-4 w-12 rounded bg-white/[0.04] skeleton-shimmer" />
+            <div className="h-5 w-20 rounded-md bg-[color-mix(in_srgb,var(--foreground)_5%,transparent)] skeleton-shimmer" />
+            <div className="h-4 flex-1 rounded bg-[color-mix(in_srgb,var(--foreground)_4%,transparent)] skeleton-shimmer" />
+            <div className="h-4 w-16 rounded bg-[color-mix(in_srgb,var(--foreground)_5%,transparent)] skeleton-shimmer" />
+            <div className="h-4 w-12 rounded bg-[color-mix(in_srgb,var(--foreground)_4%,transparent)] skeleton-shimmer" />
           </div>
         ))}
       </div>
@@ -274,11 +274,11 @@ function EmptyState({
           : "transactions";
   return (
     <div className="flex flex-col items-center gap-2 px-4 py-10 text-center sm:px-5">
-      <Receipt className="h-5 w-5 text-zinc-600" />
-      <p className="text-[12px] font-medium text-zinc-300">
+      <Receipt className="h-5 w-5 text-[var(--foreground-muted)]" />
+      <p className="text-[12px] font-medium text-[var(--foreground)]/80">
         No {label} yet
       </p>
-      <p className="max-w-xs text-[11px] leading-snug text-zinc-500">
+      <p className="max-w-xs text-[11px] leading-snug text-[var(--foreground-muted)]">
         Your wallet activity will appear here as it lands on Orakly.
       </p>
     </div>

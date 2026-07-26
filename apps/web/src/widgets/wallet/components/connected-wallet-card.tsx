@@ -69,18 +69,18 @@ function ConnectedWalletCardInner({ authedAddress }: Props) {
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.05, duration: 0.35 }}
-      className="glass-panel-strong overflow-hidden rounded-2xl ring-1 ring-white/[0.06]"
+      className="glass-panel-strong overflow-hidden rounded-2xl ring-1 ring-[var(--border)]"
     >
-      <header className="flex items-center justify-between gap-2 border-b border-white/[0.06] px-4 py-2.5 sm:px-5">
+      <header className="flex items-center justify-between gap-2 border-b border-[var(--border)] px-4 py-2.5 sm:px-5">
         <div className="flex items-center gap-2">
           <span className="inline-flex h-7 w-7 items-center justify-center rounded-md bg-cyan-500/10 text-cyan-300 ring-1 ring-cyan-400/25">
             <Plug className="h-3.5 w-3.5" />
           </span>
           <div>
-            <p className="text-[9.5px] font-semibold uppercase tracking-[0.2em] text-zinc-500">
+            <p className="text-[9.5px] font-semibold uppercase tracking-[0.2em] text-[var(--foreground-muted)]">
               Identity
             </p>
-            <p className="text-[13px] font-semibold text-white">Connected wallet</p>
+            <p className="text-[13px] font-semibold text-[var(--foreground)]">Connected wallet</p>
           </div>
         </div>
         <ConnectionPill
@@ -92,8 +92,8 @@ function ConnectedWalletCardInner({ authedAddress }: Props) {
 
       {!isConnected ? (
         <div className="flex flex-col items-center justify-center gap-3 px-4 py-8 text-center sm:px-5">
-          <p className="text-[13px] font-medium text-zinc-200">No wallet connected</p>
-          <p className="max-w-xs text-[11.5px] leading-snug text-zinc-500">
+          <p className="text-[13px] font-medium text-[var(--foreground)]">No wallet connected</p>
+          <p className="max-w-xs text-[11.5px] leading-snug text-[var(--foreground-muted)]">
             Link MetaMask or any RainbowKit-supported wallet to deposit, withdraw, and trade.
           </p>
           <ConnectButton
@@ -107,14 +107,14 @@ function ConnectedWalletCardInner({ authedAddress }: Props) {
         <>
           <div className="flex flex-wrap items-center justify-between gap-2 px-4 py-3 sm:px-5">
             <div className="flex min-w-0 items-center gap-2.5">
-              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-emerald-500/35 via-teal-500/25 to-cyan-500/35 font-mono text-[11px] font-semibold uppercase text-white ring-1 ring-white/15">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-emerald-500/35 via-teal-500/25 to-cyan-500/35 font-mono text-[11px] font-semibold uppercase text-white ring-1 ring-[var(--border)]">
                 {address?.slice(2, 4) ?? "··"}
               </span>
               <div className="min-w-0">
-                <p className="font-mono text-[13px] font-semibold tracking-tight text-zinc-100">
+                <p className="font-mono text-[13px] font-semibold tracking-tight text-[var(--foreground)]">
                   {shortAddress(address)}
                 </p>
-                <p className="font-mono text-[10px] text-zinc-500">
+                <p className="font-mono text-[10px] text-[var(--foreground-muted)]">
                   {connector?.name ?? "Wallet"}
                 </p>
               </div>
@@ -125,7 +125,7 @@ function ConnectedWalletCardInner({ authedAddress }: Props) {
                 onClick={() => void handleCopy()}
                 aria-label="Copy address"
                 className={cn(
-                  "inline-flex h-8 w-8 items-center justify-center rounded-md text-zinc-400 ring-1 ring-white/[0.06] transition hover:bg-white/[0.06] hover:text-zinc-100",
+                  "inline-flex h-8 w-8 items-center justify-center rounded-md text-[var(--foreground-muted)] ring-1 ring-[var(--border)] transition hover:bg-[color-mix(in_srgb,var(--foreground)_6%,transparent)] hover:text-[var(--foreground)]",
                   copied && "bg-emerald-500/10 text-emerald-200 ring-emerald-400/25",
                 )}
               >
@@ -141,7 +141,7 @@ function ConnectedWalletCardInner({ authedAddress }: Props) {
                   target="_blank"
                   rel="noreferrer"
                   aria-label="View on explorer"
-                  className="inline-flex h-8 w-8 items-center justify-center rounded-md text-zinc-400 ring-1 ring-white/[0.06] transition hover:bg-white/[0.06] hover:text-zinc-100"
+                  className="inline-flex h-8 w-8 items-center justify-center rounded-md text-[var(--foreground-muted)] ring-1 ring-[var(--border)] transition hover:bg-[color-mix(in_srgb,var(--foreground)_6%,transparent)] hover:text-[var(--foreground)]"
                 >
                   <ExternalLink className="h-3.5 w-3.5" />
                 </a>
@@ -149,7 +149,7 @@ function ConnectedWalletCardInner({ authedAddress }: Props) {
             </div>
           </div>
 
-          <dl className="space-y-1 border-t border-white/[0.06] px-4 py-2.5 text-[12px] sm:px-5">
+          <dl className="space-y-1 border-t border-[var(--border)] px-4 py-2.5 text-[12px] sm:px-5">
             <RowKV
               label="Network"
               value={chain?.name ?? "Unknown"}
@@ -202,7 +202,7 @@ function ConnectedWalletCardInner({ authedAddress }: Props) {
             </div>
           ) : null}
 
-          <div className="flex items-center gap-2 border-t border-white/[0.06] px-4 py-2.5 sm:px-5">
+          <div className="flex items-center gap-2 border-t border-[var(--border)] px-4 py-2.5 sm:px-5">
             <button
               type="button"
               onClick={async () => {
@@ -241,8 +241,8 @@ function ConnectionPill({
   }
   if (!isConnected) {
     return (
-      <span className="inline-flex items-center gap-1 rounded-md bg-zinc-500/10 px-1.5 py-1 text-[10px] font-bold text-zinc-400 ring-1 ring-white/10">
-        <span className="h-1.5 w-1.5 rounded-full bg-zinc-500" aria-hidden />
+      <span className="inline-flex items-center gap-1 rounded-md bg-[color-mix(in_srgb,var(--foreground)_5%,transparent)] px-1.5 py-1 text-[10px] font-bold text-[var(--foreground-muted)] ring-1 ring-[var(--border)]">
+        <span className="h-1.5 w-1.5 rounded-full bg-[var(--foreground-muted)]" aria-hidden />
         Disconnected
       </span>
     );
@@ -279,10 +279,10 @@ function RowKV({
 }) {
   return (
     <div className="flex items-center justify-between gap-3 py-1">
-      <dt className="text-[11px] uppercase tracking-wider text-zinc-500">{label}</dt>
+      <dt className="text-[11px] uppercase tracking-wider text-[var(--foreground-muted)]">{label}</dt>
       <dd
         className={cn(
-          "flex items-center gap-1.5 text-[12px] text-zinc-200",
+          "flex items-center gap-1.5 text-[12px] text-[var(--foreground)]",
           mono && "font-mono tabular-nums",
         )}
       >

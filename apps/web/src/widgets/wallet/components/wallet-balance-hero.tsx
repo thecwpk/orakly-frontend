@@ -26,8 +26,8 @@ function Cell({
           ? "text-amber-200"
           : "text-cyan-200";
   return (
-    <div className="rounded-xl bg-black/35 px-3 py-2.5 ring-1 ring-white/[0.06]">
-      <p className="text-[9.5px] font-bold uppercase tracking-[0.18em] text-zinc-500">
+    <div className="rounded-xl bg-[color-mix(in_srgb,var(--foreground)_5%,transparent)] px-3 py-2.5 ring-1 ring-[var(--border)]">
+      <p className="text-[9.5px] font-bold uppercase tracking-[0.18em] text-[var(--foreground-muted)]">
         {label}
       </p>
       <p
@@ -39,7 +39,7 @@ function Cell({
         {value}
       </p>
       {hint ? (
-        <p className="mt-1 font-mono text-[10px] text-zinc-600">{hint}</p>
+        <p className="mt-1 font-mono text-[10px] text-[var(--foreground-muted)]">{hint}</p>
       ) : null}
     </div>
   );
@@ -71,7 +71,7 @@ function WalletBalanceHeroInner({
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-      className="relative overflow-hidden rounded-xl border border-white/[0.07] bg-[#0a0a12]/92 p-4 sm:p-5"
+      className="relative overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--background)] p-4 sm:p-5"
     >
       <div className="relative flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div className="flex gap-3">
@@ -79,13 +79,13 @@ function WalletBalanceHeroInner({
             <Wallet className="h-5 w-5 text-cyan-200" />
           </div>
           <div className="min-w-0">
-            <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-zinc-500">
+            <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[var(--foreground-muted)]">
               On-chain balance
             </p>
-            <p className="mt-0.5 font-mono text-2xl font-semibold tracking-tight text-white sm:text-3xl">
+            <p className="mt-0.5 font-mono text-2xl font-semibold tracking-tight text-[var(--foreground)] sm:text-3xl">
               {fullUsd(totalUsd)}
             </p>
-            <p className="mt-1 text-[11px] text-zinc-500">
+            <p className="mt-1 text-[11px] text-[var(--foreground-muted)]">
               Collateral + open positions · BSC testnet
             </p>
           </div>
@@ -110,7 +110,7 @@ function WalletBalanceHeroInner({
             onClick={onRefresh}
             disabled={!isConnected || refreshing}
             aria-label="Refresh balances"
-            className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-white/[0.04] text-zinc-300 ring-1 ring-white/10 transition hover:bg-white/[0.08] hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
+            className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-[color-mix(in_srgb,var(--foreground)_4%,transparent)] text-[var(--foreground)]/80 ring-1 ring-[var(--border)] transition hover:bg-[color-mix(in_srgb,var(--foreground)_6%,transparent)] hover:text-[var(--foreground)] disabled:cursor-not-allowed disabled:opacity-50"
           >
             <RefreshCw className={cn("h-3.5 w-3.5", refreshing && "animate-spin")} />
           </button>

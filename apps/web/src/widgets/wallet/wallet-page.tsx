@@ -102,17 +102,17 @@ export function WalletPage() {
       <motion.header
         initial={{ opacity: 0, y: -6 }}
         animate={{ opacity: 1, y: 0 }}
-        className="mb-s40 flex flex-wrap items-end justify-between gap-r16 border-b border-white/[0.06] pb-r24"
+        className="mb-s40 flex flex-wrap items-end justify-between gap-r16 border-b border-[var(--border)] pb-r24"
       >
         <div className="min-w-0">
           <p className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.22em] text-cyan-400/90">
             <Wallet className="h-3 w-3" />
             On-chain treasury
           </p>
-          <h1 className="mt-1.5 text-balance text-2xl font-semibold tracking-tight text-white sm:text-[1.65rem]">
+          <h1 className="mt-1.5 text-balance text-2xl font-semibold tracking-tight text-[var(--foreground)] sm:text-[1.65rem]">
             Wallet
           </h1>
-          <p className="mt-1.5 max-w-xl text-[12.5px] text-zinc-500">
+          <p className="mt-1.5 max-w-xl text-[12.5px] text-[var(--foreground-muted)]">
             Connect MetaMask on BSC testnet, fund collateral, and trade deployed
             markets — balances and positions read directly from chain.
           </p>
@@ -120,7 +120,7 @@ export function WalletPage() {
         <div className="flex flex-wrap items-center gap-r16">
           <Link
             href={ROUTES.blockchainConnect}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-white/[0.05] px-3 py-2 text-[12px] font-medium text-zinc-200 ring-1 ring-white/10 transition hover:bg-white/[0.1]"
+            className="inline-flex items-center gap-1.5 rounded-lg bg-[color-mix(in_srgb,var(--foreground)_5%,transparent)] px-3 py-2 text-[12px] font-medium text-[var(--foreground)] ring-1 ring-[var(--border)] transition hover:bg-[color-mix(in_srgb,var(--foreground)_8%,transparent)]"
           >
             <ShieldCheck className="h-3.5 w-3.5" />
             Sign in
@@ -181,8 +181,8 @@ export function WalletPage() {
         />
       </section>
 
-      <section className="rounded-xl border border-white/[0.06] bg-white/[0.02] px-4 py-3 text-[12px] text-zinc-400">
-        <p className="font-medium text-zinc-300">Need test collateral?</p>
+      <section className="rounded-xl border border-[var(--border)] bg-[color-mix(in_srgb,var(--foreground)_3%,transparent)] px-4 py-3 text-[12px] text-[var(--foreground-muted)]">
+        <p className="font-medium text-[var(--foreground)]/80">Need test collateral?</p>
         <p className="mt-1 leading-relaxed">
           Obtain test USDC from the faucet, then approve the market contract when
           you place your first trade. Gas is paid in tBNB.

@@ -335,7 +335,7 @@ export function HubFeaturedTradingCard({
                             {row.ago}
                           </p>
                         </div>
-                        <p className="hub-featured-news-headline mt-0.5 line-clamp-2 text-[11.5px] font-medium leading-snug text-white">
+                        <p className="hub-featured-news-headline mt-0.5 line-clamp-2 text-[11.5px] font-medium leading-snug text-[var(--hub-fg)]">
                           {row.headline}
                         </p>
                       </div>
@@ -383,12 +383,12 @@ export function HubFeaturedTradingCard({
           </div>
           <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-2 sm:justify-end">
             <span className="font-mono text-[11px] tabular-nums text-[var(--hub-muted)]">
-              Ends <span className="font-semibold text-white">{fmtEndsLong(market.closesAt)}</span>
+              Ends <span className="font-semibold text-[var(--hub-fg)]">{fmtEndsLong(market.closesAt)}</span>
             </span>
             <span className="hidden h-4 w-px bg-[var(--hub-border)] sm:block" aria-hidden />
             <PrefetchLink
               href={ROUTES.market(market.slug)}
-              className="hub-featured-footer-cta inline-flex items-center gap-1.5 rounded-lg border border-[color-mix(in_srgb,var(--hub-primary)_45%,var(--hub-border))] bg-[color-mix(in_srgb,var(--hub-primary)_12%,transparent)] px-3 py-1.5 font-mono text-[10px] font-semibold uppercase tracking-[0.12em] text-white transition hover:border-[var(--hub-primary)] hover:bg-[color-mix(in_srgb,var(--hub-primary)_22%,transparent)]"
+              className="hub-featured-footer-cta inline-flex items-center gap-1.5 rounded-lg border border-[color-mix(in_srgb,var(--hub-primary)_45%,var(--hub-border))] bg-[color-mix(in_srgb,var(--hub-primary)_12%,transparent)] px-3 py-1.5 font-mono text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--hub-fg)] transition hover:border-[var(--hub-primary)] hover:bg-[color-mix(in_srgb,var(--hub-primary)_22%,transparent)]"
             >
               Full book
               <ArrowUpRight className="h-3.5 w-3.5 opacity-90" aria-hidden />

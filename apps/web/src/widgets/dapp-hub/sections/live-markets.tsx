@@ -179,7 +179,7 @@ export function HubLiveMarketCard({
         ) : null}
       </div>
 
-      <div className="mt-3 overflow-hidden rounded-lg border border-[var(--hub-glass-border)] bg-black/20 px-2 py-1.5">
+      <div className="mt-3 overflow-hidden rounded-lg border border-[var(--hub-glass-border)] bg-[var(--hub-track-bg)] px-2 py-1.5">
         <Sparkline
           data={sparkSeries}
           width={320}
@@ -303,7 +303,7 @@ export function LiveMarkets() {
       </div>
 
       <div
-        className="flex w-fit gap-1 rounded-xl border border-[var(--hub-glass-border)] bg-white/[0.04] p-1 backdrop-blur-sm"
+        className="flex w-fit gap-1 rounded-xl border border-[var(--hub-glass-border)] bg-[color-mix(in_srgb,var(--hub-fg)_4%,transparent)] p-1 backdrop-blur-sm"
         role="tablist"
         aria-label="Market sort"
       >

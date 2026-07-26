@@ -34,7 +34,7 @@ export function MobileBottomNav() {
         "rounded-t-2xl border border-b-0 pb-[env(safe-area-inset-bottom)]",
         hubLight
           ? "border-[var(--hub-border)] bg-[var(--hub-chrome)] shadow-[0_-2px_20px_rgb(0_0_0_/_0.35)] backdrop-blur-md"
-          : "border-[rgba(96,165,250,0.16)] bg-[hsl(215_40%_11%/_0.98)] shadow-[0_-4px_24px_rgba(15,40,80,0.45)] backdrop-blur-md supports-[backdrop-filter]:backdrop-blur-xl",
+          : "border-[var(--border)] bg-[var(--app-chrome)] shadow-[0_-4px_24px_color-mix(in_srgb,var(--foreground)_12%,transparent)] backdrop-blur-md supports-[backdrop-filter]:backdrop-blur-xl",
       )}
     >
       <ul className="grid grid-cols-5">
@@ -51,15 +51,17 @@ export function MobileBottomNav() {
                 className={cn(
                   "relative flex min-h-[52px] flex-col items-center justify-center gap-0.5 px-1 py-1.5 text-[10px] font-medium tracking-wide transition-colors",
                   "active:scale-[0.97]",
-                  hubLight ? "active:bg-[var(--hub-primary-soft)]" : "active:bg-white/[0.04]",
-                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3b82f6]/35",
+                  hubLight
+                    ? "active:bg-[var(--hub-primary-soft)]"
+                    : "active:bg-[color-mix(in_srgb,var(--foreground)_5%,transparent)]",
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]/35",
                   hubLight
                     ? active
                       ? "text-[var(--hub-fg)]"
                       : "text-[var(--hub-muted)] hover:text-[var(--hub-fg)]"
                     : active
-                      ? "text-[#f0f6ff]"
-                      : "text-[#8ba3c7] hover:text-[#f0f6ff]",
+                      ? "text-[var(--foreground)]"
+                      : "text-[var(--foreground-muted)] hover:text-[var(--foreground)]",
                 )}
               >
                 <span
@@ -70,7 +72,7 @@ export function MobileBottomNav() {
                         ? "bg-[var(--hub-primary-soft)]"
                         : "bg-transparent"
                       : active
-                        ? "bg-[#3b82f6]/15"
+                        ? "bg-[color-mix(in_srgb,var(--accent)_15%,transparent)]"
                         : "bg-transparent",
                   )}
                 >
@@ -82,7 +84,7 @@ export function MobileBottomNav() {
                           ? "text-[var(--hub-primary)]"
                           : "text-current"
                         : active
-                          ? "text-[#60a5fa]"
+                          ? "text-[var(--accent)]"
                           : "text-current",
                     )}
                   />
@@ -93,7 +95,7 @@ export function MobileBottomNav() {
                     layoutId="mobile-active-indicator"
                     className={cn(
                       "absolute inset-x-6 top-0 h-0.5 rounded-full",
-                      hubLight ? "bg-[var(--hub-primary)]" : "bg-[#3b82f6]",
+                      hubLight ? "bg-[var(--hub-primary)]" : "bg-[var(--accent)]",
                     )}
                     transition={{
                       type: "spring",

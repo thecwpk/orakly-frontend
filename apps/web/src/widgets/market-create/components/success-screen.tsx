@@ -37,10 +37,10 @@ export function SuccessScreen({
               Submitted
             </span>
           </div>
-          <h2 className="mt-4 text-balance text-2xl font-semibold leading-tight tracking-tight text-white sm:text-[1.65rem]">
+          <h2 className="mt-4 text-balance text-2xl font-semibold leading-tight tracking-tight text-[var(--foreground)] sm:text-[1.65rem]">
             Your market is in the discovery feed.
           </h2>
-          <p className="mt-2 max-w-md text-sm leading-relaxed text-zinc-400">
+          <p className="mt-2 max-w-md text-sm leading-relaxed text-[var(--foreground-muted)]">
             Liquidity will warm up as the first quotes arrive. Share the link to
             attract takers — settlement parameters lock once the first trade
             executes.
@@ -56,14 +56,14 @@ export function SuccessScreen({
             </Link>
             <Link
               href={ROUTES.discover}
-              className="inline-flex items-center gap-1.5 rounded-xl bg-white/[0.05] px-4 py-2.5 text-[13px] font-medium text-zinc-200 ring-1 ring-white/10 transition hover:bg-white/[0.1]"
+              className="inline-flex items-center gap-1.5 rounded-xl bg-[color-mix(in_srgb,var(--foreground)_5%,transparent)] px-4 py-2.5 text-[13px] font-medium text-[var(--foreground)] ring-1 ring-[var(--border)] transition hover:bg-[color-mix(in_srgb,var(--foreground)_8%,transparent)]"
             >
               Back to markets
             </Link>
             <button
               type="button"
               onClick={onCreateAnother}
-              className="inline-flex items-center gap-1.5 rounded-xl bg-white/[0.04] px-4 py-2.5 text-[13px] font-medium text-zinc-400 ring-1 ring-white/[0.08] transition hover:bg-white/[0.08] hover:text-zinc-100"
+              className="inline-flex items-center gap-1.5 rounded-xl bg-[color-mix(in_srgb,var(--foreground)_4%,transparent)] px-4 py-2.5 text-[13px] font-medium text-[var(--foreground-muted)] ring-1 ring-[var(--border)] transition hover:bg-[color-mix(in_srgb,var(--foreground)_6%,transparent)] hover:text-[var(--foreground)]"
             >
               <RotateCcw className="h-3.5 w-3.5" />
               Create another

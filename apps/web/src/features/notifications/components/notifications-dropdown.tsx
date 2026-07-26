@@ -244,7 +244,7 @@ export function NotificationsDropdown() {
         aria-expanded={open}
         aria-haspopup="dialog"
         onClick={() => setOpen(!open)}
-        className="relative inline-flex size-9 shrink-0 items-center justify-center rounded-md text-[#94a3b8] transition-colors hover:bg-white/5 hover:text-white"
+        className="relative inline-flex size-9 shrink-0 items-center justify-center rounded-md text-[var(--foreground-muted)] transition-colors hover:bg-[color-mix(in_srgb,var(--foreground)_5%,transparent)] hover:text-[var(--foreground)]"
       >
         <Bell className="size-[18px]" strokeWidth={2} />
         <AnimatePresence>
@@ -255,7 +255,7 @@ export function NotificationsDropdown() {
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.6, opacity: 0 }}
               transition={{ type: "spring", stiffness: 500, damping: 22 }}
-              className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-red-500 ring-2 ring-[#0f1117]"
+              className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-red-500 ring-2 ring-[var(--background)]"
               aria-hidden
             />
           ) : null}
@@ -273,18 +273,18 @@ export function NotificationsDropdown() {
             transition={{ duration: 0.15 }}
             className={cn(
               "absolute right-0 top-[calc(100%+10px)] z-50 flex w-[min(calc(100vw-1.5rem),380px)] flex-col overflow-hidden",
-              "max-h-[480px] rounded-xl border border-white/[0.08] bg-[#12141c] shadow-xl",
+              "max-h-[480px] rounded-xl border border-[var(--border)] bg-[var(--popover)] shadow-xl",
             )}
           >
-            <div className="flex shrink-0 items-center gap-2 border-b border-white/[0.06] px-3 py-2.5">
-              <p className="min-w-0 flex-1 text-[13px] font-semibold tracking-tight text-white">
+            <div className="flex shrink-0 items-center gap-2 border-b border-[var(--border)] px-3 py-2.5">
+              <p className="min-w-0 flex-1 text-[13px] font-semibold tracking-tight text-[var(--foreground)]">
                 Notifications
               </p>
               <button
                 type="button"
                 disabled={!connected || unreadCount === 0}
                 onClick={() => void markRead([], true)}
-                className="text-sm text-zinc-400 transition hover:text-zinc-200 disabled:cursor-not-allowed disabled:opacity-40"
+                className="text-sm text-[var(--foreground-muted)] transition hover:text-[var(--foreground)] disabled:cursor-not-allowed disabled:opacity-40"
               >
                 Mark all read
               </button>
@@ -292,7 +292,7 @@ export function NotificationsDropdown() {
                 type="button"
                 aria-label="Close notifications"
                 onClick={() => setOpen(false)}
-                className="inline-flex size-7 items-center justify-center rounded-md text-zinc-500 transition hover:bg-white/[0.06] hover:text-zinc-200"
+                className="inline-flex size-7 items-center justify-center rounded-md text-[var(--foreground-muted)] transition hover:bg-[color-mix(in_srgb,var(--foreground)_5%,transparent)] hover:text-[var(--foreground)]"
               >
                 <X className="size-3.5" />
               </button>
@@ -301,7 +301,7 @@ export function NotificationsDropdown() {
             <div className="min-h-0 flex-1 overflow-y-auto [scrollbar-width:thin]">
               {!connected ? (
                 <div className="px-4 py-10 text-center">
-                  <p className="text-[13px] font-medium text-zinc-300">
+                  <p className="text-[13px] font-medium text-[var(--foreground)]/80">
                     Connect wallet to see notifications
                   </p>
                 </div>
@@ -310,17 +310,17 @@ export function NotificationsDropdown() {
                   {Array.from({ length: 4 }).map((_, i) => (
                     <div
                       key={i}
-                      className="h-14 animate-pulse rounded-lg bg-white/[0.04]"
+                      className="h-14 animate-pulse rounded-lg bg-[color-mix(in_srgb,var(--foreground)_4%,transparent)]"
                     />
                   ))}
                 </div>
               ) : items.length === 0 ? (
                 <div className="flex flex-col items-center gap-2 px-4 py-10 text-center">
-                  <CheckCheck className="size-5 text-zinc-600" />
-                  <p className="text-[13px] font-medium text-zinc-300">
+                  <CheckCheck className="size-5 text-[var(--foreground-muted)]" />
+                  <p className="text-[13px] font-medium text-[var(--foreground)]/80">
                     You&apos;re all caught up
                   </p>
-                  <p className="text-[11px] text-zinc-500">
+                  <p className="text-[11px] text-[var(--foreground-muted)]">
                     Settlements, approvals, votes, rewards, and closing
                     markets will show up here.
                   </p>
@@ -329,7 +329,7 @@ export function NotificationsDropdown() {
                 <div className="py-1">
                   {groups.map((group) => (
                     <section key={group.type} className="pb-1">
-                      <p className="sticky top-0 z-[1] bg-[#12141c]/95 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-zinc-500 backdrop-blur-sm">
+                      <p className="sticky top-0 z-[1] bg-[var(--popover)]/95 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--foreground-muted)] backdrop-blur-sm">
                         {group.label}
                       </p>
                       <ul>
@@ -342,7 +342,7 @@ export function NotificationsDropdown() {
                                 type="button"
                                 onClick={() => onRowClick(n)}
                                 className={cn(
-                                  "flex w-full items-start gap-2.5 px-3 py-2.5 text-left transition hover:bg-white/[0.04]",
+                                  "flex w-full items-start gap-2.5 px-3 py-2.5 text-left transition hover:bg-[color-mix(in_srgb,var(--foreground)_5%,transparent)]",
                                   !n.read
                                     ? "bg-sky-500/[0.06] ring-1 ring-inset ring-sky-400/10"
                                     : "opacity-70",
@@ -368,13 +368,13 @@ export function NotificationsDropdown() {
                                     className={cn(
                                       "block text-[13px] leading-snug",
                                       !n.read
-                                        ? "font-medium text-zinc-50"
-                                        : "text-zinc-400",
+                                        ? "font-medium text-[var(--foreground)]"
+                                        : "text-[var(--foreground-muted)]",
                                     )}
                                   >
                                     {n.message}
                                   </span>
-                                  <span className="mt-1 block text-[11px] text-zinc-500">
+                                  <span className="mt-1 block text-[11px] text-[var(--foreground-muted)]">
                                     {formatRelative(n.at)}
                                   </span>
                                 </span>
@@ -389,7 +389,7 @@ export function NotificationsDropdown() {
               )}
             </div>
 
-            <div className="shrink-0 border-t border-white/[0.06] px-3 py-2">
+            <div className="shrink-0 border-t border-[var(--border)] px-3 py-2">
               <button
                 type="button"
                 disabled={!connected}
@@ -397,7 +397,7 @@ export function NotificationsDropdown() {
                   setOpen(false);
                   router.push(ROUTES.settingsNotifications);
                 }}
-                className="w-full text-center text-[12px] font-medium text-zinc-400 transition hover:text-zinc-200 disabled:opacity-40"
+                className="w-full text-center text-[12px] font-medium text-[var(--foreground-muted)] transition hover:text-[var(--foreground)] disabled:opacity-40"
               >
                 View all notifications
               </button>

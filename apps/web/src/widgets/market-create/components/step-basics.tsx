@@ -63,7 +63,7 @@ export function StepBasics({
               <button
                 type="button"
                 onClick={() => setField("slug", suggestSlug(draft.title))}
-                className="inline-flex items-center gap-1 rounded-md bg-white/[0.06] px-2 py-0.5 text-[10px] font-medium text-zinc-300 ring-1 ring-white/10 transition hover:bg-white/[0.1]"
+                className="inline-flex items-center gap-1 rounded-md bg-[color-mix(in_srgb,var(--foreground)_6%,transparent)] px-2 py-0.5 text-[10px] font-medium text-[var(--foreground)]/80 ring-1 ring-[var(--border)] transition hover:bg-[color-mix(in_srgb,var(--foreground)_8%,transparent)]"
               >
                 <Sparkles className="h-3 w-3" />
                 Auto
@@ -72,7 +72,7 @@ export function StepBasics({
           }
         >
           <div className="relative">
-            <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 font-mono text-[11px] text-zinc-600">
+            <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 font-mono text-[11px] text-[var(--foreground-muted)]">
               /markets/
             </span>
             <input
@@ -102,8 +102,8 @@ export function StepBasics({
                   onClick={() => setField("category", cat.slug)}
                   className={cn(
                     "inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[12px] font-medium",
-                    "bg-white/[0.04] text-zinc-400 ring-1 ring-white/10 transition",
-                    "hover:bg-white/[0.08] hover:text-zinc-200",
+                    "bg-[color-mix(in_srgb,var(--foreground)_4%,transparent)] text-[var(--foreground-muted)] ring-1 ring-[var(--border)] transition",
+                    "hover:bg-[color-mix(in_srgb,var(--foreground)_6%,transparent)] hover:text-[var(--foreground)]",
                     accentChipMap[cat.accent],
                   )}
                 >

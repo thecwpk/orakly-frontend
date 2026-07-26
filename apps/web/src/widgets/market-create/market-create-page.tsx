@@ -137,7 +137,7 @@ function CreateMarketBody() {
         <header className="flex flex-wrap items-center gap-3">
           <Link
             href={ROUTES.discover}
-            className="inline-flex items-center gap-2 rounded-full bg-white/[0.05] px-3 py-1.5 text-[12px] font-medium text-zinc-300 ring-1 ring-white/10 transition hover:bg-white/[0.08]"
+            className="inline-flex items-center gap-2 rounded-full bg-[color-mix(in_srgb,var(--foreground)_5%,transparent)] px-3 py-1.5 text-[12px] font-medium text-[var(--foreground)]/80 ring-1 ring-[var(--border)] transition hover:bg-[color-mix(in_srgb,var(--foreground)_6%,transparent)]"
           >
             <ArrowLeft className="h-3.5 w-3.5" />
             Markets
@@ -158,7 +158,7 @@ function CreateMarketBody() {
         <div className="flex flex-wrap items-center gap-3">
           <Link
             href={ROUTES.discover}
-            className="inline-flex items-center gap-2 rounded-full bg-white/[0.05] px-3 py-1.5 text-[12px] font-medium text-zinc-300 ring-1 ring-white/10 transition hover:bg-white/[0.08]"
+            className="inline-flex items-center gap-2 rounded-full bg-[color-mix(in_srgb,var(--foreground)_5%,transparent)] px-3 py-1.5 text-[12px] font-medium text-[var(--foreground)]/80 ring-1 ring-[var(--border)] transition hover:bg-[color-mix(in_srgb,var(--foreground)_6%,transparent)]"
           >
             <ArrowLeft className="h-3.5 w-3.5" />
             Markets
@@ -174,14 +174,14 @@ function CreateMarketBody() {
             setErrors({});
             toast.success("Draft cleared.");
           }}
-          className="inline-flex items-center gap-1.5 rounded-lg bg-white/[0.03] px-2.5 py-1.5 text-[11px] font-medium text-zinc-400 ring-1 ring-white/[0.08] transition hover:bg-white/[0.08] hover:text-zinc-200"
+          className="inline-flex items-center gap-1.5 rounded-lg bg-[color-mix(in_srgb,var(--foreground)_3%,transparent)] px-2.5 py-1.5 text-[11px] font-medium text-[var(--foreground-muted)] ring-1 ring-[var(--border)] transition hover:bg-[color-mix(in_srgb,var(--foreground)_6%,transparent)] hover:text-[var(--foreground)]"
         >
           <Trash2 className="h-3 w-3" />
           Clear draft
         </button>
       </header>
 
-      <h1 className="text-balance text-2xl font-semibold leading-tight tracking-tight text-white sm:text-3xl">
+      <h1 className="text-balance text-2xl font-semibold leading-tight tracking-tight text-[var(--foreground)] sm:text-3xl">
         Spin up a new prediction pool.
       </h1>
 
@@ -189,7 +189,7 @@ function CreateMarketBody() {
         <section className="glass-panel-strong rounded-2xl p-4 sm:p-5">
           <WizardStepper onSelect={goTo} isStepReachable={isStepReachable} />
 
-          <div className="mt-5 border-t border-white/[0.06] pt-5">
+          <div className="mt-5 border-t border-[var(--border)] pt-5">
             <AnimatePresence mode="wait">
               <motion.div
                 key={currentStep.id}
@@ -213,22 +213,22 @@ function CreateMarketBody() {
             </AnimatePresence>
           </div>
 
-          <footer className="mt-6 flex items-center justify-between gap-3 border-t border-white/[0.06] pt-4">
+          <footer className="mt-6 flex items-center justify-between gap-3 border-t border-[var(--border)] pt-4">
             <button
               type="button"
               onClick={prev}
               disabled={stepIndex === 0}
               className={cn(
-                "inline-flex items-center gap-1.5 rounded-lg bg-white/[0.04] px-3 py-2 text-[12px] font-medium text-zinc-300 ring-1 ring-white/10 transition",
-                "hover:bg-white/[0.08] hover:text-white",
-                "disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-white/[0.04]",
+                "inline-flex items-center gap-1.5 rounded-lg bg-[color-mix(in_srgb,var(--foreground)_4%,transparent)] px-3 py-2 text-[12px] font-medium text-[var(--foreground)]/80 ring-1 ring-[var(--border)] transition",
+                "hover:bg-[color-mix(in_srgb,var(--foreground)_6%,transparent)] hover:text-[var(--foreground)]",
+                "disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-[color-mix(in_srgb,var(--foreground)_4%,transparent)]",
               )}
             >
               <ArrowLeft className="h-3.5 w-3.5" />
               Back
             </button>
 
-            <p className="hidden font-mono text-[10px] uppercase tracking-wider text-zinc-600 sm:block">
+            <p className="hidden font-mono text-[10px] uppercase tracking-wider text-[var(--foreground-muted)] sm:block">
               Step {stepIndex + 1} / {WIZARD_STEPS.length}
             </p>
 

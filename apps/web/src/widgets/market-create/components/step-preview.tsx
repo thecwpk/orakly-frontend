@@ -15,8 +15,8 @@ function formatDateTime(iso: string): string {
   });
 }
 
-const ROW_LABEL = "text-[11px] font-medium uppercase tracking-wider text-zinc-500";
-const ROW_VALUE = "text-[12px] tabular-nums text-zinc-200";
+const ROW_LABEL = "text-[11px] font-medium uppercase tracking-wider text-[var(--foreground-muted)]";
+const ROW_VALUE = "text-[12px] tabular-nums text-[var(--foreground)]";
 
 export function StepPreview() {
   const draft = useCreateMarketStore((s) => s.draft);
@@ -25,10 +25,10 @@ export function StepPreview() {
   return (
     <div className="space-y-5">
       <div>
-        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-400">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--foreground-muted)]">
           Market preview
         </p>
-        <p className="mt-1 text-[12px] text-zinc-500">
+        <p className="mt-1 text-[12px] text-[var(--foreground-muted)]">
           This is exactly how your market will appear in the discovery grid.
         </p>
         <div className="mt-3">
@@ -36,8 +36,8 @@ export function StepPreview() {
         </div>
       </div>
 
-      <div className="rounded-xl border border-white/10 bg-black/20">
-        <dl className="divide-y divide-white/[0.06]">
+      <div className="rounded-xl border border-[var(--border)] bg-[color-mix(in_srgb,var(--foreground)_5%,transparent)]">
+        <dl className="divide-y divide-[var(--border)]">
           {[
             ["Slug", `/markets/${draft.slug || "your-slug"}`, true],
             ["Category", cat?.name ?? draft.category, false],
@@ -56,7 +56,7 @@ export function StepPreview() {
               <dt className={ROW_LABEL}>{label}</dt>
               <dd
                 className={
-                  mono ? `${ROW_VALUE} truncate font-mono text-zinc-300` : ROW_VALUE
+                  mono ? `${ROW_VALUE} truncate font-mono text-[var(--foreground)]/80` : ROW_VALUE
                 }
               >
                 {value as string}
@@ -67,11 +67,11 @@ export function StepPreview() {
       </div>
 
       {draft.description ? (
-        <div className="rounded-xl border border-white/10 bg-black/20 p-3.5">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
+        <div className="rounded-xl border border-[var(--border)] bg-[color-mix(in_srgb,var(--foreground)_5%,transparent)] p-3.5">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--foreground-muted)]">
             Context
           </p>
-          <p className="mt-1.5 text-[13px] leading-relaxed text-zinc-300">
+          <p className="mt-1.5 text-[13px] leading-relaxed text-[var(--foreground)]/80">
             {draft.description}
           </p>
         </div>

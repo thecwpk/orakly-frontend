@@ -39,13 +39,13 @@ import { useShowAdminNavLink } from "@/widgets/admin-dashboard/hooks/use-admin-n
 import { cn } from "@/lib/utils";
 
 const menuItem =
-  "cursor-pointer rounded-lg px-3 py-2.5 text-[13px] font-normal leading-snug text-chrome focus:bg-white/[0.07] focus:text-[var(--foreground)]";
+  "cursor-pointer rounded-lg px-3 py-2.5 text-[13px] font-normal leading-snug text-chrome focus:bg-[color-mix(in_srgb,var(--foreground)_7%,transparent)] focus:text-[var(--foreground)]";
 
 const subMenuPanel =
   "max-h-[min(52vh,340px)] w-[min(calc(100vw-2rem),248px)] overflow-y-auto rounded-[10px] border border-chrome bg-chrome-surface p-1.5 shadow-[0_20px_48px_-14px_rgba(0,0,0,0.88)] backdrop-blur-xl";
 
 const categoryRow =
-  "cursor-pointer rounded-md px-2 py-2 text-[12px] font-normal text-chrome focus:bg-white/[0.06]";
+  "cursor-pointer rounded-md px-2 py-2 text-[12px] font-normal text-chrome focus:bg-[color-mix(in_srgb,var(--foreground)_6%,transparent)]";
 
 const sectionLabel =
   "px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-chrome-muted";
@@ -72,8 +72,8 @@ export function UserMenu() {
           aria-label="More menu"
           aria-haspopup="menu"
           className={cn(
-            "inline-flex size-9 shrink-0 items-center justify-center rounded-[var(--radius-sm)] border border-[var(--border)] bg-white/[0.03] text-[var(--foreground-muted)] transition",
-            "hover:border-white/[0.11] hover:bg-white/[0.06] hover:text-[var(--foreground)]",
+            "inline-flex size-9 shrink-0 items-center justify-center rounded-[var(--radius-sm)] border border-[var(--border)] bg-[color-mix(in_srgb,var(--foreground)_3%,transparent)] text-[var(--foreground-muted)] transition",
+            "hover:border-[var(--border-strong)] hover:bg-[color-mix(in_srgb,var(--foreground)_6%,transparent)] hover:text-[var(--foreground)]",
             "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)]/35 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--background-secondary)]",
           )}
         >
@@ -121,7 +121,7 @@ export function UserMenu() {
                 <PrefetchLink href={marketsCategoryHref(cat.slug)}>{cat.name}</PrefetchLink>
               </DropdownMenuItem>
             ))}
-            <DropdownMenuSeparator className="bg-white/[0.06]" />
+            <DropdownMenuSeparator className="bg-[var(--border)]" />
             <DropdownMenuItem asChild className={categoryRow}>
               <PrefetchLink href={ROUTES.markets}>Full explorer</PrefetchLink>
             </DropdownMenuItem>
@@ -131,7 +131,7 @@ export function UserMenu() {
           </DropdownMenuSubContent>
         </DropdownMenuSub>
 
-        <DropdownMenuSeparator className="my-2 bg-white/[0.07]" />
+        <DropdownMenuSeparator className="my-2 bg-[var(--border)]" />
 
         <DropdownMenuLabel className={sectionLabel}>Discover</DropdownMenuLabel>
         <DropdownMenuItem asChild className={menuItem}>
@@ -159,7 +159,7 @@ export function UserMenu() {
           </PrefetchLink>
         </DropdownMenuItem>
 
-        <DropdownMenuSeparator className="my-2 bg-white/[0.07]" />
+        <DropdownMenuSeparator className="my-2 bg-[var(--border)]" />
 
         <DropdownMenuLabel className={sectionLabel}>Account</DropdownMenuLabel>
         <DropdownMenuItem asChild className={menuItem}>
@@ -195,7 +195,7 @@ export function UserMenu() {
 
         {showAdminNav ? (
           <>
-            <DropdownMenuSeparator className="my-2 bg-white/[0.07]" />
+            <DropdownMenuSeparator className="my-2 bg-[var(--border)]" />
             <DropdownMenuItem asChild className={menuItem}>
               <PrefetchLink href={ROUTES.adminDashboard}>
                 <Shield className="mr-2 size-4 text-chrome-muted" aria-hidden />
@@ -207,7 +207,7 @@ export function UserMenu() {
 
         {connected && !tradingReady ? (
           <>
-            <DropdownMenuSeparator className="my-2 bg-white/[0.07]" />
+            <DropdownMenuSeparator className="my-2 bg-[var(--border)]" />
             <DropdownMenuItem asChild className={menuItem}>
               <PrefetchLink href={ROUTES.wallet}>
                 <BadgeCheck className="mr-2 size-4 text-yes" aria-hidden />

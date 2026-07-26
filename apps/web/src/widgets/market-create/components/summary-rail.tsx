@@ -32,7 +32,7 @@ export function SummaryRail({
   return (
     <aside className="glass-panel-strong sticky top-[5.5rem] space-y-4 rounded-2xl p-4">
       <div className="flex items-center justify-between gap-3">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-zinc-400">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--foreground-muted)]">
           Draft summary
         </p>
         <span
@@ -40,7 +40,7 @@ export function SummaryRail({
             "flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold ring-1",
             isReady
               ? "bg-emerald-500/10 text-emerald-300 ring-emerald-400/30"
-              : "bg-white/[0.05] text-zinc-400 ring-white/10",
+              : "bg-[color-mix(in_srgb,var(--foreground)_5%,transparent)] text-[var(--foreground-muted)] ring-[var(--border)]",
           )}
         >
           <Sparkles className="h-2.5 w-2.5" />
@@ -48,7 +48,7 @@ export function SummaryRail({
         </span>
       </div>
 
-      <div className="h-1 overflow-hidden rounded-full bg-white/[0.06]">
+      <div className="h-1 overflow-hidden rounded-full bg-[color-mix(in_srgb,var(--foreground)_6%,transparent)]">
         <motion.div
           className="h-full rounded-full bg-gradient-to-r from-cyan-400 via-emerald-400 to-violet-400"
           initial={false}
@@ -58,12 +58,12 @@ export function SummaryRail({
       </div>
 
       <div className="space-y-1">
-        <p className="line-clamp-2 text-[13px] font-semibold leading-snug text-white">
+        <p className="line-clamp-2 text-[13px] font-semibold leading-snug text-[var(--foreground)]">
           {draft.title || (
-            <span className="text-zinc-600">Your market title…</span>
+            <span className="text-[var(--foreground-muted)]">Your market title…</span>
           )}
         </p>
-        <p className="font-mono text-[10px] text-zinc-600">
+        <p className="font-mono text-[10px] text-[var(--foreground-muted)]">
           /markets/{draft.slug || "your-slug"}
         </p>
       </div>
@@ -83,12 +83,12 @@ export function SummaryRail({
         <SummaryStat label="Closes" value={relTime(draft.closesAt)} />
       </dl>
 
-      <div className="rounded-lg bg-black/30 p-2.5 ring-1 ring-white/[0.06]">
-        <div className="flex items-center justify-between text-[10px] text-zinc-500">
+      <div className="rounded-lg bg-[color-mix(in_srgb,var(--foreground)_5%,transparent)] p-2.5 ring-1 ring-[var(--border)]">
+        <div className="flex items-center justify-between text-[10px] text-[var(--foreground-muted)]">
           <span>Initial YES</span>
           <span className="font-mono text-cyan-300">{yesPct}%</span>
         </div>
-        <div className="mt-1 h-1 overflow-hidden rounded-full bg-zinc-800/80">
+        <div className="mt-1 h-1 overflow-hidden rounded-full bg-[color-mix(in_srgb,var(--foreground)_8%,transparent)]">
           <motion.div
             initial={false}
             animate={{ width: `${yesPct}%` }}
@@ -111,13 +111,13 @@ function SummaryStat({
   mono?: boolean;
 }) {
   return (
-    <div className="rounded-lg bg-black/20 px-2.5 py-1.5 ring-1 ring-white/[0.06]">
-      <dt className="text-[9px] font-semibold uppercase tracking-wider text-zinc-500">
+    <div className="rounded-lg bg-[color-mix(in_srgb,var(--foreground)_5%,transparent)] px-2.5 py-1.5 ring-1 ring-[var(--border)]">
+      <dt className="text-[9px] font-semibold uppercase tracking-wider text-[var(--foreground-muted)]">
         {label}
       </dt>
       <dd
         className={cn(
-          "mt-0.5 truncate text-[12px] text-zinc-200",
+          "mt-0.5 truncate text-[12px] text-[var(--foreground)]",
           mono && "font-mono",
         )}
       >

@@ -14,7 +14,7 @@ const STATUS_LABEL = {
 const STATUS_TONE = {
   connected: "bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.55)]",
   connecting: "bg-amber-400 shadow-[0_0_10px_rgba(251,191,36,0.45)]",
-  disconnected: "bg-zinc-500",
+  disconnected: "bg-[var(--foreground-muted)]",
   error: "bg-rose-400 shadow-[0_0_10px_rgba(251,113,133,0.5)]",
 } as const;
 
@@ -26,7 +26,7 @@ export function ConnectionIndicator({ collapsed }: { collapsed: boolean }) {
   return (
     <div
       className={cn(
-        "flex items-center gap-2 rounded-lg bg-black/25 px-2.5 py-1.5 ring-1 ring-white/[0.06]",
+        "flex items-center gap-2 rounded-lg bg-[color-mix(in_srgb,var(--foreground)_5%,transparent)] px-2.5 py-1.5 ring-1 ring-[var(--border)]",
         collapsed && "justify-center",
       )}
       aria-live="polite"
@@ -43,7 +43,7 @@ export function ConnectionIndicator({ collapsed }: { collapsed: boolean }) {
         <span className={cn("relative h-2 w-2 rounded-full", tone)} />
       </span>
       {!collapsed ? (
-        <span className="text-[10px] font-medium uppercase tracking-wider text-zinc-400">
+        <span className="text-[10px] font-medium uppercase tracking-wider text-chrome-muted">
           {label}
         </span>
       ) : null}

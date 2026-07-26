@@ -10,7 +10,7 @@ const TRUST_ITEMS = [
 ] as const;
 
 function TrustIcon({ id }: { id: string }) {
-  const common = "flex size-9 items-center justify-center rounded-lg border border-[var(--hub-glass-border)] bg-white/[0.04] text-[10px] font-bold uppercase text-[var(--hub-muted)]";
+  const common = "flex size-9 items-center justify-center rounded-lg border border-[var(--hub-glass-border)] bg-[color-mix(in_srgb,var(--hub-fg)_4%,transparent)] text-[10px] font-bold uppercase text-[var(--hub-muted)]";
   if (id === "bsc") {
     return (
       <span className={common} style={{ color: "#F0B90B" }}>

@@ -170,17 +170,17 @@ function ChartCard({
   isLoading?: boolean;
 }) {
   return (
-    <section className="glass-panel-strong overflow-hidden rounded-2xl ring-1 ring-white/[0.06]">
-      <header className="flex items-center gap-2 border-b border-white/[0.06] px-4 py-3">
+    <section className="glass-panel-strong overflow-hidden rounded-2xl ring-1 ring-[var(--border)]">
+      <header className="flex items-center gap-2 border-b border-[var(--border)] px-4 py-3">
         <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-cyan-500/10 text-cyan-300 ring-1 ring-cyan-400/20">
           <Icon className="h-4 w-4" aria-hidden />
         </span>
-        <h2 className="text-[13px] font-semibold tracking-tight text-zinc-100">{title}</h2>
+        <h2 className="text-[13px] font-semibold tracking-tight text-[var(--foreground)]">{title}</h2>
       </header>
       <div className="p-3">
         {isLoading ? (
           <div
-            className="animate-pulse rounded-xl bg-zinc-800/80"
+            className="animate-pulse rounded-xl bg-[color-mix(in_srgb,var(--foreground)_8%,transparent)]"
             style={{ height }}
             aria-hidden
           />
@@ -206,7 +206,7 @@ function MultiLineChart({
   if (chartData.length === 0 || series.length === 0) {
     return (
       <div
-        className="flex items-center justify-center rounded-xl border border-dashed border-white/[0.08] text-[12px] text-zinc-500"
+        className="flex items-center justify-center rounded-xl border border-dashed border-[var(--border)] text-[12px] text-[var(--foreground-muted)]"
         style={{ height }}
       >
         No data for the selected filters.
@@ -287,7 +287,7 @@ function VolumeBarChart({
   if (chartData.length === 0 || series.length === 0) {
     return (
       <div
-        className="flex items-center justify-center rounded-xl border border-dashed border-white/[0.08] text-[12px] text-zinc-500"
+        className="flex items-center justify-center rounded-xl border border-dashed border-[var(--border)] text-[12px] text-[var(--foreground-muted)]"
         style={{ height }}
       >
         No volume data for the selected filters.
@@ -425,7 +425,7 @@ function ResolvedMarketsTable({
       <button
         type="button"
         onClick={() => toggleSort(col)}
-        className="inline-flex items-center gap-1 text-left hover:text-zinc-200"
+        className="inline-flex items-center gap-1 text-left hover:text-[var(--foreground)]"
       >
         {label}
         {active ? (
@@ -443,7 +443,7 @@ function ResolvedMarketsTable({
     return (
       <div className="space-y-2">
         {Array.from({ length: 8 }).map((_, i) => (
-          <div key={i} className="h-10 animate-pulse rounded-lg bg-zinc-800/80" />
+          <div key={i} className="h-10 animate-pulse rounded-lg bg-[color-mix(in_srgb,var(--foreground)_8%,transparent)]" />
         ))}
       </div>
     );
@@ -451,9 +451,9 @@ function ResolvedMarketsTable({
 
   return (
     <div className="space-y-3">
-      <div className="overflow-x-auto rounded-xl ring-1 ring-white/[0.06]">
+      <div className="overflow-x-auto rounded-xl ring-1 ring-[var(--border)]">
         <table className="w-full min-w-[900px] border-collapse text-left text-[12.5px]">
-          <thead className="border-b border-white/[0.06] bg-[#08080d]/85 text-[10px] font-semibold uppercase tracking-[0.16em] text-zinc-500">
+          <thead className="border-b border-[var(--border)] bg-[var(--background)] text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--foreground-muted)]">
             <tr>
               <th className="px-4 py-2.5">
                 <SortHeader label="Market" col="question" />
@@ -478,17 +478,17 @@ function ResolvedMarketsTable({
               </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-white/[0.04] text-zinc-300">
+          <tbody className="divide-y divide-[var(--border)] text-[var(--foreground)]/80">
             {pageRows.length === 0 ? (
               <tr>
-                <td colSpan={7} className="px-4 py-8 text-center text-zinc-500">
+                <td colSpan={7} className="px-4 py-8 text-center text-[var(--foreground-muted)]">
                   No resolved markets in this period.
                 </td>
               </tr>
             ) : (
               pageRows.map((row) => (
-                <tr key={row.id} className="hover:bg-white/[0.02]">
-                  <td className="max-w-[240px] truncate px-4 py-2.5 text-zinc-100">
+                <tr key={row.id} className="hover:bg-[color-mix(in_srgb,var(--foreground)_5%,transparent)]">
+                  <td className="max-w-[240px] truncate px-4 py-2.5 text-[var(--foreground)]">
                     {row.question}
                   </td>
                   <td className="px-4 py-2.5">{row.narrative ?? "N/A"}</td>
@@ -511,7 +511,7 @@ function ResolvedMarketsTable({
                     {compactUsd(row.totalVolume)}
                   </td>
                   <td className="px-4 py-2.5 font-mono tabular-nums">{row.uniqueTraders}</td>
-                  <td className="px-4 py-2.5 font-mono tabular-nums text-zinc-400">
+                  <td className="px-4 py-2.5 font-mono tabular-nums text-[var(--foreground-muted)]">
                     {formatResolvedDate(row.resolvedAt)}
                   </td>
                 </tr>
@@ -522,7 +522,7 @@ function ResolvedMarketsTable({
       </div>
 
       {sorted.length > TABLE_PAGE_SIZE ? (
-        <div className="flex items-center justify-between gap-3 text-[12px] text-zinc-400">
+        <div className="flex items-center justify-between gap-3 text-[12px] text-[var(--foreground-muted)]">
           <p>
             Showing {safePage * TABLE_PAGE_SIZE + 1}–
             {Math.min((safePage + 1) * TABLE_PAGE_SIZE, sorted.length)} of {sorted.length}
@@ -532,7 +532,7 @@ function ResolvedMarketsTable({
               type="button"
               disabled={safePage <= 0}
               onClick={() => setPage((p) => Math.max(0, p - 1))}
-              className="rounded-lg px-3 py-1.5 ring-1 ring-white/[0.08] transition hover:bg-white/[0.04] disabled:opacity-40"
+              className="rounded-lg px-3 py-1.5 ring-1 ring-[var(--border)] transition hover:bg-[color-mix(in_srgb,var(--foreground)_5%,transparent)] disabled:opacity-40"
             >
               Previous
             </button>
@@ -543,7 +543,7 @@ function ResolvedMarketsTable({
               type="button"
               disabled={safePage >= totalPages - 1}
               onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
-              className="rounded-lg px-3 py-1.5 ring-1 ring-white/[0.08] transition hover:bg-white/[0.04] disabled:opacity-40"
+              className="rounded-lg px-3 py-1.5 ring-1 ring-[var(--border)] transition hover:bg-[color-mix(in_srgb,var(--foreground)_5%,transparent)] disabled:opacity-40"
             >
               Next
             </button>
@@ -605,22 +605,22 @@ export function HistoricalAnalyticsPage() {
 
   return (
     <main className="mx-auto flex max-w-6xl flex-col gap-6 pb-s64 pt-s48 md:pt-s56">
-      <header className="border-b border-white/[0.06] pb-r24">
+      <header className="border-b border-[var(--border)] pb-r24">
         <p className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.22em] text-cyan-400/90">
           <BarChart3 className="h-3 w-3" />
           Historical Analytics
         </p>
-        <h1 className="mt-1.5 text-balance text-2xl font-semibold tracking-tight text-white sm:text-[1.75rem]">
+        <h1 className="mt-1.5 text-balance text-2xl font-semibold tracking-tight text-[var(--foreground)] sm:text-[1.75rem]">
           Historical Analytics
         </h1>
-        <p className="mt-1.5 max-w-2xl text-[12.5px] text-zinc-500">
+        <p className="mt-1.5 max-w-2xl text-[12.5px] text-[var(--foreground-muted)]">
           Attention, conviction, volume, and resolved-market outcomes over custom time windows.
         </p>
       </header>
 
-      <div className="glass-panel-strong space-y-4 rounded-2xl p-4 ring-1 ring-white/[0.06]">
+      <div className="glass-panel-strong space-y-4 rounded-2xl p-4 ring-1 ring-[var(--border)]">
         <div className="flex flex-wrap items-center gap-2">
-          <span className="mr-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-zinc-500">
+          <span className="mr-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--foreground-muted)]">
             Period
           </span>
           {PERIOD_BUTTONS.map((period) => (
@@ -632,7 +632,7 @@ export function HistoricalAnalyticsPage() {
                 "rounded-lg px-3 py-1.5 text-[12px] font-semibold transition ring-1",
                 activePeriod === period
                   ? "bg-cyan-500/15 text-cyan-200 ring-cyan-400/30"
-                  : "bg-white/[0.03] text-zinc-400 ring-white/[0.08] hover:text-zinc-200",
+                  : "bg-[color-mix(in_srgb,var(--foreground)_3%,transparent)] text-[var(--foreground-muted)] ring-[var(--border)] hover:text-[var(--foreground)]",
               )}
             >
               {period}
@@ -644,7 +644,7 @@ export function HistoricalAnalyticsPage() {
           <div className="flex min-w-[200px] flex-1 flex-col gap-1.5">
             <label
               htmlFor="analytics-filter-narrative"
-              className="w-fit text-[10px] font-semibold uppercase tracking-[0.18em] text-zinc-500"
+              className="w-fit text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--foreground-muted)]"
             >
               Narrative
             </label>
@@ -657,7 +657,7 @@ export function HistoricalAnalyticsPage() {
                   narrative: e.target.value as AnalyticsHistoryFilters["narrative"],
                 }))
               }
-              className="rounded-lg border-0 bg-[#08080d] px-3 py-2 text-[13px] text-zinc-100 ring-1 ring-white/[0.1] focus:outline-none focus:ring-cyan-400/40"
+              className="rounded-lg border-0 bg-[var(--background)] px-3 py-2 text-[13px] text-[var(--foreground)] ring-1 ring-[var(--border)] focus:outline-none focus:ring-cyan-400/40"
             >
               <option value="all">All Narratives</option>
               {narrativeOptions.map((item) => (
@@ -671,7 +671,7 @@ export function HistoricalAnalyticsPage() {
           <div className="flex min-w-[180px] flex-1 flex-col gap-1.5">
             <label
               htmlFor="analytics-filter-category"
-              className="w-fit text-[10px] font-semibold uppercase tracking-[0.18em] text-zinc-500"
+              className="w-fit text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--foreground-muted)]"
             >
               Category
             </label>
@@ -684,7 +684,7 @@ export function HistoricalAnalyticsPage() {
                   category: e.target.value as AnalyticsHistoryFilters["category"],
                 }))
               }
-              className="rounded-lg border-0 bg-[#08080d] px-3 py-2 text-[13px] text-zinc-100 ring-1 ring-white/[0.1] focus:outline-none focus:ring-cyan-400/40"
+              className="rounded-lg border-0 bg-[var(--background)] px-3 py-2 text-[13px] text-[var(--foreground)] ring-1 ring-[var(--border)] focus:outline-none focus:ring-cyan-400/40"
             >
               {ANALYTICS_CATEGORIES.map((cat) => (
                 <option key={cat.value} value={cat.value}>
@@ -733,12 +733,12 @@ export function HistoricalAnalyticsPage() {
           />
         </ChartCard>
 
-        <section className="glass-panel-strong overflow-hidden rounded-2xl ring-1 ring-white/[0.06]">
-          <header className="flex items-center gap-2 border-b border-white/[0.06] px-4 py-3">
+        <section className="glass-panel-strong overflow-hidden rounded-2xl ring-1 ring-[var(--border)]">
+          <header className="flex items-center gap-2 border-b border-[var(--border)] px-4 py-3">
             <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-cyan-500/10 text-cyan-300 ring-1 ring-cyan-400/20">
               <BarChart3 className="h-4 w-4" aria-hidden />
             </span>
-            <h2 className="text-[13px] font-semibold tracking-tight text-zinc-100">
+            <h2 className="text-[13px] font-semibold tracking-tight text-[var(--foreground)]">
               Resolved Markets
             </h2>
           </header>

@@ -53,7 +53,7 @@ function CreateMarketLink({
         focusRing(),
         active
           ? "bg-[var(--accent)]/12 text-[var(--foreground)] ring-1 ring-[var(--accent)]/25"
-          : "text-[var(--foreground-muted)] hover:bg-white/[0.05] hover:text-[var(--foreground)]",
+          : "text-[var(--foreground-muted)] hover:bg-[color-mix(in_srgb,var(--foreground)_6%,transparent)] hover:text-[var(--foreground)]",
         className,
       )}
     >
@@ -232,7 +232,7 @@ function NarrativesMenu({
                         focusRing(),
                         itemActive
                           ? "bg-[var(--accent)]/10 text-[var(--foreground)]"
-                          : "text-[var(--foreground-muted)] hover:bg-white/[0.03] hover:text-[var(--foreground)]",
+                          : "text-[var(--foreground-muted)] hover:bg-[color-mix(in_srgb,var(--foreground)_4%,transparent)] hover:text-[var(--foreground)]",
                       )}
                     >
                       <Icon
@@ -352,7 +352,7 @@ export function Navbar() {
   return (
     <header
       role="banner"
-      className="fixed inset-x-0 top-0 z-50 w-full border-b border-white/[0.06] bg-[color-mix(in_srgb,var(--background-secondary)_72%,transparent)] backdrop-blur-xl"
+      className="fixed inset-x-0 top-0 z-50 w-full border-b border-[var(--border)] bg-[color-mix(in_srgb,var(--background-secondary)_88%,transparent)] backdrop-blur-xl"
     >
       <div
         className={cn(

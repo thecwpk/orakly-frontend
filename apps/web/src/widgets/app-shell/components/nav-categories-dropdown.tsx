@@ -22,13 +22,13 @@ export function NavCategoriesDropdown({ className }: { className?: string }) {
           type="button"
           title="Browse by category"
           className={cn(
-            "inline-flex h-8 shrink-0 items-center gap-1 rounded-[3px] border border-white/[0.08] bg-white/[0.03] px-2 font-mono text-[9.5px] font-medium uppercase tracking-[0.06em] text-zinc-400 transition hover:border-white/[0.11] hover:bg-white/[0.05] hover:text-zinc-200",
+            "inline-flex h-8 shrink-0 items-center gap-1 rounded-[var(--radius-sm)] border border-[var(--border)] bg-[color-mix(in_srgb,var(--foreground)_3%,transparent)] px-2 font-mono text-[9.5px] font-medium uppercase tracking-[0.06em] text-[var(--foreground-muted)] transition hover:border-[var(--border-strong)] hover:bg-[color-mix(in_srgb,var(--foreground)_6%,transparent)] hover:text-[var(--foreground)]",
             className,
           )}
         >
-          <Layers className="h-3.5 w-3.5 text-zinc-500" aria-hidden />
+          <Layers className="h-3.5 w-3.5 text-[var(--foreground-muted)]" aria-hidden />
           <span className="hidden sm:inline">Categories</span>
-          <ChevronDown className="h-3 w-3 text-zinc-600" aria-hidden />
+          <ChevronDown className="h-3 w-3 text-[var(--foreground-muted)]" aria-hidden />
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent
@@ -36,7 +36,7 @@ export function NavCategoriesDropdown({ className }: { className?: string }) {
         sideOffset={6}
         className="max-h-[min(72vh,420px)] w-[min(calc(100vw-1.25rem),17rem)] overflow-y-auto"
       >
-        <DropdownMenuLabel className="normal-case tracking-normal text-[10px] text-zinc-500">
+        <DropdownMenuLabel className="normal-case tracking-normal text-[10px] text-chrome-muted">
           Categories
         </DropdownMenuLabel>
         {MARKET_CATEGORIES.map((cat) => (
@@ -45,12 +45,12 @@ export function NavCategoriesDropdown({ className }: { className?: string }) {
               href={ROUTES.marketsBrowse}
               className="flex cursor-pointer items-start gap-2 py-1.5"
             >
-              <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-[3px] bg-white/[0.05] ring-1 ring-white/[0.06]">
-                <cat.icon className="h-3 w-3 text-cyan-400/85" aria-hidden />
+              <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-[var(--radius-sm)] bg-[color-mix(in_srgb,var(--foreground)_5%,transparent)] ring-1 ring-[var(--border)]">
+                <cat.icon className="h-3 w-3 text-[var(--accent)]" aria-hidden />
               </span>
               <span className="flex min-w-0 flex-col gap-0.5 leading-tight">
-                <span className="text-[11px] font-semibold text-zinc-100">{cat.name}</span>
-                <span className="line-clamp-2 text-[9px] leading-snug text-zinc-500">{cat.blurb}</span>
+                <span className="text-[11px] font-semibold text-chrome">{cat.name}</span>
+                <span className="line-clamp-2 text-[9px] leading-snug text-chrome-muted">{cat.blurb}</span>
               </span>
             </PrefetchLink>
           </DropdownMenuItem>
@@ -59,19 +59,19 @@ export function NavCategoriesDropdown({ className }: { className?: string }) {
         <DropdownMenuItem asChild>
           <PrefetchLink
             href={ROUTES.marketsCommunity}
-            className="flex cursor-pointer items-center gap-2 py-1.5 font-mono text-[10px] uppercase tracking-wide text-zinc-400"
+            className="flex cursor-pointer items-center gap-2 py-1.5 font-mono text-[10px] uppercase tracking-wide text-chrome-muted"
           >
-            <Users className="h-3.5 w-3.5 text-cyan-400/85" aria-hidden />
+            <Users className="h-3.5 w-3.5 text-[var(--accent)]" aria-hidden />
             Community markets
           </PrefetchLink>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
-          <PrefetchLink href={ROUTES.marketsBrowse} className="cursor-pointer font-mono text-[10px] uppercase tracking-wide text-zinc-400">
+          <PrefetchLink href={ROUTES.marketsBrowse} className="cursor-pointer font-mono text-[10px] uppercase tracking-wide text-chrome-muted">
             Full explorer
           </PrefetchLink>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
-          <PrefetchLink href={ROUTES.marketsTrending} className="cursor-pointer font-mono text-[10px] uppercase tracking-wide text-zinc-400">
+          <PrefetchLink href={ROUTES.marketsTrending} className="cursor-pointer font-mono text-[10px] uppercase tracking-wide text-chrome-muted">
             Trending tape
           </PrefetchLink>
         </DropdownMenuItem>

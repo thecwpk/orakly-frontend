@@ -66,7 +66,7 @@ export function GlobalMarketingNavbar({ variant, appendActions, chrome = "defaul
   const navLinkClass = cn(
     "marketing-nav-link rounded-full px-3.5 py-1.5 text-[13px] font-medium transition-colors duration-200",
     glass
-      ? "text-[var(--text-muted)] hover:bg-white/[0.06] hover:text-[var(--text-primary)]"
+      ? "text-[var(--text-muted)] hover:bg-[color-mix(in_srgb,var(--text-primary)_8%,transparent)] hover:text-[var(--text-primary)]"
       : "text-slate-300/90 hover:bg-sky-500/[0.08] hover:text-white",
   );
 
@@ -124,7 +124,7 @@ export function GlobalMarketingNavbar({ variant, appendActions, chrome = "defaul
             className={cn(
               "rounded-xl px-3 py-2.5 text-left text-sm font-medium transition",
               glass
-                ? "text-[var(--text-muted)] hover:bg-white/[0.06] hover:text-[var(--text-primary)]"
+                ? "text-[var(--text-muted)] hover:bg-[color-mix(in_srgb,var(--text-primary)_8%,transparent)] hover:text-[var(--text-primary)]"
                 : "text-slate-300 hover:bg-sky-500/[0.08] hover:text-white",
             )}
             onClick={onNavigate}
@@ -140,7 +140,7 @@ export function GlobalMarketingNavbar({ variant, appendActions, chrome = "defaul
           className={cn(
             "rounded-xl px-3 py-2.5 text-sm font-medium transition",
             glass
-              ? "text-[var(--text-muted)] hover:bg-white/[0.06] hover:text-[var(--text-primary)]"
+              ? "text-[var(--text-muted)] hover:bg-[color-mix(in_srgb,var(--text-primary)_8%,transparent)] hover:text-[var(--text-primary)]"
               : "text-slate-300 hover:bg-sky-500/[0.08] hover:text-white",
           )}
           onClick={(e) => {
@@ -256,7 +256,7 @@ export function GlobalMarketingNavbar({ variant, appendActions, chrome = "defaul
         />
 
         <nav
-          className="absolute left-1/2 z-[1] hidden max-w-[min(100vw-12rem,28rem)] -translate-x-1/2 items-center gap-0.5 overflow-x-auto rounded-full border border-white/[0.06] bg-white/[0.03] p-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] backdrop-blur-md [-ms-overflow-style:none] [scrollbar-width:none] md:flex [&::-webkit-scrollbar]:hidden"
+          className="absolute left-1/2 z-[1] hidden max-w-[min(100vw-12rem,28rem)] -translate-x-1/2 items-center gap-0.5 overflow-x-auto rounded-full border border-[color-mix(in_srgb,var(--text-primary,white)_8%,transparent)] bg-[color-mix(in_srgb,var(--text-primary,white)_4%,transparent)] p-1 shadow-[inset_0_1px_0_color-mix(in_srgb,var(--text-primary,white)_6%,transparent)] backdrop-blur-md [-ms-overflow-style:none] [scrollbar-width:none] md:flex [&::-webkit-scrollbar]:hidden"
           aria-label="Primary"
         >
           {NAV_ROWS.map(renderNavLink)}
@@ -265,7 +265,7 @@ export function GlobalMarketingNavbar({ variant, appendActions, chrome = "defaul
         <div className="relative z-[2] ml-auto flex min-w-0 shrink-0 items-center justify-end gap-1.5 sm:gap-2">
           {rightActions}
           {appendActions ? (
-            <span className="ml-0.5 flex shrink-0 items-center gap-2 border-l border-white/[0.08] pl-2 sm:pl-2.5">
+            <span className="ml-0.5 flex shrink-0 items-center gap-2 border-l border-[color-mix(in_srgb,var(--text-primary,white)_10%,transparent)] pl-2 sm:pl-2.5">
               {appendActions}
             </span>
           ) : null}
@@ -289,7 +289,7 @@ export function GlobalMarketingNavbar({ variant, appendActions, chrome = "defaul
       >
         <nav className={cn(landingShell, "flex flex-col gap-1 py-3")} aria-label="Mobile primary">
           {NAV_ROWS.map((row) => renderMobileNavLink(row, () => setOpen(false)))}
-          <div className="mt-2 flex flex-col gap-2 border-t border-white/[0.06] pt-3">{mobileRightActions}</div>
+          <div className="mt-2 flex flex-col gap-2 border-t border-[color-mix(in_srgb,var(--text-primary,white)_8%,transparent)] pt-3">{mobileRightActions}</div>
         </nav>
       </div>
     </header>

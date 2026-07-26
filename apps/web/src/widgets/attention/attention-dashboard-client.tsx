@@ -164,7 +164,7 @@ function MomentumBadge({
       <span
         className={cn(
           "rounded-md px-2 py-0.5 text-[11px] font-semibold ring-1",
-          muted && "bg-zinc-800/60 text-zinc-500 ring-white/5",
+          muted && "bg-[color-mix(in_srgb,var(--foreground)_6%,transparent)] text-[var(--foreground-muted)] ring-[var(--border)]",
           !muted &&
             momentum === "Growing" &&
             "bg-emerald-500/15 text-emerald-300 ring-emerald-400/25",
@@ -173,7 +173,7 @@ function MomentumBadge({
             "bg-rose-500/15 text-rose-300 ring-rose-400/25",
           !muted &&
             momentum === "Stable" &&
-            "bg-zinc-500/15 text-zinc-400 ring-white/10",
+            "bg-[color-mix(in_srgb,var(--foreground)_8%,transparent)] text-[var(--foreground-muted)] ring-[var(--border)]",
         )}
       >
         {label}
@@ -181,10 +181,10 @@ function MomentumBadge({
       <span
         className={cn(
           "text-[12px] font-semibold tabular-nums",
-          muted && "text-zinc-600",
+          muted && "text-[var(--foreground-muted)]",
           !muted && pct > 0 && "text-emerald-400",
           !muted && pct < 0 && "text-rose-400",
-          !muted && pct === 0 && "text-zinc-500",
+          !muted && pct === 0 && "text-[var(--foreground-muted)]",
         )}
       >
         {formatMomentumPct(pct)}
@@ -213,46 +213,46 @@ function NarrativeCard({
         "rounded-2xl border p-5 text-left transition duration-200",
         "cursor-pointer hover:scale-105 hover:shadow-lg",
         empty
-          ? "border-white/[0.06] bg-zinc-950/40 hover:shadow-black/40"
-          : "border-white/[0.08] bg-zinc-950/50 hover:shadow-blue-950/40",
+          ? "border-[var(--border)] bg-[var(--background-secondary)] hover:shadow-black/40"
+          : "border-[var(--border)] bg-[var(--background-secondary)] hover:shadow-blue-950/40",
       )}
     >
       <div className="flex items-start justify-between gap-2">
         <h3
           className={cn(
             "text-[18px] font-bold tracking-tight",
-            empty ? "text-zinc-500" : "text-zinc-50",
+            empty ? "text-[var(--foreground-muted)]" : "text-[var(--foreground)]",
           )}
         >
           {card.name}
         </h3>
-        <NarrativeIcon className="size-5 text-zinc-400" aria-hidden />
+        <NarrativeIcon className="size-5 text-[var(--foreground-muted)]" aria-hidden />
       </div>
 
       <div className="mt-4">
-        <p className="text-[11px] text-zinc-500">Attention</p>
+        <p className="text-[11px] text-[var(--foreground-muted)]">Attention</p>
         <p
           className={cn(
             "text-[48px] font-bold leading-none tracking-tight",
-            empty ? "text-zinc-600" : tone.text,
+            empty ? "text-[var(--foreground-muted)]" : tone.text,
           )}
         >
           {Math.round(card.attentionScore)}
         </p>
-        <div className="mt-2 h-1 w-full overflow-hidden rounded-full bg-white/10">
+        <div className="mt-2 h-1 w-full overflow-hidden rounded-full bg-[color-mix(in_srgb,var(--foreground)_10%,transparent)]">
           <div
-            className={cn("h-full rounded-full", empty ? "bg-zinc-600" : tone.bar)}
+            className={cn("h-full rounded-full", empty ? "bg-[var(--foreground-muted)]" : tone.bar)}
             style={{ width: `${barPct}%` }}
           />
         </div>
       </div>
 
       <div className="mt-4">
-        <p className="text-[11px] text-zinc-500">Conviction</p>
+        <p className="text-[11px] text-[var(--foreground-muted)]">Conviction</p>
         <p
           className={cn(
             "text-[24px] font-bold tabular-nums",
-            empty ? "text-zinc-600" : "text-zinc-100",
+            empty ? "text-[var(--foreground-muted)]" : "text-[var(--foreground)]",
           )}
         >
           {Math.round(card.convictionScore)}
@@ -262,7 +262,7 @@ function NarrativeCard({
       <div
         className={cn(
           "mt-3 flex justify-between text-[12px]",
-          empty ? "text-zinc-600" : "text-zinc-400",
+          empty ? "text-[var(--foreground-muted)]" : "text-[var(--foreground-muted)]",
         )}
       >
         <span>Markets: {card.activeMarkets}</span>
@@ -278,7 +278,7 @@ function CardsSkeleton() {
   return (
     <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
       {Array.from({ length: 12 }).map((_, i) => (
-        <div key={i} className="h-64 animate-pulse rounded-2xl bg-zinc-800/60" />
+        <div key={i} className="h-64 animate-pulse rounded-2xl bg-[color-mix(in_srgb,var(--foreground)_6%,transparent)]" />
       ))}
     </div>
   );
@@ -345,8 +345,8 @@ export function AttentionDashboardClient() {
   return (
     <div className="space-y-10">
       <header>
-        <h1 className="text-[32px] font-bold tracking-tight text-zinc-50">Narratives</h1>
-        <p className="mt-1 text-[15px] text-zinc-400">
+        <h1 className="text-[32px] font-bold tracking-tight text-[var(--foreground)]">Narratives</h1>
+        <p className="mt-1 text-[15px] text-[var(--foreground-muted)]">
           Explore crypto attention across narrative categories.
         </p>
       </header>
@@ -375,15 +375,15 @@ export function AttentionDashboardClient() {
 
       <section className="space-y-3">
         <div>
-          <h2 className="text-[20px] font-semibold text-zinc-100">Attention Heatmap</h2>
-          <p className="mt-1 text-[13px] text-zinc-400">
+          <h2 className="text-[20px] font-semibold text-[var(--foreground)]">Attention Heatmap</h2>
+          <p className="mt-1 text-[13px] text-[var(--foreground-muted)]">
             Tile size = activity level. Color = momentum.
           </p>
         </div>
         {dashboardQuery.isLoading ? (
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             {Array.from({ length: 8 }).map((_, i) => (
-              <div key={i} className="h-24 animate-pulse rounded-xl bg-zinc-800/60" />
+              <div key={i} className="h-24 animate-pulse rounded-xl bg-[color-mix(in_srgb,var(--foreground)_6%,transparent)]" />
             ))}
           </div>
         ) : (

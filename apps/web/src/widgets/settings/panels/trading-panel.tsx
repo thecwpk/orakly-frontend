@@ -26,7 +26,7 @@ export function TradingSettingsPanel() {
         label="Default outcome"
         hint="Pre-selected on the trading desk for new markets."
       >
-        <div className="grid grid-cols-2 gap-1.5 rounded-xl bg-black/25 p-1 ring-1 ring-white/[0.06]">
+        <div className="grid grid-cols-2 gap-1.5 rounded-xl bg-[color-mix(in_srgb,var(--foreground)_5%,transparent)] p-1 ring-1 ring-[var(--border)]">
           {(["YES", "NO"] as const).map((side) => (
             <button
               key={side}
@@ -38,7 +38,7 @@ export function TradingSettingsPanel() {
                   ? side === "YES"
                     ? "bg-cyan-500/15 text-cyan-100 ring-1 ring-cyan-400/30"
                     : "bg-violet-500/15 text-violet-100 ring-1 ring-violet-400/30"
-                  : "text-zinc-400 hover:text-zinc-200",
+                  : "text-[var(--foreground-muted)] hover:text-[var(--foreground)]",
               )}
             >
               {side}
@@ -58,7 +58,7 @@ export function TradingSettingsPanel() {
                 "rounded-lg px-2.5 py-1.5 text-[11px] font-medium ring-1 transition",
                 slippagePct === p
                   ? "bg-cyan-500/15 text-cyan-100 ring-cyan-400/40"
-                  : "bg-white/[0.04] text-zinc-300 ring-white/10 hover:bg-white/[0.08]",
+                  : "bg-[color-mix(in_srgb,var(--foreground)_4%,transparent)] text-[var(--foreground)]/80 ring-[var(--border)] hover:bg-[color-mix(in_srgb,var(--foreground)_5%,transparent)]",
               )}
             >
               {p}%
@@ -80,8 +80,8 @@ export function TradingSettingsPanel() {
         label="Confirm before trade"
         hint="Show a confirmation modal for every order. Off = instant submit."
       >
-        <div className="flex items-center justify-between gap-3 rounded-xl bg-black/25 px-3 py-2.5 ring-1 ring-white/[0.06]">
-          <span className="text-[12px] text-zinc-300">Confirmation modal</span>
+        <div className="flex items-center justify-between gap-3 rounded-xl bg-[color-mix(in_srgb,var(--foreground)_5%,transparent)] px-3 py-2.5 ring-1 ring-[var(--border)]">
+          <span className="text-[12px] text-[var(--foreground)]/80">Confirmation modal</span>
           <SettingsToggle
             checked={confirmTrades}
             onChange={setConfirmTrades}
@@ -94,8 +94,8 @@ export function TradingSettingsPanel() {
         label="Hotkeys"
         hint="Keyboard shortcuts on the trading desk (B = buy, S = sell, Y/N = side)."
       >
-        <div className="flex items-center justify-between gap-3 rounded-xl bg-black/25 px-3 py-2.5 ring-1 ring-white/[0.06]">
-          <span className="text-[12px] text-zinc-300">Enable hotkeys</span>
+        <div className="flex items-center justify-between gap-3 rounded-xl bg-[color-mix(in_srgb,var(--foreground)_5%,transparent)] px-3 py-2.5 ring-1 ring-[var(--border)]">
+          <span className="text-[12px] text-[var(--foreground)]/80">Enable hotkeys</span>
           <SettingsToggle
             checked={hotkeysEnabled}
             onChange={setHotkeysEnabled}

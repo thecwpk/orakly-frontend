@@ -180,7 +180,7 @@ export function RouteTransitionIndicator() {
   return (
     <div
       className={cn(
-        "pointer-events-none fixed inset-x-0 top-0 z-[9998] h-[3px] overflow-hidden bg-black/20 transition-opacity duration-200",
+        "pointer-events-none fixed inset-x-0 top-0 z-[9998] h-[3px] overflow-hidden bg-[color-mix(in_srgb,var(--foreground)_12%,transparent)] transition-opacity duration-200",
         visible ? "opacity-100" : "opacity-0",
       )}
       aria-hidden={!visible}
@@ -188,7 +188,7 @@ export function RouteTransitionIndicator() {
       <div
         className={cn(
           "app-nav-progress-fill absolute left-0 top-0 h-full w-[38%] max-w-[min(520px,72vw)] rounded-none",
-          "bg-gradient-to-r from-sky-600 via-sky-400 to-cyan-300",
+          "bg-gradient-to-r from-[var(--accent)] via-[var(--info)] to-[color-mix(in_srgb,var(--accent)_55%,white)]",
           "shadow-[0_0_20px_rgba(56,189,248,0.55)]",
           visible ? "app-nav-progress-animate" : "",
         )}

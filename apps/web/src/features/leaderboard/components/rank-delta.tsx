@@ -21,7 +21,7 @@ export function RankDelta({
     ? "bg-emerald-500/10 text-emerald-200 ring-emerald-400/30"
     : isDown
       ? "bg-rose-500/10 text-rose-200 ring-rose-400/30"
-      : "bg-white/[0.04] text-zinc-500 ring-white/[0.06]";
+      : "bg-[color-mix(in_srgb,var(--foreground)_4%,transparent)] text-[var(--foreground-muted)] ring-[var(--border)]";
 
   const dim = size === "xs" ? "h-4 px-1 text-[9.5px]" : "h-5 px-1.5 text-[10px]";
   const iconSize = size === "xs" ? "h-2.5 w-2.5" : "h-3 w-3";

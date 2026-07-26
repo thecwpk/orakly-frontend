@@ -135,7 +135,7 @@ function TransferDialogInner({
       <DialogPrimitive.Portal>
         <DialogPrimitive.Overlay
           className={cn(
-            "fixed inset-0 z-50 bg-[#03030780]/85 supports-[backdrop-filter]:backdrop-blur-md",
+            "fixed inset-0 z-50 bg-black/60 supports-[backdrop-filter]:backdrop-blur-md",
             "data-[state=open]:animate-in data-[state=open]:fade-in-0",
             "data-[state=closed]:animate-out data-[state=closed]:fade-out-0",
           )}
@@ -146,7 +146,7 @@ function TransferDialogInner({
             "fixed z-50 flex max-h-[92dvh] flex-col overflow-hidden",
             "inset-x-0 bottom-0 rounded-t-2xl",
             "sm:inset-auto sm:left-1/2 sm:top-1/2 sm:w-full sm:max-w-md sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-2xl",
-            "bg-[#0a0a12] text-zinc-100 ring-1 ring-white/[0.08] shadow-[0_20px_80px_-20px_rgba(0,0,0,0.6)]",
+            "bg-[var(--background)] text-[var(--foreground)] ring-1 ring-[var(--border)] shadow-[0_20px_80px_-20px_rgba(0,0,0,0.6)]",
             "data-[state=open]:animate-in data-[state=closed]:animate-out",
             "data-[state=open]:fade-in-0 data-[state=closed]:fade-out-0",
             "data-[state=open]:slide-in-from-bottom-4 data-[state=closed]:slide-out-to-bottom-4",
@@ -156,24 +156,24 @@ function TransferDialogInner({
         >
           <div
             aria-hidden
-            className="mx-auto mt-2 h-1 w-10 rounded-full bg-white/10 sm:hidden"
+            className="mx-auto mt-2 h-1 w-10 rounded-full bg-[color-mix(in_srgb,var(--foreground)_8%,transparent)] sm:hidden"
           />
 
-          <header className="flex items-start justify-between gap-3 border-b border-white/[0.06] px-5 pb-3 pt-4">
+          <header className="flex items-start justify-between gap-3 border-b border-[var(--border)] px-5 pb-3 pt-4">
             <div className="min-w-0">
               <DialogPrimitive.Title asChild>
-                <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-zinc-500">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-[var(--foreground-muted)]">
                   {isDeposit ? "Deposit" : "Withdraw"}
                 </p>
               </DialogPrimitive.Title>
-              <p className="mt-1 text-[14px] font-semibold text-white">
+              <p className="mt-1 text-[14px] font-semibold text-[var(--foreground)]">
                 {isDeposit ? "Fund your trading wallet" : "Move USD off Orakly"}
               </p>
-              <p className="mt-1 text-[10.5px] text-zinc-500">
+              <p className="mt-1 text-[10.5px] text-[var(--foreground-muted)]">
                 {walletAddress ? (
                   <>
                     From{" "}
-                    <span className="font-mono text-zinc-300">
+                    <span className="font-mono text-[var(--foreground)]/80">
                       {shortAddress(walletAddress)}
                     </span>
                     {networkLabel ? <> · {networkLabel}</> : null}
@@ -185,7 +185,7 @@ function TransferDialogInner({
             </div>
             <DialogPrimitive.Close
               aria-label="Close"
-              className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-white/[0.04] text-zinc-300 ring-1 ring-white/[0.08] transition hover:bg-white/[0.08] hover:text-white"
+              className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-[color-mix(in_srgb,var(--foreground)_4%,transparent)] text-[var(--foreground)]/80 ring-1 ring-[var(--border)] transition hover:bg-[color-mix(in_srgb,var(--foreground)_6%,transparent)] hover:text-[var(--foreground)]"
             >
               <X className="h-3.5 w-3.5" />
             </DialogPrimitive.Close>
@@ -248,18 +248,18 @@ function ComposeBody({
 
   return (
     <div className="flex flex-col gap-3.5 px-5 py-4">
-      <label className="block text-[10.5px] font-semibold uppercase tracking-wider text-zinc-500">
+      <label className="block text-[10.5px] font-semibold uppercase tracking-wider text-[var(--foreground-muted)]">
         Amount (USD)
       </label>
       <div
         className={cn(
-          "flex h-16 items-center rounded-xl bg-black/40 ring-1 transition focus-within:ring-2",
+          "flex h-16 items-center rounded-xl bg-[color-mix(in_srgb,var(--foreground)_5%,transparent)] ring-1 transition focus-within:ring-2",
           blockingError === "Amount exceeds available balance."
             ? "ring-rose-400/40 focus-within:ring-rose-400/60"
-            : "ring-white/[0.08] focus-within:ring-cyan-400/40",
+            : "ring-[var(--border)] focus-within:ring-cyan-400/40",
         )}
       >
-        <span className="ml-4 select-none font-mono text-2xl font-semibold text-zinc-500">
+        <span className="ml-4 select-none font-mono text-2xl font-semibold text-[var(--foreground-muted)]">
           $
         </span>
         <input
@@ -271,7 +271,7 @@ function ComposeBody({
           placeholder="0.00"
           aria-label="Amount in USD"
           autoFocus
-          className="h-full min-w-0 flex-1 bg-transparent px-3 font-mono text-2xl font-semibold tabular-nums text-white outline-none placeholder:text-zinc-700"
+          className="h-full min-w-0 flex-1 bg-transparent px-3 font-mono text-2xl font-semibold tabular-nums text-[var(--foreground)] outline-none placeholder:text-[var(--foreground-muted)]"
         />
       </div>
 
@@ -281,7 +281,7 @@ function ComposeBody({
             key={n}
             type="button"
             onClick={() => setAmount(String(n))}
-            className="rounded-md bg-white/[0.04] px-2.5 py-1 text-[11px] font-medium text-zinc-300 ring-1 ring-white/[0.08] transition hover:bg-white/[0.08] hover:text-zinc-100"
+            className="rounded-md bg-[color-mix(in_srgb,var(--foreground)_4%,transparent)] px-2.5 py-1 text-[11px] font-medium text-[var(--foreground)]/80 ring-1 ring-[var(--border)] transition hover:bg-[color-mix(in_srgb,var(--foreground)_6%,transparent)] hover:text-[var(--foreground)]"
           >
             ${n}
           </button>
@@ -295,23 +295,23 @@ function ComposeBody({
             MAX
           </button>
         ) : null}
-        <span className="ml-auto inline-flex items-center gap-1 text-[10.5px] text-zinc-500">
+        <span className="ml-auto inline-flex items-center gap-1 text-[10.5px] text-[var(--foreground-muted)]">
           {isDeposit ? "Cap" : "Available"}
-          <span className="font-mono tabular-nums text-zinc-300">
+          <span className="font-mono tabular-nums text-[var(--foreground)]/80">
             {compactUsd(isDeposit ? 100_000 : availableUsd)}
           </span>
         </span>
       </div>
 
-      <div className="space-y-1.5 rounded-xl bg-black/30 px-3.5 py-3 ring-1 ring-white/[0.06]">
-        <div className="mb-1 flex items-center justify-between text-[10.5px] font-semibold uppercase tracking-wider text-zinc-500">
+      <div className="space-y-1.5 rounded-xl bg-[color-mix(in_srgb,var(--foreground)_5%,transparent)] px-3.5 py-3 ring-1 ring-[var(--border)]">
+        <div className="mb-1 flex items-center justify-between text-[10.5px] font-semibold uppercase tracking-wider text-[var(--foreground-muted)]">
           <span>Transaction preview</span>
-          <span className="font-mono text-[10px] text-zinc-600">t+1.2s</span>
+          <span className="font-mono text-[10px] text-[var(--foreground-muted)]">t+1.2s</span>
         </div>
         <Row label="Direction" value={isDeposit ? "On-chain → Custodial" : "Custodial → On-chain"} />
         <Row label="Amount" value={fullUsd(numericAmount)} emphasis="primary" />
         <Row label="Network fee" value={fullUsd(0)} hint="Sponsored" />
-        <div className="mt-1 border-t border-white/[0.05] pt-1.5">
+        <div className="mt-1 border-t border-[var(--border)] pt-1.5">
           <Row
             label={isDeposit ? "You will credit" : "You will debit"}
             value={fullUsd(numericAmount)}
@@ -320,7 +320,7 @@ function ComposeBody({
         </div>
       </div>
 
-      <p className="flex items-start gap-1.5 text-[10.5px] text-zinc-500">
+      <p className="flex items-start gap-1.5 text-[10.5px] text-[var(--foreground-muted)]">
         <ShieldCheck className="mt-0.5 h-3 w-3 shrink-0 text-emerald-400/80" />
         Confirms locally for balance updates and transaction history. On-chain
         settlement routes through the network when available.
@@ -340,7 +340,7 @@ function ComposeBody({
           type="button"
           onClick={onCancel}
           disabled={isPending}
-          className="h-12 rounded-xl bg-white/[0.04] text-[13px] font-semibold text-zinc-300 ring-1 ring-white/[0.08] transition hover:bg-white/[0.08] hover:text-white disabled:opacity-50"
+          className="h-12 rounded-xl bg-[color-mix(in_srgb,var(--foreground)_4%,transparent)] text-[13px] font-semibold text-[var(--foreground)]/80 ring-1 ring-[var(--border)] transition hover:bg-[color-mix(in_srgb,var(--foreground)_6%,transparent)] hover:text-[var(--foreground)] disabled:opacity-50"
         >
           Cancel
         </button>
@@ -399,25 +399,25 @@ function SuccessPanel({
         <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-emerald-500/20 ring-1 ring-emerald-400/40">
           <CheckCircle2 className="h-6 w-6 text-emerald-200" />
         </div>
-        <p className="mt-3 text-base font-semibold tracking-tight text-white">
+        <p className="mt-3 text-base font-semibold tracking-tight text-[var(--foreground)]">
           {isDeposit ? "Deposit confirmed" : "Withdrawal queued"}
         </p>
-        <p className="mt-1 text-[12px] leading-relaxed text-zinc-300">
+        <p className="mt-1 text-[12px] leading-relaxed text-[var(--foreground)]/80">
           {isDeposit ? "+" : "−"}
           <span className="font-mono">{fullUsd(amount)}</span>{" "}
           credited to your trading balance.
         </p>
       </motion.div>
 
-      <div className="space-y-1.5 rounded-xl bg-black/30 px-3.5 py-3 ring-1 ring-white/[0.06]">
+      <div className="space-y-1.5 rounded-xl bg-[color-mix(in_srgb,var(--foreground)_5%,transparent)] px-3.5 py-3 ring-1 ring-[var(--border)]">
         <div className="flex items-center justify-between text-[11px]">
-          <span className="text-zinc-500">Tx hash</span>
-          <span className="truncate font-mono tabular-nums text-zinc-200">
+          <span className="text-[var(--foreground-muted)]">Tx hash</span>
+          <span className="truncate font-mono tabular-nums text-[var(--foreground)]">
             {hash.slice(0, 16)}…{hash.slice(-6)}
           </span>
         </div>
         <div className="flex items-center justify-between text-[11px]">
-          <span className="text-zinc-500">Status</span>
+          <span className="text-[var(--foreground-muted)]">Status</span>
           <span className="font-mono text-emerald-200">Confirmed</span>
         </div>
       </div>
@@ -425,7 +425,7 @@ function SuccessPanel({
       <button
         type="button"
         onClick={onClose}
-        className="h-12 rounded-xl bg-white/[0.05] text-[13px] font-semibold text-zinc-200 ring-1 ring-white/[0.08] transition hover:bg-white/[0.1]"
+        className="h-12 rounded-xl bg-[color-mix(in_srgb,var(--foreground)_5%,transparent)] text-[13px] font-semibold text-[var(--foreground)] ring-1 ring-[var(--border)] transition hover:bg-[color-mix(in_srgb,var(--foreground)_8%,transparent)]"
       >
         Done
       </button>
@@ -446,10 +446,10 @@ function Row({
 }) {
   return (
     <div className="flex items-baseline justify-between gap-3 text-[12px]">
-      <span className="text-[11px] uppercase tracking-wider text-zinc-500">
+      <span className="text-[11px] uppercase tracking-wider text-[var(--foreground-muted)]">
         {label}
         {hint ? (
-          <span className="ml-1 normal-case tracking-normal text-zinc-600">
+          <span className="ml-1 normal-case tracking-normal text-[var(--foreground-muted)]">
             {hint}
           </span>
         ) : null}
@@ -457,7 +457,7 @@ function Row({
       <span
         className={cn(
           "font-mono font-medium tabular-nums",
-          emphasis === "primary" ? "text-cyan-100" : "text-zinc-200",
+          emphasis === "primary" ? "text-cyan-100" : "text-[var(--foreground)]",
         )}
       >
         {value}

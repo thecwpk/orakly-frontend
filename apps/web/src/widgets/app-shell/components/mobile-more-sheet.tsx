@@ -41,9 +41,9 @@ function SheetRow({
     <Link
       href={href}
       onClick={onNavigate}
-      className="flex items-center gap-3 rounded-xl px-3 py-2.5 ring-1 ring-white/[0.06] transition hover:bg-white/[0.04]"
+      className="flex items-center gap-3 rounded-xl px-3 py-2.5 ring-1 ring-[var(--border)] transition hover:bg-[color-mix(in_srgb,var(--foreground)_5%,transparent)]"
     >
-      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white/[0.05] text-cyan-300 ring-1 ring-white/[0.08]">
+      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[color-mix(in_srgb,var(--foreground)_5%,transparent)] text-[var(--accent)] ring-1 ring-[var(--border)]">
         <Icon className="h-4 w-4" aria-hidden />
       </span>
       <span className="min-w-0 text-[13px] font-semibold text-chrome">{label}</span>
@@ -93,7 +93,7 @@ export function MobileMoreSheet() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.15 }}
-            className="absolute inset-x-0 top-0 bg-black/60 backdrop-blur-[2px]"
+            className="absolute inset-x-0 top-0 bg-[color-mix(in_srgb,var(--background)_40%,transparent)] backdrop-blur-[2px]"
             style={{ bottom: "var(--app-mobile-dock-h)" }}
             onClick={close}
           />
@@ -104,11 +104,11 @@ export function MobileMoreSheet() {
             transition={{ type: "spring", stiffness: 420, damping: 36 }}
             className={cn(
               "absolute inset-x-2 max-h-[min(72vh,520px)] overflow-hidden rounded-t-2xl border border-[var(--border)]",
-              "bg-chrome-surface shadow-[0_-12px_48px_rgba(0,0,0,0.55)] backdrop-blur-xl",
+              "bg-chrome-surface shadow-[0_-12px_48px_color-mix(in_srgb,var(--foreground)_18%,transparent)] backdrop-blur-xl",
             )}
             style={{ bottom: "var(--app-mobile-dock-h)" }}
           >
-            <div className="mx-auto mt-2 h-1 w-10 shrink-0 rounded-full bg-white/15" aria-hidden />
+            <div className="mx-auto mt-2 h-1 w-10 shrink-0 rounded-full bg-[color-mix(in_srgb,var(--foreground)_18%,transparent)]" aria-hidden />
             <div className="max-h-[min(68vh,480px)] space-y-3 overflow-y-auto p-4 pb-5">
               <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-chrome-muted">
                 Trading
@@ -202,7 +202,7 @@ export function MobileMoreSheet() {
                 />
               </div>
 
-              <div className="flex items-center justify-between gap-3 rounded-xl bg-black/30 px-3 py-2 ring-1 ring-white/[0.06]">
+              <div className="flex items-center justify-between gap-3 rounded-xl bg-[color-mix(in_srgb,var(--foreground)_5%,transparent)] px-3 py-2 ring-1 ring-[var(--border)]">
                 <span className="text-[10px] font-semibold uppercase tracking-wider text-chrome-muted">
                   Appearance
                 </span>

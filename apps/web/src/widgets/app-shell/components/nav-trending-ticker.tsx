@@ -101,12 +101,12 @@ export function NavTrendingTicker({
           >
             {doubledMarkets.map((it, i) => (
               <span key={`${it.key}-${i}`} className="inline-flex shrink-0 items-center gap-x-2">
-                <span className="select-none text-zinc-700">|</span>
+                <span className="select-none text-[color-mix(in_srgb,var(--foreground)_22%,transparent)]">|</span>
                 {it.slug ? (
                   <PrefetchLink
                     href={ROUTES.market(it.slug)}
                     className={cn(
-                      "truncate text-zinc-400 transition-colors hover:text-zinc-100",
+                      "truncate text-chrome-muted transition-colors hover:text-chrome",
                       compact ? "max-w-[min(42vw,200px)]" : "max-w-[min(38vw,260px)] md:max-w-[280px]",
                     )}
                   >
@@ -115,7 +115,7 @@ export function NavTrendingTicker({
                 ) : (
                   <span
                     className={cn(
-                      "truncate text-zinc-400",
+                      "truncate text-chrome-muted",
                       compact ? "max-w-[min(42vw,200px)]" : "max-w-[min(38vw,260px)] md:max-w-[280px]",
                     )}
                   >
@@ -123,7 +123,7 @@ export function NavTrendingTicker({
                   </span>
                 )}
                 <span className="text-yes">{it.yes}%</span>
-                <span className="text-zinc-600">/</span>
+                <span className="text-chrome-muted">/</span>
                 <span className="text-rose-400/90">{it.no}%</span>
               </span>
             ))}
@@ -131,7 +131,7 @@ export function NavTrendingTicker({
         ) : (
           <div
             className={cn(
-              "flex w-max whitespace-nowrap font-mono text-zinc-500 will-change-transform",
+              "flex w-max whitespace-nowrap font-mono text-chrome-muted will-change-transform",
               compact ? "gap-6 text-[9px] leading-none" : "gap-10 text-[10px]",
               doubled.length > 1 ? "nav-ticker-track" : "",
             )}
@@ -139,7 +139,7 @@ export function NavTrendingTicker({
             {doubled.map((it, i) => (
               <span key={`${it.key}-${i}`} className={cn("inline-flex shrink-0 truncate", compact ? "max-w-[240px]" : "max-w-[280px]")}>
                 <span className={cn("select-none text-emerald-500/55", compact ? "mr-1" : "mr-1.5")}>|</span>
-                <span className="text-zinc-400/95">{it.text}</span>
+                <span className="text-chrome-muted">{it.text}</span>
               </span>
             ))}
           </div>

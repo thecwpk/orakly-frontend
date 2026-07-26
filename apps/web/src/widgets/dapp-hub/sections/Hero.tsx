@@ -189,7 +189,7 @@ function FeaturedMarketPanel({ market }: { market: LiveMarketCardDto }) {
 
       <div className="relative flex flex-wrap items-center justify-between gap-2">
         <div className="flex flex-wrap items-center gap-2">
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--hub-glass-border)] bg-white/[0.04] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-[var(--hub-muted)]">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--hub-glass-border)] bg-[color-mix(in_srgb,var(--hub-fg)_4%,transparent)] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-[var(--hub-muted)]">
             <span className="relative flex size-1.5">
               <span className="absolute inset-0 animate-ping rounded-full bg-[var(--hub-success)]/70" />
               <span className="relative size-1.5 rounded-full bg-[var(--hub-success)]" />
@@ -222,7 +222,7 @@ function FeaturedMarketPanel({ market }: { market: LiveMarketCardDto }) {
             {market.title}
           </Link>
 
-          <div className="mt-3 overflow-hidden rounded-lg border border-[var(--hub-glass-border)] bg-black/25 px-2 py-1.5">
+          <div className="mt-3 overflow-hidden rounded-lg border border-[var(--hub-glass-border)] bg-[var(--hub-track-bg)] px-2 py-1.5">
             <Sparkline
               data={spark}
               width={360}
@@ -381,7 +381,7 @@ export function Hero() {
           className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between"
         >
           <div>
-            <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-[var(--hub-glass-border)] bg-white/[0.04] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--hub-muted)]">
+            <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-[var(--hub-glass-border)] bg-[color-mix(in_srgb,var(--hub-fg)_4%,transparent)] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--hub-muted)]">
               <span className="size-1.5 animate-pulse rounded-full bg-[var(--hub-success)]" />
               Live desk · {pulse.topChain}
             </div>

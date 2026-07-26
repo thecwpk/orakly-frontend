@@ -302,6 +302,8 @@
 
   --app-chrome: rgb(255 255 255 / 0.92);
   --app-ticker-band: rgb(248 250 252 / 0.9);
+  --app-border-subtle: rgba(15, 23, 42, 0.1);
+  --app-panel: rgba(15, 23, 42, 0.03);
   --mb-page: var(--background);
   --mb-fg: var(--foreground);
   --mb-muted: var(--foreground-muted);
@@ -544,7 +546,7 @@
 
   /** Top chrome — hairline only (Dexscreener-style). Prefer over tinted bloom + inset glow. */
   .chrome-edge-subtle {
-    box-shadow: 0 1px 0 rgb(255 255 255 / 0.045);
+    box-shadow: 0 1px 0 color-mix(in srgb, var(--foreground) 6%, transparent);
   }
 
   /** Optional legacy accent wash — use sparingly on marketing only */

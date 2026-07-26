@@ -38,6 +38,36 @@
   --hub-container-max: 90rem;
 }
 
+[data-theme="light"] .hub-app-canvas,
+[data-theme="light"] .hub-root,
+.light .hub-app-canvas,
+.light .hub-root {
+  --hub-bg: #f8fafc;
+  --hub-bg-subtle: #f1f5f9;
+  --hub-bg-elevated: #ffffff;
+  --hub-card: #ffffff;
+  --hub-card-hover: #f1f5f9;
+  --hub-border: #e2e8f0;
+  --hub-border-strong: #cbd5e1;
+  --hub-fg: #0f172a;
+  --hub-muted: #64748b;
+  --hub-primary: #6366f1;
+  --hub-primary-bright: #4f46e5;
+  --hub-primary-soft: rgba(99, 102, 241, 0.12);
+  --hub-primary-glow: rgba(99, 102, 241, 0.28);
+  --hub-success: #16a34a;
+  --hub-success-bg: rgba(22, 163, 74, 0.12);
+  --hub-danger: #dc2626;
+  --hub-danger-bg: rgba(220, 38, 38, 0.1);
+  --hub-attention: #6366f1;
+  --hub-chrome: rgba(255, 255, 255, 0.88);
+  --hub-track-bg: rgba(15, 23, 42, 0.06);
+  --hub-surface-highlight: #eef2ff;
+  --hub-glass-border: rgba(15, 23, 42, 0.1);
+  --hub-glass-border-hover: rgba(15, 23, 42, 0.18);
+  --hub-glass-shadow: 0 16px 40px rgba(15, 23, 42, 0.08);
+}
+
 .hub-app-canvas {
   background: var(--hub-bg);
 }
@@ -552,7 +582,7 @@
 }
 
 .hub-feed-hero-featured [data-hub-featured-card] .hub-featured-news-headline {
-  color: #ffffff;
+  color: var(--hub-fg);
 }
 
 .hub-feed-hero-spotlight .hub-spotlight-queue {
@@ -1501,7 +1531,7 @@
   min-width: 0;
   border-radius: var(--hub-dapp-radius);
   border: 1px solid var(--hub-border);
-  background: color-mix(in srgb, var(--hub-card) 92%, #0a1220);
+  background: color-mix(in srgb, var(--hub-card) 92%, var(--hub-bg));
   box-shadow: none;
   padding: var(--hub-dapp-card-pad);
 }
@@ -1515,7 +1545,7 @@
 
 .hub-dapp-card--interactive:hover {
   border-color: var(--hub-border-strong);
-  background: color-mix(in srgb, var(--hub-card-hover) 88%, #0a1220);
+  background: color-mix(in srgb, var(--hub-card-hover) 88%, var(--hub-bg));
   transform: translateY(-2px);
 }
 
@@ -1773,7 +1803,7 @@
 .hub-dapp-cta:hover {
   border-color: var(--hub-border-strong);
   background: color-mix(in srgb, var(--hub-primary-soft) 70%, var(--hub-card-hover));
-  color: #fff;
+  color: var(--hub-fg);
 }
 
 .hub-dapp-cta--solid {
@@ -1857,7 +1887,7 @@
   overflow: hidden;
   border-radius: var(--hub-dapp-radius);
   border: 1px solid var(--hub-border);
-  background: color-mix(in srgb, var(--hub-card) 94%, #0a1220);
+  background: color-mix(in srgb, var(--hub-card) 94%, var(--hub-bg));
   box-shadow: none;
 }
 
@@ -1938,7 +1968,7 @@
   flex-direction: column;
   border-radius: var(--hub-dapp-radius);
   border: 1px solid var(--hub-border);
-  background: color-mix(in srgb, var(--hub-card) 94%, #0a1220);
+  background: color-mix(in srgb, var(--hub-card) 94%, var(--hub-bg));
   padding: var(--hub-dapp-card-pad);
   box-shadow: none;
 }
@@ -2039,7 +2069,7 @@
 .hub-dapp-skel-card {
   border-radius: var(--hub-dapp-radius);
   border: 1px solid var(--hub-border);
-  background: color-mix(in srgb, var(--hub-card) 88%, #0a1220);
+  background: color-mix(in srgb, var(--hub-card) 88%, var(--hub-bg));
   padding: var(--hub-dapp-card-pad);
 }
 
@@ -2052,7 +2082,7 @@
   overflow: hidden;
   border-radius: var(--hub-dapp-radius);
   border: 1px solid var(--hub-border);
-  background: color-mix(in srgb, var(--hub-card) 85%, #0a1020);
+  background: color-mix(in srgb, var(--hub-card) 85%, var(--hub-bg-subtle));
   box-shadow: none;
 }
 
@@ -2084,8 +2114,8 @@
   inset: 0;
   z-index: 0;
   background-image:
-    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    linear-gradient(color-mix(in srgb, var(--hub-fg) 4%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--hub-fg) 4%, transparent) 1px, transparent 1px);
   background-size: 48px 48px;
   mask-image: linear-gradient(to bottom, rgb(0 0 0 / 0.9), transparent 85%);
 }

@@ -89,7 +89,7 @@ export function SettingsShell({ children }: { children: ReactNode }) {
                       "block rounded-lg px-2.5 py-2 transition",
                       active
                         ? "bg-[var(--hub-primary-soft)] text-[var(--hub-fg)] ring-1 ring-[var(--hub-border-strong)]"
-                        : "text-[var(--hub-muted)] hover:bg-white/[0.04] hover:text-[var(--hub-fg)]",
+                        : "text-[var(--hub-muted)] hover:bg-[color-mix(in_srgb,var(--foreground)_5%,transparent)] hover:text-[var(--hub-fg)]",
                     )}
                     aria-current={active ? "page" : undefined}
                   >

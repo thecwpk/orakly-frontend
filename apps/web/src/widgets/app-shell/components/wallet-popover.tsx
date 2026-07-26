@@ -48,7 +48,7 @@ export function WalletPopover({
             <div
               role="status"
               aria-label="Loading wallet"
-              className="h-9 min-w-[7.5rem] animate-pulse rounded-lg border border-white/[0.06] bg-white/[0.04]"
+              className="h-9 min-w-[7.5rem] animate-pulse rounded-lg border border-[var(--border)] bg-[color-mix(in_srgb,var(--foreground)_4%,transparent)]"
             />
           );
         }
@@ -86,7 +86,7 @@ export function WalletPopover({
             <div
               role="status"
               aria-label="Loading wallet"
-              className="h-9 min-w-[7.5rem] animate-pulse rounded-[var(--radius-md)] border border-white/[0.06] bg-white/[0.04]"
+              className="h-9 min-w-[7.5rem] animate-pulse rounded-[var(--radius-md)] border border-[var(--border)] bg-[color-mix(in_srgb,var(--foreground)_4%,transparent)]"
             />
           );
         }
@@ -100,10 +100,10 @@ export function WalletPopover({
                 whileHover={{ scale: 1.01 }}
                 whileTap={{ scale: 0.99 }}
                 className={cn(
-                  "inline-flex h-9 w-full shrink-0 items-center gap-1.5 rounded-[var(--radius-md)] border bg-white/[0.03] px-2.5 pr-2.5 transition sm:w-auto",
+                  "inline-flex h-9 w-full shrink-0 items-center gap-1.5 rounded-[var(--radius-md)] border bg-[color-mix(in_srgb,var(--foreground)_3%,transparent)] px-2.5 pr-2.5 transition sm:w-auto",
                   wrongNetwork
                     ? "border-rose-500/35 bg-rose-500/[0.07]"
-                    : "border-white/[0.08] hover:border-white/[0.11] hover:bg-white/[0.06]",
+                    : "border-[var(--border)] hover:border-[var(--border-strong)] hover:bg-[color-mix(in_srgb,var(--foreground)_6%,transparent)]",
                 )}
               >
                 <span className="size-2 shrink-0 rounded-full bg-emerald-400 ring-2 ring-emerald-400/25" aria-hidden />
@@ -119,7 +119,7 @@ export function WalletPopover({
                 <Link
                   href={ROUTES.profile}
                   onClick={() => setOpen(false)}
-                  className="flex items-center gap-2 px-3 py-2 text-[12px] text-chrome transition hover:bg-white/[0.04]"
+                  className="flex items-center gap-2 px-3 py-2 text-[12px] text-chrome transition hover:bg-[color-mix(in_srgb,var(--foreground)_5%,transparent)]"
                 >
                   <User className="h-3.5 w-3.5 text-chrome-muted" />
                   Profile
@@ -127,7 +127,7 @@ export function WalletPopover({
                 <Link
                   href={ROUTES.portfolio}
                   onClick={() => setOpen(false)}
-                  className="flex items-center gap-2 px-3 py-2 text-[12px] text-chrome transition hover:bg-white/[0.04]"
+                  className="flex items-center gap-2 px-3 py-2 text-[12px] text-chrome transition hover:bg-[color-mix(in_srgb,var(--foreground)_5%,transparent)]"
                 >
                   <Briefcase className="h-3.5 w-3.5 text-chrome-muted" />
                   Portfolio
@@ -135,7 +135,7 @@ export function WalletPopover({
                 <Link
                   href={ROUTES.settings}
                   onClick={() => setOpen(false)}
-                  className="flex items-center gap-2 px-3 py-2 text-[12px] text-chrome transition hover:bg-white/[0.04]"
+                  className="flex items-center gap-2 px-3 py-2 text-[12px] text-chrome transition hover:bg-[color-mix(in_srgb,var(--foreground)_5%,transparent)]"
                 >
                   <Settings className="h-3.5 w-3.5 text-chrome-muted" />
                   Settings
@@ -143,7 +143,7 @@ export function WalletPopover({
                 <Link
                   href={ROUTES.marketCreate}
                   onClick={() => setOpen(false)}
-                  className="flex items-center gap-2 px-3 py-2 text-[12px] text-chrome transition hover:bg-white/[0.04]"
+                  className="flex items-center gap-2 px-3 py-2 text-[12px] text-chrome transition hover:bg-[color-mix(in_srgb,var(--foreground)_5%,transparent)]"
                 >
                   <Plus className="h-3.5 w-3.5 text-emerald-400" />
                   Create market
@@ -152,7 +152,7 @@ export function WalletPopover({
                   <Link
                     href={ROUTES.adminDashboard}
                     onClick={() => setOpen(false)}
-                    className="flex items-center gap-2 px-3 py-2 text-[12px] text-chrome transition hover:bg-white/[0.04]"
+                    className="flex items-center gap-2 px-3 py-2 text-[12px] text-chrome transition hover:bg-[color-mix(in_srgb,var(--foreground)_5%,transparent)]"
                   >
                     <Shield className="h-3.5 w-3.5 text-chrome-muted" />
                     Operator console

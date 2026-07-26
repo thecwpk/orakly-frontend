@@ -101,7 +101,7 @@ function Section({
   return (
     <section className="space-y-3">
       <div className="flex flex-wrap items-end justify-between gap-2">
-        <h2 className="flex items-center gap-2 text-lg font-semibold text-zinc-100">
+        <h2 className="flex items-center gap-2 text-lg font-semibold text-[var(--foreground)]">
           {title}
           {badge}
         </h2>
@@ -114,7 +114,7 @@ function Section({
 
 function CountBadge({ n }: { n: number }) {
   return (
-    <span className="rounded-full bg-white/[0.06] px-2 py-0.5 text-[12px] font-semibold tabular-nums text-zinc-400 ring-1 ring-white/[0.08]">
+    <span className="rounded-full bg-[color-mix(in_srgb,var(--foreground)_6%,transparent)] px-2 py-0.5 text-[12px] font-semibold tabular-nums text-[var(--foreground-muted)] ring-1 ring-[var(--border)]">
       {n}
     </span>
   );
@@ -138,11 +138,11 @@ function SideBadge({ side }: { side: "YES" | "NO" }) {
 function ConnectGate({ onConnect }: { onConnect: () => void }) {
   return (
     <main className="mx-auto flex min-h-[70vh] max-w-6xl items-center justify-center px-4 py-16">
-      <div className="w-full max-w-md rounded-2xl border border-white/[0.08] bg-zinc-950/60 p-8 text-center shadow-xl">
-        <h1 className="text-[22px] font-bold text-white">
+      <div className="w-full max-w-md rounded-2xl border border-[var(--border)] bg-[var(--background-secondary)] p-8 text-center shadow-xl">
+        <h1 className="text-[22px] font-bold text-[var(--foreground)]">
           Connect your wallet to view your portfolio.
         </h1>
-        <p className="mt-2 text-[13px] text-zinc-500">
+        <p className="mt-2 text-[13px] text-[var(--foreground-muted)]">
           Positions, PnL, claims, and creator earnings stay private until you connect.
         </p>
         <button
@@ -165,7 +165,7 @@ function OverviewCards({ overview }: { overview: PortfolioPageDto["overview"] })
         {
           label: "Portfolio Balance",
           value: formatBnb(overview.portfolioBalanceBnb),
-          tone: "text-zinc-100",
+          tone: "text-[var(--foreground)]",
         },
         {
           label: "Total PnL",
@@ -175,19 +175,19 @@ function OverviewCards({ overview }: { overview: PortfolioPageDto["overview"] })
         {
           label: "Open Positions",
           value: String(overview.openPositionsCount),
-          tone: "text-zinc-100",
+          tone: "text-[var(--foreground)]",
         },
         {
           label: "Pending Settlement",
           value: String(overview.pendingSettlementCount),
-          tone: "text-zinc-100",
+          tone: "text-[var(--foreground)]",
         },
       ].map((card) => (
         <div
           key={card.label}
-          className="rounded-2xl border border-white/[0.08] bg-zinc-950/40 p-4"
+          className="rounded-2xl border border-[var(--border)] bg-[var(--background-secondary)] p-4"
         >
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-zinc-500">
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-[var(--foreground-muted)]">
             {card.label}
           </p>
           <p className={cn("mt-2 text-[18px] font-bold tabular-nums", card.tone)}>
@@ -232,10 +232,10 @@ function PnlChart({
   const fill = positive ? "url(#pnlPos)" : "url(#pnlNeg)";
 
   return (
-    <div className="rounded-2xl border border-white/[0.08] bg-zinc-950/40 p-4">
+    <div className="rounded-2xl border border-[var(--border)] bg-[var(--background-secondary)] p-4">
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-        <h2 className="text-lg font-semibold text-zinc-100">PnL Chart</h2>
-        <div className="inline-flex rounded-lg border border-white/[0.08] p-0.5">
+        <h2 className="text-lg font-semibold text-[var(--foreground)]">PnL Chart</h2>
+        <div className="inline-flex rounded-lg border border-[var(--border)] p-0.5">
           {(
             [
               { id: "7d", label: "7D" },
@@ -251,7 +251,7 @@ function PnlChart({
                 "rounded-md px-2.5 py-1 text-[11px] font-semibold transition",
                 period === opt.id
                   ? "bg-blue-600 text-white"
-                  : "text-zinc-400 hover:text-zinc-200",
+                  : "text-[var(--foreground-muted)] hover:text-[var(--foreground)]",
               )}
             >
               {opt.label}
@@ -272,30 +272,30 @@ function PnlChart({
                 <stop offset="100%" stopColor="#fb7185" stopOpacity={0} />
               </linearGradient>
             </defs>
-            <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
+            <CartesianGrid stroke="var(--border)" vertical={false} />
             <XAxis
               dataKey="label"
-              tick={{ fill: "#71717a", fontSize: 10 }}
+              tick={{ fill: "var(--foreground-muted)", fontSize: 10 }}
               axisLine={false}
               tickLine={false}
               minTickGap={40}
             />
             <YAxis
-              tick={{ fill: "#71717a", fontSize: 10 }}
+              tick={{ fill: "var(--foreground-muted)", fontSize: 10 }}
               axisLine={false}
               tickLine={false}
               width={48}
             />
             <Tooltip
               contentStyle={{
-                background: "#09090b",
-                border: "1px solid rgba(255,255,255,0.08)",
+                background: "var(--popover)",
+                border: "1px solid var(--border)",
                 borderRadius: 8,
                 fontSize: 12,
               }}
               formatter={(value) => [formatBnb(Number(value ?? 0)), "PnL"]}
             />
-            <ReferenceLine y={0} stroke="#52525b" strokeDasharray="4 4" />
+            <ReferenceLine y={0} stroke="var(--foreground-muted)" strokeDasharray="4 4" />
             <Area
               type="monotone"
               dataKey="pnl"
@@ -313,16 +313,16 @@ function PnlChart({
 function OpenPositionsTable({ rows }: { rows: PortfolioPositionRowDto[] }) {
   if (rows.length === 0) {
     return (
-      <p className="rounded-2xl border border-dashed border-white/[0.1] px-4 py-8 text-center text-sm text-zinc-500">
+      <p className="rounded-2xl border border-dashed border-[var(--border)] px-4 py-8 text-center text-sm text-[var(--foreground-muted)]">
         No open positions
       </p>
     );
   }
 
   return (
-    <div className="overflow-x-auto rounded-2xl border border-white/[0.08]">
+    <div className="overflow-x-auto rounded-2xl border border-[var(--border)]">
       <table className="min-w-full text-left text-[13px]">
-        <thead className="border-b border-white/[0.06] bg-white/[0.02] text-[11px] font-semibold uppercase tracking-wider text-zinc-500">
+        <thead className="border-b border-[var(--border)] bg-[color-mix(in_srgb,var(--foreground)_2%,transparent)] text-[11px] font-semibold uppercase tracking-wider text-[var(--foreground-muted)]">
           <tr>
             <th className="px-4 py-3">Market</th>
             <th className="px-4 py-3">Side</th>
@@ -334,28 +334,28 @@ function OpenPositionsTable({ rows }: { rows: PortfolioPositionRowDto[] }) {
             <th className="px-4 py-3 text-right">Action</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-white/[0.04]">
+        <tbody className="divide-y divide-[var(--border)]">
           {rows.map((row) => (
-            <tr key={row.id} className="hover:bg-white/[0.02]">
-              <td className="max-w-[240px] truncate px-4 py-3 font-medium text-zinc-100">
+            <tr key={row.id} className="hover:bg-[color-mix(in_srgb,var(--foreground)_5%,transparent)]">
+              <td className="max-w-[240px] truncate px-4 py-3 font-medium text-[var(--foreground)]">
                 {row.marketTitle}
               </td>
               <td className="px-4 py-3">
                 <SideBadge side={row.side} />
               </td>
-              <td className="px-4 py-3 font-mono tabular-nums text-zinc-300">
+              <td className="px-4 py-3 font-mono tabular-nums text-[var(--foreground)]/80">
                 {formatOdds(row.entryPrice)}
               </td>
-              <td className="px-4 py-3 font-mono tabular-nums text-zinc-300">
+              <td className="px-4 py-3 font-mono tabular-nums text-[var(--foreground)]/80">
                 {formatOdds(row.currentOdds)}
               </td>
-              <td className="px-4 py-3 font-mono tabular-nums text-zinc-300">
+              <td className="px-4 py-3 font-mono tabular-nums text-[var(--foreground)]/80">
                 {row.shares.toFixed(2)}
               </td>
-              <td className="px-4 py-3 font-mono tabular-nums text-zinc-300">
+              <td className="px-4 py-3 font-mono tabular-nums text-[var(--foreground)]/80">
                 {formatBnb(row.currentValueBnb)}
               </td>
-              <td className="px-4 py-3 font-mono tabular-nums text-zinc-300">
+              <td className="px-4 py-3 font-mono tabular-nums text-[var(--foreground)]/80">
                 {formatBnb(row.estPayoutBnb)}
               </td>
               <td className="px-4 py-3 text-right">
@@ -377,16 +377,16 @@ function OpenPositionsTable({ rows }: { rows: PortfolioPositionRowDto[] }) {
 function ClosedPositionsTable({ rows }: { rows: PortfolioPositionRowDto[] }) {
   if (rows.length === 0) {
     return (
-      <p className="rounded-2xl border border-dashed border-white/[0.1] px-4 py-8 text-center text-sm text-zinc-500">
+      <p className="rounded-2xl border border-dashed border-[var(--border)] px-4 py-8 text-center text-sm text-[var(--foreground-muted)]">
         No closed positions yet.
       </p>
     );
   }
 
   return (
-    <div className="overflow-x-auto rounded-2xl border border-white/[0.08]">
+    <div className="overflow-x-auto rounded-2xl border border-[var(--border)]">
       <table className="min-w-full text-left text-[13px]">
-        <thead className="border-b border-white/[0.06] bg-white/[0.02] text-[11px] font-semibold uppercase tracking-wider text-zinc-500">
+        <thead className="border-b border-[var(--border)] bg-[color-mix(in_srgb,var(--foreground)_2%,transparent)] text-[11px] font-semibold uppercase tracking-wider text-[var(--foreground-muted)]">
           <tr>
             <th className="px-4 py-3">Market</th>
             <th className="px-4 py-3">Side</th>
@@ -397,10 +397,10 @@ function ClosedPositionsTable({ rows }: { rows: PortfolioPositionRowDto[] }) {
             <th className="px-4 py-3">Date</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-white/[0.04]">
+        <tbody className="divide-y divide-[var(--border)]">
           {rows.map((row) => (
-            <tr key={row.id} className="hover:bg-white/[0.02]">
-              <td className="max-w-[240px] truncate px-4 py-3 font-medium text-zinc-100">
+            <tr key={row.id} className="hover:bg-[color-mix(in_srgb,var(--foreground)_5%,transparent)]">
+              <td className="max-w-[240px] truncate px-4 py-3 font-medium text-[var(--foreground)]">
                 {row.marketTitle}
               </td>
               <td className="px-4 py-3">
@@ -417,10 +417,10 @@ function ClosedPositionsTable({ rows }: { rows: PortfolioPositionRowDto[] }) {
                   </span>
                 )}
               </td>
-              <td className="px-4 py-3 font-mono tabular-nums text-zinc-300">
+              <td className="px-4 py-3 font-mono tabular-nums text-[var(--foreground)]/80">
                 {formatOdds(row.entryPrice)}
               </td>
-              <td className="px-4 py-3 font-mono tabular-nums text-zinc-300">
+              <td className="px-4 py-3 font-mono tabular-nums text-[var(--foreground)]/80">
                 {row.exitPrice != null ? formatOdds(row.exitPrice) : "N/A"}
               </td>
               <td
@@ -431,7 +431,7 @@ function ClosedPositionsTable({ rows }: { rows: PortfolioPositionRowDto[] }) {
               >
                 {row.pnlBnb != null ? formatBnb(row.pnlBnb) : "N/A"}
               </td>
-              <td className="px-4 py-3 text-zinc-400">{formatDate(row.closedAt)}</td>
+              <td className="px-4 py-3 text-[var(--foreground-muted)]">{formatDate(row.closedAt)}</td>
             </tr>
           ))}
         </tbody>
@@ -483,7 +483,7 @@ function ClaimSection({
       }
     >
       {rows.length === 0 ? (
-        <p className="rounded-2xl border border-dashed border-white/[0.1] px-4 py-8 text-center text-sm text-zinc-500">
+        <p className="rounded-2xl border border-dashed border-[var(--border)] px-4 py-8 text-center text-sm text-[var(--foreground-muted)]">
           Nothing to claim right now
         </p>
       ) : (
@@ -494,9 +494,9 @@ function ClaimSection({
             return (
               <div
                 key={row.id}
-                className="rounded-2xl border border-white/[0.08] bg-zinc-950/40 p-4"
+                className="rounded-2xl border border-[var(--border)] bg-[var(--background-secondary)] p-4"
               >
-                <p className="text-[14px] font-semibold leading-snug text-zinc-100">
+                <p className="text-[14px] font-semibold leading-snug text-[var(--foreground)]">
                   {row.marketTitle}
                 </p>
                 <p className="mt-2 text-[13px] text-emerald-300">
@@ -559,16 +559,16 @@ function TradingHistory({ address }: { address: string }) {
   return (
     <Section title="Trading History">
       {rows.length === 0 && q.isLoading ? (
-        <div className="h-40 animate-pulse rounded-2xl bg-zinc-800/80" />
+        <div className="h-40 animate-pulse rounded-2xl bg-[color-mix(in_srgb,var(--foreground)_8%,transparent)]" />
       ) : rows.length === 0 ? (
-        <p className="rounded-2xl border border-dashed border-white/[0.1] px-4 py-8 text-center text-sm text-zinc-500">
+        <p className="rounded-2xl border border-dashed border-[var(--border)] px-4 py-8 text-center text-sm text-[var(--foreground-muted)]">
           No trades yet.
         </p>
       ) : (
         <>
-          <div className="overflow-x-auto rounded-2xl border border-white/[0.08]">
+          <div className="overflow-x-auto rounded-2xl border border-[var(--border)]">
             <table className="min-w-full text-left text-[13px]">
-              <thead className="border-b border-white/[0.06] bg-white/[0.02] text-[11px] font-semibold uppercase tracking-wider text-zinc-500">
+              <thead className="border-b border-[var(--border)] bg-[color-mix(in_srgb,var(--foreground)_2%,transparent)] text-[11px] font-semibold uppercase tracking-wider text-[var(--foreground-muted)]">
                 <tr>
                   <th className="px-4 py-3">Date</th>
                   <th className="px-4 py-3">Market</th>
@@ -578,11 +578,11 @@ function TradingHistory({ address }: { address: string }) {
                   <th className="px-4 py-3 text-right">Tx</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/[0.04]">
+              <tbody className="divide-y divide-[var(--border)]">
                 {rows.map((trade) => (
-                  <tr key={trade.id} className="hover:bg-white/[0.02]">
-                    <td className="px-4 py-3 text-zinc-400">{formatDate(trade.at)}</td>
-                    <td className="max-w-[220px] truncate px-4 py-3 text-zinc-100">
+                  <tr key={trade.id} className="hover:bg-[color-mix(in_srgb,var(--foreground)_5%,transparent)]">
+                    <td className="px-4 py-3 text-[var(--foreground-muted)]">{formatDate(trade.at)}</td>
+                    <td className="max-w-[220px] truncate px-4 py-3 text-[var(--foreground)]">
                       <Link
                         href={ROUTES.market(trade.marketSlug)}
                         className="hover:text-blue-200"
@@ -593,10 +593,10 @@ function TradingHistory({ address }: { address: string }) {
                     <td className="px-4 py-3">
                       <SideBadge side={trade.side} />
                     </td>
-                    <td className="px-4 py-3 font-mono tabular-nums text-zinc-300">
+                    <td className="px-4 py-3 font-mono tabular-nums text-[var(--foreground)]/80">
                       {formatBnb(trade.amountUsd)}
                     </td>
-                    <td className="px-4 py-3 capitalize text-zinc-300">{trade.status}</td>
+                    <td className="px-4 py-3 capitalize text-[var(--foreground)]/80">{trade.status}</td>
                     <td className="px-4 py-3 text-right">
                       {trade.txHash ? (
                         <a
@@ -609,7 +609,7 @@ function TradingHistory({ address }: { address: string }) {
                           <ExternalLink className="h-4 w-4" />
                         </a>
                       ) : (
-                        <span className="text-zinc-600">N/A</span>
+                        <span className="text-[var(--foreground-muted)]">N/A</span>
                       )}
                     </td>
                   </tr>
@@ -622,7 +622,7 @@ function TradingHistory({ address }: { address: string }) {
               type="button"
               disabled={q.isFetching}
               onClick={() => setPage((p) => p + 1)}
-              className="rounded-xl border border-white/[0.08] px-4 py-2.5 text-sm font-semibold text-zinc-200 transition hover:bg-white/[0.04] disabled:opacity-50"
+              className="rounded-xl border border-[var(--border)] px-4 py-2.5 text-sm font-semibold text-[var(--foreground)] transition hover:bg-[color-mix(in_srgb,var(--foreground)_5%,transparent)] disabled:opacity-50"
             >
               {q.isFetching ? "Loading…" : "Load more"}
             </button>
@@ -639,9 +639,9 @@ function CreatedMarketsSection({ address }: { address: string }) {
 
   return (
     <Section title="My Created Markets" badge={<CountBadge n={data.markets.length} />}>
-      <div className="overflow-x-auto rounded-2xl border border-white/[0.08]">
+      <div className="overflow-x-auto rounded-2xl border border-[var(--border)]">
         <table className="min-w-full text-left text-[13px]">
-          <thead className="border-b border-white/[0.06] bg-white/[0.02] text-[11px] font-semibold uppercase tracking-wider text-zinc-500">
+          <thead className="border-b border-[var(--border)] bg-[color-mix(in_srgb,var(--foreground)_2%,transparent)] text-[11px] font-semibold uppercase tracking-wider text-[var(--foreground-muted)]">
             <tr>
               <th className="px-4 py-3">Market</th>
               <th className="px-4 py-3">Status</th>
@@ -650,18 +650,18 @@ function CreatedMarketsSection({ address }: { address: string }) {
               <th className="px-4 py-3">Fees Earned</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-white/[0.04]">
+          <tbody className="divide-y divide-[var(--border)]">
             {data.markets.map((m) => {
               const status = m.status.toUpperCase();
               const badge =
                 status === "OPEN"
                   ? "bg-blue-500/15 text-blue-200"
                   : status === "RESOLVED"
-                    ? "bg-zinc-500/20 text-zinc-300"
+                    ? "bg-[color-mix(in_srgb,var(--foreground)_12%,transparent)] text-[var(--foreground)]/80"
                     : "bg-amber-500/15 text-amber-200";
               return (
-                <tr key={m.id} className="hover:bg-white/[0.02]">
-                  <td className="max-w-[280px] truncate px-4 py-3 font-medium text-zinc-100">
+                <tr key={m.id} className="hover:bg-[color-mix(in_srgb,var(--foreground)_5%,transparent)]">
+                  <td className="max-w-[280px] truncate px-4 py-3 font-medium text-[var(--foreground)]">
                     {m.question}
                   </td>
                   <td className="px-4 py-3">
@@ -673,10 +673,10 @@ function CreatedMarketsSection({ address }: { address: string }) {
                           : "Pending"}
                     </span>
                   </td>
-                  <td className="px-4 py-3 font-mono tabular-nums text-zinc-300">
+                  <td className="px-4 py-3 font-mono tabular-nums text-[var(--foreground)]/80">
                     {formatBnb(m.volume)}
                   </td>
-                  <td className="px-4 py-3 font-mono tabular-nums text-zinc-300">
+                  <td className="px-4 py-3 font-mono tabular-nums text-[var(--foreground)]/80">
                     {m.creatorRewardPercent}%
                   </td>
                   <td className="px-4 py-3 font-mono tabular-nums text-emerald-300">
@@ -697,7 +697,7 @@ function CreatorEarningsSection({ address }: { address: string }) {
   if (!data || data.totalFeesEarned <= 0) return null;
   return (
     <Section title="Creator Earnings">
-      <div className="rounded-2xl border border-white/[0.08] bg-zinc-950/40 p-4 [&_.rounded-xl]:border-white/10 [&_.rounded-xl]:bg-zinc-900 [&_th]:text-zinc-400 [&_td]:text-zinc-200">
+      <div className="rounded-2xl border border-[var(--border)] bg-[var(--background-secondary)] p-4 [&_.rounded-xl]:border-[var(--border)] [&_.rounded-xl]:bg-[var(--background-secondary)] [&_th]:text-[var(--foreground-muted)] [&_td]:text-[var(--foreground)]">
         <CreatorRewardsPanel address={address} />
       </div>
     </Section>
@@ -719,13 +719,13 @@ function WatchlistSection() {
     <Section title="Watchlist" badge={<CountBadge n={count} />}>
       <div id="watchlist" className="scroll-mt-24">
       {count === 0 ? (
-        <p className="rounded-2xl border border-dashed border-white/[0.1] px-4 py-8 text-center text-sm text-zinc-500">
+        <p className="rounded-2xl border border-dashed border-[var(--border)] px-4 py-8 text-center text-sm text-[var(--foreground-muted)]">
           No markets saved yet. Star any market to add it here.
         </p>
       ) : isLoading ? (
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {Array.from({ length: Math.min(count, 3) }).map((_, i) => (
-            <div key={i} className="h-36 animate-pulse rounded-2xl bg-zinc-800/80" />
+            <div key={i} className="h-36 animate-pulse rounded-2xl bg-[color-mix(in_srgb,var(--foreground)_8%,transparent)]" />
           ))}
         </div>
       ) : (
@@ -756,16 +756,16 @@ function AnalyticsSection({ analytics }: { analytics: PortfolioPageDto["analytic
   return (
     <Section title="Your Analytics">
       <div className="grid gap-4 lg:grid-cols-3">
-        <div className="rounded-2xl border border-white/[0.08] bg-zinc-950/40 p-4">
-          <p className="text-[12px] font-semibold uppercase tracking-wider text-zinc-500">
+        <div className="rounded-2xl border border-[var(--border)] bg-[var(--background-secondary)] p-4">
+          <p className="text-[12px] font-semibold uppercase tracking-wider text-[var(--foreground-muted)]">
             Win rate
           </p>
-          <p className="mt-1 text-2xl font-bold text-zinc-100">
+          <p className="mt-1 text-2xl font-bold text-[var(--foreground)]">
             {analytics.winRatePct.toFixed(1)}%
           </p>
           <div className="mt-2 h-[160px]">
             {pieData.length === 0 ? (
-              <p className="flex h-full items-center justify-center text-sm text-zinc-500">
+              <p className="flex h-full items-center justify-center text-sm text-[var(--foreground-muted)]">
                 No resolved trades yet.
               </p>
             ) : (
@@ -783,13 +783,13 @@ function AnalyticsSection({ analytics }: { analytics: PortfolioPageDto["analytic
           </div>
         </div>
 
-        <div className="rounded-2xl border border-white/[0.08] bg-zinc-950/40 p-4 lg:col-span-1">
-          <p className="text-[12px] font-semibold uppercase tracking-wider text-zinc-500">
+        <div className="rounded-2xl border border-[var(--border)] bg-[var(--background-secondary)] p-4 lg:col-span-1">
+          <p className="text-[12px] font-semibold uppercase tracking-wider text-[var(--foreground-muted)]">
             Most traded narratives
           </p>
           <div className="mt-2 h-[180px]">
             {analytics.narrativeTrades.length === 0 ? (
-              <p className="flex h-full items-center justify-center text-sm text-zinc-500">
+              <p className="flex h-full items-center justify-center text-sm text-[var(--foreground-muted)]">
                 No narrative activity yet.
               </p>
             ) : (
@@ -797,17 +797,17 @@ function AnalyticsSection({ analytics }: { analytics: PortfolioPageDto["analytic
                 <BarChart data={analytics.narrativeTrades}>
                   <XAxis
                     dataKey="narrative"
-                    tick={{ fill: "#71717a", fontSize: 10 }}
+                    tick={{ fill: "var(--foreground-muted)", fontSize: 10 }}
                     interval={0}
                     angle={-20}
                     textAnchor="end"
                     height={50}
                   />
-                  <YAxis tick={{ fill: "#71717a", fontSize: 10 }} width={28} allowDecimals={false} />
+                  <YAxis tick={{ fill: "var(--foreground-muted)", fontSize: 10 }} width={28} allowDecimals={false} />
                   <Tooltip
                     contentStyle={{
-                      background: "#09090b",
-                      border: "1px solid rgba(255,255,255,0.08)",
+                      background: "var(--popover)",
+                      border: "1px solid var(--border)",
                       borderRadius: 8,
                       fontSize: 12,
                     }}
@@ -827,7 +827,7 @@ function AnalyticsSection({ analytics }: { analytics: PortfolioPageDto["analytic
             <>
               <Link
                 href={ROUTES.market(analytics.bestTrade.marketSlug)}
-                className="mt-3 block text-[15px] font-semibold leading-snug text-zinc-50 hover:text-white"
+                className="mt-3 block text-[15px] font-semibold leading-snug text-[var(--foreground)] hover:text-[var(--foreground)]"
               >
                 {analytics.bestTrade.marketTitle}
               </Link>
@@ -839,7 +839,7 @@ function AnalyticsSection({ analytics }: { analytics: PortfolioPageDto["analytic
               </div>
             </>
           ) : (
-            <p className="mt-6 text-sm text-zinc-400">No profitable trades yet.</p>
+            <p className="mt-6 text-sm text-[var(--foreground-muted)]">No profitable trades yet.</p>
           )}
         </div>
       </div>
@@ -857,13 +857,13 @@ function PortfolioConnected({ address }: { address: string }) {
   if (portfolioQ.isLoading) {
     return (
       <main className="mx-auto max-w-6xl space-y-6 px-4 pb-16 pt-10">
-        <div className="h-10 w-48 animate-pulse rounded-lg bg-zinc-800/80" />
+        <div className="h-10 w-48 animate-pulse rounded-lg bg-[color-mix(in_srgb,var(--foreground)_8%,transparent)]" />
         <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
           {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="h-24 animate-pulse rounded-2xl bg-zinc-800/80" />
+            <div key={i} className="h-24 animate-pulse rounded-2xl bg-[color-mix(in_srgb,var(--foreground)_8%,transparent)]" />
           ))}
         </div>
-        <div className="h-[240px] animate-pulse rounded-2xl bg-zinc-800/80" />
+        <div className="h-[240px] animate-pulse rounded-2xl bg-[color-mix(in_srgb,var(--foreground)_8%,transparent)]" />
       </main>
     );
   }
@@ -888,10 +888,10 @@ function PortfolioConnected({ address }: { address: string }) {
   return (
     <main className="mx-auto flex max-w-6xl flex-col gap-10 px-4 pb-16 pt-10 md:pt-12">
       <header>
-        <h1 className="text-[32px] font-bold leading-tight tracking-tight text-white">
+        <h1 className="text-[32px] font-bold leading-tight tracking-tight text-[var(--foreground)]">
           Portfolio
         </h1>
-        <p className="mt-1 text-[14px] text-zinc-500">
+        <p className="mt-1 text-[14px] text-[var(--foreground-muted)]">
           Your positions, PnL, claims, and creator earnings.
         </p>
       </header>

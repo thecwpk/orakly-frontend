@@ -39,22 +39,22 @@ export function NotificationsSettingsPanel() {
       title="Notifications"
       description="Pick where each event should land."
     >
-      <div className="overflow-hidden rounded-xl border border-white/[0.06]">
+      <div className="overflow-hidden rounded-xl border border-[var(--border)]">
         <table className="w-full text-left text-[13px]">
           <thead>
-            <tr className="bg-black/30 text-[10px] font-semibold uppercase tracking-wider text-zinc-500">
+            <tr className="bg-[color-mix(in_srgb,var(--foreground)_5%,transparent)] text-[10px] font-semibold uppercase tracking-wider text-[var(--foreground-muted)]">
               <th className="px-3 py-2">Event</th>
               <th className="px-3 py-2 text-center">In-app</th>
               <th className="px-3 py-2 text-center">Email</th>
               <th className="px-3 py-2 text-center">Desktop</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-white/[0.04]">
+          <tbody className="divide-y divide-[var(--border)]">
             {TOPICS.map((t) => (
-              <tr key={t.id} className="hover:bg-white/[0.02]">
+              <tr key={t.id} className="hover:bg-[color-mix(in_srgb,var(--foreground)_5%,transparent)]">
                 <td className="px-3 py-2.5">
-                  <p className="text-[12.5px] text-zinc-100">{t.label}</p>
-                  <p className="mt-0.5 text-[11px] text-zinc-500">{t.hint}</p>
+                  <p className="text-[12.5px] text-[var(--foreground)]">{t.label}</p>
+                  <p className="mt-0.5 text-[11px] text-[var(--foreground-muted)]">{t.hint}</p>
                 </td>
                 {(["inApp", "email", "desktop"] as Channel[]).map((c) => (
                   <td key={c} className="px-3 py-2.5 text-center">
@@ -77,17 +77,17 @@ export function NotificationsSettingsPanel() {
         label="Quiet hours"
         hint="Suppress non-critical pushes during these local hours."
       >
-        <div className="flex items-center gap-2 rounded-xl bg-black/25 px-3 py-2 ring-1 ring-white/[0.06]">
+        <div className="flex items-center gap-2 rounded-xl bg-[color-mix(in_srgb,var(--foreground)_5%,transparent)] px-3 py-2 ring-1 ring-[var(--border)]">
           <input
             type="time"
             defaultValue="23:00"
-            className="bg-transparent font-mono text-[12px] text-zinc-200 outline-none"
+            className="bg-transparent font-mono text-[12px] text-[var(--foreground)] outline-none"
           />
-          <span className="text-[11px] text-zinc-500">→</span>
+          <span className="text-[11px] text-[var(--foreground-muted)]">→</span>
           <input
             type="time"
             defaultValue="07:00"
-            className="bg-transparent font-mono text-[12px] text-zinc-200 outline-none"
+            className="bg-transparent font-mono text-[12px] text-[var(--foreground)] outline-none"
           />
         </div>
       </SettingsRow>

@@ -32,7 +32,7 @@ export function StepLiquidity({
       >
         <div className="flex flex-wrap items-center gap-2">
           <div className="relative flex-1 min-w-[180px]">
-            <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[12px] text-zinc-500">
+            <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[12px] text-[var(--foreground-muted)]">
               $
             </span>
             <input
@@ -58,7 +58,7 @@ export function StepLiquidity({
                   "rounded-lg px-2.5 py-1.5 text-[11px] font-medium ring-1 transition",
                   draft.liquiditySeedUsd === v
                     ? "bg-cyan-500/15 text-cyan-100 ring-cyan-400/40"
-                    : "bg-white/[0.05] text-zinc-300 ring-white/10 hover:bg-white/[0.1]",
+                    : "bg-[color-mix(in_srgb,var(--foreground)_5%,transparent)] text-[var(--foreground)]/80 ring-[var(--border)] hover:bg-[color-mix(in_srgb,var(--foreground)_8%,transparent)]",
                 )}
               >
                 {formatCompactUsd(v)}
@@ -129,7 +129,7 @@ export function StepLiquidity({
             }
             className={cn(wizardInputClass, "max-w-[140px] font-mono tabular-nums")}
           />
-          <span className="font-mono text-[12px] text-zinc-500">
+          <span className="font-mono text-[12px] text-[var(--foreground-muted)]">
             ≈ {(draft.takerFeeBps / 100).toFixed(2)}%
           </span>
         </div>

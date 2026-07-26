@@ -234,7 +234,7 @@ export function TrendingNarratives() {
               disabled={showSkeletons || showError}
               aria-label="Sort narratives"
               className={cn(
-                "appearance-none rounded-lg border border-[var(--hub-glass-border)] bg-white/[0.04] backdrop-blur-sm",
+                "appearance-none rounded-lg border border-[var(--hub-glass-border)] bg-[color-mix(in_srgb,var(--hub-fg)_4%,transparent)] backdrop-blur-sm",
                 "py-1.5 pl-3 pr-8 text-sm text-[var(--hub-fg)]",
                 "focus:outline-none focus:ring-2 focus:ring-[var(--hub-primary)]/30",
                 "disabled:cursor-not-allowed disabled:opacity-50",
@@ -265,7 +265,7 @@ export function TrendingNarratives() {
           <button
             type="button"
             onClick={() => void query.refetch()}
-            className="mt-4 inline-flex items-center gap-2 rounded-xl border border-[var(--border)] bg-[var(--background-secondary)] px-4 py-2 text-sm font-medium text-[var(--foreground)] transition hover:bg-white/[0.06]"
+            className="mt-4 inline-flex items-center gap-2 rounded-xl border border-[var(--hub-border)] bg-[var(--hub-card)] px-4 py-2 text-sm font-medium text-[var(--hub-fg)] transition hover:bg-[var(--hub-card-hover)]"
           >
             <RefreshCw className="size-3.5" aria-hidden />
             Retry

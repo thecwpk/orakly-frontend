@@ -44,7 +44,7 @@ export function HubChartTapeOverlay({ seed }: { seed: string }) {
         <span
           key={i}
           className={cn(
-            "absolute font-mono text-[9.5px] font-semibold tabular-nums text-zinc-200/90 drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)]",
+            "absolute font-mono text-[9.5px] font-semibold tabular-nums text-[var(--hub-fg)]/90 drop-shadow-[0_1px_3px_color-mix(in_srgb,var(--hub-bg)_90%,transparent)]",
             it.pos ? "text-emerald-400" : "text-rose-400",
           )}
           style={{ top: `${it.topPct}%`, left: `${it.leftPct}%` }}
