@@ -115,7 +115,7 @@ function RankCell({ rank }: { rank: number }) {
   }
   if (rank === 2) {
     return (
-      <span className="inline-flex items-center gap-1 font-black text-slate-300">
+      <span className="inline-flex items-center gap-1 font-black text-[var(--foreground)]">
         2 <Medal className="size-4" aria-hidden />
       </span>
     );
@@ -127,7 +127,7 @@ function RankCell({ rank }: { rank: number }) {
       </span>
     );
   }
-  return <span className="text-sm font-bold text-slate-600">{rank}</span>;
+  return <span className="text-sm font-bold text-[var(--foreground-muted)]">{rank}</span>;
 }
 
 function WalletCell({ address }: { address: string }) {
@@ -143,7 +143,7 @@ function WalletCell({ address }: { address: string }) {
       >
         {avatarInitials(address)}
       </span>
-      <span className="truncate font-mono text-sm text-slate-300">
+      <span className="truncate font-mono text-sm text-[var(--foreground)]">
         {shortAddress(address)}
       </span>
     </Link>
@@ -162,7 +162,7 @@ function Cell({
   return (
     <div
       className={cn(
-        "min-w-0 text-sm font-medium text-slate-300",
+        "min-w-0 text-sm font-medium text-[var(--foreground)]",
         align === "right" && "text-right",
         className,
       )}
@@ -182,7 +182,7 @@ function GridHeader({
   return (
     <div
       className={cn(
-        "grid min-w-[760px] items-center gap-3 bg-white/[0.03] px-6 py-3",
+        "grid min-w-[760px] items-center gap-3 bg-[color-mix(in_srgb,var(--foreground)_4%,transparent)] px-6 py-3",
         gridClass,
       )}
     >
@@ -190,7 +190,7 @@ function GridHeader({
         <div
           key={label}
           className={cn(
-            "text-[10px] font-semibold uppercase tracking-widest text-slate-500",
+            "text-[10px] font-semibold uppercase tracking-widest text-[var(--foreground-muted)]",
             label === "Actions" && "text-right",
           )}
         >
@@ -211,7 +211,7 @@ function GridRow({
   return (
     <div
       className={cn(
-        "grid min-w-[760px] items-center gap-3 border-b border-white/[0.03] px-6 py-4 transition-colors hover:bg-white/[0.02]",
+        "grid min-w-[760px] items-center gap-3 border-b border-[var(--border)] px-6 py-4 transition-colors hover:bg-[color-mix(in_srgb,var(--foreground)_5%,transparent)]",
         gridClass,
       )}
     >
@@ -224,8 +224,8 @@ function EmptyState() {
   return (
     <div className="py-20 text-center">
       <Trophy className="mx-auto mb-4 size-12 text-amber-400" aria-hidden />
-      <p className="text-lg font-semibold text-white">No rankings yet.</p>
-      <p className="mx-auto mt-2 max-w-xs text-sm text-slate-500">
+      <p className="text-lg font-semibold text-[var(--foreground)]">No rankings yet.</p>
+      <p className="mx-auto mt-2 max-w-xs text-sm text-[var(--foreground-muted)]">
         Rankings appear after the first trades are placed on live markets.
       </p>
     </div>
@@ -245,13 +245,13 @@ function YourRankRow({
   return (
     <div
       className={cn(
-        "sticky bottom-0 grid min-w-[760px] items-center gap-3 border-t border-indigo-500/30 bg-[#1a2035] px-6 py-4",
+        "sticky bottom-0 grid min-w-[760px] items-center gap-3 border-t border-indigo-500/30 bg-[var(--background-secondary)] px-6 py-4",
         gridClass,
       )}
     >
       <span className="text-xs font-medium text-indigo-400">{rankLabel}</span>
       {Array.from({ length: dashCols }).map((_, i) => (
-        <span key={i} className="text-sm text-slate-600">
+        <span key={i} className="text-sm text-[var(--foreground-muted)]">
           N/A
         </span>
       ))}
@@ -279,7 +279,7 @@ function BoardShell({
   const gridClass = GRID[tab];
   return (
     <div className="space-y-3">
-      {note ? <p className="text-xs text-slate-500">{note}</p> : null}
+      {note ? <p className="text-xs text-[var(--foreground-muted)]">{note}</p> : null}
       <div className="overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--background-card)]">
         <div className="overflow-x-auto">
           <GridHeader labels={headers} gridClass={gridClass} />
@@ -427,7 +427,7 @@ function AccuracyTable({
           <GridRow key={row.userId} gridClass={GRID.accuracy}>
             <RankCell rank={index + 1} />
             <WalletCell address={address} />
-            <Cell className="text-white">{row.winRatePct.toFixed(1)}%</Cell>
+            <Cell className="text-[var(--foreground)]">{row.winRatePct.toFixed(1)}%</Cell>
             <Cell>{row.tradeCount}</Cell>
             <Cell>{compactUsd(parseVol(row))}</Cell>
             <Cell className={parsePnl(row) >= 0 ? "text-green-400" : "text-red-400"}>
@@ -526,10 +526,10 @@ function VolumeTable({
           <GridRow key={row.userId} gridClass={GRID.volume}>
             <RankCell rank={index + 1} />
             <WalletCell address={address} />
-            <Cell className="text-white">{compactUsd(parseVol(row))}</Cell>
+            <Cell className="text-[var(--foreground)]">{compactUsd(parseVol(row))}</Cell>
             <Cell>{row.tradeCount}</Cell>
             <Cell>{compactUsd(avg)}</Cell>
-            <Cell className="text-slate-400">{formatActiveSince(row.activeSince)}</Cell>
+            <Cell className="text-[var(--foreground-muted)]">{formatActiveSince(row.activeSince)}</Cell>
             <Cell align="right">
               <ActionsCell address={address} />
             </Cell>
@@ -614,7 +614,7 @@ export function LeaderboardPage() {
   ) : null;
 
   const footer = (
-    <p className="text-xs text-slate-500">
+    <p className="text-xs text-[var(--foreground-muted)]">
       Showing top {Math.min(LIMIT, isCreators ? creatorRows.length : traderRows.length)} of{" "}
       {total} total {isCreators ? "creators" : "traders"}
     </p>
@@ -626,7 +626,7 @@ export function LeaderboardPage() {
       {showYourRank ? (
         <YourRankRow gridClass={GRID[tab]} colCount={7} rankLabel={yourRankLabel} />
       ) : address ? null : (
-        <div className="border-t border-indigo-500/30 bg-[#1a2035] px-6 py-4">
+        <div className="border-t border-indigo-500/30 bg-[var(--background-secondary)] px-6 py-4">
           <button
             type="button"
             onClick={() => openConnectModal?.()}
@@ -643,8 +643,8 @@ export function LeaderboardPage() {
     <main className="mx-auto flex max-w-6xl flex-col pb-16 pt-10 md:pt-12">
       <header className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-white">Leaderboard</h1>
-          <p className="mt-1 text-sm text-slate-500">
+          <h1 className="text-3xl font-bold text-[var(--foreground)]">Leaderboard</h1>
+          <p className="mt-1 text-sm text-[var(--foreground-muted)]">
             Top traders and creators ranked by performance on Orakly.
           </p>
         </div>
@@ -658,7 +658,7 @@ export function LeaderboardPage() {
                 "rounded-lg border px-3 py-1.5 text-xs transition-colors",
                 period === item.id
                   ? "border-indigo-500/50 bg-indigo-500/10 text-indigo-400"
-                  : "border-white/10 bg-white/5 text-slate-400 hover:text-white",
+                  : "border-[var(--border)] bg-[color-mix(in_srgb,var(--foreground)_5%,transparent)] text-[var(--foreground-muted)] hover:text-[var(--foreground)]",
               )}
             >
               {item.label}
@@ -668,7 +668,7 @@ export function LeaderboardPage() {
       </header>
 
       <div
-        className="mb-6 flex w-full gap-1 overflow-x-auto rounded-xl bg-white/5 p-1"
+        className="mb-6 flex w-full gap-1 overflow-x-auto rounded-xl bg-[color-mix(in_srgb,var(--foreground)_5%,transparent)] p-1"
         role="tablist"
         aria-label="Leaderboard category"
       >
@@ -684,8 +684,8 @@ export function LeaderboardPage() {
               className={cn(
                 "flex-shrink-0 rounded-lg px-4 py-2 text-sm transition-all",
                 active
-                  ? "bg-white/10 font-medium text-white"
-                  : "text-slate-400 hover:text-white",
+                  ? "bg-[color-mix(in_srgb,var(--foreground)_10%,transparent)] font-medium text-[var(--foreground)]"
+                  : "text-[var(--foreground-muted)] hover:text-[var(--foreground)]",
               )}
             >
               {item.label}

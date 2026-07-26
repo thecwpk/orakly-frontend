@@ -117,10 +117,10 @@ export function CommunityMarketsPage() {
     <main className="mx-auto flex max-w-6xl flex-col gap-6 pb-16 pt-10 md:pt-12">
       <header className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="space-y-1.5">
-          <h1 className="text-[32px] font-bold leading-tight tracking-tight text-white">
+          <h1 className="text-[32px] font-bold leading-tight tracking-tight text-[var(--foreground)]">
             Community
           </h1>
-          <p className="text-[14px] text-zinc-500">
+          <p className="text-[14px] text-[var(--foreground-muted)]">
             The community proposes and ranks markets for listing.
           </p>
         </div>
@@ -133,7 +133,7 @@ export function CommunityMarketsPage() {
         </button>
       </header>
 
-      <div className="flex flex-wrap gap-2 border-b border-white/[0.06]">
+      <div className="flex flex-wrap gap-2 border-b border-[var(--border)]">
         {MAIN_TABS.map((tab) => (
           <button
             key={tab.id}
@@ -143,7 +143,7 @@ export function CommunityMarketsPage() {
               "-mb-px border-b-2 px-4 py-2.5 text-sm font-semibold transition",
               mainTab === tab.id
                 ? "border-blue-500 text-blue-200"
-                : "border-transparent text-zinc-500 hover:border-white/10 hover:text-zinc-300",
+                : "border-transparent text-[var(--foreground-muted)] hover:border-[var(--border)] hover:text-[var(--foreground)]",
             )}
           >
             {tab.label}
@@ -163,7 +163,7 @@ export function CommunityMarketsPage() {
                   "rounded-full px-3.5 py-1.5 text-[13px] font-semibold transition ring-1",
                   subTab === tab.id
                     ? "bg-blue-500/15 text-blue-100 ring-blue-400/30"
-                    : "bg-white/[0.02] text-zinc-400 ring-white/[0.06] hover:bg-white/[0.04] hover:text-zinc-200",
+                    : "bg-[color-mix(in_srgb,var(--foreground)_4%,transparent)] text-[var(--foreground-muted)] ring-[var(--border)] hover:bg-[color-mix(in_srgb,var(--foreground)_5%,transparent)] hover:text-[var(--foreground)]",
                 )}
               >
                 {tab.label}
@@ -172,21 +172,21 @@ export function CommunityMarketsPage() {
           </div>
 
           {showMineConnectPrompt ? (
-            <div className="flex min-h-[220px] items-center justify-center rounded-2xl border border-dashed border-white/[0.1] bg-white/[0.02] px-6 py-12 text-center">
-              <p className="text-sm font-medium text-zinc-400">
+            <div className="flex min-h-[220px] items-center justify-center rounded-2xl border border-dashed border-[var(--border)] bg-[color-mix(in_srgb,var(--foreground)_4%,transparent)] px-6 py-12 text-center">
+              <p className="text-sm font-medium text-[var(--foreground-muted)]">
                 Connect your wallet to view your submissions.
               </p>
             </div>
           ) : suggestionsQuery.isLoading ? (
             <div className="grid gap-4">
               {Array.from({ length: 4 }).map((_, index) => (
-                <div key={index} className="h-40 animate-pulse rounded-2xl bg-zinc-800/80" />
+                <div key={index} className="h-40 animate-pulse rounded-2xl bg-[var(--muted)]" />
               ))}
             </div>
           ) : suggestions.length === 0 ? (
-            <div className="flex min-h-[220px] flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-white/[0.1] bg-white/[0.02] px-6 py-12 text-center">
-              <p className="text-sm font-medium text-zinc-300">No submissions yet.</p>
-              <p className="max-w-sm text-[12px] text-zinc-500">
+            <div className="flex min-h-[220px] flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-[var(--border)] bg-[color-mix(in_srgb,var(--foreground)_4%,transparent)] px-6 py-12 text-center">
+              <p className="text-sm font-medium text-[var(--foreground)]">No submissions yet.</p>
+              <p className="max-w-sm text-[12px] text-[var(--foreground-muted)]">
                 Be the first to propose a market idea for the community to review.
               </p>
             </div>
@@ -207,20 +207,20 @@ export function CommunityMarketsPage() {
 
       {mainTab === "approved" ? (
         <section className="space-y-4">
-          <p className="text-[13px] text-zinc-500">
+          <p className="text-[13px] text-[var(--foreground-muted)]">
             These markets were submitted by the community and approved for listing.
           </p>
 
           {approvedQuery.isLoading ? (
             <div className="hub-root grid grid-cols-1 gap-4 md:grid-cols-2">
               {Array.from({ length: 4 }).map((_, index) => (
-                <div key={index} className="h-48 animate-pulse rounded-2xl bg-zinc-800/80" />
+                <div key={index} className="h-48 animate-pulse rounded-2xl bg-[var(--muted)]" />
               ))}
             </div>
           ) : approvedMarkets.length === 0 ? (
-            <div className="flex min-h-[220px] flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-white/[0.1] bg-white/[0.02] px-6 py-12 text-center">
-              <p className="text-sm font-medium text-zinc-300">No community markets are live yet.</p>
-              <p className="max-w-sm text-[12px] text-zinc-500">
+            <div className="flex min-h-[220px] flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-[var(--border)] bg-[color-mix(in_srgb,var(--foreground)_4%,transparent)] px-6 py-12 text-center">
+              <p className="text-sm font-medium text-[var(--foreground)]">No community markets are live yet.</p>
+              <p className="max-w-sm text-[12px] text-[var(--foreground-muted)]">
                 Approved community ideas appear here once they open for trading.
               </p>
             </div>
@@ -237,15 +237,15 @@ export function CommunityMarketsPage() {
       {mainTab === "creators" ? (
         <section className="space-y-6">
           {creatorsQuery.isLoading ? (
-            <div className="h-64 animate-pulse rounded-2xl bg-zinc-800/80" />
+            <div className="h-64 animate-pulse rounded-2xl bg-[var(--muted)]" />
           ) : creators.length === 0 ? (
-            <div className="flex min-h-[220px] items-center justify-center rounded-2xl border border-dashed border-white/[0.1] bg-white/[0.02] px-6 py-12 text-center">
-              <p className="text-sm font-medium text-zinc-400">No creators ranked yet.</p>
+            <div className="flex min-h-[220px] items-center justify-center rounded-2xl border border-dashed border-[var(--border)] bg-[color-mix(in_srgb,var(--foreground)_4%,transparent)] px-6 py-12 text-center">
+              <p className="text-sm font-medium text-[var(--foreground-muted)]">No creators ranked yet.</p>
             </div>
           ) : (
-            <div className="overflow-x-auto rounded-2xl border border-white/[0.08]">
+            <div className="overflow-x-auto rounded-2xl border border-[var(--border)]">
               <table className="min-w-full text-left text-sm">
-                <thead className="border-b border-white/[0.06] bg-white/[0.02] text-[11px] font-semibold uppercase tracking-wider text-zinc-500">
+                <thead className="border-b border-[var(--border)] bg-[color-mix(in_srgb,var(--foreground)_4%,transparent)] text-[11px] font-semibold uppercase tracking-wider text-[var(--foreground-muted)]">
                   <tr>
                     <th className="px-4 py-3">Rank</th>
                     <th className="px-4 py-3">Creator</th>
@@ -259,15 +259,15 @@ export function CommunityMarketsPage() {
                   {creators.map((row, index) => (
                     <tr
                       key={row.creatorAddress}
-                      className="border-b border-white/[0.04] last:border-0 hover:bg-white/[0.02]"
+                      className="border-b border-[var(--border)] last:border-0 hover:bg-[color-mix(in_srgb,var(--foreground)_5%,transparent)]"
                     >
-                      <td className="px-4 py-3 font-mono tabular-nums text-zinc-400">
+                      <td className="px-4 py-3 font-mono tabular-nums text-[var(--foreground-muted)]">
                         #{index + 1}
                       </td>
                       <td className="px-4 py-3">
                         <Link
                           href={ROUTES.traderProfile(row.creatorAddress)}
-                          className="inline-flex items-center gap-2.5 text-zinc-200 transition hover:text-white"
+                          className="inline-flex items-center gap-2.5 text-[var(--foreground)] transition hover:text-[var(--foreground)]"
                         >
                           <LeaderboardAvatar address={row.creatorAddress} className="h-7 w-7" />
                           <span className="font-mono text-[13px] tabular-nums">
@@ -275,16 +275,16 @@ export function CommunityMarketsPage() {
                           </span>
                         </Link>
                       </td>
-                      <td className="px-4 py-3 font-mono tabular-nums text-zinc-300">
+                      <td className="px-4 py-3 font-mono tabular-nums text-[var(--foreground)]">
                         {row.marketCount}
                       </td>
-                      <td className="px-4 py-3 font-mono tabular-nums text-zinc-300">
+                      <td className="px-4 py-3 font-mono tabular-nums text-[var(--foreground)]">
                         {fmtUsdCompact(row.totalVolumeUsd)}
                       </td>
                       <td className="px-4 py-3 font-mono tabular-nums text-emerald-300">
                         {fmtUsdCompact(row.feesEarned)}
                       </td>
-                      <td className="px-4 py-3 text-right font-mono tabular-nums font-semibold text-zinc-100">
+                      <td className="px-4 py-3 text-right font-mono tabular-nums font-semibold text-[var(--foreground)]">
                         {formatCreatorScore(row.creatorScore)}
                       </td>
                     </tr>
@@ -294,9 +294,9 @@ export function CommunityMarketsPage() {
             </div>
           )}
 
-          <div className="rounded-2xl border border-white/[0.08] bg-zinc-900/50 p-6">
-            <h2 className="text-base font-semibold text-zinc-100">How Creator Rewards Work</h2>
-            <ul className="mt-3 space-y-2 text-[13px] leading-relaxed text-zinc-400">
+          <div className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-6">
+            <h2 className="text-base font-semibold text-[var(--foreground)]">How Creator Rewards Work</h2>
+            <ul className="mt-3 space-y-2 text-[13px] leading-relaxed text-[var(--foreground-muted)]">
               <li>
                 When your market idea is approved and deployed, you earn{" "}
                 {DEFAULT_CREATOR_REWARD_PERCENT}% of all trading fees generated by that market.

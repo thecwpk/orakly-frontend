@@ -36,7 +36,7 @@ function StatusBadge({ status }: { status: string }) {
         "inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold capitalize",
         isApproved && "bg-emerald-500/15 text-emerald-300 ring-1 ring-emerald-400/25",
         isRejected && "bg-rose-500/15 text-rose-300 ring-1 ring-rose-400/25",
-        !isApproved && !isRejected && "bg-zinc-500/15 text-zinc-300 ring-1 ring-white/10",
+        !isApproved && !isRejected && "bg-zinc-500/15 text-[var(--foreground)] ring-1 ring-[var(--border)]",
       )}
     >
       {isApproved ? "Approved" : isRejected ? "Rejected" : "Pending"}
@@ -112,19 +112,19 @@ export function CommunitySuggestionCard({
   const narrative = suggestion.narrative?.trim() || null;
 
   return (
-    <article className="rounded-2xl border border-white/[0.08] bg-zinc-950/40 p-5">
-      <p className="text-[16px] font-semibold leading-snug text-zinc-100">
+    <article className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-5">
+      <p className="text-[16px] font-semibold leading-snug text-[var(--foreground)]">
         {suggestion.question}
       </p>
 
       {suggestion.description?.trim() ? (
-        <p className="mt-2 line-clamp-3 text-[13px] leading-relaxed text-zinc-500">
+        <p className="mt-2 line-clamp-3 text-[13px] leading-relaxed text-[var(--foreground-muted)]">
           {suggestion.description}
         </p>
       ) : null}
 
-      <div className="mt-3 flex flex-wrap items-center gap-2 text-[12px] text-zinc-500">
-        <span className="rounded-full bg-white/[0.05] px-2.5 py-0.5 font-medium text-zinc-300 ring-1 ring-white/[0.06]">
+      <div className="mt-3 flex flex-wrap items-center gap-2 text-[12px] text-[var(--foreground-muted)]">
+        <span className="rounded-full bg-[color-mix(in_srgb,var(--foreground)_5%,transparent)] px-2.5 py-0.5 font-medium text-[var(--foreground)] ring-1 ring-[var(--border)]">
           {formatCategory(suggestion.category)}
         </span>
         {narrative ? (
@@ -135,7 +135,7 @@ export function CommunitySuggestionCard({
         {creator ? (
           <Link
             href={ROUTES.traderProfile(creator)}
-            className="font-mono tabular-nums text-zinc-400 transition hover:text-zinc-200"
+            className="font-mono tabular-nums text-[var(--foreground-muted)] transition hover:text-[var(--foreground)]"
             onClick={(e) => e.stopPropagation()}
           >
             by {shortenAddress(creator)}
@@ -148,14 +148,14 @@ export function CommunitySuggestionCard({
       </div>
 
       {suggestion.resolutionSource?.trim() ? (
-        <p className="mt-2 text-[12px] text-zinc-500">
+        <p className="mt-2 text-[12px] text-[var(--foreground-muted)]">
           Resolves via: {suggestion.resolutionSource}
         </p>
       ) : null}
 
-      <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-white/[0.06] pt-3">
+      <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-[var(--border)] pt-3">
         <div className="flex items-center gap-3">
-          <span className="text-2xl font-bold tabular-nums text-zinc-100">
+          <span className="text-2xl font-bold tabular-nums text-[var(--foreground)]">
             {suggestion.voteCount}
           </span>
           <button
@@ -173,7 +173,7 @@ export function CommunitySuggestionCard({
               "rounded-lg px-3 py-1.5 text-sm font-semibold transition ring-1",
               hasVoted
                 ? "bg-blue-500/20 text-blue-100 ring-blue-400/30"
-                : "bg-white/[0.03] text-zinc-200 ring-white/[0.08] hover:bg-white/[0.06]",
+                : "bg-[color-mix(in_srgb,var(--foreground)_4%,transparent)] text-[var(--foreground)] ring-[var(--border)] hover:bg-[color-mix(in_srgb,var(--foreground)_5%,transparent)]",
             )}
           >
             {hasVoted ? "Voted" : "Vote ↑"}

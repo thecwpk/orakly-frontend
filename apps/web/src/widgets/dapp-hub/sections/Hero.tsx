@@ -15,7 +15,7 @@ import { ROUTES } from "@/shared/constants/routes";
 import type { LiveMarketCardDto } from "@/shared/contracts/live-markets";
 import { Sparkline } from "@/shared/ui";
 import { HubCountUp } from "../components/hub-count-up";
-import { HubHeroVisuals, HubProbRing } from "../components/hub-hero-visuals";
+import { HubProbRing } from "../components/hub-hero-visuals";
 import { buildFeaturedSparkSeries } from "../lib/hub-sparkline-series";
 import { resolveMarketPulseStats } from "../lib/market-pulse-stats";
 import { marketToTradeModal } from "../lib/open-hub-trade";
@@ -64,17 +64,13 @@ function AttentionPulse({
   current: number | null;
 }) {
   return (
-    <div className="hub-glass-card relative h-[4.25rem] w-full overflow-hidden rounded-[var(--hub-dapp-radius)]">
-      <div
-        className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[var(--hub-primary)]/12 via-transparent to-[var(--hub-success)]/10"
-        aria-hidden
-      />
-      <div className="relative flex h-full items-center gap-3 px-3.5">
-        <div className="min-w-[52px]">
+    <div className="relative h-[4.5rem] w-full overflow-hidden rounded-[var(--hub-dapp-radius)] border border-[var(--hub-border)] bg-[var(--hub-card)]">
+      <div className="relative flex h-full items-center gap-4 px-4">
+        <div className="min-w-[3.5rem] shrink-0 border-r border-[var(--hub-border)] pr-4">
           <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--hub-muted)]">
             Index
           </p>
-          <p className="mt-0.5 text-[20px] font-bold tabular-nums text-[var(--hub-fg)]">
+          <p className="mt-0.5 text-[22px] font-bold tabular-nums leading-none text-[var(--hub-fg)]">
             {current == null ? "—" : Math.round(current)}
           </p>
         </div>
@@ -82,7 +78,7 @@ function AttentionPulse({
           <Sparkline
             data={series}
             width={420}
-            height={40}
+            height={44}
             tone="violet"
             fill
             showLastDot
@@ -119,7 +115,7 @@ function MoverChip({
     >
       <Link
         href={ROUTES.market(market.slug)}
-        className="hub-glass-card hub-glass-card--lift group flex items-center gap-3 rounded-[var(--hub-dapp-radius)] p-3 no-underline"
+        className="group flex items-center gap-3 rounded-[var(--hub-dapp-radius)] border border-[var(--hub-border)] bg-[var(--hub-card)] p-3 no-underline transition hover:border-[var(--hub-border-strong)] hover:bg-[var(--hub-card-hover)]"
       >
         <div className="min-w-0 flex-1">
           <p className="line-clamp-2 text-[12px] font-semibold leading-snug text-[var(--hub-fg)] group-hover:text-[var(--hub-primary-bright)]">
@@ -176,20 +172,11 @@ function FeaturedMarketPanel({ market }: { market: LiveMarketCardDto }) {
       initial={{ opacity: 0, y: 14 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.45, delay: 0.05 }}
-      className="hub-glass-card relative overflow-hidden rounded-[1rem] p-4 sm:p-5"
+      className="relative overflow-hidden rounded-[1rem] border border-[var(--hub-border)] bg-[var(--hub-card)] p-4 sm:p-5"
     >
-      <div
-        className="pointer-events-none absolute -right-8 -top-10 h-40 w-40 rounded-full bg-[var(--hub-primary)]/20 blur-3xl"
-        aria-hidden
-      />
-      <div
-        className="pointer-events-none absolute -bottom-12 -left-6 h-36 w-36 rounded-full bg-[var(--hub-success)]/15 blur-3xl"
-        aria-hidden
-      />
-
       <div className="relative flex flex-wrap items-center justify-between gap-2">
         <div className="flex flex-wrap items-center gap-2">
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--hub-glass-border)] bg-[color-mix(in_srgb,var(--hub-fg)_4%,transparent)] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-[var(--hub-muted)]">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--hub-border)] bg-[var(--hub-bg-subtle)] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-[var(--hub-muted)]">
             <span className="relative flex size-1.5">
               <span className="absolute inset-0 animate-ping rounded-full bg-[var(--hub-success)]/70" />
               <span className="relative size-1.5 rounded-full bg-[var(--hub-success)]" />
@@ -217,7 +204,7 @@ function FeaturedMarketPanel({ market }: { market: LiveMarketCardDto }) {
         <div className="min-w-0 flex-1 self-stretch">
           <Link
             href={ROUTES.market(market.slug)}
-            className="block text-balance text-[17px] font-semibold leading-snug text-[var(--hub-fg)] transition hover:text-[var(--hub-primary-bright)] sm:text-[19px]"
+            className="block text-balance text-[18px] font-semibold leading-snug tracking-tight text-[var(--hub-fg)] transition hover:text-[var(--hub-primary-bright)] sm:text-[20px]"
           >
             {market.title}
           </Link>
@@ -281,7 +268,7 @@ function FeaturedMarketPanel({ market }: { market: LiveMarketCardDto }) {
 
 function FeaturedSkeleton() {
   return (
-    <div className="hub-glass-card rounded-[1rem] p-5">
+    <div className="rounded-[1rem] border border-[var(--hub-border)] bg-[var(--hub-card)] p-5">
       <div className="hub-dapp-skel mb-4 h-5 w-28 rounded-full" />
       <div className="flex flex-col items-center gap-5 sm:flex-row">
         <div className="hub-dapp-skel size-[148px] shrink-0 rounded-full" />
@@ -305,8 +292,8 @@ function FeaturedSkeleton() {
 }
 
 /**
- * Hub hero — graphical trading desk (not landing pitch).
- * Live KPIs + featured market ring/spark + attention pulse.
+ * Hub hero — clean trading desk open (first impression).
+ * Live KPIs + featured market + attention pulse. No decorative backdrop.
  */
 export function Hero() {
   const SERIES_LEN = 28;
@@ -368,76 +355,99 @@ export function Hero() {
   return (
     <section
       aria-label="Trading desk"
-      className="hub-premium-canvas relative overflow-hidden border-b border-[var(--hub-border)] pb-10 pt-6 sm:pb-12 sm:pt-8 lg:pb-14 lg:pt-10"
+      className="relative border-b border-[var(--hub-border)] pb-9 pt-5 sm:pb-11 sm:pt-7 lg:pb-12 lg:pt-8"
     >
-      <HubHeroVisuals />
-
-      <div className="relative z-[1] space-y-5">
-        {/* Desk chrome — live strip, not marketing headline */}
+      <div className="space-y-6">
         <motion.div
-          initial={{ opacity: 0, y: 8 }}
+          initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.35 }}
-          className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between"
+          transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+          className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between"
         >
-          <div>
-            <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-[var(--hub-glass-border)] bg-[color-mix(in_srgb,var(--hub-fg)_4%,transparent)] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--hub-muted)]">
-              <span className="size-1.5 animate-pulse rounded-full bg-[var(--hub-success)]" />
-              Live desk · {pulse.topChain}
+          <div className="min-w-0 max-w-xl">
+            <div className="mb-3 inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--hub-muted)]">
+              <span className="relative flex size-1.5">
+                <span className="absolute inset-0 animate-ping rounded-full bg-[var(--hub-success)]/60" />
+                <span className="relative size-1.5 rounded-full bg-[var(--hub-success)]" />
+              </span>
+              Live desk
+              <span className="text-[var(--hub-border-strong)]">·</span>
+              {pulse.topChain}
             </div>
             <h1
-              className="text-[1.75rem] font-extrabold tracking-tight text-[var(--hub-fg)] sm:text-[2rem]"
+              className="text-[2rem] font-extrabold leading-[1.05] tracking-tight text-[var(--hub-fg)] sm:text-[2.35rem]"
               style={{
                 fontFamily: "var(--font-display), var(--font-sans), system-ui",
               }}
             >
               Attention Terminal
             </h1>
-            <p className="mt-1 text-[13px] text-[var(--hub-muted)]">
+            <p className="mt-2 max-w-md text-[14px] leading-relaxed text-[var(--hub-muted)]">
               {pulse.currentMeta}
               <span className="mx-1.5 text-[var(--hub-border-strong)]">·</span>
               {pulse.marketSentiment}
             </p>
           </div>
 
-          <div className="flex flex-wrap gap-2 sm:justify-end">
-            <div className="hub-glass-card min-w-[6.5rem] rounded-xl px-3 py-2">
-              <p className="hub-dapp-stat-label">Index</p>
-              <p className="mt-0.5 text-lg font-bold tabular-nums text-[var(--hub-primary-bright)]">
-                <HubCountUp value={pulse.attentionIndex} />
-              </p>
-            </div>
-            <div className="hub-glass-card min-w-[6.5rem] rounded-xl px-3 py-2">
-              <p className="hub-dapp-stat-label">24h Vol</p>
-              <p className="mt-0.5 text-lg font-bold tabular-nums text-[var(--hub-success)]">
-                <HubCountUp value={pulse.volume24hUsd} formatter={fmtUsd} />
-              </p>
-            </div>
-            <div className="hub-glass-card min-w-[6.5rem] rounded-xl px-3 py-2">
-              <p className="hub-dapp-stat-label">Markets</p>
-              <p className="mt-0.5 text-lg font-bold tabular-nums text-[var(--hub-fg)]">
-                <HubCountUp value={pulse.liveMarkets} />
-              </p>
-            </div>
-            <div className="hub-glass-card min-w-[6.5rem] rounded-xl px-3 py-2">
-              <p className="hub-dapp-stat-label">Traders</p>
-              <p className="mt-0.5 text-lg font-bold tabular-nums text-[var(--hub-fg)]">
-                <HubCountUp value={pulse.activeTraders} />
-              </p>
-            </div>
-          </div>
+          <motion.dl
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.08, ease: [0.22, 1, 0.36, 1] }}
+            className="grid w-full grid-cols-2 gap-px overflow-hidden rounded-[var(--hub-dapp-radius)] border border-[var(--hub-border)] bg-[var(--hub-border)] sm:grid-cols-4 lg:w-auto lg:min-w-[28rem]"
+          >
+            {(
+              [
+                {
+                  label: "Index",
+                  value: <HubCountUp value={pulse.attentionIndex} />,
+                  tone: "text-[var(--hub-primary-bright)]",
+                },
+                {
+                  label: "24h Vol",
+                  value: (
+                    <HubCountUp value={pulse.volume24hUsd} formatter={fmtUsd} />
+                  ),
+                  tone: "text-[var(--hub-success)]",
+                },
+                {
+                  label: "Markets",
+                  value: <HubCountUp value={pulse.liveMarkets} />,
+                  tone: "text-[var(--hub-fg)]",
+                },
+                {
+                  label: "Traders",
+                  value: <HubCountUp value={pulse.activeTraders} />,
+                  tone: "text-[var(--hub-fg)]",
+                },
+              ] as const
+            ).map((stat) => (
+              <div
+                key={stat.label}
+                className="bg-[var(--hub-card)] px-3.5 py-3 sm:min-w-[6.75rem]"
+              >
+                <dt className="hub-dapp-stat-label">{stat.label}</dt>
+                <dd
+                  className={cn(
+                    "mt-1 text-[1.125rem] font-bold tabular-nums leading-none",
+                    stat.tone,
+                  )}
+                >
+                  {stat.value}
+                </dd>
+              </div>
+            ))}
+          </motion.dl>
         </motion.div>
 
         <AttentionPulse series={series} current={clampedAttentionIndex} />
 
-        {/* Graphical featured market + movers */}
-        <div className="grid gap-4 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,0.85fr)] lg:items-start">
+        <div className="grid gap-4 lg:grid-cols-[minmax(0,1.45fr)_minmax(0,0.8fr)] lg:items-start lg:gap-5">
           {loadingMarkets ? (
             <FeaturedSkeleton />
           ) : featured ? (
             <FeaturedMarketPanel market={featured} />
           ) : (
-            <div className="hub-glass-card rounded-[1rem] p-8 text-center text-sm text-[var(--hub-muted)]">
+            <div className="rounded-[1rem] border border-[var(--hub-border)] bg-[var(--hub-card)] p-8 text-center text-sm text-[var(--hub-muted)]">
               No open markets yet.
             </div>
           )}
@@ -461,7 +471,7 @@ export function Hero() {
               ? Array.from({ length: 3 }).map((_, i) => (
                   <div
                     key={i}
-                    className="hub-glass-card h-[4.25rem] rounded-[var(--hub-dapp-radius)] p-3"
+                    className="h-[4.25rem] rounded-[var(--hub-dapp-radius)] border border-[var(--hub-border)] bg-[var(--hub-card)] p-3"
                   >
                     <div className="hub-dapp-skel h-3 w-[80%]" />
                     <div className="hub-dapp-skel mt-2 h-3 w-[40%]" />

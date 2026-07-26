@@ -45,8 +45,8 @@ function MetricRow({
   skipWinner?: boolean;
 }) {
   return (
-    <tr className="border-b border-white/[0.06] last:border-b-0">
-      <td className="px-4 py-3.5 text-[12px] font-semibold uppercase tracking-wider text-zinc-500">
+    <tr className="border-b border-[var(--border)] last:border-b-0">
+      <td className="px-4 py-3.5 text-[12px] font-semibold uppercase tracking-wider text-[var(--foreground-muted)]">
         {label}
       </td>
       <td
@@ -98,17 +98,17 @@ export function NarrativeWarsComparisonTable({
   const tradersWinner = numericWinner(left.uniqueTraders, right.uniqueTraders);
 
   return (
-    <div className="overflow-x-auto rounded-2xl border border-white/[0.08] bg-zinc-950/40">
+    <div className="overflow-x-auto rounded-2xl border border-[var(--border)] bg-[var(--card)]">
       <table className="w-full min-w-[640px] text-left">
         <thead>
-          <tr className="border-b border-white/[0.08] bg-white/[0.03]">
-            <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-wider text-zinc-500">
+          <tr className="border-b border-[var(--border)] bg-[color-mix(in_srgb,var(--foreground)_4%,transparent)]">
+            <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-wider text-[var(--foreground-muted)]">
               Metric
             </th>
-            <th className="px-4 py-3 text-[14px] font-bold text-zinc-100">
+            <th className="px-4 py-3 text-[14px] font-bold text-[var(--foreground)]">
               {left.narrativeName}
             </th>
-            <th className="px-4 py-3 text-[14px] font-bold text-zinc-100">
+            <th className="px-4 py-3 text-[14px] font-bold text-[var(--foreground)]">
               {right.narrativeName}
             </th>
           </tr>
@@ -210,7 +210,7 @@ export function NarrativeWarsComparisonTable({
             right={<MomentumBadge momentum={right.momentum} />}
           />
           <tr className="border-b-0">
-            <td className="px-4 py-3.5 text-[12px] font-semibold uppercase tracking-wider text-zinc-500">
+            <td className="px-4 py-3.5 text-[12px] font-semibold uppercase tracking-wider text-[var(--foreground-muted)]">
               7-Day Trend
             </td>
             <td className="px-4 py-3.5">
@@ -288,28 +288,28 @@ function MarketColumn({
   loading: boolean;
 }) {
   return (
-    <div className="rounded-2xl border border-white/[0.08] bg-zinc-950/40 p-4">
-      <h3 className="mb-3 text-[14px] font-semibold text-zinc-100">{title}</h3>
+    <div className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-4">
+      <h3 className="mb-3 text-[14px] font-semibold text-[var(--foreground)]">{title}</h3>
       {loading ? (
         <div className="space-y-2">
           {Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="h-12 animate-pulse rounded-lg bg-zinc-800/60" />
+            <div key={i} className="h-12 animate-pulse rounded-lg bg-[var(--muted)]" />
           ))}
         </div>
       ) : markets.length === 0 ? (
-        <p className="py-6 text-center text-[13px] text-zinc-500">No open markets</p>
+        <p className="py-6 text-center text-[13px] text-[var(--foreground-muted)]">No open markets</p>
       ) : (
         <ul className="space-y-2">
           {markets.slice(0, MARKETS_LIMIT).map((m) => (
             <li key={m.id}>
               <Link
                 href={ROUTES.market(m.slug)}
-                className="flex items-start justify-between gap-3 rounded-xl px-2 py-2 transition hover:bg-white/[0.04]"
+                className="flex items-start justify-between gap-3 rounded-xl px-2 py-2 transition hover:bg-[color-mix(in_srgb,var(--foreground)_5%,transparent)]"
               >
-                <span className="line-clamp-2 text-[13px] font-medium text-zinc-200">
+                <span className="line-clamp-2 text-[13px] font-medium text-[var(--foreground)]">
                   {m.title}
                 </span>
-                <span className="shrink-0 font-mono text-[12px] tabular-nums text-zinc-400">
+                <span className="shrink-0 font-mono text-[12px] tabular-nums text-[var(--foreground-muted)]">
                   {formatCompactUsd(m.volumeUsd ?? 0)}
                 </span>
               </Link>

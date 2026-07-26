@@ -2107,27 +2107,11 @@
   isolation: isolate;
 }
 
-.hub-premium-canvas::before {
-  content: "";
-  pointer-events: none;
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  background-image:
-    linear-gradient(color-mix(in srgb, var(--hub-fg) 4%, transparent) 1px, transparent 1px),
-    linear-gradient(90deg, color-mix(in srgb, var(--hub-fg) 4%, transparent) 1px, transparent 1px);
-  background-size: 48px 48px;
-  mask-image: linear-gradient(to bottom, rgb(0 0 0 / 0.9), transparent 85%);
-}
-
+/* Decorative grid/noise disabled — keep class as a layout hook only */
+.hub-premium-canvas::before,
 .hub-premium-canvas::after {
-  content: "";
-  pointer-events: none;
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  opacity: 0.35;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+  content: none;
+  display: none;
 }
 
 .hub-glow-purple {

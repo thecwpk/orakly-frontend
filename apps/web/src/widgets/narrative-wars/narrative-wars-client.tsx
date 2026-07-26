@@ -17,7 +17,7 @@ import {
 const DASHBOARD_LIMIT = 50;
 
 const SELECT_CLASS =
-  "w-full max-w-sm rounded-xl border border-white/10 bg-zinc-900/80 px-3 py-3 text-[14px] font-medium text-zinc-100 outline-none focus:border-blue-500/50";
+  "w-full max-w-sm rounded-xl border border-[var(--border)] bg-[var(--card)] px-3 py-3 text-[14px] font-medium text-[var(--foreground)] outline-none focus:border-blue-500/50";
 
 function NarrativeSelect({
   id,
@@ -159,10 +159,10 @@ export function NarrativeWarsClient() {
   return (
     <div className="space-y-8">
       <header>
-        <h1 className="text-[32px] font-bold tracking-tight text-zinc-50">
+        <h1 className="text-[32px] font-bold tracking-tight text-[var(--foreground)]">
           Narrative Wars
         </h1>
-        <p className="mt-1 text-[15px] text-zinc-400">
+        <p className="mt-1 text-[15px] text-[var(--foreground-muted)]">
           Compare two crypto narratives side by side.
         </p>
       </header>
@@ -178,7 +178,7 @@ export function NarrativeWarsClient() {
           disabledSlug={rightSlug || undefined}
         />
         <p
-          className="text-[32px] font-bold tracking-tight text-zinc-500"
+          className="text-[32px] font-bold tracking-tight text-[var(--foreground-muted)]"
           aria-hidden
         >
           VS
@@ -196,8 +196,8 @@ export function NarrativeWarsClient() {
       {!bothSelected ? (
         <section className="space-y-4">
           <div className="text-center">
-            <p className="text-[15px] font-medium text-zinc-300">Suggested Comparisons</p>
-            <p className="mt-1 text-[13px] text-zinc-500">
+            <p className="text-[15px] font-medium text-[var(--foreground)]">Suggested Comparisons</p>
+            <p className="mt-1 text-[13px] text-[var(--foreground-muted)]">
               Select a suggested pair, or choose narratives from the menus above.
             </p>
           </div>
@@ -208,16 +208,16 @@ export function NarrativeWarsClient() {
                 type="button"
                 onClick={() => pickBattle(battle.leftSlug, battle.rightSlug)}
                 className={cn(
-                  "rounded-2xl border border-white/[0.08] bg-zinc-950/50 p-5 text-left transition",
-                  "hover:scale-[1.02] hover:border-white/20 hover:shadow-lg",
+                  "rounded-2xl border border-[var(--border)] bg-[var(--card)] p-5 text-left transition",
+                  "hover:scale-[1.02] hover:border-[var(--border)] hover:shadow-lg",
                 )}
               >
-                <p className="text-[11px] font-semibold uppercase tracking-wider text-zinc-500">
+                <p className="text-[11px] font-semibold uppercase tracking-wider text-[var(--foreground-muted)]">
                   Suggested
                 </p>
-                <p className="mt-2 text-[18px] font-bold text-zinc-50">
+                <p className="mt-2 text-[18px] font-bold text-[var(--foreground)]">
                   {battle.leftName}{" "}
-                  <span className="text-zinc-500">vs</span> {battle.rightName}
+                  <span className="text-[var(--foreground-muted)]">vs</span> {battle.rightName}
                 </p>
               </button>
             ))}
