@@ -4,10 +4,19 @@
  */
 .hub-admin-canvas.hub-app-canvas,
 .hub-admin-canvas.hub-root,
+.hub-admin-canvas .hub-root,
+.hub-admin-canvas .hub-admin,
+.hub-admin,
 [data-theme="light"] .hub-admin-canvas.hub-app-canvas,
 [data-theme="light"] .hub-admin-canvas.hub-root,
+[data-theme="light"] .hub-admin-canvas .hub-root,
+[data-theme="light"] .hub-admin-canvas .hub-admin,
+[data-theme="light"] .hub-admin,
 .light .hub-admin-canvas.hub-app-canvas,
-.light .hub-admin-canvas.hub-root {
+.light .hub-admin-canvas.hub-root,
+.light .hub-admin-canvas .hub-root,
+.light .hub-admin-canvas .hub-admin,
+.light .hub-admin {
   --hub-bg: #09090b;
   --hub-bg-subtle: #0c0d10;
   --hub-bg-elevated: #121318;
@@ -38,6 +47,38 @@
 
 .hub-admin {
   color: var(--hub-fg);
+}
+
+/* Tables / cards — pin surfaces so light-theme globals cannot bleach the desk. */
+.hub-admin .hub-card,
+.hub-admin-canvas .hub-card {
+  background: var(--hub-card) !important;
+  border-color: var(--hub-border) !important;
+  color: var(--hub-fg);
+  box-shadow: 0 8px 28px rgb(0 0 0 / 0.35);
+}
+
+.hub-admin table,
+.hub-admin-canvas table {
+  background: transparent;
+  color: var(--hub-fg);
+}
+
+.hub-admin thead,
+.hub-admin-canvas thead {
+  background: color-mix(in srgb, var(--hub-bg-subtle) 92%, var(--hub-card));
+  color: var(--hub-muted);
+}
+
+.hub-admin tbody tr,
+.hub-admin-canvas tbody tr {
+  background: transparent;
+  color: var(--hub-muted);
+}
+
+.hub-admin tbody tr:hover,
+.hub-admin-canvas tbody tr:hover {
+  background: var(--hub-card-hover);
 }
 
 .hub-admin .recharts-cartesian-grid line {

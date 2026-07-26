@@ -13,11 +13,12 @@ import {
   X,
 } from "lucide-react";
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { formatCompactUsd } from "@orakly/utils";
 import { useDeployAdminMarket } from "@/features/chain-trading/hooks/use-deploy-admin-market";
+import { useDeployAdminMarketsBulk } from "@/features/chain-trading/hooks/use-deploy-admin-markets-bulk";
 import { bscTestnetAddressUrl } from "@/features/chain-trading/lib/chain-contract-env";
 import { cn } from "@/lib/utils";
 import { adminApi } from "../lib/admin-api";
@@ -34,6 +35,7 @@ import { Section, TabShell } from "../components/tab-shell";
 import { ConfirmDialog } from "../components/confirm-dialog";
 import { CreateMarketDialog } from "../components/create-market-dialog";
 import { EmptyState } from "../components/empty-state";
+import { adminUi } from "../lib/admin-ui-classes";
 
 const STATUS_FILTERS = ["ALL", "OPEN", "DRAFT", "PAUSED", "CLOSED", "RESOLVED"] as const;
 type StatusFilter = (typeof STATUS_FILTERS)[number];
@@ -47,7 +49,7 @@ const LIFECYCLE_BADGE: Record<
   { label: string; ring: string; bg: string; text: string }
 > = {
   db_only: {
-    label: "DB Only: Not Tradeable",
+    label: "DB Only · Not Tradeable",
     ring: "ring-amber-400/30",
     bg: "bg-amber-500/10",
     text: "text-amber-200",
@@ -83,6 +85,10 @@ function marketLifecycle(market: AdminMarketRow): LifecycleKey {
   return "db_only";
 }
 
+function isDeployable(market: AdminMarketRow): boolean {
+  return marketLifecycle(market) === "db_only";
+}
+
 function marketCategoryLabel(market: AdminMarketRow): string {
   const adminKey = market.generationMeta?.adminCategory;
   if (adminKey && CATEGORY_LABELS[adminKey]) return CATEGORY_LABELS[adminKey];
@@ -93,6 +99,20 @@ function formatVolumeUsd(raw: string | number | undefined): string {
   const n = typeof raw === "string" ? Number.parseFloat(raw) : (raw ?? 0);
   if (!Number.isFinite(n) || n <= 0) return "N/A";
   return formatCompactUsd(n);
+}
+
+function toDeployPayload(m: AdminMarketRow) {
+  return {
+    id: m.id,
+    slug: m.slug,
+    title: m.title,
+    description: m.description,
+    closesAt: m.closesAt,
+    category: m.category,
+    resolutionSource: m.resolutionSource,
+    takerFeeBps: m.takerFeeBps,
+    adminCategory: m.generationMeta?.adminCategory,
+  };
 }
 
 export function AdminMarketsTab({
@@ -107,48 +127,76 @@ export function AdminMarketsTab({
   const [query, setQuery] = useState("");
   const [showCreate, setShowCreate] = useState(false);
   const [resolveTarget, setResolveTarget] = useState<ResolveTarget>(null);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
   const marketsQ = useAdminMarketsQuery(filter, true);
   const deployMarket = useDeployAdminMarket();
+  const deployBulk = useDeployAdminMarketsBulk();
   const qc = useQueryClient();
-  const [bulkDeploying, setBulkDeploying] = useState(false);
 
-  const undeployedShowcase = useMemo(() => {
+  const filtered = useMemo(() => {
     const rows = marketsQ.data ?? [];
-    return rows
-      .filter((m) => m.status === "OPEN" && !m.onChainAddress)
-      .slice(0, 20);
-  }, [marketsQ.data]);
+    const q = query.trim().toLowerCase();
+    if (!q) return rows;
+    return rows.filter(
+      (m) =>
+        m.title.toLowerCase().includes(q) ||
+        m.slug.toLowerCase().includes(q) ||
+        m.id.toLowerCase().includes(q) ||
+        marketCategoryLabel(m).toLowerCase().includes(q),
+    );
+  }, [marketsQ.data, query]);
 
-  const deployShowcaseBatch = async () => {
-    if (undeployedShowcase.length === 0) {
-      toast.message("No undeployed auto markets to deploy.");
+  const deployableFiltered = useMemo(
+    () => filtered.filter(isDeployable),
+    [filtered],
+  );
+
+  const selectedDeployable = useMemo(() => {
+    const byId = new Map((marketsQ.data ?? []).map((m) => [m.id, m]));
+    return [...selectedIds]
+      .map((id) => byId.get(id))
+      .filter((m): m is AdminMarketRow => Boolean(m && isDeployable(m)));
+  }, [marketsQ.data, selectedIds]);
+
+  const allVisibleSelected =
+    deployableFiltered.length > 0 &&
+    deployableFiltered.every((m) => selectedIds.has(m.id));
+
+  const toggleOne = useCallback((id: string, on: boolean) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (on) next.add(id);
+      else next.delete(id);
+      return next;
+    });
+  }, []);
+
+  const toggleAllVisible = useCallback(() => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (allVisibleSelected) {
+        for (const m of deployableFiltered) next.delete(m.id);
+      } else {
+        for (const m of deployableFiltered) next.add(m.id);
+      }
+      return next;
+    });
+  }, [allVisibleSelected, deployableFiltered]);
+
+  const clearSelection = useCallback(() => setSelectedIds(new Set()), []);
+
+  const runBulkDeploy = async () => {
+    if (selectedDeployable.length === 0) {
+      toast.message("Select undeployed markets to deploy.");
       return;
     }
-    setBulkDeploying(true);
-    let ok = 0;
     try {
-      for (const m of undeployedShowcase) {
-        try {
-          await deployMarket.mutateAsync({
-            id: m.id,
-            slug: m.slug,
-            title: m.title,
-            description: m.description,
-            closesAt: m.closesAt,
-            category: m.category,
-            resolutionSource: m.resolutionSource,
-            takerFeeBps: m.takerFeeBps,
-          });
-          ok += 1;
-        } catch {
-          break;
-        }
-      }
-      toast.success(`Deployed ${ok} of ${undeployedShowcase.length} markets.`);
-    } finally {
-      setBulkDeploying(false);
+      await deployBulk.mutateAsync(selectedDeployable.map(toDeployPayload));
+      clearSelection();
       void marketsQ.refetch();
+    } catch {
+      /* toast handled in hook */
     }
   };
 
@@ -168,19 +216,6 @@ export function AdminMarketsTab({
       toast.error(e instanceof Error ? e.message : "Resolve failed"),
   });
 
-  const filtered = useMemo(() => {
-    const rows = marketsQ.data ?? [];
-    const q = query.trim().toLowerCase();
-    if (!q) return rows;
-    return rows.filter(
-      (m) =>
-        m.title.toLowerCase().includes(q) ||
-        m.slug.toLowerCase().includes(q) ||
-        m.id.toLowerCase().includes(q) ||
-        marketCategoryLabel(m).toLowerCase().includes(q),
-    );
-  }, [marketsQ.data, query]);
-
   const counts = useMemo(() => {
     const all = marketsQ.data ?? [];
     return STATUS_FILTERS.reduce(
@@ -197,37 +232,26 @@ export function AdminMarketsTab({
     void qc.invalidateQueries({ queryKey: adminMarketsKey(filter, 120) });
   };
 
+  const bulkBusy = deployBulk.isPending || deployMarket.isPending;
+
   return (
     <TabShell
       eyebrow="Lifecycle"
       title="Markets"
-      description="Create markets in the database, then deploy on BNB Chain to enable trading."
+      description="Create markets in the database, then deploy on BNB Chain to enable trading. Bulk deploy uses one MetaMask confirmation."
       actions={
         <>
           <button
             type="button"
             onClick={reload}
             disabled={marketsQ.isFetching}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--hub-bg-subtle)] px-2.5 py-1.5 text-[12px] font-medium text-[var(--hub-fg)] ring-1 ring-[var(--hub-border)] transition hover:bg-[var(--hub-card-hover)] disabled:opacity-50"
+            className={adminUi.btnGhost}
           >
             <RefreshCw
               className={cn("h-3.5 w-3.5", marketsQ.isFetching && "animate-spin")}
             />
             Refresh
           </button>
-          {canCreate && undeployedShowcase.length > 0 ? (
-            <button
-              type="button"
-              onClick={() => void deployShowcaseBatch()}
-              disabled={bulkDeploying || deployMarket.isPending}
-              className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-500/15 px-2.5 py-1.5 text-[12px] font-semibold text-emerald-200 ring-1 ring-emerald-400/30 transition hover:bg-emerald-500/25 disabled:opacity-50"
-            >
-              <Link2 className="h-3.5 w-3.5" />
-              {bulkDeploying
-                ? "Deploying…"
-                : `Deploy showcase (${undeployedShowcase.length})`}
-            </button>
-          ) : null}
           {canCreate ? (
             <button
               type="button"
@@ -248,20 +272,20 @@ export function AdminMarketsTab({
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search title, slug, id, or category…"
-            className="w-full rounded-xl border border-[var(--hub-border)] bg-[var(--hub-bg-subtle)] py-2 pl-8 pr-7 text-[12.5px] text-[var(--hub-fg)] outline-none focus:border-[var(--hub-primary)]/50"
+            className={cn(adminUi.inputSm, "pl-8")}
           />
           {query ? (
             <button
               type="button"
               aria-label="Clear search"
               onClick={() => setQuery("")}
-              className="absolute right-2 top-1/2 inline-flex h-5 w-5 -translate-y-1/2 items-center justify-center rounded-md bg-[var(--hub-bg-subtle)] text-[var(--hub-muted)] ring-1 ring-[var(--hub-border)] hover:bg-[var(--hub-card-hover)]"
+              className={cn(adminUi.iconBtn, "absolute right-2 top-1/2 -translate-y-1/2")}
             >
               <X className="h-3 w-3" />
             </button>
           ) : null}
         </div>
-        <div className="flex items-center gap-1 rounded-xl bg-[var(--hub-bg-subtle)] p-1 ring-1 ring-[var(--hub-border)]">
+        <div className={adminUi.segmentWrap}>
           {STATUS_FILTERS.map((k) => (
             <button
               key={k}
@@ -269,9 +293,7 @@ export function AdminMarketsTab({
               onClick={() => setFilter(k)}
               className={cn(
                 "relative inline-flex items-center gap-1 rounded-lg px-2 py-1 text-[10.5px] font-bold uppercase tracking-wider transition",
-                filter === k
-                  ? "bg-[var(--hub-card-hover)] text-[var(--hub-fg)]"
-                  : "text-[var(--hub-muted)] hover:text-[var(--hub-fg)]",
+                filter === k ? adminUi.segmentActive : adminUi.segmentIdle,
               )}
             >
               {filter === k ? (
@@ -290,12 +312,47 @@ export function AdminMarketsTab({
         </div>
       </div>
 
+      {canCreate && selectedDeployable.length > 0 ? (
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-emerald-400/25 bg-emerald-500/10 px-3 py-2.5">
+          <p className="text-[12.5px] text-emerald-100">
+            <span className="font-semibold tabular-nums">
+              {selectedDeployable.length}
+            </span>{" "}
+            undeployed market{selectedDeployable.length === 1 ? "" : "s"} selected
+          </p>
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              onClick={clearSelection}
+              disabled={bulkBusy}
+              className={adminUi.btnGhost}
+            >
+              Clear
+            </button>
+            <button
+              type="button"
+              onClick={() => void runBulkDeploy()}
+              disabled={bulkBusy}
+              className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-500/20 px-3 py-1.5 text-[12px] font-semibold text-emerald-100 ring-1 ring-emerald-400/35 transition hover:bg-emerald-500/30 disabled:opacity-50"
+            >
+              <Link2 className="h-3.5 w-3.5" />
+              {deployBulk.isPending
+                ? "Deploying…"
+                : `Deploy selected (${selectedDeployable.length}) · 1 confirm`}
+            </button>
+          </div>
+        </div>
+      ) : null}
+
       <Section
         title={`${filtered.length} market${filtered.length === 1 ? "" : "s"}`}
         action={
           <span className="inline-flex items-center gap-1.5 text-[10.5px] text-[var(--hub-muted)]">
             <Filter className="h-3 w-3" />
             {filter} · {query ? `“${query}”` : "all"}
+            {deployableFiltered.length > 0
+              ? ` · ${deployableFiltered.length} deployable`
+              : ""}
           </span>
         }
       >
@@ -305,7 +362,7 @@ export function AdminMarketsTab({
               {Array.from({ length: 6 }).map((_, i) => (
                 <div
                   key={i}
-                  className="skeleton-shimmer h-12 rounded-lg ring-1 ring-[var(--hub-border)]"
+                  className={cn(adminUi.skeleton, "h-12 rounded-lg")}
                 />
               ))}
             </div>
@@ -337,9 +394,21 @@ export function AdminMarketsTab({
               }
             />
           ) : (
-            <table className="w-full min-w-[960px] border-collapse text-left text-[12.5px]">
-              <thead className="bg-[var(--hub-bg-subtle)]/95 text-[10px] font-bold uppercase tracking-[0.15em] text-[var(--hub-muted)] backdrop-blur">
+            <table className="w-full min-w-[1000px] border-collapse text-left text-[12.5px]">
+              <thead className={adminUi.tableHead}>
                 <tr>
+                  <th scope="col" className="w-10 px-3 py-2.5">
+                    {canCreate ? (
+                      <input
+                        type="checkbox"
+                        aria-label="Select all deployable markets"
+                        checked={allVisibleSelected}
+                        disabled={deployableFiltered.length === 0 || bulkBusy}
+                        onChange={toggleAllVisible}
+                        className="h-3.5 w-3.5 cursor-pointer rounded border-[var(--hub-border-strong)] bg-[var(--hub-bg-subtle)] accent-[var(--hub-primary)]"
+                      />
+                    ) : null}
+                  </th>
                   <th scope="col" className="px-3 py-2.5">Question</th>
                   <th scope="col" className="px-3 py-2.5">Category</th>
                   <th scope="col" className="px-3 py-2.5">Status</th>
@@ -348,10 +417,7 @@ export function AdminMarketsTab({
                   <th scope="col" className="px-3 py-2.5 text-right">Actions</th>
                 </tr>
               </thead>
-              <motion.tbody
-                layout
-                className="divide-y divide-[var(--hub-border)] text-[var(--hub-muted)]"
-              >
+              <motion.tbody layout className={adminUi.tableRow}>
                 <AnimatePresence initial={false}>
                   {filtered.map((m) => (
                     <MarketRow
@@ -359,19 +425,12 @@ export function AdminMarketsTab({
                       market={m}
                       canCreate={canCreate}
                       canResolve={canResolve}
-                      deployBusy={deployMarket.isPending}
+                      selected={selectedIds.has(m.id)}
+                      selectable={canCreate && isDeployable(m)}
+                      deployBusy={bulkBusy}
+                      onToggleSelect={(on) => toggleOne(m.id, on)}
                       onDeploy={() =>
-                        deployMarket.mutate({
-                          id: m.id,
-                          slug: m.slug,
-                          title: m.title,
-                          resolutionSource: m.resolutionSource,
-                          description: m.description,
-                          closesAt: m.closesAt,
-                          takerFeeBps: m.takerFeeBps,
-                          category: m.category,
-                          adminCategory: m.generationMeta?.adminCategory,
-                        })
+                        deployMarket.mutate(toDeployPayload(m))
                       }
                       onResolveYes={() =>
                         setResolveTarget({ id: m.id, title: m.title, outcome: "YES" })
@@ -419,7 +478,10 @@ function MarketRow({
   market,
   canCreate,
   canResolve,
+  selected,
+  selectable,
   deployBusy,
+  onToggleSelect,
   onDeploy,
   onResolveYes,
   onResolveNo,
@@ -427,7 +489,10 @@ function MarketRow({
   market: AdminMarketRow;
   canCreate: boolean;
   canResolve: boolean;
+  selected: boolean;
+  selectable: boolean;
   deployBusy: boolean;
+  onToggleSelect: (on: boolean) => void;
   onDeploy: () => void;
   onResolveYes: () => void;
   onResolveNo: () => void;
@@ -443,8 +508,25 @@ function MarketRow({
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.18 }}
-      className="hover:bg-[var(--hub-card-hover)]"
+      className={cn(
+        "hover:bg-[var(--hub-card-hover)]",
+        selected && "bg-[var(--hub-primary-soft)]/40",
+      )}
     >
+      <td className="px-3 py-2">
+        {selectable ? (
+          <input
+            type="checkbox"
+            aria-label={`Select ${market.title}`}
+            checked={selected}
+            disabled={deployBusy}
+            onChange={(e) => onToggleSelect(e.target.checked)}
+            className="h-3.5 w-3.5 cursor-pointer rounded border-[var(--hub-border-strong)] bg-[var(--hub-bg-subtle)] accent-[var(--hub-primary)]"
+          />
+        ) : (
+          <span className="inline-block h-3.5 w-3.5" aria-hidden />
+        )}
+      </td>
       <td className="max-w-[280px] px-3 py-2">
         <p className="line-clamp-2 font-medium text-[var(--hub-fg)]">{market.title}</p>
       </td>
@@ -476,7 +558,7 @@ function MarketRow({
           <span className="text-[10.5px] text-[var(--hub-muted)]">N/A</span>
         )}
       </td>
-      <td className="px-3 py-2 font-mono text-[11px] tabular-nums">
+      <td className="px-3 py-2 font-mono text-[11px] tabular-nums text-[var(--hub-muted)]">
         {formatVolumeUsd(market.volumeTotalUsd)}
       </td>
       <td className="px-3 py-2">

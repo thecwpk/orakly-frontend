@@ -22,6 +22,26 @@ export const marketFactoryAbi = [
     outputs: [{ name: "market", type: "address" }],
   },
   {
+    type: "function",
+    name: "createMarkets",
+    stateMutability: "nonpayable",
+    inputs: [
+      { name: "collateral", type: "address" },
+      { name: "treasury", type: "address" },
+      { name: "optimisticOracle", type: "address" },
+      { name: "feeBps", type: "uint16[]" },
+      { name: "questions", type: "string[]" },
+      { name: "resolutionSources", type: "string[]" },
+      { name: "categories", type: "uint8[]" },
+      { name: "endTimes", type: "uint256[]" },
+      { name: "seedLiquidities", type: "uint256[]" },
+      { name: "assertionRewards", type: "uint256[]" },
+      { name: "requiredBonds", type: "uint256[]" },
+      { name: "assertionLiveness", type: "uint64" },
+    ],
+    outputs: [{ name: "markets", type: "address[]" }],
+  },
+  {
     type: "event",
     name: "MarketCreated",
     inputs: [
