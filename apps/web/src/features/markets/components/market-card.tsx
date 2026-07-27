@@ -60,7 +60,7 @@ function timeRemaining(iso: string): {
   if (!Number.isFinite(ms) || Number.isNaN(ms)) {
     return { label: "Closed", urgent: false, expired: true };
   }
-  if (ms <= 0) return { label: "ENDED", urgent: true, expired: true };
+  if (ms <= 0) return { label: "Ended", urgent: true, expired: true };
   const urgent = ms < 24 * 60 * 60 * 1000;
   const totalMin = Math.floor(ms / 60_000);
   const days = Math.floor(totalMin / (60 * 24));
@@ -300,7 +300,9 @@ function MarketCardImpl({
                 remaining.urgent && "text-[var(--no)]",
               )}
             >
-              {remaining.label}
+              {remaining.expired
+                ? remaining.label
+                : `Ends ${remaining.label}`}
             </span>
           </div>
 

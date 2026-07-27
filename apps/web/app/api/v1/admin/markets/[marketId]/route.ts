@@ -19,6 +19,7 @@ const patchSchema = z.object({
   categoryId: z.string().uuid().optional().nullable(),
   onChainAddress: z.string().regex(/^0x[a-fA-F0-9]{40}$/).optional().nullable(),
   chainId: z.number().int().positive().optional().nullable(),
+  closesAt: z.string().datetime().optional(),
 });
 
 type RouteCtx = { params: Promise<{ marketId: string }> };
@@ -36,9 +37,28 @@ export async function PATCH(req: NextRequest, ctx: RouteCtx) {
       );
     }
 
+    const { closesAt: closesAtRaw, ...rest } = parsed.data;
+    const closesAt = closesAtRaw ? new Date(closesAtRaw) : undefined;
+    if (closesAt && Number.isNaN(closesAt.getTime())) {
+      return NextResponse.json(
+        { ok: false, error: { code: "VALIDATION", message: "Invalid closesAt" } },
+        { status: 400 },
+      );
+    }
+    if (closesAt && closesAt.getTime() <= Date.now()) {
+      return NextResponse.json(
+        {
+          ok: false,
+          error: { code: "VALIDATION", message: "closesAt must be in the future" },
+        },
+        { status: 400 },
+      );
+    }
+
     const market = await adminModerateMarket({
       marketId,
-      ...parsed.data,
+      ...rest,
+      ...(closesAt ? { closesAt } : {}),
     });
 
     await writeAdminAudit({

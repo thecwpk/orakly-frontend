@@ -39,6 +39,7 @@ import {
 import { Section, TabShell } from "../components/tab-shell";
 import { ConfirmDialog } from "../components/confirm-dialog";
 import { CreateMarketDialog } from "../components/create-market-dialog";
+import { DeployMarketDialog } from "../components/deploy-market-dialog";
 import { EmptyState } from "../components/empty-state";
 import { adminUi } from "../lib/admin-ui-classes";
 
@@ -48,6 +49,10 @@ type StatusFilter = (typeof STATUS_FILTERS)[number];
 type ResolveTarget = { id: string; title: string; outcome: "YES" | "NO" } | null;
 type ModerateTarget =
   | { id: string; title: string; action: "close" | "delete" }
+  | null;
+type DeployTarget =
+  | { mode: "single"; market: AdminMarketRow }
+  | { mode: "bulk"; markets: AdminMarketRow[] }
   | null;
 
 type LifecycleKey = "db_only" | "live" | "resolved" | "paused" | "closed";
@@ -116,18 +121,25 @@ function formatVolumeUsd(raw: string | number | undefined): string {
   return formatCompactUsd(n);
 }
 
-function toDeployPayload(m: AdminMarketRow) {
+function toDeployPayload(m: AdminMarketRow, closesAt?: string) {
   return {
     id: m.id,
     slug: m.slug,
     title: m.title,
     description: m.description,
-    closesAt: m.closesAt,
+    closesAt: closesAt ?? m.closesAt,
     category: m.category,
     resolutionSource: m.resolutionSource,
     takerFeeBps: m.takerFeeBps,
     adminCategory: m.generationMeta?.adminCategory,
   };
+}
+
+async function persistClosesAt(marketId: string, closesAtIso: string) {
+  await adminApi(`/markets/${marketId}`, {
+    method: "PATCH",
+    json: { closesAt: closesAtIso },
+  });
 }
 
 export function AdminMarketsTab({
@@ -144,7 +156,9 @@ export function AdminMarketsTab({
   const [showCreate, setShowCreate] = useState(false);
   const [resolveTarget, setResolveTarget] = useState<ResolveTarget>(null);
   const [moderateTarget, setModerateTarget] = useState<ModerateTarget>(null);
+  const [deployTarget, setDeployTarget] = useState<DeployTarget>(null);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [deployDialogBusy, setDeployDialogBusy] = useState(false);
 
   const marketsQ = useAdminMarketsQuery(filter, true);
   const deployMarket = useDeployAdminMarket();
@@ -205,17 +219,46 @@ export function AdminMarketsTab({
 
   const clearSelection = useCallback(() => setSelectedIds(new Set()), []);
 
-  const runBulkDeploy = async () => {
+  const openBulkDeploy = () => {
     if (selectedDeployable.length === 0) {
       toast.message("Select undeployed markets to deploy.");
       return;
     }
+    setDeployTarget({ mode: "bulk", markets: selectedDeployable });
+  };
+
+  const runDeployWithEndTime = async (closesAtIso: string) => {
+    if (!deployTarget) return;
+    setDeployDialogBusy(true);
     try {
-      await deployBulk.mutateAsync(selectedDeployable.map(toDeployPayload));
-      clearSelection();
+      if (deployTarget.mode === "single") {
+        const m = deployTarget.market;
+        try {
+          await persistClosesAt(m.id, closesAtIso);
+        } catch (e) {
+          toast.error(e instanceof Error ? e.message : "Failed to save end time");
+          return;
+        }
+        await deployMarket.mutateAsync(toDeployPayload(m, closesAtIso));
+      } else {
+        const markets = deployTarget.markets;
+        try {
+          await Promise.all(markets.map((m) => persistClosesAt(m.id, closesAtIso)));
+        } catch (e) {
+          toast.error(e instanceof Error ? e.message : "Failed to save end time");
+          return;
+        }
+        await deployBulk.mutateAsync(
+          markets.map((m) => toDeployPayload(m, closesAtIso)),
+        );
+        clearSelection();
+      }
+      setDeployTarget(null);
       void marketsQ.refetch();
     } catch {
-      /* toast handled in hook */
+      /* deploy toast handled in hooks */
+    } finally {
+      setDeployDialogBusy(false);
     }
   };
 
@@ -277,7 +320,10 @@ export function AdminMarketsTab({
   };
 
   const bulkBusy =
-    deployBulk.isPending || deployMarket.isPending || upgradeFactory.isPending;
+    deployBulk.isPending ||
+    deployMarket.isPending ||
+    upgradeFactory.isPending ||
+    deployDialogBusy;
 
   return (
     <TabShell
@@ -390,7 +436,7 @@ export function AdminMarketsTab({
             </button>
             <button
               type="button"
-              onClick={() => void runBulkDeploy()}
+              onClick={openBulkDeploy}
               disabled={bulkBusy}
               className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-500/20 px-3 py-1.5 text-[12px] font-semibold text-emerald-100 ring-1 ring-emerald-400/35 transition hover:bg-emerald-500/30 disabled:opacity-50"
             >
@@ -503,7 +549,7 @@ export function AdminMarketsTab({
                       deployBusy={bulkBusy}
                       onToggleSelect={(on) => toggleOne(m.id, on)}
                       onDeploy={() =>
-                        deployMarket.mutate(toDeployPayload(m))
+                        setDeployTarget({ mode: "single", market: m })
                       }
                       onClose={() =>
                         setModerateTarget({
@@ -535,6 +581,28 @@ export function AdminMarketsTab({
       </Section>
 
       <CreateMarketDialog open={showCreate} onOpenChange={setShowCreate} />
+
+      <DeployMarketDialog
+        open={!!deployTarget}
+        onOpenChange={(o) => (!o && !deployDialogBusy ? setDeployTarget(null) : null)}
+        title={
+          deployTarget?.mode === "single"
+            ? deployTarget.market.title
+            : "Selected markets"
+        }
+        marketCount={
+          deployTarget?.mode === "bulk" ? deployTarget.markets.length : 1
+        }
+        initialClosesAt={
+          deployTarget?.mode === "single"
+            ? deployTarget.market.closesAt
+            : deployTarget?.mode === "bulk"
+              ? deployTarget.markets[0]?.closesAt
+              : null
+        }
+        busy={deployDialogBusy || deployMarket.isPending || deployBulk.isPending}
+        onConfirm={runDeployWithEndTime}
+      />
 
       <ConfirmDialog
         open={!!resolveTarget}

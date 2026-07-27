@@ -9,7 +9,10 @@ import { TrendingNarratives } from "./sections/trending-narratives";
 import { TrustEcosystemStrip } from "./sections/trust-ecosystem-strip";
 import "./hub-design-tokens.css";
 
-/** DApp hub — Hero → Pulse → Narratives → Markets → Activity → Discovery → Trust. */
+/**
+ * DApp hub desk —
+ * Hero → Pulse strip → Live Markets + Narratives rail → Activity → Discovery → Trust.
+ */
 export function DappHubPage() {
   return (
     <div className="hub-app-canvas hub-root">
@@ -17,8 +20,16 @@ export function DappHubPage() {
         <Hero />
         <div className="hub-sections-stack pb-10">
           <MarketPulse />
-          <TrendingNarratives />
-          <LiveMarkets />
+
+          <div className="hub-desk-grid">
+            <div className="hub-desk-main">
+              <LiveMarkets />
+            </div>
+            <aside className="hub-desk-aside">
+              <TrendingNarratives />
+            </aside>
+          </div>
+
           <MarketActivity />
           <CommunityDiscovery />
           <TrustEcosystemStrip />

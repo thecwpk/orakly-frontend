@@ -45,6 +45,8 @@ function DropdownMenuContent({
         align={align}
         className={cn(
           "z-50 max-h-(--radix-dropdown-menu-content-available-height) w-(--radix-dropdown-menu-trigger-width) min-w-44 origin-(--radix-dropdown-menu-content-transform-origin) overflow-x-hidden overflow-y-auto rounded-md border border-white/[0.08] bg-[#0c0c12]/98 p-1 text-zinc-100 shadow-[0_16px_48px_-20px_rgba(0,0,0,0.75)] backdrop-blur-md duration-100 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-[state=closed]:overflow-hidden data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
+          /* Menu panel is always dark; keep token-driven text readable in light theme. */
+          "[--foreground:#f2f3f5] [--foreground-muted:#a1a6b0]",
           className,
         )}
         {...props}
@@ -249,6 +251,7 @@ function DropdownMenuSubContent({
       data-slot="dropdown-menu-sub-content"
       className={cn(
         "z-50 min-w-36 origin-(--radix-dropdown-menu-content-transform-origin) overflow-hidden rounded-md border border-white/[0.08] bg-[#0c0c12]/98 p-1 text-zinc-100 shadow-[0_16px_48px_-20px_rgba(0,0,0,0.75)] backdrop-blur-md duration-100 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
+        "[--foreground:#f2f3f5] [--foreground-muted:#a1a6b0]",
         className,
       )}
       {...props}

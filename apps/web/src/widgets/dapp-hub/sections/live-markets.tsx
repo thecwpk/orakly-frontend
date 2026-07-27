@@ -158,7 +158,7 @@ export function HubLiveMarketCard({
               "border-[var(--hub-danger)]/30 bg-[var(--hub-danger-bg)] text-[var(--hub-danger)]",
           )}
         >
-          Ends {ends.label}
+          {ends.label === "Ended" ? "Ended" : `Ends ${ends.label}`}
         </span>
       </div>
 
@@ -286,8 +286,8 @@ export function LiveMarkets() {
   const loading = query.isLoading && !query.data;
 
   return (
-    <section className="hub-section hub-section-enter" aria-label="Live Markets">
-      <div className="mb-4 flex flex-col gap-3 sm:mb-5 sm:flex-row sm:items-end sm:justify-between">
+    <section className="hub-section hub-section-enter hub-section--markets" aria-label="Live Markets">
+      <div className="mb-3 flex flex-col gap-2.5 sm:mb-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h2 className="hub-section-title">Live Markets</h2>
           <p className="hub-section-sub mt-0.5">
@@ -317,7 +317,7 @@ export function LiveMarkets() {
               aria-selected={active}
               onClick={() => setTab(t.id)}
               className={cn(
-                "min-h-[2.5rem] rounded-lg px-4 py-1.5 text-sm transition-all",
+                "min-h-[2.35rem] rounded-lg px-3.5 py-1.5 text-sm transition-all sm:min-h-[2.5rem] sm:px-4",
                 active
                   ? "bg-[var(--hub-primary-soft)] font-medium text-[var(--hub-fg)] shadow-[0_0_12px_rgba(124,92,252,0.2)]"
                   : "text-[var(--hub-muted)] hover:text-[var(--hub-fg)]",
@@ -329,7 +329,7 @@ export function LiveMarkets() {
         })}
       </div>
 
-      <div className="hub-dapp-grid-markets mt-4 max-sm:flex max-sm:snap-x max-sm:snap-mandatory max-sm:gap-3 max-sm:overflow-x-auto max-sm:pb-2">
+      <div className="hub-dapp-grid-markets mt-3.5 max-sm:flex max-sm:snap-x max-sm:snap-mandatory max-sm:gap-3 max-sm:overflow-x-auto max-sm:pb-2 sm:mt-4">
         {loading
           ? Array.from({ length: 8 }).map((_, i) => (
               <LiveMarketSkeleton key={i} />

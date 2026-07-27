@@ -75,7 +75,7 @@ function BnbChainIcon({ className }: { className?: string }) {
   return (
     <svg
       viewBox="0 0 24 24"
-      className={cn("size-4 shrink-0", className)}
+      className={cn("size-3.5 shrink-0", className)}
       aria-hidden
     >
       <path
@@ -88,31 +88,29 @@ function BnbChainIcon({ className }: { className?: string }) {
 
 function PulseSkeleton() {
   return (
-    <div className="hub-dapp-pulse hub-glass-card">
-      <div className="border-b border-[var(--hub-border)] px-4 py-3 sm:px-6">
-        <div className="hub-dapp-skel h-3 w-40" />
+    <div className="hub-dapp-pulse hub-dapp-pulse--strip hub-glass-card">
+      <div className="flex items-center justify-between gap-2 border-b border-[var(--hub-border)] px-3 py-2 sm:px-4">
+        <div className="hub-dapp-skel h-2.5 w-28" />
+        <div className="hub-dapp-skel h-2.5 w-10" />
       </div>
       <div className="grid grid-cols-2 gap-0 sm:grid-cols-4 lg:grid-cols-8">
         {Array.from({ length: 8 }).map((_, i) => (
-          <div
-            key={i}
-            className="hub-dapp-pulse-cell border-b border-[var(--hub-border)] sm:border-r"
-          >
-            <div className="hub-dapp-skel h-2.5 w-16" />
-            <div className="hub-dapp-skel h-7 w-12" />
+          <div key={i} className="hub-dapp-pulse-cell border-b border-[var(--hub-border)] sm:border-r">
+            <div className="hub-dapp-skel h-2 w-14" />
+            <div className="hub-dapp-skel h-5 w-10" />
           </div>
         ))}
       </div>
-      <div className="flex gap-3 border-t border-[var(--hub-border)] px-4 py-4 sm:px-6">
-        <div className="hub-dapp-skel h-11 w-36 rounded-lg" />
-        <div className="hub-dapp-skel h-11 w-36 rounded-lg" />
+      <div className="flex gap-2 border-t border-[var(--hub-border)] px-3 py-2.5 sm:px-4">
+        <div className="hub-dapp-skel h-9 w-32 rounded-lg" />
+        <div className="hub-dapp-skel h-9 w-32 rounded-lg" />
       </div>
     </div>
   );
 }
 
 /**
- * Section 1 — Market Pulse: full-width desk header with live count-up stats.
+ * Market Pulse — dense full-width desk strip (single source of platform KPIs).
  */
 export function MarketPulse() {
   const statsQ = useHomeStatsQuery();
@@ -121,7 +119,7 @@ export function MarketPulse() {
   if (loading) {
     return (
       <section
-        className="hub-section hub-section-enter !pt-5 sm:!pt-6"
+        className="hub-section hub-section--pulse hub-section-enter"
         aria-label="Market Pulse"
       >
         <PulseSkeleton />
@@ -155,13 +153,13 @@ export function MarketPulse() {
     {
       key: "sentiment",
       label: "Market Sentiment",
-      value: <SentimentPill value={pulse.marketSentiment} />,
+      value: <SentimentPill value={pulse.marketSentiment} size="sm" />,
     },
     {
       key: "meta",
       label: "Current Meta",
       value: (
-        <span className="line-clamp-2 text-base font-semibold leading-snug text-[var(--hub-fg)] sm:text-lg">
+        <span className="line-clamp-2 text-[13px] font-semibold leading-snug text-[var(--hub-fg)] sm:text-sm">
           {pulse.currentMeta}
         </span>
       ),
@@ -170,9 +168,11 @@ export function MarketPulse() {
       key: "chain",
       label: "Top Chain",
       value: (
-        <span className="inline-flex items-center gap-2 text-[var(--hub-fg)]">
+        <span className="inline-flex items-center gap-1.5 text-[var(--hub-fg)]">
           <BnbChainIcon />
-          <span className="font-semibold tracking-wide">{pulse.topChain}</span>
+          <span className="text-[13px] font-semibold tracking-wide sm:text-sm">
+            {pulse.topChain}
+          </span>
         </span>
       ),
     },
@@ -188,7 +188,7 @@ export function MarketPulse() {
     },
     {
       key: "volume",
-      label: "24H Trading Volume",
+      label: "24H Volume",
       value: (
         <HubCountUp
           value={pulse.volume24hUsd}
@@ -222,27 +222,27 @@ export function MarketPulse() {
 
   return (
     <section
-      className="hub-section hub-section-enter !pt-5 sm:!pt-6"
+      className="hub-section hub-section--pulse hub-section-enter"
       aria-label="Market Pulse"
     >
-      <div className="hub-dapp-pulse hub-glass-card relative overflow-hidden">
+      <div className="hub-dapp-pulse hub-dapp-pulse--strip hub-glass-card relative overflow-hidden">
         <div
-          className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[var(--hub-primary-bright)]/45 to-transparent"
+          className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[var(--hub-primary-bright)]/40 to-transparent"
           aria-hidden
         />
 
-        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[var(--hub-border)] px-4 py-3 sm:px-6">
+        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[var(--hub-border)] px-3 py-2 sm:px-4">
           <div className="flex items-center gap-2">
-            <span className="relative flex size-2.5" aria-hidden>
+            <span className="relative flex size-2" aria-hidden>
               <span className="absolute inset-0 animate-ping rounded-full bg-[var(--hub-success)]/70" />
-              <span className="relative size-2.5 rounded-full bg-[var(--hub-success)] shadow-[0_0_8px_rgba(0,212,170,0.55)]" />
+              <span className="relative size-2 rounded-full bg-[var(--hub-success)] shadow-[0_0_6px_rgba(0,212,170,0.5)]" />
             </span>
-            <p className="hub-dapp-stat-label !text-[11px]">Market Pulse</p>
-            <span className="hidden text-[11px] text-[var(--hub-muted)] sm:inline">
+            <p className="hub-dapp-stat-label !text-[10px]">Market Pulse</p>
+            <span className="hidden text-[10px] text-[var(--hub-muted)] sm:inline">
               · today
             </span>
           </div>
-          <span className="hub-dapp-stat-label !normal-case hub-dapp-move-up">
+          <span className="hub-dapp-stat-label !normal-case hub-dapp-move-up !text-[10px]">
             Live
           </span>
         </div>
@@ -262,11 +262,11 @@ export function MarketPulse() {
           ))}
         </div>
 
-        <div className="flex flex-wrap items-center gap-3 border-t border-[var(--hub-border)] px-4 py-4 sm:px-6">
-          <Link href={ROUTES.markets} className="hub-cta-gold !min-h-[2.75rem]">
+        <div className="flex flex-wrap items-center gap-2 border-t border-[var(--hub-border)] px-3 py-2.5 sm:gap-3 sm:px-4">
+          <Link href={ROUTES.markets} className="hub-cta-gold !min-h-9 !px-3.5 !text-[12px]">
             Explore Markets
           </Link>
-          <Link href={ROUTES.narratives} className="hub-cta-violet !min-h-[2.75rem]">
+          <Link href={ROUTES.narratives} className="hub-cta-violet !min-h-9 !px-3.5 !text-[12px]">
             View Narratives
           </Link>
         </div>

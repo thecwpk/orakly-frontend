@@ -219,8 +219,8 @@ export function TrendingNarratives() {
   const showError = false;
 
   return (
-    <section className="hub-section hub-section-enter" aria-label="Trending Narratives">
-      <div className="mb-4 flex flex-col gap-3 sm:mb-5 sm:flex-row sm:items-end sm:justify-between">
+    <section className="hub-section hub-section-enter hub-section--narratives" aria-label="Trending Narratives">
+      <div className="mb-3 flex flex-col gap-2.5 sm:mb-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h2 className="hub-section-title">Trending Narratives</h2>
           <p className="hub-section-sub mt-0.5">Where trading attention is concentrating.</p>

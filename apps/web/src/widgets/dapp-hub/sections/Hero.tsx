@@ -14,7 +14,6 @@ import { unwrapApiResult } from "@/shared/api/unwrap";
 import { ROUTES } from "@/shared/constants/routes";
 import type { LiveMarketCardDto } from "@/shared/contracts/live-markets";
 import { Sparkline } from "@/shared/ui";
-import { HubCountUp } from "../components/hub-count-up";
 import { HubProbRing } from "../components/hub-hero-visuals";
 import { buildFeaturedSparkSeries } from "../lib/hub-sparkline-series";
 import { resolveMarketPulseStats } from "../lib/market-pulse-stats";
@@ -36,14 +35,6 @@ function endsInLabel(iso: string): string {
   return `${Math.max(1, totalMin % 60)}m`;
 }
 
-function fmtUsd(n: number): string {
-  if (!Number.isFinite(n) || n < 0) return "$0";
-  if (n >= 1_000_000_000) return `$${(n / 1_000_000_000).toFixed(1)}B`;
-  if (n >= 1_000_000) return `$${(n / 1_000_000).toFixed(1)}M`;
-  if (n >= 1_000) return `$${(n / 1_000).toFixed(1)}K`;
-  return `$${Math.round(n).toLocaleString("en-US")}`;
-}
-
 async function fetchTopMarkets(limit = 4): Promise<LiveMarketCardDto[]> {
   const qs = new URLSearchParams({
     status: "OPEN",
@@ -56,6 +47,7 @@ async function fetchTopMarkets(limit = 4): Promise<LiveMarketCardDto[]> {
   return unwrapApiResult(res);
 }
 
+/** Slim attention tape — sits under the brand row, not a competing card. */
 function AttentionPulse({
   series,
   current,
@@ -64,13 +56,13 @@ function AttentionPulse({
   current: number | null;
 }) {
   return (
-    <div className="relative h-[4.5rem] w-full overflow-hidden rounded-[var(--hub-dapp-radius)] border border-[var(--hub-border)] bg-[var(--hub-card)]">
-      <div className="relative flex h-full items-center gap-4 px-4">
-        <div className="min-w-[3.5rem] shrink-0 border-r border-[var(--hub-border)] pr-4">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--hub-muted)]">
+    <div className="relative h-12 w-full overflow-hidden rounded-lg border border-[var(--hub-border)] bg-[var(--hub-card)] sm:h-[3.25rem]">
+      <div className="relative flex h-full items-center gap-3 px-3 sm:gap-4 sm:px-4">
+        <div className="min-w-[2.75rem] shrink-0 border-r border-[var(--hub-border)] pr-3 sm:min-w-[3.25rem] sm:pr-4">
+          <p className="text-[9px] font-semibold uppercase tracking-[0.14em] text-[var(--hub-muted)]">
             Index
           </p>
-          <p className="mt-0.5 text-[22px] font-bold tabular-nums leading-none text-[var(--hub-fg)]">
+          <p className="mt-0.5 text-[17px] font-bold tabular-nums leading-none text-[var(--hub-fg)] sm:text-[18px]">
             {current == null ? "—" : Math.round(current)}
           </p>
         </div>
@@ -78,7 +70,7 @@ function AttentionPulse({
           <Sparkline
             data={series}
             width={420}
-            height={44}
+            height={36}
             tone="violet"
             fill
             showLastDot
@@ -115,7 +107,7 @@ function MoverChip({
     >
       <Link
         href={ROUTES.market(market.slug)}
-        className="group flex items-center gap-3 rounded-[var(--hub-dapp-radius)] border border-[var(--hub-border)] bg-[var(--hub-card)] p-3 no-underline transition hover:border-[var(--hub-border-strong)] hover:bg-[var(--hub-card-hover)]"
+        className="group flex items-center gap-3 rounded-[var(--hub-dapp-radius)] border border-[var(--hub-border)] bg-[var(--hub-card)] px-3 py-2.5 no-underline transition hover:border-[var(--hub-border-strong)] hover:bg-[var(--hub-card-hover)]"
       >
         <div className="min-w-0 flex-1">
           <p className="line-clamp-2 text-[12px] font-semibold leading-snug text-[var(--hub-fg)] group-hover:text-[var(--hub-primary-bright)]">
@@ -127,7 +119,7 @@ function MoverChip({
             {formatCompactUsd(market.volumeUsd ?? 0)}
           </p>
         </div>
-        <div className="w-[72px] shrink-0">
+        <div className="w-[64px] shrink-0 sm:w-[72px]">
           <Sparkline
             data={spark}
             width={72}
@@ -194,17 +186,20 @@ function FeaturedMarketPanel({ market }: { market: LiveMarketCardDto }) {
           )}
         </div>
         <span className="text-[11px] tabular-nums text-[var(--hub-muted)]">
-          Ends {endsInLabel(market.closesAt)}
+          {(() => {
+            const label = endsInLabel(market.closesAt);
+            return label === "Ended" ? "Ended" : `Ends ${label}`;
+          })()}
         </span>
       </div>
 
       <div className="relative mt-4 flex flex-col items-center gap-5 sm:flex-row sm:items-center sm:gap-6">
-        <HubProbRing yesPct={yesPct} size={148} />
+        <HubProbRing yesPct={yesPct} size={132} />
 
         <div className="min-w-0 flex-1 self-stretch">
           <Link
             href={ROUTES.market(market.slug)}
-            className="block text-balance text-[18px] font-semibold leading-snug tracking-tight text-[var(--hub-fg)] transition hover:text-[var(--hub-primary-bright)] sm:text-[20px]"
+            className="block text-balance text-[17px] font-semibold leading-snug tracking-tight text-[var(--hub-fg)] transition hover:text-[var(--hub-primary-bright)] sm:text-[19px]"
           >
             {market.title}
           </Link>
@@ -213,13 +208,13 @@ function FeaturedMarketPanel({ market }: { market: LiveMarketCardDto }) {
             <Sparkline
               data={spark}
               width={360}
-              height={44}
+              height={40}
               tone="violet"
               fill
               showLastDot
               intensity="high"
               ariaLabel={`${market.title} probability sparkline`}
-              className="h-11 w-full"
+              className="h-10 w-full"
             />
           </div>
 
@@ -250,14 +245,14 @@ function FeaturedMarketPanel({ market }: { market: LiveMarketCardDto }) {
         <button
           type="button"
           onClick={(e) => handleSide("YES", e)}
-          className="hub-yes-btn min-h-14 text-sm"
+          className="hub-yes-btn min-h-12 text-sm sm:min-h-14"
         >
           YES {yesPct}%
         </button>
         <button
           type="button"
           onClick={(e) => handleSide("NO", e)}
-          className="hub-no-btn min-h-14 text-sm"
+          className="hub-no-btn min-h-12 text-sm sm:min-h-14"
         >
           NO {noPct}%
         </button>
@@ -271,11 +266,11 @@ function FeaturedSkeleton() {
     <div className="rounded-[1rem] border border-[var(--hub-border)] bg-[var(--hub-card)] p-5">
       <div className="hub-dapp-skel mb-4 h-5 w-28 rounded-full" />
       <div className="flex flex-col items-center gap-5 sm:flex-row">
-        <div className="hub-dapp-skel size-[148px] shrink-0 rounded-full" />
+        <div className="hub-dapp-skel size-[132px] shrink-0 rounded-full" />
         <div className="w-full flex-1 space-y-3">
           <div className="hub-dapp-skel h-5 w-[92%]" />
           <div className="hub-dapp-skel h-5 w-[70%]" />
-          <div className="hub-dapp-skel h-11 w-full rounded-lg" />
+          <div className="hub-dapp-skel h-10 w-full rounded-lg" />
           <div className="grid grid-cols-3 gap-2">
             <div className="hub-dapp-skel h-10 rounded-md" />
             <div className="hub-dapp-skel h-10 rounded-md" />
@@ -284,16 +279,16 @@ function FeaturedSkeleton() {
         </div>
       </div>
       <div className="mt-4 flex gap-2">
-        <div className="hub-dapp-skel h-14 flex-1 rounded-lg" />
-        <div className="hub-dapp-skel h-14 flex-1 rounded-lg" />
+        <div className="hub-dapp-skel h-12 flex-1 rounded-lg sm:h-14" />
+        <div className="hub-dapp-skel h-12 flex-1 rounded-lg sm:h-14" />
       </div>
     </div>
   );
 }
 
 /**
- * Hub hero — clean trading desk open (first impression).
- * Live KPIs + featured market + attention pulse. No decorative backdrop.
+ * Hub hero — first impression: brand, slim attention tape, featured market + movers.
+ * Platform KPIs live once in Market Pulse (no duplicate stat wall).
  */
 export function Hero() {
   const SERIES_LEN = 28;
@@ -355,93 +350,42 @@ export function Hero() {
   return (
     <section
       aria-label="Trading desk"
-      className="relative border-b border-[var(--hub-border)] pb-9 pt-5 sm:pb-11 sm:pt-7 lg:pb-12 lg:pt-8"
+      className="relative border-b border-[var(--hub-border)] pb-5 pt-4 sm:pb-6 sm:pt-5 lg:pb-7 lg:pt-6"
     >
-      <div className="space-y-6">
+      <div className="space-y-4 lg:space-y-5">
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-          className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between"
+          className="min-w-0 max-w-2xl"
         >
-          <div className="min-w-0 max-w-xl">
-            <div className="mb-3 inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--hub-muted)]">
-              <span className="relative flex size-1.5">
-                <span className="absolute inset-0 animate-ping rounded-full bg-[var(--hub-success)]/60" />
-                <span className="relative size-1.5 rounded-full bg-[var(--hub-success)]" />
-              </span>
-              Live desk
-              <span className="text-[var(--hub-border-strong)]">·</span>
-              {pulse.topChain}
-            </div>
-            <h1
-              className="text-[2rem] font-extrabold leading-[1.05] tracking-tight text-[var(--hub-fg)] sm:text-[2.35rem]"
-              style={{
-                fontFamily: "var(--font-display), var(--font-sans), system-ui",
-              }}
-            >
-              Attention Terminal
-            </h1>
-            <p className="mt-2 max-w-md text-[14px] leading-relaxed text-[var(--hub-muted)]">
-              {pulse.currentMeta}
-              <span className="mx-1.5 text-[var(--hub-border-strong)]">·</span>
-              {pulse.marketSentiment}
-            </p>
+          <div className="mb-2 inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--hub-muted)]">
+            <span className="relative flex size-1.5">
+              <span className="absolute inset-0 animate-ping rounded-full bg-[var(--hub-success)]/60" />
+              <span className="relative size-1.5 rounded-full bg-[var(--hub-success)]" />
+            </span>
+            Live desk
+            <span className="text-[var(--hub-border-strong)]">·</span>
+            {pulse.topChain}
           </div>
-
-          <motion.dl
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 0.08, ease: [0.22, 1, 0.36, 1] }}
-            className="grid w-full grid-cols-2 gap-px overflow-hidden rounded-[var(--hub-dapp-radius)] border border-[var(--hub-border)] bg-[var(--hub-border)] sm:grid-cols-4 lg:w-auto lg:min-w-[28rem]"
+          <h1
+            className="text-[1.85rem] font-extrabold leading-[1.05] tracking-tight text-[var(--hub-fg)] sm:text-[2.2rem]"
+            style={{
+              fontFamily: "var(--font-display), var(--font-sans), system-ui",
+            }}
           >
-            {(
-              [
-                {
-                  label: "Index",
-                  value: <HubCountUp value={pulse.attentionIndex} />,
-                  tone: "text-[var(--hub-primary-bright)]",
-                },
-                {
-                  label: "24h Vol",
-                  value: (
-                    <HubCountUp value={pulse.volume24hUsd} formatter={fmtUsd} />
-                  ),
-                  tone: "text-[var(--hub-success)]",
-                },
-                {
-                  label: "Markets",
-                  value: <HubCountUp value={pulse.liveMarkets} />,
-                  tone: "text-[var(--hub-fg)]",
-                },
-                {
-                  label: "Traders",
-                  value: <HubCountUp value={pulse.activeTraders} />,
-                  tone: "text-[var(--hub-fg)]",
-                },
-              ] as const
-            ).map((stat) => (
-              <div
-                key={stat.label}
-                className="bg-[var(--hub-card)] px-3.5 py-3 sm:min-w-[6.75rem]"
-              >
-                <dt className="hub-dapp-stat-label">{stat.label}</dt>
-                <dd
-                  className={cn(
-                    "mt-1 text-[1.125rem] font-bold tabular-nums leading-none",
-                    stat.tone,
-                  )}
-                >
-                  {stat.value}
-                </dd>
-              </div>
-            ))}
-          </motion.dl>
+            Attention Terminal
+          </h1>
+          <p className="mt-1.5 max-w-md text-[13.5px] leading-relaxed text-[var(--hub-muted)] sm:text-[14px]">
+            {pulse.currentMeta}
+            <span className="mx-1.5 text-[var(--hub-border-strong)]">·</span>
+            {pulse.marketSentiment}
+          </p>
         </motion.div>
 
         <AttentionPulse series={series} current={clampedAttentionIndex} />
 
-        <div className="grid gap-4 lg:grid-cols-[minmax(0,1.45fr)_minmax(0,0.8fr)] lg:items-start lg:gap-5">
+        <div className="grid gap-3 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,0.85fr)] lg:items-start lg:gap-4">
           {loadingMarkets ? (
             <FeaturedSkeleton />
           ) : featured ? (
@@ -452,7 +396,7 @@ export function Hero() {
             </div>
           )}
 
-          <div className="flex flex-col gap-2.5">
+          <div className="flex flex-col gap-2">
             <div className="flex items-center justify-between px-0.5">
               <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--hub-muted)]">
                 Top movers
@@ -471,7 +415,7 @@ export function Hero() {
               ? Array.from({ length: 3 }).map((_, i) => (
                   <div
                     key={i}
-                    className="h-[4.25rem] rounded-[var(--hub-dapp-radius)] border border-[var(--hub-border)] bg-[var(--hub-card)] p-3"
+                    className="h-[3.75rem] rounded-[var(--hub-dapp-radius)] border border-[var(--hub-border)] bg-[var(--hub-card)] p-3"
                   >
                     <div className="hub-dapp-skel h-3 w-[80%]" />
                     <div className="hub-dapp-skel mt-2 h-3 w-[40%]" />

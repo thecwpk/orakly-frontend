@@ -156,6 +156,7 @@ export type AdminModerateMarketInput = {
   categoryId?: string | null;
   onChainAddress?: string | null;
   chainId?: number | null;
+  closesAt?: Date;
 };
 
 export async function adminModerateMarket(input: AdminModerateMarketInput) {
@@ -179,6 +180,9 @@ export async function adminModerateMarket(input: AdminModerateMarketInput) {
   }
   if (input.chainId !== undefined) {
     data.chainId = input.chainId;
+  }
+  if (input.closesAt !== undefined) {
+    data.closesAt = input.closesAt;
   }
 
   return prisma.market.update({
