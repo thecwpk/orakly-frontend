@@ -89,9 +89,12 @@ function BnbChainIcon({ className }: { className?: string }) {
 function PulseSkeleton() {
   return (
     <div className="hub-dapp-pulse hub-dapp-pulse--strip hub-glass-card">
-      <div className="flex items-center justify-between gap-2 border-b border-[var(--hub-border)] px-3 py-2 sm:px-4">
+      <div className="flex items-center justify-between gap-2 border-b border-[var(--hub-border)] px-3 py-2.5 sm:px-4">
         <div className="hub-dapp-skel h-2.5 w-28" />
-        <div className="hub-dapp-skel h-2.5 w-10" />
+        <div className="flex gap-2">
+          <div className="hub-dapp-skel h-8 w-28 rounded-lg" />
+          <div className="hub-dapp-skel h-8 w-28 rounded-lg" />
+        </div>
       </div>
       <div className="grid grid-cols-2 gap-0 sm:grid-cols-4 lg:grid-cols-8">
         {Array.from({ length: 8 }).map((_, i) => (
@@ -100,10 +103,6 @@ function PulseSkeleton() {
             <div className="hub-dapp-skel h-5 w-10" />
           </div>
         ))}
-      </div>
-      <div className="flex gap-2 border-t border-[var(--hub-border)] px-3 py-2.5 sm:px-4">
-        <div className="hub-dapp-skel h-9 w-32 rounded-lg" />
-        <div className="hub-dapp-skel h-9 w-32 rounded-lg" />
       </div>
     </div>
   );
@@ -231,7 +230,7 @@ export function MarketPulse() {
           aria-hidden
         />
 
-        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[var(--hub-border)] px-3 py-2 sm:px-4">
+        <div className="flex items-center justify-between gap-3 border-b border-[var(--hub-border)] bg-[color-mix(in_srgb,var(--hub-fg)_3%,transparent)] px-3 py-2.5 sm:px-4">
           <div className="flex items-center gap-2">
             <span className="relative flex size-2" aria-hidden>
               <span className="absolute inset-0 animate-ping rounded-full bg-[var(--hub-success)]/70" />
@@ -242,9 +241,28 @@ export function MarketPulse() {
               · today
             </span>
           </div>
-          <span className="hub-dapp-stat-label !normal-case hub-dapp-move-up !text-[10px]">
+
+          <span
+            className="rounded-full border border-[var(--hub-border)] bg-[color-mix(in_srgb,var(--hub-primary)_10%,transparent)] px-2 py-1 text-[10px] font-semibold text-[var(--hub-success)]"
+            aria-label="Live"
+          >
             Live
           </span>
+
+          <div className="flex items-center gap-2">
+            <Link
+              href={ROUTES.markets}
+              className="hub-cta-gold hub-cta-compact"
+            >
+              Explore Markets
+            </Link>
+            <Link
+              href={ROUTES.narratives}
+              className="hub-cta-violet hub-cta-compact"
+            >
+              View Narratives
+            </Link>
+          </div>
         </div>
 
         <div
@@ -262,14 +280,6 @@ export function MarketPulse() {
           ))}
         </div>
 
-        <div className="flex flex-wrap items-center gap-2 border-t border-[var(--hub-border)] px-3 py-2.5 sm:gap-3 sm:px-4">
-          <Link href={ROUTES.markets} className="hub-cta-gold !min-h-9 !px-3.5 !text-[12px]">
-            Explore Markets
-          </Link>
-          <Link href={ROUTES.narratives} className="hub-cta-violet !min-h-9 !px-3.5 !text-[12px]">
-            View Narratives
-          </Link>
-        </div>
       </div>
     </section>
   );

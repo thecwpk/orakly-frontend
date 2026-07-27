@@ -1483,6 +1483,7 @@
   flex-direction: column;
   gap: 0;
   min-width: 0;
+  margin-top: 0.5rem;
 }
 
 .hub-desk-main,
@@ -1496,6 +1497,7 @@
     grid-template-columns: minmax(0, 1fr) minmax(260px, 320px);
     gap: 1.25rem;
     align-items: start;
+    margin-top: 0.85rem;
   }
 
   .hub-desk-aside {
@@ -1509,7 +1511,7 @@
 
   /* Narratives in aside: vertical stack, denser cards */
   .hub-desk-aside .hub-section {
-    padding-top: clamp(1.25rem, 2.5vw, 1.75rem);
+    padding-top: clamp(1.6rem, 2.8vw, 2rem);
   }
 
   .hub-desk-aside .hub-dapp-rail {
@@ -1529,16 +1531,18 @@
   }
 
   .hub-desk-aside .hub-dapp-card.hub-dapp-narrative {
-    padding: 0.85rem 0.9rem;
+    padding: 1rem;
+    border-radius: 1rem;
   }
 
   .hub-desk-aside .hub-dapp-stat-value--lg {
-    font-size: 1.35rem;
+    font-size: 1.2rem;
   }
 
   .hub-desk-aside .hub-dapp-cta {
     min-height: 2.25rem;
     font-size: 0.75rem;
+    border-radius: 0.75rem;
   }
 
   .hub-desk-aside .hub-section-title {
@@ -1578,13 +1582,15 @@
 }
 
 .hub-dapp-pulse--strip {
-  border-radius: 0.75rem;
+  border-radius: 1rem;
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--hub-card) 94%, transparent), color-mix(in srgb, var(--hub-card) 88%, transparent));
 }
 
 .hub-dapp-pulse--strip .hub-dapp-pulse-cell {
-  min-height: 4.25rem;
-  gap: 0.35rem;
-  padding: 0.625rem 0.75rem;
+  min-height: 4rem;
+  gap: 0.3rem;
+  padding: 0.7rem 0.85rem;
 }
 
 @media (min-width: 640px) {
@@ -1600,6 +1606,22 @@
 .hub-dapp-pulse--strip .hub-dapp-stat-label {
   font-size: 0.5625rem;
   letter-spacing: 0.12em;
+}
+
+.hub-cta-compact {
+  min-height: 2rem;
+  padding: 0 0.9rem;
+  border-radius: 0.7rem;
+  font-size: 0.75rem;
+}
+
+.hub-desk-aside .hub-dapp-narrative-title {
+  font-size: 0.95rem;
+}
+
+.hub-desk-aside .hub-dapp-narrative-meta,
+.hub-desk-aside .hub-dapp-narrative-foot {
+  gap: 0.55rem;
 }
 
 @media (prefers-reduced-motion: reduce) {
