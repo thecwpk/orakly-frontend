@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useState, type MouseEvent } from "react";
 import { formatCompactUsd } from "@orakly/utils";
@@ -14,7 +15,6 @@ import { unwrapApiResult } from "@/shared/api/unwrap";
 import { ROUTES } from "@/shared/constants/routes";
 import type { LiveMarketCardDto } from "@/shared/contracts/live-markets";
 import { Sparkline } from "@/shared/ui";
-import { HubProbRing } from "../components/hub-hero-visuals";
 import { buildFeaturedSparkSeries } from "../lib/hub-sparkline-series";
 import { resolveMarketPulseStats } from "../lib/market-pulse-stats";
 import { marketToTradeModal } from "../lib/open-hub-trade";
@@ -56,28 +56,51 @@ function AttentionPulse({
   current: number | null;
 }) {
   return (
-    <div className="relative h-12 w-full overflow-hidden rounded-lg border border-[var(--hub-border)] bg-[var(--hub-card)] sm:h-[3.25rem]">
-      <div className="relative flex h-full items-center gap-3 px-3 sm:gap-4 sm:px-4">
-        <div className="min-w-[2.75rem] shrink-0 border-r border-[var(--hub-border)] pr-3 sm:min-w-[3.25rem] sm:pr-4">
-          <p className="text-[9px] font-semibold uppercase tracking-[0.14em] text-[var(--hub-muted)]">
+    <div className="relative overflow-hidden rounded-2xl border border-[var(--hub-glass-border)] bg-[linear-gradient(180deg,color-mix(in_srgb,var(--hub-card)_96%,transparent),color-mix(in_srgb,var(--hub-bg-subtle)_88%,transparent))] shadow-[0_12px_40px_rgba(0,0,0,0.08)]">
+      <div
+        className="pointer-events-none absolute inset-y-0 left-[6.5rem] w-px bg-[color-mix(in_srgb,var(--hub-border)_82%,transparent)]"
+        aria-hidden
+      />
+      <div
+        className="pointer-events-none absolute inset-0 opacity-70"
+        aria-hidden
+        style={{
+          backgroundImage:
+            "linear-gradient(to right, color-mix(in srgb, var(--hub-border) 34%, transparent) 1px, transparent 1px), linear-gradient(to bottom, color-mix(in srgb, var(--hub-border) 28%, transparent) 1px, transparent 1px)",
+          backgroundSize: "56px 100%, 100% 100%",
+        }}
+      />
+
+      <div className="relative grid min-h-[4.75rem] grid-cols-[6.5rem_minmax(0,1fr)] items-stretch sm:min-h-[5.5rem]">
+        <div className="flex flex-col justify-center px-4 py-3">
+          <p className="text-[9px] font-semibold uppercase tracking-[0.18em] text-[var(--hub-muted)]">
             Index
           </p>
-          <p className="mt-0.5 text-[17px] font-bold tabular-nums leading-none text-[var(--hub-fg)] sm:text-[18px]">
+          <p className="mt-1 text-[1.7rem] font-extrabold tabular-nums leading-none text-[var(--hub-fg)] sm:text-[1.95rem]">
             {current == null ? "—" : Math.round(current)}
           </p>
         </div>
-        <div className="min-w-0 flex-1">
-          <Sparkline
-            data={series}
-            width={420}
-            height={36}
-            tone="violet"
-            fill
-            showLastDot
-            intensity="high"
-            ariaLabel="Live attention index sparkline"
-            className="h-full w-full"
-          />
+
+        <div className="relative min-w-0 px-3 py-3 sm:px-4">
+          <div className="mb-1 flex items-center justify-between text-[10px] font-medium text-[var(--hub-muted)]">
+            <span>Attention curve</span>
+            <span className="rounded-full border border-[var(--hub-glass-border)] bg-[color-mix(in_srgb,var(--hub-primary)_8%,transparent)] px-2 py-0.5 text-[9px] uppercase tracking-[0.14em] text-[var(--hub-primary-bright)]">
+              Live
+            </span>
+          </div>
+          <div className="relative h-10 rounded-xl bg-[linear-gradient(180deg,color-mix(in_srgb,var(--hub-primary)_8%,transparent),transparent)] sm:h-12">
+            <Sparkline
+              data={series}
+              width={560}
+              height={48}
+              tone="violet"
+              fill
+              showLastDot
+              intensity="high"
+              ariaLabel="Live attention index sparkline"
+              className="h-full w-full"
+            />
+          </div>
         </div>
       </div>
     </div>
@@ -87,9 +110,13 @@ function AttentionPulse({
 function MoverChip({
   market,
   index,
+  active = false,
+  onSelect,
 }: {
   market: LiveMarketCardDto;
   index: number;
+  active?: boolean;
+  onSelect?: () => void;
 }) {
   const yesPct = Math.round(
     Math.max(0, Math.min(1, market.probability ?? 0.5)) * 100,
@@ -105,9 +132,16 @@ function MoverChip({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.35, delay: 0.12 + index * 0.06 }}
     >
-      <Link
-        href={ROUTES.market(market.slug)}
-        className="group flex items-center gap-3 rounded-[var(--hub-dapp-radius)] border border-[var(--hub-border)] bg-[var(--hub-card)] px-3 py-2.5 no-underline transition hover:border-[var(--hub-border-strong)] hover:bg-[var(--hub-card-hover)]"
+      <button
+        type="button"
+        onClick={onSelect}
+        className={cn(
+          "group flex items-center gap-3 rounded-[var(--hub-dapp-radius)] border bg-[var(--hub-card)] px-3 py-2.5 text-left no-underline transition",
+          active
+            ? "border-[var(--hub-primary-bright)] bg-[color-mix(in_srgb,var(--hub-primary)_10%,var(--hub-card))] shadow-[0_0_0_1px_color-mix(in_srgb,var(--hub-primary)_28%,transparent)]"
+            : "border-[var(--hub-border)] hover:border-[var(--hub-border-strong)] hover:bg-[var(--hub-card-hover)]",
+        )}
+        aria-pressed={active}
       >
         <div className="min-w-0 flex-1">
           <p className="line-clamp-2 text-[12px] font-semibold leading-snug text-[var(--hub-fg)] group-hover:text-[var(--hub-primary-bright)]">
@@ -131,12 +165,26 @@ function MoverChip({
             className="h-7 w-full"
           />
         </div>
-      </Link>
+      </button>
     </motion.div>
   );
 }
 
-function FeaturedMarketPanel({ market }: { market: LiveMarketCardDto }) {
+function FeaturedMarketPanel({
+  market,
+  activeIndex,
+  total,
+  onPrev,
+  onNext,
+  onJump,
+}: {
+  market: LiveMarketCardDto;
+  activeIndex: number;
+  total: number;
+  onPrev: () => void;
+  onNext: () => void;
+  onJump: (index: number) => void;
+}) {
   const openTrade = useOpenTradeModal();
   const probability = Math.max(0, Math.min(1, market.probability ?? 0.5));
   const yesPct = Math.round(probability * 100);
@@ -164,11 +212,15 @@ function FeaturedMarketPanel({ market }: { market: LiveMarketCardDto }) {
       initial={{ opacity: 0, y: 14 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.45, delay: 0.05 }}
-      className="relative overflow-hidden rounded-[1rem] border border-[var(--hub-border)] bg-[var(--hub-card)] p-4 sm:p-5"
+      className="relative overflow-hidden rounded-[1.5rem] border border-[var(--hub-glass-border)] bg-[linear-gradient(180deg,color-mix(in_srgb,var(--hub-card)_96%,transparent),color-mix(in_srgb,var(--hub-bg-subtle)_90%,transparent))] p-4 shadow-[0_18px_54px_rgba(0,0,0,0.1)] sm:p-5"
     >
+      <div
+        className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-[radial-gradient(circle_at_top,rgba(124,92,252,0.16),transparent_62%)]"
+        aria-hidden
+      />
       <div className="relative flex flex-wrap items-center justify-between gap-2">
         <div className="flex flex-wrap items-center gap-2">
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--hub-border)] bg-[var(--hub-bg-subtle)] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-[var(--hub-muted)]">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--hub-glass-border)] bg-[color-mix(in_srgb,var(--hub-fg)_4%,transparent)] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-[var(--hub-muted)]">
             <span className="relative flex size-1.5">
               <span className="absolute inset-0 animate-ping rounded-full bg-[var(--hub-success)]/70" />
               <span className="relative size-1.5 rounded-full bg-[var(--hub-success)]" />
@@ -185,55 +237,118 @@ function FeaturedMarketPanel({ market }: { market: LiveMarketCardDto }) {
             </span>
           )}
         </div>
-        <span className="text-[11px] tabular-nums text-[var(--hub-muted)]">
-          {(() => {
-            const label = endsInLabel(market.closesAt);
-            return label === "Ended" ? "Ended" : `Ends ${label}`;
-          })()}
-        </span>
+        <div className="flex items-center gap-2">
+          <span className="text-[11px] tabular-nums text-[var(--hub-muted)]">
+            {(() => {
+              const label = endsInLabel(market.closesAt);
+              return label === "Ended" ? "Ended" : `Ends ${label}`;
+            })()}
+          </span>
+          <span className="rounded-full border border-[var(--hub-glass-border)] bg-[color-mix(in_srgb,var(--hub-fg)_4%,transparent)] px-2.5 py-1 text-[10px] font-semibold tabular-nums text-[var(--hub-muted)]">
+            {String(activeIndex + 1).padStart(2, "0")}/{String(total).padStart(2, "0")}
+          </span>
+        </div>
       </div>
 
-      <div className="relative mt-4 flex flex-col items-center gap-5 sm:flex-row sm:items-center sm:gap-6">
-        <HubProbRing yesPct={yesPct} size={132} />
+      <div className="relative mt-4 grid gap-4 lg:grid-cols-[172px_minmax(0,1fr)] lg:items-start lg:gap-5">
+        <div className="rounded-[1.2rem] border border-[var(--hub-glass-border)] bg-[color-mix(in_srgb,var(--hub-fg)_4%,transparent)] p-3.5">
+          <p className="text-[9px] font-semibold uppercase tracking-[0.18em] text-[var(--hub-muted)]">
+            Market pricing
+          </p>
+          <div className="mt-3 space-y-2">
+            <div className="rounded-2xl border border-emerald-400/20 bg-emerald-500/10 px-3 py-3">
+              <div className="flex items-center justify-between gap-3">
+                <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--hub-success)]">
+                  Yes
+                </span>
+                <span className="text-[1.35rem] font-extrabold tabular-nums text-[var(--hub-success)]">
+                  {yesPct}%
+                </span>
+              </div>
+            </div>
+            <div className="rounded-2xl border border-rose-400/20 bg-rose-500/8 px-3 py-3">
+              <div className="flex items-center justify-between gap-3">
+                <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--hub-danger)]">
+                  No
+                </span>
+                <span className="text-[1.35rem] font-extrabold tabular-nums text-[var(--hub-danger)]">
+                  {noPct}%
+                </span>
+              </div>
+            </div>
+          </div>
 
-        <div className="min-w-0 flex-1 self-stretch">
+          <div className="mt-3 rounded-xl border border-[var(--hub-glass-border)] bg-[color-mix(in_srgb,var(--hub-bg)_55%,transparent)] px-3 py-3">
+            <div className="flex items-center justify-between text-[10px] text-[var(--hub-muted)]">
+              <span>Spread</span>
+              <span className="font-medium text-[var(--hub-fg)]">Balanced</span>
+            </div>
+            <div className="mt-2 h-2 overflow-hidden rounded-full bg-[var(--hub-track-bg)]">
+              <div
+                className="h-full rounded-full bg-[linear-gradient(90deg,var(--hub-success),var(--hub-primary-bright))]"
+                style={{ width: `${yesPct}%` }}
+              />
+            </div>
+          </div>
+        </div>
+
+        <div className="min-w-0 self-stretch">
           <Link
             href={ROUTES.market(market.slug)}
-            className="block text-balance text-[17px] font-semibold leading-snug tracking-tight text-[var(--hub-fg)] transition hover:text-[var(--hub-primary-bright)] sm:text-[19px]"
+            className="block text-balance text-[1.55rem] font-semibold leading-[1.15] tracking-tight text-[var(--hub-fg)] transition hover:text-[var(--hub-primary-bright)] sm:text-[1.85rem]"
           >
             {market.title}
           </Link>
 
-          <div className="mt-3 overflow-hidden rounded-lg border border-[var(--hub-glass-border)] bg-[var(--hub-track-bg)] px-2 py-1.5">
-            <Sparkline
-              data={spark}
-              width={360}
-              height={40}
-              tone="violet"
-              fill
-              showLastDot
-              intensity="high"
-              ariaLabel={`${market.title} probability sparkline`}
-              className="h-10 w-full"
+          <div className="mt-4 overflow-hidden rounded-[1.25rem] border border-[var(--hub-glass-border)] bg-[linear-gradient(180deg,color-mix(in_srgb,var(--hub-primary)_8%,transparent),transparent)] px-4 py-4">
+            <div className="mb-2 flex items-center justify-between text-[10px] font-medium uppercase tracking-[0.12em] text-[var(--hub-muted)]">
+              <span>Price action</span>
+              <span className="text-[var(--hub-primary-bright)]">Featured market</span>
+            </div>
+            <div
+              className="pointer-events-none mb-1 h-px bg-[linear-gradient(90deg,transparent,color-mix(in_srgb,var(--hub-border)_85%,transparent),transparent)]"
+              aria-hidden
             />
+            <div className="relative h-[8.5rem] sm:h-[9.75rem]">
+              <div
+                className="pointer-events-none absolute inset-0 opacity-65"
+                aria-hidden
+                style={{
+                  backgroundImage:
+                    "linear-gradient(to right, color-mix(in srgb, var(--hub-border) 28%, transparent) 1px, transparent 1px), linear-gradient(to bottom, color-mix(in srgb, var(--hub-border) 24%, transparent) 1px, transparent 1px)",
+                  backgroundSize: "64px 100%, 100% 32px",
+                }}
+              />
+              <Sparkline
+                data={spark}
+                width={720}
+                height={156}
+                tone="violet"
+                fill
+                showLastDot
+                intensity="high"
+                ariaLabel={`${market.title} probability sparkline`}
+                className="h-full w-full"
+              />
+            </div>
           </div>
 
-          <div className="mt-3 grid grid-cols-3 gap-2">
-            <div>
+          <div className="mt-4 grid grid-cols-3 gap-3 rounded-[1rem] border border-[var(--hub-glass-border)] bg-[color-mix(in_srgb,var(--hub-fg)_2%,transparent)] p-3 sm:p-4">
+            <div className="border-r border-[color-mix(in_srgb,var(--hub-border)_75%,transparent)] pr-2 last:border-r-0">
               <p className="hub-dapp-stat-label">Volume</p>
-              <p className="hub-dapp-stat-value hub-dapp-stat-value--sm mt-0.5">
+              <p className="hub-dapp-stat-value mt-0.5 text-[1.05rem]">
                 {formatCompactUsd(market.volumeUsd ?? 0)}
               </p>
             </div>
-            <div>
+            <div className="border-r border-[color-mix(in_srgb,var(--hub-border)_75%,transparent)] px-2 last:border-r-0">
               <p className="hub-dapp-stat-label">Liquidity</p>
-              <p className="hub-dapp-stat-value hub-dapp-stat-value--sm mt-0.5">
+              <p className="hub-dapp-stat-value mt-0.5 text-[1.05rem]">
                 {formatCompactUsd(market.liquidityUsd ?? 0)}
               </p>
             </div>
-            <div>
+            <div className="pl-2">
               <p className="hub-dapp-stat-label">Traders</p>
-              <p className="hub-dapp-stat-value hub-dapp-stat-value--sm mt-0.5">
+              <p className="hub-dapp-stat-value mt-0.5 text-[1.05rem]">
                 {Math.max(0, Math.round(market.participants ?? 0)).toLocaleString()}
               </p>
             </div>
@@ -241,21 +356,67 @@ function FeaturedMarketPanel({ market }: { market: LiveMarketCardDto }) {
         </div>
       </div>
 
-      <div className="relative mt-4 flex gap-2">
+      <div className="relative mt-5 grid grid-cols-2 gap-3">
         <button
           type="button"
           onClick={(e) => handleSide("YES", e)}
-          className="hub-yes-btn min-h-12 text-sm sm:min-h-14"
+          className="hub-yes-btn min-h-12 rounded-2xl text-sm sm:min-h-14"
         >
           YES {yesPct}%
         </button>
         <button
           type="button"
           onClick={(e) => handleSide("NO", e)}
-          className="hub-no-btn min-h-12 text-sm sm:min-h-14"
+          className="hub-no-btn min-h-12 rounded-2xl text-sm sm:min-h-14"
         >
           NO {noPct}%
         </button>
+      </div>
+
+      <div className="relative mt-4 flex items-center justify-between gap-3 border-t border-[var(--hub-glass-border)] pt-3">
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={onPrev}
+            className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-[var(--hub-glass-border)] bg-[color-mix(in_srgb,var(--hub-fg)_4%,transparent)] text-[var(--hub-fg)] transition hover:border-[var(--hub-border-strong)] hover:bg-[var(--hub-card-hover)]"
+            aria-label="Previous featured market"
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </button>
+          <button
+            type="button"
+            onClick={onNext}
+            className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-[var(--hub-glass-border)] bg-[color-mix(in_srgb,var(--hub-fg)_4%,transparent)] text-[var(--hub-fg)] transition hover:border-[var(--hub-border-strong)] hover:bg-[var(--hub-card-hover)]"
+            aria-label="Next featured market"
+          >
+            <ChevronRight className="h-4 w-4" />
+          </button>
+        </div>
+
+        <div className="flex items-center gap-2">
+          {Array.from({ length: total }).map((_, i) => (
+            <button
+              key={i}
+              type="button"
+              onClick={() => onJump(i)}
+              aria-label={`Go to slide ${i + 1}`}
+              aria-pressed={i === activeIndex}
+              className={cn(
+                "h-2.5 rounded-full transition-all",
+                i === activeIndex
+                  ? "w-7 bg-[var(--hub-primary-bright)]"
+                  : "w-2.5 bg-[color-mix(in_srgb,var(--hub-border)_85%,transparent)] hover:bg-[var(--hub-border-strong)]",
+              )}
+            />
+          ))}
+        </div>
+
+        <Link
+          href={ROUTES.markets}
+          className="text-[11px] font-medium text-[var(--hub-primary-bright)] transition hover:text-[var(--hub-primary)]"
+        >
+          Explore all →
+        </Link>
       </div>
     </motion.article>
   );
@@ -266,15 +427,22 @@ function FeaturedSkeleton() {
     <div className="rounded-[1rem] border border-[var(--hub-border)] bg-[var(--hub-card)] p-5">
       <div className="hub-dapp-skel mb-4 h-5 w-28 rounded-full" />
       <div className="flex flex-col items-center gap-5 sm:flex-row">
-        <div className="hub-dapp-skel size-[132px] shrink-0 rounded-full" />
+        <div className="w-full shrink-0 rounded-[1rem] border border-[var(--hub-border)] p-3 sm:w-[172px]">
+          <div className="hub-dapp-skel h-3 w-20" />
+          <div className="mt-3 space-y-2">
+            <div className="hub-dapp-skel h-14 rounded-2xl" />
+            <div className="hub-dapp-skel h-14 rounded-2xl" />
+          </div>
+          <div className="hub-dapp-skel mt-3 h-10 rounded-xl" />
+        </div>
         <div className="w-full flex-1 space-y-3">
           <div className="hub-dapp-skel h-5 w-[92%]" />
           <div className="hub-dapp-skel h-5 w-[70%]" />
-          <div className="hub-dapp-skel h-10 w-full rounded-lg" />
+          <div className="hub-dapp-skel h-40 w-full rounded-[1.25rem]" />
           <div className="grid grid-cols-3 gap-2">
-            <div className="hub-dapp-skel h-10 rounded-md" />
-            <div className="hub-dapp-skel h-10 rounded-md" />
-            <div className="hub-dapp-skel h-10 rounded-md" />
+            <div className="hub-dapp-skel h-14 rounded-[1rem]" />
+            <div className="hub-dapp-skel h-14 rounded-[1rem]" />
+            <div className="hub-dapp-skel h-14 rounded-[1rem]" />
           </div>
         </div>
       </div>
@@ -319,8 +487,8 @@ export function Hero() {
     return api.slice(0, 4);
   }, [marketsQ.data]);
 
-  const featured = markets[0] ?? null;
-  const movers = markets.slice(1, 4);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const featured = markets[activeIndex] ?? markets[0] ?? null;
 
   const initialSeries = useMemo(() => {
     return Array.from({ length: SERIES_LEN }, (_, i) => {
@@ -345,7 +513,25 @@ export function Hero() {
     });
   }, [clampedAttentionIndex]);
 
+  useEffect(() => {
+    if (markets.length === 0) return;
+    setActiveIndex((prev) => Math.min(prev, markets.length - 1));
+  }, [markets.length]);
+
+  useEffect(() => {
+    if (markets.length <= 1) return;
+    const id = window.setInterval(() => {
+      setActiveIndex((prev) => (prev + 1) % markets.length);
+    }, 6000);
+    return () => window.clearInterval(id);
+  }, [markets.length]);
+
   const loadingMarkets = marketsQ.isLoading && !marketsQ.data && !featured;
+  const cycleTo = (next: number) => {
+    if (markets.length === 0) return;
+    const normalized = ((next % markets.length) + markets.length) % markets.length;
+    setActiveIndex(normalized);
+  };
 
   return (
     <section
@@ -389,7 +575,14 @@ export function Hero() {
           {loadingMarkets ? (
             <FeaturedSkeleton />
           ) : featured ? (
-            <FeaturedMarketPanel market={featured} />
+            <FeaturedMarketPanel
+              market={featured}
+              activeIndex={activeIndex}
+              total={markets.length}
+              onPrev={() => cycleTo(activeIndex - 1)}
+              onNext={() => cycleTo(activeIndex + 1)}
+              onJump={cycleTo}
+            />
           ) : (
             <div className="rounded-[1rem] border border-[var(--hub-border)] bg-[var(--hub-card)] p-8 text-center text-sm text-[var(--hub-muted)]">
               No open markets yet.
@@ -421,8 +614,14 @@ export function Hero() {
                     <div className="hub-dapp-skel mt-2 h-3 w-[40%]" />
                   </div>
                 ))
-              : movers.map((m, i) => (
-                  <MoverChip key={m.id} market={m} index={i} />
+              : markets.map((m, i) => (
+                  <MoverChip
+                    key={m.id}
+                    market={m}
+                    index={i}
+                    active={i === activeIndex}
+                    onSelect={() => setActiveIndex(i)}
+                  />
                 ))}
           </div>
         </div>

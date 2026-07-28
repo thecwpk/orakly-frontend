@@ -89,16 +89,16 @@ function BnbChainIcon({ className }: { className?: string }) {
 function PulseSkeleton() {
   return (
     <div className="hub-dapp-pulse hub-dapp-pulse--strip hub-glass-card">
-      <div className="flex items-center justify-between gap-2 border-b border-[var(--hub-border)] px-3 py-2.5 sm:px-4">
+      <div className="flex items-center justify-between gap-2 border-b border-[var(--hub-border)] px-4 py-3 sm:px-5">
         <div className="hub-dapp-skel h-2.5 w-28" />
         <div className="flex gap-2">
           <div className="hub-dapp-skel h-8 w-28 rounded-lg" />
           <div className="hub-dapp-skel h-8 w-28 rounded-lg" />
         </div>
       </div>
-      <div className="grid grid-cols-2 gap-0 sm:grid-cols-4 lg:grid-cols-8">
+      <div className="grid grid-cols-1 gap-3 p-3 sm:grid-cols-2 sm:p-4 lg:grid-cols-[minmax(0,1.3fr)_repeat(4,minmax(0,1fr))]">
         {Array.from({ length: 8 }).map((_, i) => (
-          <div key={i} className="hub-dapp-pulse-cell border-b border-[var(--hub-border)] sm:border-r">
+          <div key={i} className="hub-dapp-pulse-cell rounded-2xl border border-[var(--hub-glass-border)]">
             <div className="hub-dapp-skel h-2 w-14" />
             <div className="hub-dapp-skel h-5 w-10" />
           </div>
@@ -131,24 +131,25 @@ export function MarketPulse() {
   });
   const attentionTone = sentimentTone(pulse.attentionTag);
 
+  const leadCard = {
+    label: "Attention Index",
+    value: (
+      <HubCountUp
+        value={pulse.attentionIndex}
+        formatter={(n) => String(Math.round(n))}
+        className={cn("tabular-nums", attentionTone.text)}
+      />
+    ),
+    sub: <SentimentPill value={pulse.attentionTag} size="sm" />,
+    meta: pulse.currentMeta,
+  };
+
   const cells: {
     key: string;
     label: string;
     value: ReactNode;
     sub?: ReactNode;
   }[] = [
-    {
-      key: "attention",
-      label: "Attention Index",
-      value: (
-        <HubCountUp
-          value={pulse.attentionIndex}
-          formatter={(n) => String(Math.round(n))}
-          className={cn("tabular-nums", attentionTone.text)}
-        />
-      ),
-      sub: <SentimentPill value={pulse.attentionTag} size="sm" />,
-    },
     {
       key: "sentiment",
       label: "Market Sentiment",
@@ -230,7 +231,7 @@ export function MarketPulse() {
           aria-hidden
         />
 
-        <div className="flex items-center justify-between gap-3 border-b border-[var(--hub-border)] bg-[color-mix(in_srgb,var(--hub-fg)_3%,transparent)] px-3 py-2.5 sm:px-4">
+        <div className="flex items-center justify-between gap-3 border-b border-[var(--hub-border)] bg-[color-mix(in_srgb,var(--hub-fg)_3%,transparent)] px-4 py-3 sm:px-5">
           <div className="flex items-center gap-2">
             <span className="relative flex size-2" aria-hidden>
               <span className="absolute inset-0 animate-ping rounded-full bg-[var(--hub-success)]/70" />
@@ -265,14 +266,22 @@ export function MarketPulse() {
           </div>
         </div>
 
-        <div
-          className={cn(
-            "grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8",
-            "divide-x divide-y divide-[var(--hub-border)] lg:divide-y-0",
-          )}
-        >
+        <div className="grid grid-cols-1 gap-3 p-3 sm:grid-cols-2 sm:p-4 lg:grid-cols-[minmax(0,1.3fr)_repeat(4,minmax(0,1fr))]">
+          <div className="hub-dapp-pulse-cell hub-dapp-pulse-cell--lead">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <p className="hub-dapp-stat-label">{leadCard.label}</p>
+                <div className="mt-1 hub-dapp-stat-value">{leadCard.value}</div>
+              </div>
+              {leadCard.sub}
+            </div>
+            <p className="mt-3 line-clamp-2 text-sm font-medium leading-snug text-[var(--hub-fg)]">
+              {leadCard.meta}
+            </p>
+          </div>
+
           {cells.map((cell) => (
-            <div key={cell.key} className="hub-dapp-pulse-cell">
+            <div key={cell.key} className="hub-dapp-pulse-cell hub-dapp-pulse-cell--mini">
               <p className="hub-dapp-stat-label">{cell.label}</p>
               <div className="hub-dapp-stat-value">{cell.value}</div>
               {cell.sub ? <div className="mt-0.5">{cell.sub}</div> : null}

@@ -1588,14 +1588,17 @@
 }
 
 .hub-dapp-pulse--strip .hub-dapp-pulse-cell {
-  min-height: 4rem;
-  gap: 0.3rem;
-  padding: 0.7rem 0.85rem;
+  min-height: 4.25rem;
+  gap: 0.35rem;
+  padding: 0.9rem 1rem;
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--hub-card) 96%, transparent), color-mix(in srgb, var(--hub-bg-subtle) 78%, transparent));
+  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--hub-fg) 4%, transparent);
 }
 
 @media (min-width: 640px) {
   .hub-dapp-pulse--strip .hub-dapp-pulse-cell {
-    padding: 0.7rem 0.85rem;
+    padding: 0.95rem 1rem;
   }
 }
 
@@ -1606,6 +1609,23 @@
 .hub-dapp-pulse--strip .hub-dapp-stat-label {
   font-size: 0.5625rem;
   letter-spacing: 0.12em;
+}
+
+.hub-dapp-pulse--strip .hub-dapp-pulse-cell--lead {
+  min-height: 100%;
+  border-color: color-mix(in srgb, var(--hub-primary) 22%, var(--hub-glass-border));
+  background:
+    radial-gradient(circle at top right, color-mix(in srgb, var(--hub-primary) 12%, transparent), transparent 46%),
+    linear-gradient(180deg, color-mix(in srgb, var(--hub-card) 98%, transparent), color-mix(in srgb, var(--hub-bg-subtle) 84%, transparent));
+}
+
+.hub-dapp-pulse--strip .hub-dapp-pulse-cell--lead .hub-dapp-stat-value {
+  font-size: clamp(1.5rem, 2.6vw, 2rem);
+  font-weight: 800;
+}
+
+.hub-dapp-pulse--strip .hub-dapp-pulse-cell--mini {
+  justify-content: center;
 }
 
 .hub-cta-compact {
